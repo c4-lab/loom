@@ -24,6 +24,11 @@ class FileService implements IFileService {
     }
 
     @Override
+    void readFile(String path) {
+//        TODO: Implement me
+    }
+
+    @Override
     String buildFileLocation(String filename) {
         return buildFileLocation(uniqueHashService.getUniqueHash(), filename);
     }

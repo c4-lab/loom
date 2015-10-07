@@ -11,6 +11,8 @@ public interface IFileService {
 
     void deleteFile(String location);
 
+    void readFile(String path);
+
     String buildFileLocation(String filename);
 
     String buildFileLocation(String uniqueHash, String filename);
