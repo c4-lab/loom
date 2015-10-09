@@ -28,34 +28,32 @@
     <g:layoutHead/>
 </head>
 
-<body>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
     <header class="main-header">
-        <!-- Logo -->
-        <a href="index2.html" class="logo">
+        <g:link class="logo">
             <!-- mini logo for sidebar mini 50x50 pixels -->
-            <span class="logo-mini"><b>A</b>LT</span>
+            <span class="logo-mini"><b>Loom</b></span>
             <!-- logo for regular state and mobile devices -->
             <span class="logo-lg"><asset:image src="LOOM.png" alt="Loom"/></span>
-        </a>
-        %{--<a href="index2.html" class="logo">--}%
-        %{--<!-- mini logo for sidebar mini 50x50 pixels -->--}%
-        %{--<span class="logo-mini"><b>A</b>LT</span>--}%
-        %{--<!-- logo for regular state and mobile devices -->--}%
-        %{--<span class="logo-lg"><a href="#"><asset:image src="LOOM.png" alt="Grails"/></a></span>--}%
-        %{--</a>--}%
-        <!-- Header Navbar: style can be found in header.less -->
+        </g:link>
+    %{--<a href="index2.html" class="logo">--}%
+    %{--<!-- mini logo for sidebar mini 50x50 pixels -->--}%
+    %{--<span class="logo-mini"><b>A</b>LT</span>--}%
+    %{--<!-- logo for regular state and mobile devices -->--}%
+    %{--<span class="logo-lg"><a href="#"><asset:image src="LOOM.png" alt="Grails"/></a></span>--}%
+    %{--</a>--}%
+    <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
                     <!-- Messages: style can be found in dropdown.less-->
                     <li class="dropdown messages-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-envelope-o"></i>
-                            <span class="label label-success">4</span>
-                        </a>
+                    %{--<a href="#" class="dropdown-toggle" data-toggle="dropdown">--}%
+                    %{--<i class="fa fa-envelope-o"></i>--}%
+                    %{--<span class="label label-success">4</span>--}%
+                    %{--</a>--}%
                         <ul class="dropdown-menu">
                             <li class="header">You have 4 messages</li>
                             <li>
@@ -138,10 +136,10 @@
                     </li>
                     <!-- Notifications: style can be found in dropdown.less -->
                     <li class="dropdown notifications-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-bell-o"></i>
-                            <span class="label label-warning">10</span>
-                        </a>
+                    %{--<a href="#" class="dropdown-toggle" data-toggle="dropdown">--}%
+                    %{--<i class="fa fa-bell-o"></i>--}%
+                    %{--<span class="label label-warning">10</span>--}%
+                    %{--</a>--}%
                         <ul class="dropdown-menu">
                             <li class="header">You have 10 notifications</li>
                             <li>
@@ -179,10 +177,10 @@
                     </li>
                     <!-- Tasks: style can be found in dropdown.less -->
                     <li class="dropdown tasks-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-flag-o"></i>
-                            <span class="label label-danger">9</span>
-                        </a>
+                    %{--<a href="#" class="dropdown-toggle" data-toggle="dropdown">--}%
+                    %{--<i class="fa fa-flag-o"></i>--}%
+                    %{--<span class="label label-danger">9</span>--}%
+                    %{--</a>--}%
                         <ul class="dropdown-menu">
                             <li class="header">You have 9 tasks</li>
                             <li>
@@ -261,10 +259,10 @@
                     </li>
                     <!-- User Account: style can be found in dropdown.less -->
                     <li class="dropdown user user-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
-                            <span class="hidden-xs">Alexander Pierce</span>
-                        </a>
+                    %{--<a href="#" class="dropdown-toggle" data-toggle="dropdown">--}%
+                    %{--<img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image">--}%
+                    %{--<span class="hidden-xs">Alexander Pierce</span>--}%
+                    %{--</a>--}%
                         <ul class="dropdown-menu">
                             <!-- User image -->
                             <li class="user-header">

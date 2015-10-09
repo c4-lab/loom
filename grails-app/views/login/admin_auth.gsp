@@ -1,17 +1,19 @@
 <g:applyLayout name="main">
     <div class="login-box">
         <div class="login-box-body">
-            <p class="login-box-msg"><g:message code="page.auth.caption.label"/></p>
+            <p class="login-box-msg">Sign in to start your session</p>
 
             <form action="../../index2.html" method="post">
                 <div class="form-group has-feedback">
                     <input type="text" class="form-control" placeholder="Username">
                 </div>
 
+                <div class="form-group has-feedback">
+                    <input type="password" class="form-control" placeholder="Password">
+                </div>
+
                 <div class="row">
                     <div class="col-xs-8">
-                        <a href="register.html" class="text-center"><g:message
-                                code="page.auth.not.registered.label"/></a>
                     </div>
 
                     <div class="col-xs-4">
