@@ -4,11 +4,7 @@ class Role implements Serializable {
 
     private static final long serialVersionUID = 1
 
-    String authority
-
-    Role(String authority) {
-        this.authority = authority
-    }
+    Roles authority
 
     @Override
     int hashCode() {

@@ -32,7 +32,7 @@
 <div class="wrapper">
 
     <header class="main-header">
-        <g:link class="logo">
+        <g:link class="logo" controller="home">
             <!-- mini logo for sidebar mini 50x50 pixels -->
             <span class="logo-mini"><b>Loom</b></span>
             <!-- logo for regular state and mobile devices -->
