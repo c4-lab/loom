@@ -62,25 +62,10 @@ class LoginController {
             return
         }
 
-        String view = 'auth'
-        String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-        render view: view, model: [postUrl            : postUrl,
-                                   rememberMeParameter: config.rememberMe.parameter]
-    }
-
-    /**
-     * Show the login page.
-     */
-    def adminAuth() {
-
-        def config = SpringSecurityUtils.securityConfig
-
-        if (springSecurityService.isLoggedIn()) {
-            redirect uri: config.successHandler.defaultTargetUrl
-            return
+        String view = "auth"
+        if (request.forwardURI.contains('admin')) {
+            view = 'admin_auth'
         }
-
-        String view = 'admin_auth'
         String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
         render view: view, model: [postUrl            : postUrl,
                                    rememberMeParameter: config.rememberMe.parameter]

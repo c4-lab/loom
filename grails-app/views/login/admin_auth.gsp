@@ -3,13 +3,13 @@
         <div class="login-box-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
-            <form action="../../index2.html" method="post">
+            <form action='${postUrl}' method='POST' id='loginForm' autocomplete='off'>
                 <div class="form-group has-feedback">
-                    <input type="text" class="form-control" placeholder="Username">
+                    <input type="text" name='j_username' class="form-control" placeholder="Username">
                 </div>
 
                 <div class="form-group has-feedback">
-                    <input type="password" class="form-control" placeholder="Password">
+                    <input type="password" name="j_password" class="form-control" placeholder="Password">
                 </div>
 
                 <div class="row">

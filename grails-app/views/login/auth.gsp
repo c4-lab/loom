@@ -3,22 +3,22 @@
         <div class="login-box-body">
             <p class="login-box-msg"><g:message code="page.auth.caption.label"/></p>
 
-            <form action="../../index2.html" method="post">
+            <g:form controller='home' action="authenticate" method='POST' autocomplete='off'>
                 <div class="form-group has-feedback">
-                    <input type="text" class="form-control" placeholder="Username">
+                    <input type="text" name='j_username' class="form-control" placeholder="Username">
                 </div>
 
                 <div class="row">
                     <div class="col-xs-8">
-                        <a href="register.html" class="text-center"><g:message
-                                code="page.auth.not.registered.label"/></a>
                     </div>
 
                     <div class="col-xs-4">
-                        <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+                        <input type='submit' id="submit"
+                               class="btn btn-primary btn-block btn-flat"
+                               value='${message(code: "springSecurity.login.button")}'/>
                     </div>
                 </div>
-            </form>
+            </g:form>
         </div>
     </div>
 </g:applyLayout>

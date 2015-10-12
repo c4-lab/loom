@@ -1,8 +1,6 @@
 package edu.msu.mi.loom
 
-class User implements Serializable {
-
-    private static final long serialVersionUID = 1
+class User {
 
     transient springSecurityService
 
@@ -13,27 +11,19 @@ class User implements Serializable {
     boolean accountLocked
     boolean passwordExpired
 
-    static belongsTo = Room
-    static hasMany = [rooms: Room]
+    static transients = ['springSecurityService']
 
-
-    @Override
-    int hashCode() {
-        username?.hashCode() ?: 0
+    static constraints = {
+        username blank: false, unique: true
+        password blank: false
     }
 
-    @Override
-    boolean equals(other) {
-        is(other) || (other instanceof User && other.username == username)
+    static mapping = {
+        password column: '`password`'
     }
 
-    @Override
-    String toString() {
-        username
-    }
-
-    Set<Roles> getAuthorities() {
-        UserRole.findAllByUser(this)*.role
+    Set<Role> getAuthorities() {
+        UserRole.findAllByUser(this).collect { it.role }
     }
 
     def beforeInsert() {
@@ -48,16 +38,5 @@ class User implements Serializable {
 
     protected void encodePassword() {
         password = springSecurityService?.passwordEncoder ? springSecurityService.encodePassword(password) : password
-    }
-
-    static transients = ['springSecurityService']
-
-    static constraints = {
-        username blank: false, unique: true, maxSize: 30
-        password blank: false
-    }
-
-    static mapping = {
-        password column: '`password`'
     }
 }

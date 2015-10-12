@@ -1,10 +1,7 @@
 package edu.msu.mi.loom
 
-import grails.gorm.DetachedCriteria
-import groovy.transform.ToString
 import org.apache.commons.lang.builder.HashCodeBuilder
 
-@ToString(cache = true, includeNames = true, includePackage = false)
 class UserRole implements Serializable {
 
     private static final long serialVersionUID = 1
@@ -12,21 +9,15 @@ class UserRole implements Serializable {
     User user
     Role role
 
-    UserRole(User user, Role role) {
-        this.user = user
-        this.role = role
-    }
-
-    @Override
     boolean equals(other) {
         if (!(other instanceof UserRole)) {
             return false
         }
 
-        other.user?.id == user?.id && other.role?.id == role?.id
+        other.user?.id == user?.id &&
+                other.role?.id == role?.id
     }
 
-    @Override
     int hashCode() {
         def builder = new HashCodeBuilder()
         if (user) builder.append(user.id)
@@ -35,22 +26,21 @@ class UserRole implements Serializable {
     }
 
     static UserRole get(long userId, long roleId) {
-        criteriaFor(userId, roleId).get()
-    }
-
-    static boolean exists(long userId, long roleId) {
-        criteriaFor(userId, roleId).count()
-    }
-
-    private static DetachedCriteria criteriaFor(long userId, long roleId) {
         UserRole.where {
             user == User.load(userId) &&
                     role == Role.load(roleId)
-        }
+        }.get()
+    }
+
+    static boolean exists(long userId, long roleId) {
+        UserRole.where {
+            user == User.load(userId) &&
+                    role == Role.load(roleId)
+        }.count() > 0
     }
 
     static UserRole create(User user, Role role, boolean flush = false) {
-        def instance = new UserRole(user, role)
+        def instance = new UserRole(user: user, role: role)
         instance.save(flush: flush, insert: true)
         instance
     }
@@ -58,19 +48,24 @@ class UserRole implements Serializable {
     static boolean remove(User u, Role r, boolean flush = false) {
         if (u == null || r == null) return false
 
-        int rowCount = UserRole.where { user == u && role == r }.deleteAll()
+        int rowCount = UserRole.where {
+            user == User.load(u.id) &&
+                    role == Role.load(r.id)
+        }.deleteAll()
 
         if (flush) {
             UserRole.withSession { it.flush() }
         }
 
-        rowCount
+        rowCount > 0
     }
 
     static void removeAll(User u, boolean flush = false) {
         if (u == null) return
 
-        UserRole.where { user == u }.deleteAll()
+        UserRole.where {
+            user == User.load(u.id)
+        }.deleteAll()
 
         if (flush) {
             UserRole.withSession { it.flush() }
@@ -80,7 +75,9 @@ class UserRole implements Serializable {
     static void removeAll(Role r, boolean flush = false) {
         if (r == null) return
 
-        UserRole.where { role == r }.deleteAll()
+        UserRole.where {
+            role == Role.load(r.id)
+        }.deleteAll()
 
         if (flush) {
             UserRole.withSession { it.flush() }
@@ -89,7 +86,7 @@ class UserRole implements Serializable {
 
     static constraints = {
         role validator: { Role r, UserRole ur ->
-            if (ur.user == null || ur.user.id == null) return
+            if (ur.user == null) return
             boolean existing = false
             UserRole.withNewSession {
                 existing = UserRole.exists(ur.user.id, r.id)
@@ -101,7 +98,7 @@ class UserRole implements Serializable {
     }
 
     static mapping = {
-        id composite: ['user', 'role']
+        id composite: ['role', 'user']
         version false
     }
 }

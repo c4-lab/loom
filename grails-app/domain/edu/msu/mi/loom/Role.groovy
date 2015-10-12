@@ -1,31 +1,14 @@
 package edu.msu.mi.loom
 
-class Role implements Serializable {
+class Role {
 
-    private static final long serialVersionUID = 1
+    String authority
 
-    Roles authority
-
-    @Override
-    int hashCode() {
-        authority?.hashCode() ?: 0
-    }
-
-    @Override
-    boolean equals(other) {
-        is(other) || (other instanceof Roles && other.authority == authority)
-    }
-
-    @Override
-    String toString() {
-        authority
+    static mapping = {
+        cache true
     }
 
     static constraints = {
         authority blank: false, unique: true
-    }
-
-    static mapping = {
-        cache true
     }
 }
