@@ -8,6 +8,7 @@ class HomeController {
     def userService
 
     static allowedMethods = [
+            index: 'GET',
             authenticate: 'POST'
     ]
 
@@ -26,6 +27,8 @@ class HomeController {
                 flash.message = "page.auth.already.exists"
                 redirect(uri: "/")
             }
+        } else {
+            redirect(uri: "/")
         }
     }
 }
