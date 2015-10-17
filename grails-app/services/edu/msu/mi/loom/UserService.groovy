@@ -18,6 +18,7 @@ class UserService {
         } else {
             log.error("User creation attempt failed")
             log.error(user?.errors?.dump())
+            return null;
         }
 
     }

@@ -40,6 +40,13 @@
         </g:link>
         <nav class="navbar navbar-static-top" role="navigation">
             <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <g:link controller="logout" data-toggle="control-sidebar">
+                            <span class="hidden-xs">Logout</span>
+                        </g:link>
+                    </li>
+                </ul>
             </div>
         </nav>
     </header>

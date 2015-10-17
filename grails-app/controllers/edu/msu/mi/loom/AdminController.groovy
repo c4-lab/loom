@@ -8,6 +8,6 @@ class AdminController {
     def index() {}
 
     def board() {
-        render "This is admin board!!!"
+//        render "This is admin board!!!"
     }
 }

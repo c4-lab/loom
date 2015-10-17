@@ -23,6 +23,8 @@ class HomeController {
                 redirect(action: "index")
             } else {
                 log.error("Failed to register new user account")
+                flash.message = "page.auth.already.exists"
+                redirect(uri: "/")
             }
         }
     }
