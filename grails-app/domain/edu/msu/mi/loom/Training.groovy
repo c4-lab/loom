@@ -1,15 +1,18 @@
 package edu.msu.mi.loom
 
+import groovy.transform.ToString
+
+@ToString(includeNames = true)
 class Training {
     String name
-    String text
+    Date dateCreated
+
+    static hasMany = [task: Task]
 
     static constraints = {
-        name blank: false, unique: true
-        text blank: false, size: 1..10000
+        name blank: false
     }
 
     static mapping = {
-        text type: "text"
     }
 }

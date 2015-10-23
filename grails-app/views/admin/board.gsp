@@ -1,3 +1,4 @@
+<%@ page import="edu.msu.mi.loom.ExpType" %>
 <g:applyLayout name="main">
     <div class="wrapper">
         <!-- Content Wrapper. Contains page content -->
@@ -30,57 +31,21 @@
 
                                 <ul class="list-group list-group-unbordered">
                                     <li class="list-group-item">
-                                        <b>Followers</b> <a class="pull-right">1,322</a>
+                                        <b>Experiments</b> <a class="pull-right">${experimentsCount}</a>
                                     </li>
                                     <li class="list-group-item">
-                                        <b>Following</b> <a class="pull-right">543</a>
+                                        <b>Trainings</b> <a class="pull-right">${trainingsCount}</a>
                                     </li>
                                     <li class="list-group-item">
-                                        <b>Friends</b> <a class="pull-right">13,287</a>
+                                        <b>Simulations</b> <a class="pull-right">${simulationsCount}</a>
                                     </li>
                                 </ul>
 
-                                <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                                <a href="javascript:void(0);" id="create-experiment"
+                                   class="btn btn-primary btn-block"><b>Create an experiment</b></a>
                             </div><!-- /.box-body -->
                         </div><!-- /.box -->
 
-                    <!-- About Me Box -->
-                        <div class="box box-primary">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">About Me</h3>
-                            </div><!-- /.box-header -->
-                            <div class="box-body">
-                                <strong><i class="fa fa-book margin-r-5"></i>  Education</strong>
-
-                                <p class="text-muted">
-                                    B.S. in Computer Science from the University of Tennessee at Knoxville
-                                </p>
-
-                                <hr>
-
-                                <strong><i class="fa fa-map-marker margin-r-5"></i> Location</strong>
-
-                                <p class="text-muted">Malibu, California</p>
-
-                                <hr>
-
-                                <strong><i class="fa fa-pencil margin-r-5"></i> Skills</strong>
-
-                                <p>
-                                    <span class="label label-danger">UI Design</span>
-                                    <span class="label label-success">Coding</span>
-                                    <span class="label label-info">Javascript</span>
-                                    <span class="label label-warning">PHP</span>
-                                    <span class="label label-primary">Node.js</span>
-                                </p>
-
-                                <hr>
-
-                                <strong><i class="fa fa-file-text-o margin-r-5"></i> Notes</strong>
-
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
-                            </div><!-- /.box-body -->
-                        </div><!-- /.box -->
                     </div><!-- /.col -->
                     <div class="col-md-9">
                         <div class="nav-tabs-custom">
@@ -92,117 +57,108 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="activity">
-                                    <!-- Post -->
-                                    <div class="post">
-                                        <div class="user-block">
-                                            <img class="img-circle img-bordered-sm"
-                                                 src="../../dist/img/user1-128x128.jpg" alt="user image">
-                                            <span class='username'>
-                                                <a href="#">Jonathan Burke Jr.</a>
-                                                <a href='#' class='pull-right btn-box-tool'><i class='fa fa-times'></i>
-                                                </a>
-                                            </span>
-                                            <span class='description'>Shared publicly - 7:30 PM today</span>
-                                        </div><!-- /.user-block -->
-                                        <p>
-                                            Lorem ipsum represents a long-held tradition for designers,
-                                            typographers and the like. Some people hate it and argue for
-                                            its demise, but others ignore the hate as they create awesome
-                                            tools to help create filler text for everyone from bacon lovers
-                                            to Charlie Sheen fans.
-                                        </p>
-                                        <ul class="list-inline">
-                                            <li><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-share margin-r-5"></i> Share</a></li>
-                                            <li><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
-                                            <li class="pull-right"><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
-                                        </ul>
+                                    <g:each in="${experiments}" var="experiment">
+                                        <div class="post">
+                                            <div class="user-block">
+                                                <img class="img-circle img-bordered-sm"
+                                                     src="../../dist/img/user1-128x128.jpg" alt="user image">
+                                                <span class='username'>
+                                                    <a href="#">${experiment.name}</a>
+                                                    <a href='#' class='pull-right btn-box-tool'><i
+                                                            class='fa fa-times'></i>
+                                                    </a>
+                                                </span>
+                                                <span class='description'>Shared publicly - 7:30 PM today</span>
+                                            </div><!-- /.user-block -->
+                                            <p>
+                                                Lorem ipsum represents a long-held tradition for designers,
+                                                typographers and the like. Some people hate it and argue for
+                                                its demise, but others ignore the hate as they create awesome
+                                                tools to help create filler text for everyone from bacon lovers
+                                                to Charlie Sheen fans.
+                                            </p>
+                                            <ul class="list-inline">
+                                                <li><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-share margin-r-5"></i> Share</a></li>
+                                                <li><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                            </ul>
 
-                                        <input class="form-control input-sm" type="text" placeholder="Type a comment">
-                                    </div><!-- /.post -->
+                                            <input class="form-control input-sm" type="text"
+                                                   placeholder="Type a comment">
+                                        </div>
+                                    </g:each>
 
-                                <!-- Post -->
-                                    <div class="post clearfix">
-                                        <div class='user-block'>
-                                            <img class='img-circle img-bordered-sm'
-                                                 src='../../dist/img/user7-128x128.jpg' alt='user image'>
-                                            <span class='username'>
-                                                <a href="#">Sarah Ross</a>
-                                                <a href='#' class='pull-right btn-box-tool'><i class='fa fa-times'></i>
-                                                </a>
-                                            </span>
-                                            <span class='description'>Sent you a message - 3 days ago</span>
-                                        </div><!-- /.user-block -->
-                                        <p>
-                                            Lorem ipsum represents a long-held tradition for designers,
-                                            typographers and the like. Some people hate it and argue for
-                                            its demise, but others ignore the hate as they create awesome
-                                            tools to help create filler text for everyone from bacon lovers
-                                            to Charlie Sheen fans.
-                                        </p>
-
-                                        <form class='form-horizontal'>
-                                            <div class='form-group margin-bottom-none'>
-                                                <div class='col-sm-9'>
-                                                    <input class="form-control input-sm" placeholder="Response">
-                                                </div>
-
-                                                <div class='col-sm-3'>
-                                                    <button class='btn btn-danger pull-right btn-block btn-sm'>Send</button>
-                                                </div>
+                                    <g:each in="${trainings}" var="training">
+                                        <div class="post">
+                                            <div class="user-block">
+                                                <span class='username'>
+                                                    <a href="#">${training.name}</a>
+                                                    <g:link controller="admin" action="deleteExperiment"
+                                                            class='pull-right btn-box-tool'
+                                                            params="[experimentId: training.id, type: ExpType.TRAINING]">
+                                                        <i class='fa fa-times'></i>
+                                                    </g:link>
+                                                </span>
+                                                <span class='description'>Created - <g:formatDate
+                                                        format="yyyy/MM/dd HH:mm"
+                                                        date="${training.dateCreated}"/></span>
                                             </div>
-                                        </form>
-                                    </div><!-- /.post -->
 
-                                <!-- Post -->
-                                    <div class="post">
-                                        <div class='user-block'>
-                                            <img class='img-circle img-bordered-sm'
-                                                 src='../../dist/img/user6-128x128.jpg' alt='user image'>
-                                            <span class='username'>
-                                                <a href="#">Adam Jones</a>
-                                                <a href='#' class='pull-right btn-box-tool'><i class='fa fa-times'></i>
-                                                </a>
-                                            </span>
-                                            <span class='description'>Posted 5 photos - 5 days ago</span>
-                                        </div><!-- /.user-block -->
-                                        <div class='row margin-bottom'>
-                                            <div class='col-sm-6'>
-                                                <img class='img-responsive' src='../../dist/img/photo1.png' alt='Photo'>
-                                            </div><!-- /.col -->
-                                            <div class='col-sm-6'>
-                                                <div class='row'>
-                                                    <div class='col-sm-6'>
-                                                        <img class='img-responsive' src='../../dist/img/photo2.png'
-                                                             alt='Photo'>
-                                                        <br>
-                                                        <img class='img-responsive' src='../../dist/img/photo3.jpg'
-                                                             alt='Photo'>
-                                                    </div><!-- /.col -->
-                                                    <div class='col-sm-6'>
-                                                        <img class='img-responsive' src='../../dist/img/photo4.jpg'
-                                                             alt='Photo'>
-                                                        <br>
-                                                        <img class='img-responsive' src='../../dist/img/photo1.png'
-                                                             alt='Photo'>
-                                                    </div><!-- /.col -->
-                                                </div><!-- /.row -->
-                                            </div><!-- /.col -->
-                                        </div><!-- /.row -->
+                                            <p>
+                                                <g:each in="${training.task}" var="task">
+                                                    ${task.text}
+                                                </g:each>
+                                            </p>
+                                            <ul class="list-inline">
+                                                <li><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-share margin-r-5"></i> Activate</a></li>
+                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>--}%
+                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                            </ul>
 
-                                        <ul class="list-inline">
-                                            <li><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-share margin-r-5"></i> Share</a></li>
-                                            <li><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
-                                            <li class="pull-right"><a href="#" class="link-black text-sm"><i
-                                                    class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
-                                        </ul>
+                                            %{--<input class="form-control input-sm" type="text"--}%
+                                            %{--placeholder="Type a comment">--}%
+                                        </div>
+                                    </g:each>
 
-                                        <input class="form-control input-sm" type="text" placeholder="Type a comment">
-                                    </div><!-- /.post -->
+                                    <g:each in="${simulations}" var="simulation">
+                                        <div class="post">
+                                            <div class="user-block">
+                                                <img class="img-circle img-bordered-sm"
+                                                     src="../../dist/img/user1-128x128.jpg" alt="user image">
+                                                <span class='username'>
+                                                    <a href="#">${simulation.name}</a>
+                                                    <a href='#' class='pull-right btn-box-tool'><i
+                                                            class='fa fa-times'></i>
+                                                    </a>
+                                                </span>
+                                                <span class='description'>Shared publicly - 7:30 PM today</span>
+                                            </div><!-- /.user-block -->
+                                            <p>
+                                                Lorem ipsum represents a long-held tradition for designers,
+                                                typographers and the like. Some people hate it and argue for
+                                                its demise, but others ignore the hate as they create awesome
+                                                tools to help create filler text for everyone from bacon lovers
+                                                to Charlie Sheen fans.
+                                            </p>
+                                            <ul class="list-inline">
+                                                <li><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-share margin-r-5"></i> Share</a></li>
+                                                <li><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
+                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                            </ul>
+
+                                            <input class="form-control input-sm" type="text"
+                                                   placeholder="Type a comment">
+                                        </div>
+                                    </g:each>
                                 </div><!-- /.tab-pane -->
                             </div><!-- /.tab-content -->
                         </div><!-- /.nav-tabs-custom -->
@@ -395,3 +351,30 @@
         <div class="control-sidebar-bg"></div>
     </div>
 </g:applyLayout>
+
+<div class="modal modal-info" style="padding-top: 140px" id="file-upload-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Upload a file</h4>
+            </div>
+            <g:form enctype="multipart/form-data" name="upload-form" controller="admin" action="upload">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputFile">File input</label>
+                        <input type="file" id="inputFile" name="inputFile">
+
+                        <p class="help-block">Select experiment file (*.json).</p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </g:form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

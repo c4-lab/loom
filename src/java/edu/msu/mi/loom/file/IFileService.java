@@ -1,17 +1,17 @@
 package edu.msu.mi.loom.file;
 
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by Emil Matevosyan
  * Date: 10/7/15.
  */
 public interface IFileService {
-    void uploadFile(CommonsMultipartFile file, String filename);
+    String uploadFile(MultipartFile file, String filename);
 
     void deleteFile(String location);
 
-    void readFile(String path);
+    String readFile(MultipartFile file);
 
     String buildFileLocation(String filename);
 

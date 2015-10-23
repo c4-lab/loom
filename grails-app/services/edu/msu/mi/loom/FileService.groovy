@@ -1,21 +1,29 @@
 package edu.msu.mi.loom
 
 import edu.msu.mi.loom.file.IFileService
+import grails.converters.JSON
 import grails.transaction.Transactional
-import org.springframework.web.multipart.commons.CommonsMultipartFile
+import groovy.util.logging.Slf4j
+import org.springframework.web.multipart.MultipartFile
 
 import java.nio.file.Paths
 
+@Slf4j
 @Transactional
 class FileService implements IFileService {
     def uniqueHashService
 
     @Override
-    public void uploadFile(CommonsMultipartFile file, String filename) {
+    public String uploadFile(MultipartFile file, String filename) {
         String location = buildFileLocation(filename);
+        log.debug("file: " + file)
+        log.info("location was built in " + location)
+
         def homeDir = new File(System.getProperty("user.home"))
         File fileDest = new File(homeDir, location)
         file.transferTo(fileDest)
+
+        return location
     }
 
     @Override
@@ -24,8 +32,14 @@ class FileService implements IFileService {
     }
 
     @Override
-    void readFile(String path) {
-//        TODO: Implement me
+    String readFile(MultipartFile file) {
+        StringBuilder text = new StringBuilder()
+        file.inputStream.eachLine { line ->
+            text.append(line)
+        }
+
+        def json = JSON.parse(text.toString())
+        return text
     }
 
     @Override
@@ -35,6 +49,15 @@ class FileService implements IFileService {
 
     @Override
     String buildFileLocation(String uniqueHash, String filename) {
-        return Paths.get("documents", uniqueHash, filename).toString().replaceAll("\\\\", "/");
+        String path = Paths.get(uniqueHash).toString().replaceAll("\\\\", "/")
+        def homeDir = new File(System.getProperty("user.home"))
+        File file = new File(homeDir, path)
+        try {
+            file.mkdir();
+        } catch (SecurityException Se) {
+            log.error("Error while creating directory in Java:" + Se);
+        }
+
+        return path
     }
 }
