@@ -42,7 +42,7 @@
                                 </ul>
 
                                 <a href="javascript:void(0);" id="create-experiment"
-                                   class="btn btn-primary btn-block"><b>Create an experiment</b></a>
+                                   class="btn btn-primary btn-block"><b>Create a session</b></a>
                             </div><!-- /.box-body -->
                         </div><!-- /.box -->
 
