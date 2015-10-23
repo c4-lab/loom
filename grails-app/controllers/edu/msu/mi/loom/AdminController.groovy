@@ -34,7 +34,12 @@ class AdminController {
         def file = request.getFile('inputFile')
         def text = fileService.readFile(file as MultipartFile)
 
-        parserService.createExperiment(text)
+        def json = parserService.parseToJSON(text)
+
+        if (json) {
+            experimentService.createSession(json)
+        }
+
 
         redirect(action: 'board')
     }

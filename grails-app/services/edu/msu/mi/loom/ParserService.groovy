@@ -6,16 +6,13 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class ParserService {
-    def createExperiment(String text) {
+    def parseToJSON(String text) {
         JSONObject json = JSON.parse(text)
+        return json
 
-        if (json.training.practice != null) {
-            createTraining(json.training.practice)
-        }
-
-        if (json.training.simulation != null) {
-            createSimulation(json.training.simulation)
-        }
+//        if (json.training.simulation != null) {
+//            createSimulation(json.training.simulation)
+//        }
     }
 
     def createSimulation(def json) {
@@ -52,25 +49,5 @@ class ParserService {
         }
     }
 
-    def createTraining(def json) {
-        def task
-        Training training
-        json.each { tr ->
-            training = new Training(name: 'Training')
-            for (int i = 0; i < tr.problem.size(); i++) {
-                task = new Task(text: tr.solution.get(i), text_order: tr.problem.get(i), round_nbr: 1).save(failOnError: true)
-                training.addToTask(task)
-            }
 
-            if (training.save(flush: true)) {
-                log.info("Created training with id ${training.id}")
-                return training
-            } else {
-                log.error("Training creation attempt failed")
-                log.error(training?.errors?.dump())
-                return null;
-            }
-
-        }
-    }
 }
