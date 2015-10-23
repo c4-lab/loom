@@ -6,7 +6,7 @@ class Session {
     static hasMany = [experiments: Experiment, simulations: Simulation, trainings: Training]
 
     static constraints = {
-        name blank: false
+        name blank: false, unique: true
         experiments nullable: true
         simulations nullable: true
         trainings nullable: true
