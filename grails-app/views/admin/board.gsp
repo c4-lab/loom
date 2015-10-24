@@ -60,34 +60,30 @@
                                     <g:each in="${experiments}" var="experiment">
                                         <div class="post">
                                             <div class="user-block">
-                                                <img class="img-circle img-bordered-sm"
-                                                     src="../../dist/img/user1-128x128.jpg" alt="user image">
                                                 <span class='username'>
                                                     <a href="#">${experiment.name}</a>
-                                                    <a href='#' class='pull-right btn-box-tool'><i
-                                                            class='fa fa-times'></i>
-                                                    </a>
+                                                    <g:link controller="admin" action="deleteExperiment"
+                                                            class='pull-right btn-box-tool'
+                                                            params="[experimentId: experiment.id, type: ExpType.EXPERIMENT]">
+                                                        <i class='fa fa-times'></i>
+                                                    </g:link>
                                                 </span>
-                                                <span class='description'>Shared publicly - 7:30 PM today</span>
-                                            </div><!-- /.user-block -->
+                                                <span class='description'>Created - <g:formatDate
+                                                        format="yyyy/MM/dd HH:mm"
+                                                        date="${experiment.dateCreated}"/></span>
+                                            </div>
+
                                             <p>
-                                                Lorem ipsum represents a long-held tradition for designers,
-                                                typographers and the like. Some people hate it and argue for
-                                                its demise, but others ignore the hate as they create awesome
-                                                tools to help create filler text for everyone from bacon lovers
-                                                to Charlie Sheen fans.
+                                                <g:each in="${experiment.task}" var="task">
+                                                    ${task.text}
+                                                </g:each>
                                             </p>
                                             <ul class="list-inline">
-                                                <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-share margin-r-5"></i> Share</a></li>
-                                                <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
-                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-share margin-r-5"></i> Share</a></li>--}%
+                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
                                             </ul>
-
-                                            <input class="form-control input-sm" type="text"
-                                                   placeholder="Type a comment">
                                         </div>
                                     </g:each>
 
@@ -113,12 +109,12 @@
                                                 </g:each>
                                             </p>
                                             <ul class="list-inline">
-                                                <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-share margin-r-5"></i> Activate</a></li>
+                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-share margin-r-5"></i> Activate</a></li>--}%
                                                 %{--<li><a href="#" class="link-black text-sm"><i--}%
                                                 %{--class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>--}%
-                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
                                             </ul>
 
                                             %{--<input class="form-control input-sm" type="text"--}%
@@ -148,22 +144,21 @@
                                                 </g:each>
                                             </p>
                                             <ul class="list-inline">
-                                                <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-share margin-r-5"></i> Activate</a></li>
-                                                <li class="pull-right"><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-share margin-r-5"></i> Activate</a></li>--}%
+                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
+                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
                                             </ul>
                                         </div>
                                     </g:each>
-                                </div><!-- /.tab-pane -->
-                            </div><!-- /.tab-content -->
-                        </div><!-- /.nav-tabs-custom -->
-                    </div><!-- /.col -->
-                </div><!-- /.row -->
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                </div>
 
-            </section><!-- /.content -->
-        </div><!-- /.content-wrapper -->
-    <!-- Control Sidebar -->
+    </section>
+    </div>
         <aside class="control-sidebar control-sidebar-dark">
             <!-- Create the tabs -->
             <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
