@@ -143,15 +143,13 @@
                                             </div>
 
                                             <p>
-                                                Lorem ipsum represents a long-held tradition for designers,
-                                                typographers and the like. Some people hate it and argue for
-                                                its demise, but others ignore the hate as they create awesome
-                                                tools to help create filler text for everyone from bacon lovers
-                                                to Charlie Sheen fans.
+                                                <g:each in="${simulation.task}" var="task">
+                                                    ${task.text}
+                                                </g:each>
                                             </p>
                                             <ul class="list-inline">
                                                 <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-share margin-r-5"></i> Share</a></li>
+                                                        class="fa fa-share margin-r-5"></i> Activate</a></li>
                                                 <li class="pull-right"><a href="#" class="link-black text-sm"><i
                                                         class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
                                             </ul>
