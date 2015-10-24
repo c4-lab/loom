@@ -154,6 +154,6 @@ class ExperimentService {
 
         log.info("Generated url: " + "/" + session.name + "/" + expUrl)
 
-        "/" + session.name + "/" + expUrl
+        "/" + session.name.toLowerCase() + "/" + expUrl
     }
 }
