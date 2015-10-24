@@ -3,6 +3,8 @@ package edu.msu.mi.loom
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
+import java.text.Normalizer
+
 @Slf4j
 @Transactional
 class ExperimentService {
@@ -20,6 +22,11 @@ class ExperimentService {
 //            Simulation creation
             if (json.training.simulation != null) {
                 createSimulation(json.training.simulation, session)
+            }
+
+//            Experiment creation
+            if (json.experiment != null) {
+                createExperiment(json.experiment, session)
             }
 
             return session
@@ -88,6 +95,33 @@ class ExperimentService {
         }
     }
 
+    def createExperiment(def json, Session session) {
+        def task
+        Experiment experiment
+        json.stories.each { tr ->
+            experiment = new Experiment(name: tr.title, url: createExperimentUrl(session, tr.title), session: session, roundTime: json.timeperround, roundCount: json.numberofrounds, userCount: json.initialnumberoftiles)
+            for (int i = 0; i < tr.data.size(); i++) {
+                task = new Task(text: tr.data.get(i), text_order: i)
+                if (task.save(failOnError: true)) {
+                    experiment.addToTask(task)
+                    log.debug("New task with id ${task.id} has been created.")
+                } else {
+                    log.error("Task creation attempt failed")
+                    log.error(experiment?.errors?.dump())
+                }
+            }
+
+            if (experiment.save(flush: true)) {
+                log.debug("New experiment with id ${experiment.id} has been created for session ${session.name}.")
+                return experiment
+            } else {
+                log.error("Experiment creation attempt failed")
+                log.error(experiment?.errors?.dump())
+                return null;
+            }
+        }
+    }
+
     def deleteExperiment(def id, def type) {
         def experiment
         switch (type) {
@@ -108,5 +142,18 @@ class ExperimentService {
         } else {
             return false
         }
+    }
+
+    private static String createExperimentUrl(Session session, String title) {
+        def expUrl = Normalizer.normalize(title?.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replaceAll("[^\\p{Alnum}]+", "-")
+                .replace("--", "-").replace("--", "-")
+                .replaceAll('[^a-z0-9]+$', "")
+                .replaceAll("^[^a-z0-9]+", "")
+
+        log.info("Generated url: " + "/" + session.name + "/" + expUrl)
+
+        "/" + session.name + "/" + expUrl
     }
 }
