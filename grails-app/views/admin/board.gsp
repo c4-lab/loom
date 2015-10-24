@@ -129,16 +129,19 @@
                                     <g:each in="${simulations}" var="simulation">
                                         <div class="post">
                                             <div class="user-block">
-                                                <img class="img-circle img-bordered-sm"
-                                                     src="../../dist/img/user1-128x128.jpg" alt="user image">
                                                 <span class='username'>
                                                     <a href="#">${simulation.name}</a>
-                                                    <a href='#' class='pull-right btn-box-tool'><i
-                                                            class='fa fa-times'></i>
-                                                    </a>
+                                                    <g:link controller="admin" action="deleteExperiment"
+                                                            class='pull-right btn-box-tool'
+                                                            params="[experimentId: simulation.id, type: ExpType.SIMULATION]">
+                                                        <i class='fa fa-times'></i>
+                                                    </g:link>
                                                 </span>
-                                                <span class='description'>Shared publicly - 7:30 PM today</span>
-                                            </div><!-- /.user-block -->
+                                                <span class='description'>Created - <g:formatDate
+                                                        format="yyyy/MM/dd HH:mm"
+                                                        date="${simulation.dateCreated}"/></span>
+                                            </div>
+
                                             <p>
                                                 Lorem ipsum represents a long-held tradition for designers,
                                                 typographers and the like. Some people hate it and argue for
@@ -149,14 +152,9 @@
                                             <ul class="list-inline">
                                                 <li><a href="#" class="link-black text-sm"><i
                                                         class="fa fa-share margin-r-5"></i> Share</a></li>
-                                                <li><a href="#" class="link-black text-sm"><i
-                                                        class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
                                                 <li class="pull-right"><a href="#" class="link-black text-sm"><i
                                                         class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
                                             </ul>
-
-                                            <input class="form-control input-sm" type="text"
-                                                   placeholder="Type a comment">
                                         </div>
                                     </g:each>
                                 </div><!-- /.tab-pane -->

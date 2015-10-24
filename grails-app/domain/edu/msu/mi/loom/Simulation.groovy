@@ -7,10 +7,11 @@ class Simulation {
     Date dateCreated
     int userCount
 
+    static hasMany = [task: Task]
     static belongsTo = [session: Session]
 
     static constraints = {
-        name blank: false, unique: true
+        name blank: false
         roundCount min: 1
         roundTime min: 1
         userCount min: 2

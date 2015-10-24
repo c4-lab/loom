@@ -48,9 +48,10 @@ class AdminController {
         def id = params.experimentId
         def type = params.type
 
-        if (experimentService.deleteExperiment(id, type)) {
-            log.info("Experiment with id ${id} has been deleted.")
+        if (params.experimentId && params.type) {
+            experimentService.deleteExperiment(id, type)
         }
+
         redirect(action: 'board')
     }
 }

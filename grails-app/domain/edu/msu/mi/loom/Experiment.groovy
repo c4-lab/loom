@@ -8,6 +8,7 @@ class Experiment {
     Date dateCreated
     int userCount
 
+    static hasMany = [task: Task]
     static belongsTo = [session: Session]
 
     static constraints = {

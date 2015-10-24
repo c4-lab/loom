@@ -4,15 +4,11 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-@Transactional
+@Transactional(readOnly = true)
 class ParserService {
     def parseToJSON(String text) {
         JSONObject json = JSON.parse(text)
         return json
-
-//        if (json.training.simulation != null) {
-//            createSimulation(json.training.simulation)
-//        }
     }
 
     def createSimulation(def json) {
