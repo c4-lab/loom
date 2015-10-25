@@ -12,9 +12,10 @@ class AdminController {
     def experimentService
 
     static allowedMethods = [
-            board : 'GET',
-            upload: 'POST',
-            view  : 'GET'
+            board       : 'GET',
+            upload      : 'POST',
+            view        : 'GET',
+            cloneSession: 'POST'
     ]
 
     def index() {}
@@ -73,6 +74,23 @@ class AdminController {
             }
         } else {
             redirect(uri: '/not-found')
+        }
+    }
+
+    def cloneSession() {
+        def sessionId = params.session
+
+        if (sessionId) {
+            def session = Session.get(sessionId)
+
+            if (session) {
+                def clone = experimentService.cloneExperiment(session)
+
+                if (clone.id) {
+                    log.debug("Session clone has been created with id " + clone.id)
+                    return true
+                }
+            }
         }
     }
 }

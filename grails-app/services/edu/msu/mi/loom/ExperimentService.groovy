@@ -122,6 +122,55 @@ class ExperimentService {
         }
     }
 
+    def cloneExperiment(Session session) {
+        Session sessionClone = new Session()
+        def count = Session.count()
+        sessionClone.id = null
+        sessionClone.name = "Session_" + (count + 1)
+        sessionClone.dateCreated = new Date()
+        session.experiments.each { experiment ->
+            Experiment expClone = experiment.clone()
+            expClone.id = null
+            expClone.url = createExperimentUrl(sessionClone, expClone.name)
+            expClone.task = null
+            experiment.task.each { task ->
+                Task taskClone = task.clone()
+                taskClone.id = null
+                expClone.addToTask(taskClone).save(flush: true)
+            }
+            sessionClone.addToExperiments(expClone).save(flush: true)
+        }
+        session.trainings.each { training ->
+            Training trainingClone = training.clone()
+            trainingClone.id = null
+            trainingClone.task = null
+            training.task.each { task ->
+                Task taskClone = task.clone()
+                taskClone.id = null
+                trainingClone.addToTask(taskClone).save(flush: true)
+            }
+            sessionClone.addToTrainings(trainingClone).save(flush: true)
+        }
+        session.simulations.each { simulation ->
+            Simulation simulationClone = simulation.clone()
+            simulationClone.id = null
+            simulationClone.task = null
+            simulation.task.each { task ->
+                Task taskClone = task.clone()
+                taskClone.id = null
+                simulationClone.addToTask(taskClone).save(flush: true)
+            }
+            sessionClone.addToSimulations(simulationClone).save(flush: true)
+        }
+
+
+        if (sessionClone.save(flush: true)) {
+            return sessionClone
+        } else {
+            return null
+        }
+    }
+
     def deleteExperiment(def id, def type) {
         def source
         switch (type) {

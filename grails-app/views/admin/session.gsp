@@ -5,19 +5,27 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <section class="content-header">
-                <h1>
-                    Admin Board
-                </h1>
-                <ol class="breadcrumb">
-                    <li><a href="javascript:void(0);"><i class="fa fa-dashboard"></i> Home</a></li>
-                    <li><g:link controller="admin" action="board">Admin board</g:link></li>
-                    <li class="active">${session.name}</li>
-                </ol>
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <h4><i class="icon fa fa-check"></i> Alert!</h4>
+            Success alert preview. This alert is dismissable.
+        </div>
+
+        <div>
+            <h1>
+                Admin Board
+            </h1>
+            <ul class="breadcrumb ">
+                <li><a href="javascript:void(0);"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><g:link controller="admin" action="board">Admin board</g:link></li>
+                <li class="active">${session.name}</li>
+            </ul>
+        </div>
             </section>
 
             <!-- Main content -->
             <section class="content">
-
+        <g:hiddenField name="sessionId" value="${session.id}"/>
                 <div class="row">
                     <div class="col-md-3">
 
@@ -42,7 +50,7 @@
                                     </li>
                                 </ul>
 
-                                <a href="javascript:void(0);" id="create-experiment"
+                                <a href="javascript:void(0);" id="clone-session"
                                    class="btn btn-primary btn-block"><b>Clone the session</b></a>
                             </div>
                         </div>

@@ -1,5 +1,8 @@
 package edu.msu.mi.loom
 
+import groovy.transform.AutoClone
+
+@AutoClone
 class Session {
     String name
     Date dateCreated

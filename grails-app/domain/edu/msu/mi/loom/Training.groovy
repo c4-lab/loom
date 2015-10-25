@@ -1,7 +1,9 @@
 package edu.msu.mi.loom
 
+import groovy.transform.AutoClone
 import groovy.transform.ToString
 
+@AutoClone
 @ToString(includeNames = true)
 class Training {
     String name
