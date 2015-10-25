@@ -25,10 +25,6 @@ class ExperimentSpec extends ConstraintUnitSpec {
         error      | field        | val
         'nullable' | 'name'       | getEmptyString()
         'nullable' | 'name'       | null
-        'unique'   | 'name'       | "First experiment"
-        'nullable' | 'text'       | getEmptyString()
-        'nullable' | 'text'       | null
-        'size'     | 'text'       | getLongString(1000000)
         'nullable' | 'url'        | null
         'nullable' | 'url'        | getEmptyString()
         'unique'   | 'url'        | "http://loom.com"

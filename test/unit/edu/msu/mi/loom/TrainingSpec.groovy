@@ -10,7 +10,7 @@ import spock.lang.Unroll
 class TrainingSpec extends ConstraintUnitSpec {
 
     def setup() {
-        mockForConstraintsTests(Training, [Training.build(name: "First experiment", text: "First experiment's content")])
+        mockForConstraintsTests(Training, [Training.build(name: "First experiment")])
     }
 
     @Unroll("test Training all constraints #field is #error")
@@ -25,9 +25,5 @@ class TrainingSpec extends ConstraintUnitSpec {
         error      | field  | val
         'nullable' | 'name' | getEmptyString()
         'nullable' | 'name' | null
-        'unique'   | 'name' | "First experiment"
-        'nullable' | 'text' | getEmptyString()
-        'nullable' | 'text' | null
-        'size'     | 'text' | getLongString(1000000)
     }
 }
