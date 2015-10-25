@@ -7,5 +7,6 @@ package edu.msu.mi.loom
 enum ExpType {
     EXPERIMENT,
     TRAINING,
-    SIMULATION
+    SIMULATION,
+    SESSION
 }

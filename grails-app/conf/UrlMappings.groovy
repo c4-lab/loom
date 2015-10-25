@@ -8,8 +8,13 @@ class UrlMappings {
         }
 
         "500"(view:'/error')
+        "/not-found"(view: '/not-found')
 
         "/"(controller: 'login', action: 'auth')
         "/admin"(controller: 'login', action: 'auth')
+        "/session/$session" {
+            controller = "admin"
+            action = "view"
+        }
 	}
 }

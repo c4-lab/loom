@@ -31,14 +31,14 @@
 
                                 <ul class="list-group list-group-unbordered">
                                     <li class="list-group-item">
-                                        <b>Experiments</b> <a class="pull-right">${experimentsCount}</a>
+                                        <b>Sessions</b> <a class="pull-right">${sessionCount}</a>
                                     </li>
-                                    <li class="list-group-item">
-                                        <b>Trainings</b> <a class="pull-right">${trainingsCount}</a>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <b>Simulations</b> <a class="pull-right">${simulationsCount}</a>
-                                    </li>
+                                    %{--<li class="list-group-item">--}%
+                                    %{--<b>Trainings</b> <a class="pull-right">${trainingsCount}</a>--}%
+                                    %{--</li>--}%
+                                    %{--<li class="list-group-item">--}%
+                                    %{--<b>Simulations</b> <a class="pull-right">${simulationsCount}</a>--}%
+                                    %{--</li>--}%
                                 </ul>
 
                                 <a href="javascript:void(0);" id="create-experiment"
@@ -57,97 +57,25 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="activity">
-                                    <g:each in="${experiments}" var="experiment">
+                                    <g:each in="${sessions}" var="session">
                                         <div class="post">
                                             <div class="user-block">
                                                 <span class='username'>
-                                                    <a href="#">${experiment.name}</a>
+                                                    <g:link controller="admin" action="view"
+                                                            params="[session: session.id]">${session.name}</g:link>
                                                     <g:link controller="admin" action="deleteExperiment"
                                                             class='pull-right btn-box-tool'
-                                                            params="[experimentId: experiment.id, type: ExpType.EXPERIMENT]">
+                                                            params="[experimentId: session.id, type: ExpType.SESSION]">
                                                         <i class='fa fa-times'></i>
                                                     </g:link>
                                                 </span>
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
-                                                        date="${experiment.dateCreated}"/></span>
+                                                        date="${session.dateCreated}"/></span>
                                             </div>
 
-                                            <p>
-                                                <g:each in="${experiment.task}" var="task">
-                                                    ${task.text}
-                                                </g:each>
-                                            </p>
+                                            <p></p>
                                             <ul class="list-inline">
-                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-share margin-r-5"></i> Share</a></li>--}%
-                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
-                                            </ul>
-                                        </div>
-                                    </g:each>
-
-                                    <g:each in="${trainings}" var="training">
-                                        <div class="post">
-                                            <div class="user-block">
-                                                <span class='username'>
-                                                    <a href="#">${training.name}</a>
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='pull-right btn-box-tool'
-                                                            params="[experimentId: training.id, type: ExpType.TRAINING]">
-                                                        <i class='fa fa-times'></i>
-                                                    </g:link>
-                                                </span>
-                                                <span class='description'>Created - <g:formatDate
-                                                        format="yyyy/MM/dd HH:mm"
-                                                        date="${training.dateCreated}"/></span>
-                                            </div>
-
-                                            <p>
-                                                <g:each in="${training.task}" var="task">
-                                                    ${task.text}
-                                                </g:each>
-                                            </p>
-                                            <ul class="list-inline">
-                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-share margin-r-5"></i> Activate</a></li>--}%
-                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>--}%
-                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
-                                            </ul>
-
-                                            %{--<input class="form-control input-sm" type="text"--}%
-                                            %{--placeholder="Type a comment">--}%
-                                        </div>
-                                    </g:each>
-
-                                    <g:each in="${simulations}" var="simulation">
-                                        <div class="post">
-                                            <div class="user-block">
-                                                <span class='username'>
-                                                    <a href="#">${simulation.name}</a>
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='pull-right btn-box-tool'
-                                                            params="[experimentId: simulation.id, type: ExpType.SIMULATION]">
-                                                        <i class='fa fa-times'></i>
-                                                    </g:link>
-                                                </span>
-                                                <span class='description'>Created - <g:formatDate
-                                                        format="yyyy/MM/dd HH:mm"
-                                                        date="${simulation.dateCreated}"/></span>
-                                            </div>
-
-                                            <p>
-                                                <g:each in="${simulation.task}" var="task">
-                                                    ${task.text}
-                                                </g:each>
-                                            </p>
-                                            <ul class="list-inline">
-                                                %{--<li><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-share margin-r-5"></i> Activate</a></li>--}%
-                                                %{--<li class="pull-right"><a href="#" class="link-black text-sm"><i--}%
-                                                %{--class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>--}%
                                             </ul>
                                         </div>
                                     </g:each>

@@ -12,7 +12,7 @@ class Experiment {
     static belongsTo = [session: Session]
 
     static constraints = {
-        name blank: false, unique: true
+        name blank: false
         url blank: false, unique: true
         roundCount min: 1
         roundTime min: 1

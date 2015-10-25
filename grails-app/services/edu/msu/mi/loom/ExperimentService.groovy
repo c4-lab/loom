@@ -123,20 +123,23 @@ class ExperimentService {
     }
 
     def deleteExperiment(def id, def type) {
-        def experiment
+        def source
         switch (type) {
             case ExpType.TRAINING.toString():
-                experiment = Training.get(id)
+                source = Training.get(id)
                 break;
             case ExpType.SIMULATION.toString():
-                experiment = Simulation.get(id)
+                source = Simulation.get(id)
                 break
             case ExpType.EXPERIMENT.toString():
-                experiment = Experiment.get(id)
+                source = Experiment.get(id)
+                break
+            case ExpType.SESSION.toString():
+                source = Session.get(id)
                 break
         }
-        if (experiment) {
-            experiment.delete(flush: true)
+        if (source) {
+            source.delete(flush: true)
             log.info("Experiment with id ${id} has been deleted.")
             return true
         } else {

@@ -13,21 +13,17 @@ class AdminController {
 
     static allowedMethods = [
             board : 'GET',
-            upload: 'POST'
+            upload: 'POST',
+            view  : 'GET'
     ]
 
     def index() {}
 
     def board() {
-        def experimentsCount = Experiment.count();
-        def trainingsCount = Training.count();
-        def simulationsCount = Simulation.count();
+        def sessionCount = Session.count();
+        def sessions = Session.list()
 
-        def experiments = Experiment.list();
-        def trainings = Training.list();
-        def simulations = Simulation.list();
-
-        render(view: 'board', model: [experimentsCount: experimentsCount, trainingsCount: trainingsCount, simulationsCount: simulationsCount, experiments: experiments, trainings: trainings, simulations: simulations])
+        render(view: 'board', model: [sessionCount: sessionCount, sessions: sessions])
     }
 
     def upload() {
@@ -53,5 +49,30 @@ class AdminController {
         }
 
         redirect(action: 'board')
+    }
+
+    def view() {
+        def sessionId = Integer.parseInt(params.session)
+        if (sessionId) {
+            def session = Session.get(sessionId)
+            if (session) {
+                def trainingsCount = Training.countBySession(session)
+                def experimentsCount = Experiment.countBySession(session)
+                def simulationsCount = Simulation.countBySession(session)
+
+                def experiments = Experiment.findAllBySession(session)
+                def trainings = Training.findAllBySession(session)
+                def simulations = Simulation.findAllBySession(session)
+
+                render(view: 'session', model: [trainingsCount  : trainingsCount, experimentsCount: experimentsCount,
+                                                simulationsCount: simulationsCount, experiments: experiments,
+                                                trainings       : trainings, simulations: simulations,
+                                                session         : session])
+            } else {
+                redirect(uri: '/not-found')
+            }
+        } else {
+            redirect(uri: '/not-found')
+        }
     }
 }
