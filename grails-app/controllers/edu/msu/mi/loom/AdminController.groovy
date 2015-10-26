@@ -1,8 +1,12 @@
 package edu.msu.mi.loom
 
+import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 import org.springframework.web.multipart.MultipartFile
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST
+import static org.springframework.http.HttpStatus.OK
 
 @Slf4j
 @Secured("ROLE_ADMIN")
@@ -87,10 +91,12 @@ class AdminController {
                 def clone = experimentService.cloneExperiment(session)
 
                 if (clone.id) {
-                    log.debug("Session clone has been created with id " + clone.id)
-                    return true
+                    render(status: OK, text: [session: clone] as JSON)
+                    return
                 }
             }
         }
+
+        render(status: BAD_REQUEST)
     }
 }

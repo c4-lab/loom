@@ -165,8 +165,11 @@ class ExperimentService {
 
 
         if (sessionClone.save(flush: true)) {
+            log.debug("Session clone has been created with id " + sessionClone.id)
             return sessionClone
         } else {
+            log.debug("There was problem with session cloning ")
+            log.error(session?.errors?.dump())
             return null
         }
     }
