@@ -3,6 +3,7 @@ package edu.msu.mi.loom
 class Room {
     String name
     int userMaxCount
+    Session session
 
     static hasMany = [users: User]
 
