@@ -12,8 +12,9 @@ import static org.springframework.http.HttpStatus.OK
 @Secured("ROLE_ADMIN")
 class AdminController {
     def fileService
-    def parserService
+    def jsonParserService
     def experimentService
+    def graphParserService
 
     static allowedMethods = [
             board       : 'GET',
@@ -35,14 +36,26 @@ class AdminController {
         def file = request.getFile('inputFile')
         def text = fileService.readFile(file as MultipartFile)
 
-        def json = parserService.parseToJSON(text)
+        def json = jsonParserService.parseToJSON(text)
 
         if (json) {
-            experimentService.createSession(json)
+            def session = experimentService.createSession(json)
+//            if (session.id) {
+//                redirect(action: 'completeExperimentCreation', params: [initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
+//                return
+//            }
         }
 
-
         redirect(action: 'board')
+    }
+
+    def completeExperimentCreation() {
+        if (request.method == 'GET') {
+            render(view: 'complete', model: [initNbrOfTiles: params.initNbrOfTiles])
+        } else {
+            def file = request.getFile('graphmlFile').inputStream
+            graphParserService.parseGraph(file)
+        }
     }
 
     def deleteExperiment() {

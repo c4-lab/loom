@@ -31,4 +31,8 @@ class HomeController {
             redirect(uri: "/")
         }
     }
+
+    def waitingRoom() {
+        render(view: 'waiting')
+    }
 }

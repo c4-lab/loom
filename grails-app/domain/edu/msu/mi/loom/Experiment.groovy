@@ -10,8 +10,10 @@ class Experiment {
     int roundTime
     Date dateCreated
     int userCount
+    int initialNbrOfTiles
+    boolean enabled = false
 
-    static hasMany = [task: Task]
+    static hasMany = [stories: Story, edges: Edge]
     static belongsTo = [session: Session]
 
     static constraints = {
@@ -20,6 +22,7 @@ class Experiment {
         roundCount min: 1
         roundTime min: 1
         userCount min: 2
+        initialNbrOfTiles min: 2
     }
 
     static mapping = {

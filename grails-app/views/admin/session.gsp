@@ -56,6 +56,10 @@
 
                                 <a href="javascript:void(0);" id="clone-session"
                                    class="btn btn-primary btn-block"><b>Clone the session</b></a>
+                                <a href="javascript:void(0);" id="clone-session"
+                                   class="btn btn-block btn-success"><b>Publish anonymously</b></a>
+                                <a href="javascript:void(0);" id="clone-session"
+                                   class="btn btn-block btn-success"><b>Publish by email</b></a>
                             </div>
                         </div>
 
@@ -87,8 +91,8 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${experiment.task}" var="task">
-                                                    ${task.text}
+                                                <g:each in="${experiment.stories[0].tails}" var="tail">
+                                                    ${tail.text}
                                                 </g:each>
                                             </p>
                                         </div>
@@ -111,8 +115,8 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${training.task}" var="task">
-                                                    ${task.text}
+                                                <g:each in="${training.stories[0].tails}" var="tail">
+                                                    ${tail.text}
                                                 </g:each>
                                             </p>
 
@@ -136,8 +140,8 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${simulation.task}" var="task">
-                                                    ${task.text}
+                                                <g:each in="${simulation.stories[0].tails}" var="tail">
+                                                    ${tail.text}
                                                 </g:each>
                                             </p>
                                         </div>

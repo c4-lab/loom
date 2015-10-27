@@ -10,7 +10,7 @@ class Simulation {
     Date dateCreated
     int userCount
 
-    static hasMany = [task: Task]
+    static hasMany = [stories: Story]
     static belongsTo = [session: Session]
 
     static constraints = {

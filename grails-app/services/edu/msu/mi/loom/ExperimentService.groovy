@@ -9,53 +9,58 @@ import java.text.Normalizer
 @Transactional
 class ExperimentService {
     def createSession(def json) {
-        def session = new Session(name: 'Session_' + (Session.count() + 1))
+        Session.withNewTransaction { status ->
+            def session = new Session(name: 'Session_' + (Session.count() + 1))
 
-        if (session.save(flush: true)) {
-            log.debug("New session with id ${session.id} has been created.")
+            if (session.save(flush: true)) {
+                log.debug("New session with id ${session.id} has been created.")
 
 //            Training creation
-            if (json.training.practice != null) {
-                createTraining(json.training.practice, session)
-            }
+                if (json.training.practice != null) {
+                    createTraining(json.training.practice, session)
+                }
 
 //            Simulation creation
-            if (json.training.simulation != null) {
-                createSimulation(json.training.simulation, session)
-            }
+                if (json.training.simulation != null) {
+                    createSimulation(json.training.simulation, session)
+                }
 
 //            Experiment creation
-            if (json.experiment != null) {
-                createExperiment(json.experiment, session)
-            }
+                if (json.experiment != null) {
+                    createExperiment(json.experiment, session)
+                }
 
-            return session
-        } else {
-            log.error("Session creation attempt failed")
-            log.error(session?.errors?.dump())
-            return null
+                return session
+            } else {
+                status.setRollbackOnly()
+                log.error("Session creation attempt failed")
+                log.error(session?.errors?.dump())
+                return null
+            }
         }
     }
 
     def createTraining(def json, Session session) {
-        def task
+        def tail
+        def story
         Training training
-        json.each { tr ->
-            training = new Training(name: 'Training', session: session)
-            for (int i = 0; i < tr.problem.size(); i++) {
-                task = new Task(text: tr.solution.get(i), text_order: tr.problem.get(i))
-                if (task.save(failOnError: true)) {
-                    training.addToTask(task)
-                    log.debug("New task with id ${task.id} has been created.")
-                } else {
-                    log.error("Task creation attempt failed")
-                    log.error(training?.errors?.dump())
-                }
-            }
-
+        json.eachWithIndex { tr, idx ->
+            training = new Training(name: "Training ${(idx + 1)}", session: session)
             if (training.save(flush: true)) {
+                session.addToTrainings(training)
                 log.debug("New training with id ${training.id} has been created for session ${session.name}.")
-                return training
+                story = new Story(title: "Story").save(flush: true)
+                training.addToStories(story)
+                for (int i = 0; i < tr.problem.size(); i++) {
+                    tail = new Tail(text: tr.solution.get(i), text_order: tr.problem.get(i))
+                    if (tail.save(failOnError: true)) {
+                        story.addToTails(tail)
+                        log.debug("New task with id ${tail.id} has been created.")
+                    } else {
+                        log.error("Task creation attempt failed")
+                        log.error(training?.errors?.dump())
+                    }
+                }
             } else {
                 log.error("Training creation attempt failed")
                 log.error(training?.errors?.dump())
@@ -65,60 +70,71 @@ class ExperimentService {
     }
 
     def createSimulation(def json, Session session) {
-        Task task
-        Simulation simulation = new Simulation(name: 'Simulation', roundTime: json.timeperround, roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), session: session)
+        def story
+        Tail tail
+        Simulation simulation = new Simulation(name: 'Simulation', roundTime: json.timeperround,
+                roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), session: session)
 
-        for (int i = 0; i < json.solution.size(); i++) {
-            task = new Task(text: json.solution.get(i), text_order: i)
-            if (task.save(failOnError: true)) {
-                simulation.addToTask(task)
-                log.debug("New task with id ${task.id} has been created.")
-            } else {
-                log.error("Task creation attempt failed")
-                log.error(task?.errors?.dump())
+        if (simulation.save(flush: true)) {
+            session.addToSimulations(simulation)
+            log.debug("New simulation with id ${simulation.id} has been created for session ${session.name}.")
+            story = new Story(title: "Story").save(flush: true)
+            simulation.addToStories(story)
+            for (int i = 0; i < json.solution.size(); i++) {
+                tail = new Tail(text: json.solution.get(i), text_order: i)
+                story.addToTails(tail).save(flush: true)
+                log.debug("New task with id ${tail.id} has been created.")
             }
-        }
-        simulation.save(flush: true)
 
-        for (int j = 0; j < json.sequence.size(); j++) {
-            for (int k = 1; k <= json.sequence.get(j).size(); k++) {
-                for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
-                    def userTask = UserTask.createForSimulation(Task.findBySimulationAndText_order(simulation, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j)
-                    if (userTask.save(flush: true)) {
-                        log.debug("New userTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
-                    } else {
-                        log.error("UserTask creation attempt failed")
-                        log.error(userTask?.errors?.dump())
+            for (int j = 0; j < json.sequence.size(); j++) {
+                for (int k = 1; k <= json.sequence.get(j).size(); k++) {
+                    for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
+                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j)
+                        if (userTask.save(flush: true)) {
+                            log.debug("New simulationTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
+                        } else {
+                            log.error("SimulationTask creation attempt failed")
+                            log.error(userTask?.errors?.dump())
+                        }
                     }
                 }
             }
+        } else {
+            log.error("Simulation creation attempt failed")
+            log.error(simulation?.errors?.dump())
+            return null;
         }
     }
 
     def createExperiment(def json, Session session) {
-        def task
+        def tail
+        def story
         Experiment experiment
-        json.stories.each { tr ->
-            experiment = new Experiment(name: tr.title, url: createExperimentUrl(session, tr.title), session: session, roundTime: json.timeperround, roundCount: json.numberofrounds, userCount: json.initialnumberoftiles)
-            for (int i = 0; i < tr.data.size(); i++) {
-                task = new Task(text: tr.data.get(i), text_order: i)
-                if (task.save(failOnError: true)) {
-                    experiment.addToTask(task)
-                    log.debug("New task with id ${task.id} has been created.")
-                } else {
-                    log.error("Task creation attempt failed")
-                    log.error(experiment?.errors?.dump())
+        experiment = new Experiment(name: "Experiment", url: createExperimentUrl(session, "Experiment"), session: session,
+                roundTime: json.timeperround, roundCount: json.numberofrounds, initialNbrOfTiles: json.initialnumberoftiles, userCount: 2)
+
+        if (experiment.save(flush: true)) {
+            session.addToExperiments(experiment)
+            log.debug("New experiment with id ${experiment.id} has been created for session ${session.name}.")
+            json.stories.each { tr ->
+                story = new Story(title: tr.title).save(flush: true)
+                experiment.addToStories(story)
+                for (int i = 0; i < tr.data.size(); i++) {
+                    tail = new Tail(text: tr.data.get(i), text_order: i)
+//                    if (tail.save(failOnError: true)) {
+                    story.addToTails(tail).save(flush: true)
+                    log.debug("New task with id ${tail.id} has been created.")
+//                    } else {
+//                        log.error("Task creation attempt failed")
+//                        log.error(experiment?.errors?.dump())
+//                    }
                 }
             }
-
-            if (experiment.save(flush: true)) {
-                log.debug("New experiment with id ${experiment.id} has been created for session ${session.name}.")
-                return experiment
-            } else {
-                log.error("Experiment creation attempt failed")
-                log.error(experiment?.errors?.dump())
-                return null;
-            }
+            return experiment
+        } else {
+            log.error("Experiment creation attempt failed")
+            log.error(experiment?.errors?.dump())
+            return null;
         }
     }
 
@@ -134,7 +150,7 @@ class ExperimentService {
             expClone.url = createExperimentUrl(sessionClone, expClone.name)
             expClone.task = null
             experiment.task.each { task ->
-                Task taskClone = task.clone()
+                Tail taskClone = task.clone()
                 taskClone.id = null
                 expClone.addToTask(taskClone).save(flush: true)
             }
@@ -145,7 +161,7 @@ class ExperimentService {
             trainingClone.id = null
             trainingClone.task = null
             training.task.each { task ->
-                Task taskClone = task.clone()
+                Tail taskClone = task.clone()
                 taskClone.id = null
                 trainingClone.addToTask(taskClone).save(flush: true)
             }
@@ -156,7 +172,7 @@ class ExperimentService {
             simulationClone.id = null
             simulationClone.task = null
             simulation.task.each { task ->
-                Task taskClone = task.clone()
+                Tail taskClone = task.clone()
                 taskClone.id = null
                 simulationClone.addToTask(taskClone).save(flush: true)
             }

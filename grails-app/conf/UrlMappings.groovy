@@ -20,5 +20,10 @@ class UrlMappings {
             controller = "admin"
             action = "cloneSession"
         }
+
+        "/session/complete" {
+            controller = "admin"
+            action = "completeExperimentCreation"
+        }
     }
 }

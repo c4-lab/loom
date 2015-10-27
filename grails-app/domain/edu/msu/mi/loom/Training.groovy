@@ -9,7 +9,7 @@ class Training {
     String name
     Date dateCreated
 
-    static hasMany = [task: Task]
+    static hasMany = [stories: Story]
     static belongsTo = [session: Session]
 
     static constraints = {
