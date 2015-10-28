@@ -41,7 +41,7 @@
                 <ul class="nav navbar-nav">
                     <sec:ifLoggedIn>
                         <li>
-                            <g:link controller="logout" data-toggle="control-sidebar">
+                            <g:link controller="logout">
                                 <span class="hidden-xs">Logout</span>
                             </g:link>
                         </li>

@@ -23,12 +23,21 @@ class UserService {
 
     }
 
+    def deleteUser(User user) {
+        def role = UserRole.findByUser(user).role
+        if (role?.authority == 'ROLE_USER') {
+            UserRole.remove(user, role)
+            user.delete(flush: true)
+            log.debug("User has been deleted")
+        }
+    }
+
     private String makeRandomPassword() {
         return "${System.currentTimeMillis()}"
     }
 
     private void addDefaultRole(User user) {
         def role = Role.findByAuthority(Roles.ROLE_USER.name)
-        UserRole.create(user, role)
+        UserRole.create(user, role, true)
     }
 }
