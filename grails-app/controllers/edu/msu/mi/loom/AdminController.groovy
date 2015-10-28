@@ -40,10 +40,10 @@ class AdminController {
 
         if (json) {
             def session = experimentService.createSession(json)
-//            if (session.id) {
-//                redirect(action: 'completeExperimentCreation', params: [initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
-//                return
-//            }
+            if (session.id) {
+                redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
+                return
+            }
         }
 
         redirect(action: 'board')
@@ -51,10 +51,19 @@ class AdminController {
 
     def completeExperimentCreation() {
         if (request.method == 'GET') {
-            render(view: 'complete', model: [initNbrOfTiles: params.initNbrOfTiles])
+            render(view: 'complete', model: [experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
         } else {
             def file = request.getFile('graphmlFile').inputStream
-            graphParserService.parseGraph(file)
+            HashMap<String, String> nodeStoryMap = graphParserService.parseGraph(file)
+
+            def experiment = experimentService.completeExperiment(nodeStoryMap, params.experimentId)
+            if (experiment.enabled) {
+                log.debug("Experiment with id ${experiment.id} is enabled.")
+            } else {
+                log.warn("Something went wrong, experiment with id ${experiment.id} cannot be enabled.")
+            }
+
+            redirect(action: 'board')
         }
     }
 

@@ -34,6 +34,7 @@
 
                         <g:form enctype="multipart/form-data" controller="admin" action="completeExperimentCreation"
                                 method="POST">
+                            <g:hiddenField name="experimentId" value="${experiment}"/>
                             <div class="box-body">
                                 <div class="form-group">
                                     <label for="initNbrOfTiles">Initial number of tiles</label>

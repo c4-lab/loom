@@ -123,7 +123,7 @@ class ExperimentService {
                     tail = new Tail(text: tr.data.get(i), text_order: i)
 //                    if (tail.save(failOnError: true)) {
                     story.addToTails(tail).save(flush: true)
-                    log.debug("New task with id ${tail.id} has been created.")
+                    log.debug("New tail with id ${tail.id} has been created.")
 //                    } else {
 //                        log.error("Task creation attempt failed")
 //                        log.error(experiment?.errors?.dump())
@@ -136,6 +136,25 @@ class ExperimentService {
             log.error(experiment?.errors?.dump())
             return null;
         }
+    }
+
+    def completeExperiment(def map, def experimentId) {
+        def experiment = Experiment.get(experimentId)
+        def userStory
+        def story
+        for (int i = 1; i <= map.size(); i++) {
+            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)))
+            userStory = new UserStory(alias: "neighbour" + i, story: story)
+            if (userStory.save(flush: true)) {
+                log.debug("New user story with id ${userStory.id} has been created.")
+            }
+        }
+
+        experiment.userCount = map.size()
+        experiment.enabled = true
+        experiment.save(flush: true)
+
+        return experiment
     }
 
     def cloneExperiment(Session session) {

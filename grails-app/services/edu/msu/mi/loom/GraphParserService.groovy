@@ -17,8 +17,6 @@ class GraphParserService {
     private String edgeLabelKey = null;
 
     def parseGraph(def file) {
-//        Graph graph = new TinkerGraph()
-//        GraphMLReader reader = new GraphMLReader(graph)
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
         XMLStreamReader reader = inputFactory.createXMLStreamReader(file);
@@ -30,6 +28,8 @@ class GraphParserService {
         String vertexId = null;
         Map<String, Object> vertexProps = null;
         boolean inVertex = false;
+
+        Map<String, String> nodeStoryMap = new HashMap<>()
 
         String edgeId = null;
         String edgeLabel = null;
@@ -50,46 +50,49 @@ class GraphParserService {
                     keyTypesMaps.put(attributeName, attributeType);
                 } else if (elementName.equals(GraphMLTokens.NODE)) {
                     vertexId = reader.getAttributeValue(null, GraphMLTokens.ID);
+
+                    nodeStoryMap.put(vertexId, "Story1")
                     if (vertexIdKey != null)
                         vertexMappedIdMap.put(vertexId, vertexId);
                     inVertex = true;
                     vertexProps = new HashMap<String, Object>();
 
-                    println "++++++++++++++++++++++++++++++++++++"
-                    println vertexId
-                    println vertexMappedIdMap
-                    println "++++++++++++++++++++++++++++++++++++"
-                } else if (elementName.equals(GraphMLTokens.EDGE)) {
-                    edgeId = reader.getAttributeValue(null, GraphMLTokens.ID);
-                    edgeLabel = reader.getAttributeValue(null, GraphMLTokens.LABEL);
-                    edgeLabel = edgeLabel == null ? GraphMLTokens._DEFAULT : edgeLabel;
-
-                    String[] vertexIds = new String[2];
-                    vertexIds[0] = reader.getAttributeValue(null, GraphMLTokens.SOURCE);
-                    vertexIds[1] = reader.getAttributeValue(null, GraphMLTokens.TARGET);
-                    edgeEndVertices = new Vertex[2];
-
-                    for (int i = 0; i < 2; i++) { //i=0 => outVertex, i=1 => inVertex
-
-                        if (vertexIdKey == null) {
-                            edgeEndVertices[i] = graph.getVertex(vertexIds[i]);
-
-                        } else {
-                            edgeEndVertices[i] = graph.getVertex(vertexMappedIdMap.get(vertexIds[i]));
-                        }
-
-                        if (null == edgeEndVertices[i]) {
-                            edgeEndVertices[i] = graph.addVertex(vertexIds[i]);
-
-                            if (vertexIdKey != null)
-
-                            // Default to standard ID system (in case no mapped
-                            // ID is found later)
-                                vertexMappedIdMap.put(vertexIds[i], vertexIds[i]);
-                        }
-                    }
-                    inEdge = true;
-                    edgeProps = new HashMap<String, Object>();
+//                    println "++++++++++++++++++++++++++++++++++++"
+//                    println vertexId
+//                    println vertexMappedIdMap
+//                    println nodeStoryMap
+//                    println "++++++++++++++++++++++++++++++++++++"
+//                } else if (elementName.equals(GraphMLTokens.EDGE)) {
+//                    edgeId = reader.getAttributeValue(null, GraphMLTokens.ID);
+//                    edgeLabel = reader.getAttributeValue(null, GraphMLTokens.LABEL);
+//                    edgeLabel = edgeLabel == null ? GraphMLTokens._DEFAULT : edgeLabel;
+//
+//                    String[] vertexIds = new String[2];
+//                    vertexIds[0] = reader.getAttributeValue(null, GraphMLTokens.SOURCE);
+//                    vertexIds[1] = reader.getAttributeValue(null, GraphMLTokens.TARGET);
+//                    edgeEndVertices = new Vertex[2];
+//
+//                    for (int i = 0; i < 2; i++) { //i=0 => outVertex, i=1 => inVertex
+//
+//                        if (vertexIdKey == null) {
+//                            edgeEndVertices[i] = graph.getVertex(vertexIds[i]);
+//
+//                        } else {
+//                            edgeEndVertices[i] = graph.getVertex(vertexMappedIdMap.get(vertexIds[i]));
+//                        }
+//
+//                        if (null == edgeEndVertices[i]) {
+//                            edgeEndVertices[i] = graph.addVertex(vertexIds[i]);
+//
+//                            if (vertexIdKey != null)
+//
+//                            // Default to standard ID system (in case no mapped
+//                            // ID is found later)
+//                                vertexMappedIdMap.put(vertexIds[i], vertexIds[i]);
+//                        }
+//                    }
+//                    inEdge = true;
+//                    edgeProps = new HashMap<String, Object>();
                 } else if (elementName.equals(GraphMLTokens.DATA)) {
                     String key = reader.getAttributeValue(null, GraphMLTokens.KEY);
                     String attributeName = keyIdMap.get(key);
@@ -97,12 +100,12 @@ class GraphParserService {
                     if (attributeName != null) {
                         String value = reader.getElementText();
                         if (inVertex) {
-
+                            nodeStoryMap.put(vertexId, value);
                             if ((vertexIdKey != null) && (key.equals(vertexIdKey))) {
                                 // Should occur at most once per Vertex
                                 // Assumes single ID prop per Vertex
-                                vertexMappedIdMap.put(vertexId, value);
-                                vertexId = value;
+//                                nodeStoryMap.put(vertexId, value);
+//                                vertexId = value;
                             } else
                                 vertexProps.put(attributeName, typeCastValue(key, value, keyTypesMaps));
                         } else if (inEdge) {
@@ -115,16 +118,21 @@ class GraphParserService {
 
                         }
 
+                        println "================================"
+                        println "nodeStoryMap" + nodeStoryMap
+                        println "================================"
                     }
                 }
             }
         }
 
         println "-----------------------------------"
+        println vertexMappedIdMap.size()
         println keyIdMap
         println keyTypesMaps
         println "-----------------------------------"
 
+        return nodeStoryMap
     }
 
     private static Object typeCastValue(String key, String value, Map<String, String> keyTypes) {
