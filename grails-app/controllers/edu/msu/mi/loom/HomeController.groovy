@@ -13,6 +13,8 @@ class HomeController {
     ]
 
     def index() {
+        def rooms = Room.list()
+        render(view: 'index', model: [rooms: rooms])
     }
 
     def authenticate() {

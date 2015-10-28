@@ -15,6 +15,7 @@ class AdminController {
     def jsonParserService
     def experimentService
     def graphParserService
+    def roomService
 
     static allowedMethods = [
             board       : 'GET',
@@ -28,8 +29,9 @@ class AdminController {
     def board() {
         def sessionCount = Session.count();
         def sessions = Session.list()
+        def roomsCount = Room.count()
 
-        render(view: 'board', model: [sessionCount: sessionCount, sessions: sessions])
+        render(view: 'board', model: [roomsCount: roomsCount, sessionCount: sessionCount, sessions: sessions])
     }
 
     def upload() {
@@ -120,5 +122,17 @@ class AdminController {
         }
 
         render(status: BAD_REQUEST)
+    }
+
+    def publishAnonym() {
+        def sessionId = params.session
+
+        if (sessionId) {
+            def session = Session.get(sessionId)
+            roomService.createRoom(session)
+            redirect(action: 'board')
+        } else {
+            redirect(uri: '/not-found')
+        }
     }
 }
