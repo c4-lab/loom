@@ -2,7 +2,7 @@ package edu.msu.mi.loom
 
 import grails.plugin.springsecurity.annotation.Secured
 
-@Secured('permitAll')
+@Secured('ROLE_USER')
 class HomeController {
     def springSecurityService
     def userService
@@ -17,6 +17,7 @@ class HomeController {
         render(view: 'index', model: [rooms: rooms])
     }
 
+    @Secured('permitAll')
     def authenticate() {
         def username = params.j_username
         if (username) {
