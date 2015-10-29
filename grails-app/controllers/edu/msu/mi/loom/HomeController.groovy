@@ -52,6 +52,7 @@ class HomeController {
         if (roomId) {
             def room = Room.get(roomId)
             def user = springSecurityService.currentUser as User
+            user.alias = "neighbour" + (room.users.size() + 1)
             room.addToUsers(user)
             room.save(flush: true)
 
