@@ -16,6 +16,7 @@ class AdminController {
     def experimentService
     def graphParserService
     def roomService
+    def emailService
 
     static allowedMethods = [
             board       : 'GET',
@@ -134,5 +135,24 @@ class AdminController {
         } else {
             redirect(uri: '/not-found')
         }
+    }
+
+    def publishEmail() {
+        def emailsString = params.emailAddress
+        def sessionId = params.session
+        if (sessionId) {
+            def session = Session.get(sessionId)
+            if (session) {
+                def room = roomService.createRoom(session)
+
+                if (room.id) {
+                    emailService.sendInvitationEmail(emailsString, room.id)
+                    log.info("Invitations have been sent for room with id ${room.id}.")
+                    redirect(action: 'board')
+                    return
+                }
+            }
+        }
+        redirect(uri: '/not-found')
     }
 }

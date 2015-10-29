@@ -88,9 +88,11 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
+        grails.mail.enabled = true
     }
     production {
         grails.logging.jul.usebridge = false
+        grails.mail.enabled = true
         // TODO: grails.serverURL = "http://www.changeme.com"
     }
 }
@@ -130,4 +132,19 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/**/images/**'  : ['permitAll'],
         '/**/favicon.ico': ['permitAll']
 ]
+
+grails {
+    mail {
+        enabled = true
+        displayName = "loom.com"
+        host = "smtp.gmail.com"
+        port = 465
+        username = "scholarmap@gmail.com"
+        password = "scholarmap123456"
+        props = ["mail.smtp.auth"                  : "true",
+                 "mail.smtp.socketFactory.port"    : "465",
+                 "mail.smtp.socketFactory.class"   : "javax.net.ssl.SSLSocketFactory",
+                 "mail.smtp.socketFactory.fallback": "false"]
+    }
+}
 

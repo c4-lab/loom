@@ -60,7 +60,7 @@
                                     <g:link controller="admin" action="publishAnonym" id="publish-anon-session"
                                             class="btn btn-block btn-success"
                                             params="[session: session.id]"><b>Publish anonymously</b></g:link>
-                                    <a href="javascript:void(0);" id="clone-session"
+                                    <a href="javascript:void(0);" id="publish-by-email"
                                        class="btn btn-block btn-success"><b>Publish by email</b></a>
                                 </g:if>
                             </div>
@@ -162,29 +162,30 @@
     </div>
 </g:applyLayout>
 
-<div class="modal modal-info" style="padding-top: 140px" id="file-upload-modal">
+<!-- .modal -->
+<div class="modal modal-info" style="padding-top: 140px" id="email-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Upload a file</h4>
+                <h4 class="modal-title">Enter email addresses</h4>
             </div>
-            <g:form enctype="multipart/form-data" name="upload-form" controller="admin" action="upload">
+            <g:form name="publish-form" controller="admin" action="publishEmail">
+                <g:hiddenField name="session" value="${session.id}"/>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="inputFile">File input</label>
-                        <input type="file" id="inputFile" name="inputFile">
-
-                        <p class="help-block">Select experiment file (*.json).</p>
+                        <label for="emailAddress"></label>
+                        <g:textArea id="emailAddress" style="color: #000444" name="emailAddress" rows="10" cols="90"
+                                    placeholder="example1@loom.com, example2@loom.com"/>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary">Send</button>
                 </div>
             </g:form>
-        </div>
-    </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>

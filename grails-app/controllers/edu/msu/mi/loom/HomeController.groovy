@@ -37,4 +37,8 @@ class HomeController {
     def waitingRoom() {
         render(view: 'waiting')
     }
+
+    def joinRoom() {
+
+    }
 }

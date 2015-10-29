@@ -25,5 +25,10 @@ class UrlMappings {
             controller = "admin"
             action = "completeExperimentCreation"
         }
+
+        "/room/join/$id" {
+            controller = "home"
+            action = "joinRoom"
+        }
     }
 }

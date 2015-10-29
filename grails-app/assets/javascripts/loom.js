@@ -21,4 +21,8 @@ $(document).ready(function () {
             $("#error-alert").toggleClass('hide show');
         });
     });
+
+    $("#publish-by-email").click(function () {
+        $("#email-modal").modal('show');
+    });
 });
