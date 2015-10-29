@@ -36,10 +36,35 @@ class HomeController {
     }
 
     def waitingRoom() {
-        render(view: 'waiting')
+        def roomId = params.room
+        if (roomId) {
+            def room = Room.get(roomId)
+            if (room) {
+                render(view: 'waiting', model: [room: room])
+                return
+            }
+        }
+        redirect(uri: '/not-found')
     }
 
     def joinRoom() {
+        def roomId = params.id
+        if (roomId) {
+            def room = Room.get(roomId)
+            def user = springSecurityService.currentUser as User
+            room.addToUsers(user)
+            room.save(flush: true)
+
+            if (room.users.size() != room.userMaxCount) {
+                redirect(action: 'waitingRoom', params: [room: roomId])
+                return
+            }
+        }
+
+        redirect(uri: '/not-found')
+    }
+
+    def stopWaiting() {
 
     }
 }

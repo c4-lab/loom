@@ -14,30 +14,38 @@
             </section>
 
             <section class="content-header">
-                <div class="col-md-2"></div>
+                <div class="row">
+                    <div class="col-md-1"></div>
 
-                <div class="col-md-8">
-                    <g:each in="${rooms}" var="room">
-                        <div class="col-md-5">
-                            <div class="box box-success box-solid">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">${room.name}</h3>
+                    <div class="col-md-10">
+                        <g:each in="${rooms}" var="room">
+                            <div class="col-md-4">
+                                <div class="box box-success box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">${room.name}</h3>
 
-                                    <div class="box-tools pull-right">
-                                        <button class="btn btn-box-tool" data-widget="remove"><i
-                                                class="fa fa-times"></i>
-                                        </button>
-                                    </div><!-- /.box-tools -->
-                                </div><!-- /.box-header -->
-                                <div class="box-body">
-                                    The body of the box
-                                </div><!-- /.box-body -->
-                            </div><!-- /.box -->
-                        </div>
-                    </g:each>
+                                        <div class="box-tools pull-right"></div>
+                                    </div>
+
+                                    <div class="box-body">
+                                        <div class="progress progress-sm active">
+                                            <div class="progress-bar progress-bar-success progress-bar-striped"
+                                                 role="progressbar" aria-valuenow="20" aria-valuemin="0"
+                                                 aria-valuemax="100"
+                                                 style="width: 20%">
+                                                <span class="sr-only">20% Complete</span>
+                                            </div>
+                                        </div>
+                                        <g:link controller="home" action="joinRoom" params="[id: room.id]"
+                                                class="btn btn-block btn-success">Join</g:link>
+                                    </div>
+                                </div>
+                            </div>
+                        </g:each>
+                    </div>
+
+                    <div class="col-md-1"></div>
                 </div>
-
-                <div class="col-md-2"></div>
             </section>
         </div>
     </div>

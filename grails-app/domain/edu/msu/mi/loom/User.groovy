@@ -12,12 +12,14 @@ class User {
     boolean accountLocked
     boolean passwordExpired
 
+    static belongsTo = [room: Room]
     static transients = ['springSecurityService']
 
     static constraints = {
         username blank: false, unique: true, maxSize: 20
         password blank: false
         alias nullable: true
+        room nullable: true
     }
 
     static mapping = {
