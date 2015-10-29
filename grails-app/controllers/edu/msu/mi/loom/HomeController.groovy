@@ -66,6 +66,17 @@ class HomeController {
     }
 
     def stopWaiting() {
+        def roomId = params.id
+        if (roomId) {
+            def room = Room.get(roomId)
+            def user = springSecurityService.currentUser as User
+            room.removeFromUsers(user)
+            if (room.save(flush: true)) {
+                redirect(action: 'index')
+                return
+            }
+        }
 
+        redirect(uri: '/not-found')
     }
 }
