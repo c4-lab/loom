@@ -28,14 +28,8 @@
                                     </div>
 
                                     <div class="box-body">
-                                        <div class="progress progress-sm active">
-                                            <div class="progress-bar progress-bar-success progress-bar-striped"
-                                                 role="progressbar" aria-valuenow="20" aria-valuemin="0"
-                                                 aria-valuemax="100"
-                                                 style="width: 20%">
-                                                <span class="sr-only">20% Complete</span>
-                                            </div>
-                                        </div>
+                                        <loom:progressBar userMaxCount="${room.userMaxCount}"
+                                                          userCount="${room?.users?.size()}"/>
                                         <g:link controller="home" action="joinRoom" params="[id: room.id]"
                                                 class="btn btn-block btn-success">Join</g:link>
                                     </div>

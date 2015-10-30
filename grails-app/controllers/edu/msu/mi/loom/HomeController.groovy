@@ -70,6 +70,7 @@ class HomeController {
         if (roomId) {
             def room = Room.get(roomId)
             def user = springSecurityService.currentUser as User
+            user.alias = null
             room.removeFromUsers(user)
             if (room.save(flush: true)) {
                 redirect(action: 'index')
