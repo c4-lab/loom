@@ -3,18 +3,7 @@
     <div class="wrapper">
         <div class="content-wrapper">
             <section class="content-header">
-                <div id="error-alert" class="alert alert-danger alert-dismissable hide">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <h4><i class="icon fa fa-ban"></i> Error!</h4>
-                    Unable to clone the session. Please try again.
-                </div>
-
-                <div id="success-alert" class="alert alert-success alert-dismissable hide">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <h4><i class="icon fa fa-check"></i> Success!</h4>
-                    <a id="session-link" href=""></a> has been created.
-                </div>
-
+                <g:render template="alert-templates"/>
                 <div>
                     <h1>
                         Admin Board
@@ -57,9 +46,8 @@
                                 <g:if test="${session.experiments.getAt(0).enabled}">
                                     <a href="javascript:void(0);" id="clone-session"
                                        class="btn btn-primary btn-block"><b>Clone the session</b></a>
-                                    <g:link controller="admin" action="publishAnonym" id="publish-anon-session"
-                                            class="btn btn-block btn-success"
-                                            params="[session: session.id]"><b>Publish anonymously</b></g:link>
+                                    <a href="javascript:void(0);" id="publish-anon-session"
+                                       class="btn btn-block btn-success"><b>Publish anonymously</b></a>
                                     <a href="javascript:void(0);" id="publish-by-email"
                                        class="btn btn-block btn-success"><b>Publish by email</b></a>
                                 </g:if>

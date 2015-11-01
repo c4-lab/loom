@@ -131,8 +131,12 @@ class AdminController {
 
         if (sessionId) {
             def session = Session.get(sessionId)
-            roomService.createRoom(session)
-            redirect(action: 'board')
+            def room = roomService.createRoom(session)
+            if (room.id) {
+                render(status: OK)
+            } else {
+                render(status: BAD_REQUEST)
+            }
         } else {
             redirect(uri: '/not-found')
         }

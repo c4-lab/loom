@@ -42,4 +42,18 @@ $(document).ready(function () {
             $('#complete-btn').removeAttr('disabled');
         }
     });
+
+    $("#publish-anon-session").click(function () {
+        $.ajax({
+            url: "/loom/admin/publishAnonym",
+            type: 'POST',
+            data: {
+                session: $("#sessionId").val()
+            }
+        }).success(function (data) {
+            $("#success-publish-anon").toggleClass('hide show');
+        }).error(function () {
+            $("#error-publish-anon").toggleClass('hide show');
+        });
+    });
 });
