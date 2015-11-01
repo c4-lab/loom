@@ -54,7 +54,8 @@ class AdminController {
 
     def completeExperimentCreation() {
         if (request.method == 'GET') {
-            render(view: 'complete', model: [experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
+            def sessionCount = Session.count()
+            render(view: 'complete', model: [sessionCount: sessionCount, experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
         } else {
             def file = request.getFile('graphmlFile').inputStream
             HashMap<String, String> nodeStoryMap = graphParserService.parseGraph(file)
