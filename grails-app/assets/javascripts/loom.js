@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('#complete-btn').pro
     $("#create-experiment").click(function () {
         $("#file-upload-modal").modal('show');
     });
@@ -24,5 +25,21 @@ $(document).ready(function () {
 
     $("#publish-by-email").click(function () {
         $("#email-modal").modal('show');
+    });
+
+    $('#complete-form').find('input').change(function () {
+
+        var empty = false;
+        $('#complete-form').find('input').each(function () {
+            if ($(this).val() == '') {
+                empty = true;
+            }
+        });
+
+        if (empty) {
+            $('#complete-btn').attr('disabled', 'disabled');
+        } else {
+            $('#complete-btn').removeAttr('disabled');
+        }
     });
 });

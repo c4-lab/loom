@@ -246,4 +246,44 @@ class ExperimentService {
 
         "/" + session.name.toLowerCase() + "/" + expUrl
     }
+
+    def startExperiment(Room room) {
+        def session = room.session
+        def experiment = session.experiments.getAt(0)
+        def users = room.users
+        def roundCount = experiment.roundCount
+        def nbrTiles = experiment.initialNbrOfTiles
+
+        def stories = experiment.stories
+        def shuffledStory
+        for (Story story : stories) {
+
+            shuffledStory = shuffleTails(story)
+        }
+
+        def userTails = []
+        for (User user : users) {
+//            def story = Story.executeQuery("select story from UserStory us INNER JOIN us.story story where us.story = story")
+//            from Role as role INNER JOIN Involvement as involvement WHERE involvement.id = X
+//            from Story as story INNER JOIN UserStory as userStory where userStory.story = story.id
+            println "========================="
+            println story
+            println "========================="
+        }
+
+//        select story from UserStory story, Story story where account.fkClient = client.pkClient
+
+
+    }
+
+    private List<Tail> shuffleTails(Story story) {
+        def tails = Tail.findAllByStory(story)
+        def shuffledTails = []
+
+        if (tails) {
+            shuffledTails = Collections.shuffle(tails)
+        }
+
+        return shuffledTails
+    }
 }

@@ -30,5 +30,10 @@ class UrlMappings {
             controller = "home"
             action = "joinRoom"
         }
+
+        "/room/$room" {
+            controller = "home"
+            action = "room"
+        }
     }
 }

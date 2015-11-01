@@ -2,10 +2,11 @@ package edu.msu.mi.loom
 
 import grails.plugin.springsecurity.annotation.Secured
 
-@Secured('ROLE_USER')
+@Secured(['ROLE_USER', 'ROLE_ADMIN'])
 class HomeController {
     def springSecurityService
     def userService
+    def experimentService
 
     static allowedMethods = [
             index: 'GET',
@@ -59,6 +60,9 @@ class HomeController {
             if (room.users.size() != room.userMaxCount) {
                 redirect(action: 'waitingRoom', params: [room: roomId])
                 return
+            } else {
+                redirect(action: 'room', params: [room: roomId])
+                return
             }
         }
 
@@ -74,6 +78,21 @@ class HomeController {
             room.removeFromUsers(user)
             if (room.save(flush: true)) {
                 redirect(action: 'index')
+                return
+            }
+        }
+
+        redirect(uri: '/not-found')
+    }
+
+    def room() {
+        def roomId = params.room
+        if (roomId) {
+            def room = Room.get(roomId)
+
+            if (room) {
+                experimentService.startExperiment(room)
+                render(view: 'room', model: [room: room])
                 return
             }
         }

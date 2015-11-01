@@ -32,7 +32,8 @@
                             <h3 class="box-title">Complete session creation</h3>
                         </div>
 
-                        <g:form enctype="multipart/form-data" controller="admin" action="completeExperimentCreation"
+                        <g:form name="complete-form" enctype="multipart/form-data" controller="admin"
+                                action="completeExperimentCreation"
                                 method="POST">
                             <g:hiddenField name="experimentId" value="${experiment}"/>
                             <div class="box-body">
@@ -51,7 +52,8 @@
                             </div>
 
                             <div class="box-footer">
-                                <button type="submit" class="btn btn-primary">Complete</button>
+                                <button type="submit" disabled="disabled" id="complete-btn"
+                                        class="btn btn-primary">Complete</button>
                             </div>
                         </g:form>
                     </div>

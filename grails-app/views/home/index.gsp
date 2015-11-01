@@ -30,8 +30,10 @@
                                     <div class="box-body">
                                         <loom:progressBar userMaxCount="${room.userMaxCount}"
                                                           userCount="${room?.users?.size()}"/>
-                                        <g:link controller="home" action="joinRoom" params="[id: room.id]"
-                                                class="btn btn-block btn-success">Join</g:link>
+                                        <g:if test="${room.users.size() != room.userMaxCount}">
+                                            <g:link controller="home" action="joinRoom" params="[id: room.id]"
+                                                    class="btn btn-block btn-success">Join</g:link>
+                                        </g:if>
                                     </div>
                                 </div>
                             </div>
