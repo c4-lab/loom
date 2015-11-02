@@ -127,7 +127,7 @@ grails.plugin.springsecurity.authority.className = 'edu.msu.mi.loom.Role'
 grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/home'
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/index.gsp'     : ['permitAll'],
-        '/not-found.gsp': ['permitAll'],
+        '/not-found': ['permitAll'],
         '/assets/**'     : ['permitAll'],
         '/**/js/**'      : ['permitAll'],
         '/**/css/**'     : ['permitAll'],
