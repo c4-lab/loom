@@ -17,27 +17,8 @@
                 <div class="row">
                     <div class="col-md-1"></div>
 
-                    <div class="col-md-10">
-                        <g:each in="${rooms}" var="room">
-                            <div class="col-md-4">
-                                <div class="box box-success box-solid">
-                                    <div class="box-header with-border">
-                                        <h3 class="box-title">${room.name}</h3>
-
-                                        <div class="box-tools pull-right"></div>
-                                    </div>
-
-                                    <div class="box-body">
-                                        <loom:progressBar userMaxCount="${room.userMaxCount}"
-                                                          userCount="${room?.users?.size()}"/>
-                                        <g:if test="${room.users.size() != room.userMaxCount}">
-                                            <g:link controller="home" action="joinRoom" params="[id: room.id]"
-                                                    class="btn btn-block btn-success">Join</g:link>
-                                        </g:if>
-                                    </div>
-                                </div>
-                            </div>
-                        </g:each>
+                    <div class="col-md-10" id="roomsTemplate">
+                        <g:render template="rooms" model="[rooms: rooms]"/>
                     </div>
 
                     <div class="col-md-1"></div>
@@ -45,4 +26,19 @@
             </section>
         </div>
     </div>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            setInterval(function () {
+                jQuery.ajax({
+                    url: "/loom/home/updateRooms",
+                    type: 'POST',
+                    data: {}
+                }).success(function (data) {
+                    jQuery("#roomsTemplate").html(data);
+                }).error(function () {
+                });
+            }, 5000);
+        });
+    </script>
 </g:applyLayout>

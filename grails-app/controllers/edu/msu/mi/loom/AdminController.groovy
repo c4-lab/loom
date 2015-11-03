@@ -17,6 +17,8 @@ class AdminController {
     def graphParserService
     def roomService
     def emailService
+    def userService
+    def springSecurityService
 
     static allowedMethods = [
             board       : 'GET',
@@ -159,5 +161,11 @@ class AdminController {
             }
         }
         redirect(uri: '/not-found')
+    }
+
+    @Secured('permitAll')
+    def deleteUser() {
+        def user = springSecurityService.currentUser as User
+        userService.deleteUser(user)
     }
 }

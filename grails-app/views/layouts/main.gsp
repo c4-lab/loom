@@ -20,9 +20,17 @@
     <asset:stylesheet src="blue.css"/>
     <asset:stylesheet src="_all-skins.min.css"/>
     <asset:stylesheet src="morris.css"/>
+    <asset:stylesheet src="dragndrop.css"/>
+    <asset:stylesheet src="jquery-ui.css"/>
 
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
+    <asset:javascript src="jquery-1.11.3.js"/>
+    <asset:javascript src="jquery-ui.js"/>
+    <asset:javascript src="bootstrap.min.js"/>
+    <asset:javascript src="application.js"/>
+    <asset:javascript src="loom.js"/>
     <g:layoutHead/>
 </head>
 
@@ -59,11 +67,5 @@
     <strong>Copyright &copy; 2015 <a href="javascript:void(0);">Loom</a>.
     </strong> All rights reserved.
 </footer>
-
-<asset:javascript src="jquery-1.11.3.js"/>
-<asset:javascript src="bootstrap.min.js"/>
-<asset:javascript src="application.js"/>
-<asset:javascript src="loom.js"/>
-
 </body>
 </html>

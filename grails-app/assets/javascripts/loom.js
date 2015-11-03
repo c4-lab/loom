@@ -56,4 +56,47 @@ $(document).ready(function () {
             $("#error-publish-anon").toggleClass('hide show');
         });
     });
+
+    $("#dvSource").find("li").draggable({
+        appendTo: "body",
+        helper: "clone"
+    });
+    $("#dvDest").find("ul").droppable({
+        activeClass: "ui-state-default",
+        hoverClass: "ui-state-hover",
+        accept: ":not(.ui-sortable-helper)",
+        drop: function (event, ui) {
+            $(this).find(".placeholder").remove();
+            $("<li class='ui-state-default ui-draggable ui-draggable-handle'></li>").text(ui.draggable.text()).appendTo(this);
+        }
+    }).sortable({
+        items: "li:not(.placeholder)",
+        sort: function () {
+            $(this).removeClass("ui-state-default");
+        }
+    });
+
+    //var inFormOrLink;
+    //$('a').on('click', function() { inFormOrLink = true; });
+    //$('form').on('submit', function() { inFormOrLink = true; });
+    //$(document).keydown(function(e) {
+    //    if (e.keyCode == 65 && e.ctrlKey) {
+    //        inFormOrLink = true;
+    //    }
+    //    if (e.keyCode == 116 && e.ctrlKey) {
+    //        inFormOrLink = true;
+    //    }
+    //});
+    //
+    //$(window).on('beforeunload', function(){
+    //    if (!inFormOrLink) {
+    //        $.ajax({
+    //            url: "/loom/admin/deleteUser",
+    //            type: 'POST',
+    //            data: {}
+    //        }).success(function (data) {
+    //        }).error(function () {
+    //        });
+    //    }
+    //});
 });

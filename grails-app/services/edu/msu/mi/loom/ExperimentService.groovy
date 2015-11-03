@@ -89,7 +89,7 @@ class ExperimentService {
             for (int j = 0; j < json.sequence.size(); j++) {
                 for (int k = 1; k <= json.sequence.get(j).size(); k++) {
                     for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
-                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j)
+                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j, simulation)
                         if (userTask.save(flush: true)) {
                             log.debug("New simulationTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
                         } else {
@@ -250,40 +250,57 @@ class ExperimentService {
     def startExperiment(Room room) {
         def session = room.session
         def experiment = session.experiments.getAt(0)
+        def stories = experiment.stories
         def users = room.users
         def roundCount = experiment.roundCount
         def nbrTiles = experiment.initialNbrOfTiles
 
-        def stories = experiment.stories
-        def shuffledStory
-        for (Story story : stories) {
-
-            shuffledStory = shuffleTails(story)
-        }
-
-        def userTails = []
         for (User user : users) {
-//            def story = Story.executeQuery("select story from UserStory us INNER JOIN us.story story where us.story = story")
-//            from Role as role INNER JOIN Involvement as involvement WHERE involvement.id = X
-//            from Story as story INNER JOIN UserStory as userStory where userStory.story = story.id
-            println "========================="
-            println story
-            println "========================="
+            def story = UserStory.findByAliasAndStoryInList(user.alias, stories as List).story
+            def tails = shuffleTails(story)
+            Round.withNewTransaction { status ->
+                try {
+                    if (tails.size() > nbrTiles) {
+                        for (int i = 1; i <= roundCount; i++) {
+                            def tailsList = []
+                            for (int j = 0; j < nbrTiles; j++) {
+                                tailsList.add(tails.get(j).id)
+                            }
+                            def round = new Round(roundNbr: i, user: user, story: story, tails: tailsList)
+                            if (round.save(flush: true)) {
+                                log.debug("New round has been created with id " + round.id)
+                            } else {
+                                log.debug("There was problem with round creation.")
+                                log.error(round?.errors?.dump())
+                                return null
+                            }
+                        }
+                    }
+                } catch (Exception exp) {
+                    status.setRollbackOnly()
+                }
+            }
+        }
+    }
+
+    Training getNextTraining(Session session, int number = -1) {
+        Training training
+        if (number == -1) {
+            training = session.trainings.getAt(0)
+        } else if (session.trainings.size() >= number) {
+            training = session.trainings.getAt(number)
         }
 
-//        select story from UserStory story, Story story where account.fkClient = client.pkClient
-
-
+        return training
     }
 
     private List<Tail> shuffleTails(Story story) {
         def tails = Tail.findAllByStory(story)
-        def shuffledTails = []
 
         if (tails) {
-            shuffledTails = Collections.shuffle(tails)
+            Collections.shuffle(tails)
         }
 
-        return shuffledTails
+        return tails
     }
 }

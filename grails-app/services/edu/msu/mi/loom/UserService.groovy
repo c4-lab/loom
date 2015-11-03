@@ -27,6 +27,10 @@ class UserService {
         def role = UserRole.findByUser(user).role
         if (role?.authority == 'ROLE_USER') {
             UserRole.remove(user, role)
+            def rounds = Round.findAllByUser(user)
+            rounds.each {
+                it.delete()
+            }
             user.delete(flush: true)
             log.debug("User has been deleted")
         }

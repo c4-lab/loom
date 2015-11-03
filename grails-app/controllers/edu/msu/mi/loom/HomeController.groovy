@@ -57,16 +57,36 @@ class HomeController {
             room.addToUsers(user)
             room.save(flush: true)
 
-            if (room.users.size() != room.userMaxCount) {
-                redirect(action: 'waitingRoom', params: [room: roomId])
-                return
-            } else {
-                redirect(action: 'room', params: [room: roomId])
+            redirect(action: 'training', params: [session: room.session.id])
+            return
+//            if (room.users.size() != room.userMaxCount) {
+//                redirect(action: 'waitingRoom', params: [room: roomId])
+//                return
+//            } else {
+//                redirect(action: 'room', params: [room: roomId])
+//                return
+//            }
+        }
+
+        redirect(uri: '/not-found')
+    }
+
+    def training() {
+        def sessionId = params.session
+        if (sessionId) {
+            def session = Session.get(sessionId)
+            if (session) {
+                def training = experimentService.getNextTraining(session)
+                render(view: 'training', model: [training: training])
                 return
             }
         }
 
         redirect(uri: '/not-found')
+    }
+
+    def submitTraining() {
+
     }
 
     def stopWaiting() {
@@ -98,5 +118,10 @@ class HomeController {
         }
 
         redirect(uri: '/not-found')
+    }
+
+    def updateRooms() {
+        def rooms = Room.list()
+        render(template: 'rooms', model: [rooms: rooms])
     }
 }
