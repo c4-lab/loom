@@ -2,11 +2,13 @@
     <div class="wrapper">
         <div class="content-wrapper">
             <section class="content-header">
+                <g:render template="alert-templates"/>
                 <div class="row">
                     <div class="col-md-1"></div>
 
                     <div class="col-md-10">
                         <h1>${training.name}</h1>
+                        <g:hiddenField name="training" value="${training.id}"/>
                     </div>
 
                     <div class="col-md-1"></div>
@@ -29,8 +31,8 @@
 
                                     <div class="col-md-10 table-bordered" style="min-height: 200px !important;">
                                         <ul id="dvSource">
-                                            <g:each in="${training.stories.getAt(0).tails}" var="tail">
-                                                <li class="ui-state-default">${tail.text}</li>
+                                            <g:each in="${tts}" var="tt">
+                                                <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
                                             </g:each>
                                         </ul>
                                     </div>
@@ -51,6 +53,18 @@
                                     </div>
 
                                     <div class="col-md-1"></div>
+                                </div>
+
+                                <hr/>
+
+                                <div class="row">
+                                    <div class="col-lg-9"></div>
+
+                                    <div class="col-lg-3">
+                                        <button type="submit" class="btn btn-success"
+                                                id="submit-training">Submit</button>
+                                        <button type="reset" class="btn btn-default">Reset</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

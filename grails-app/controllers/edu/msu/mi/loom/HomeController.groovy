@@ -77,7 +77,8 @@ class HomeController {
             def session = Session.get(sessionId)
             if (session) {
                 def training = experimentService.getNextTraining(session)
-                render(view: 'training', model: [training: training])
+                def tts = TrainingTask.findAllByTraining(training).tail
+                render(view: 'training', model: [tts: tts, training: training])
                 return
             }
         }

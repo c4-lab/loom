@@ -67,13 +67,34 @@ $(document).ready(function () {
         accept: ":not(.ui-sortable-helper)",
         drop: function (event, ui) {
             $(this).find(".placeholder").remove();
-            $("<li class='ui-state-default ui-draggable ui-draggable-handle'></li>").text(ui.draggable.text()).appendTo(this);
+            $("<li class='ui-state-default ui-draggable ui-draggable-handle' id='" + ui.draggable.attr("id") + "'></li>").text(ui.draggable.text()).appendTo(this);
         }
     }).sortable({
         items: "li:not(.placeholder)",
         sort: function () {
             $(this).removeClass("ui-state-default");
         }
+    });
+
+    $("#submit-training").click(function () {
+        var elems = $("#dvDest").find('ul li');
+        var text_all = elems.map(function () {
+            return $(this).text();
+        }).get().join(";");
+
+        console.log(text_all);
+        $.ajax({
+            url: "/loom/experiment/submitTraining",
+            type: 'POST',
+            data: {
+                tails: text_all,
+                training: $("#training").val()
+            }
+        }).success(function (data) {
+
+        }).error(function () {
+            $("#dvDest").css('border', 'solid 1px red');
+        });
     });
 
     //var inFormOrLink;

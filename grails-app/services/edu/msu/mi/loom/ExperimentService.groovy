@@ -52,14 +52,19 @@ class ExperimentService {
                 story = new Story(title: "Story").save(flush: true)
                 training.addToStories(story)
                 for (int i = 0; i < tr.problem.size(); i++) {
-                    tail = new Tail(text: tr.solution.get(i), text_order: tr.problem.get(i))
-                    if (tail.save(failOnError: true)) {
-                        story.addToTails(tail)
+                    tail = new Tail(text: tr.solution.get(i))
+                    if (tail.save(flush: true)) {
+                        story.addToTails(tail).save(flush: true)
                         log.debug("New task with id ${tail.id} has been created.")
                     } else {
                         log.error("Task creation attempt failed")
                         log.error(training?.errors?.dump())
                     }
+                }
+
+                def tails = Tail.findAllByStory(story)
+                for (int i = 0; i < tr.problem.size(); i++) {
+                    new TrainingTask(training: training, tail: tails.get(tr.problem.get(i))).save(flush: true)
                 }
             } else {
                 log.error("Training creation attempt failed")
@@ -285,10 +290,11 @@ class ExperimentService {
 
     Training getNextTraining(Session session, int number = -1) {
         Training training
+        def trainingLst = Training.findAllBySession(session)
         if (number == -1) {
-            training = session.trainings.getAt(0)
+            training = trainingLst.getAt(0)
         } else if (session.trainings.size() >= number) {
-            training = session.trainings.getAt(number)
+            training = trainingLst.getAt(number)
         }
 
         return training
