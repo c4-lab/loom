@@ -97,27 +97,7 @@ $(document).ready(function () {
         });
     });
 
-    //var inFormOrLink;
-    //$('a').on('click', function() { inFormOrLink = true; });
-    //$('form').on('submit', function() { inFormOrLink = true; });
-    //$(document).keydown(function(e) {
-    //    if (e.keyCode == 65 && e.ctrlKey) {
-    //        inFormOrLink = true;
-    //    }
-    //    if (e.keyCode == 116 && e.ctrlKey) {
-    //        inFormOrLink = true;
-    //    }
-    //});
-    //
-    //$(window).on('beforeunload', function(){
-    //    if (!inFormOrLink) {
-    //        $.ajax({
-    //            url: "/loom/admin/deleteUser",
-    //            type: 'POST',
-    //            data: {}
-    //        }).success(function (data) {
-    //        }).error(function () {
-    //        });
-    //    }
-    //});
+    $("#reset-training").click(function () {
+        $("#dvDest").find('ul li').remove();
+    });
 });

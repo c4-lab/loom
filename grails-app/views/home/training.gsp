@@ -63,7 +63,7 @@
                                     <div class="col-lg-3">
                                         <button type="submit" class="btn btn-success"
                                                 id="submit-training">Submit</button>
-                                        <button type="reset" class="btn btn-default">Reset</button>
+                                        <button type="reset" id="reset-training" class="btn btn-default">Reset</button>
                                     </div>
                                 </div>
                             </div>
