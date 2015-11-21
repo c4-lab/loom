@@ -57,6 +57,16 @@ $(document).ready(function () {
         });
     });
 
+    init();
+});
+
+function init() {
+    initDragNDrop();
+    resetTraining();
+    submitTraining();
+}
+
+function initDragNDrop() {
     $("#dvSource").find("li").draggable({
         appendTo: "body",
         helper: "clone"
@@ -75,7 +85,15 @@ $(document).ready(function () {
             $(this).removeClass("ui-state-default");
         }
     });
+}
 
+function resetTraining() {
+    $("#reset-training").click(function () {
+        $("#dvDest").find('ul li').remove();
+    });
+}
+
+function submitTraining() {
     $("#submit-training").click(function () {
         var elems = $("#dvDest").find('ul li');
         var text_all = elems.map(function () {
@@ -88,16 +106,16 @@ $(document).ready(function () {
             type: 'POST',
             data: {
                 tails: text_all,
-                training: $("#training").val()
+                training: $("#training").val(),
+                trainingName: $("#training-name").text()
             }
         }).success(function (data) {
-
+            $("#training-content-wrapper").html(data);
+            init();
         }).error(function () {
             $("#dvDest").css('border', 'solid 1px red');
+            $("#warning-alert").addClass('show');
+            $("#warning-alert").removeClass('hide');
         });
     });
-
-    $("#reset-training").click(function () {
-        $("#dvDest").find('ul li').remove();
-    });
-});
+}

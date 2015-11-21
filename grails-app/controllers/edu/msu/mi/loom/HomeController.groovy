@@ -59,13 +59,6 @@ class HomeController {
 
             redirect(action: 'training', params: [session: room.session.id])
             return
-//            if (room.users.size() != room.userMaxCount) {
-//                redirect(action: 'waitingRoom', params: [room: roomId])
-//                return
-//            } else {
-//                redirect(action: 'room', params: [room: roomId])
-//                return
-//            }
         }
 
         redirect(uri: '/not-found')
@@ -74,7 +67,11 @@ class HomeController {
     def training() {
         def sessionId = params.session
         if (sessionId) {
-            def session = Session.get(sessionId)
+            if (session["seqNumber"]) {
+                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: session["seqNumber"]])
+                return
+            }
+            def session = Session.get(Long.parseLong(sessionId))
             if (session) {
                 def training = experimentService.getNextTraining(session)
                 def tts = TrainingTask.findAllByTraining(training).tail
@@ -84,10 +81,6 @@ class HomeController {
         }
 
         redirect(uri: '/not-found')
-    }
-
-    def submitTraining() {
-
     }
 
     def stopWaiting() {
