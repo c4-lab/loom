@@ -18,3 +18,8 @@ ul {
     display: inline-block;
     cursor: move;
 }
+
+.purple {
+    background-color: purple !important;
+    color: beige !important;
+}

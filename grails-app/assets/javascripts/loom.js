@@ -57,13 +57,20 @@ $(document).ready(function () {
         });
     });
 
-    init();
+    initTraining();
+    initSimulation();
 });
 
-function init() {
+function initTraining() {
     initDragNDrop();
     resetTraining();
     submitTraining();
+}
+
+function initSimulation() {
+    initDragNDrop();
+    resetSimulation();
+    submitSimulation();
 }
 
 function initDragNDrop() {
@@ -77,7 +84,7 @@ function initDragNDrop() {
         accept: ":not(.ui-sortable-helper)",
         drop: function (event, ui) {
             $(this).find(".placeholder").remove();
-            $("<li class='ui-state-default ui-draggable ui-draggable-handle' id='" + ui.draggable.attr("id") + "'></li>").text(ui.draggable.text()).appendTo(this);
+            $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>").text(ui.draggable.text()).appendTo(this);
         }
     }).sortable({
         items: "li:not(.placeholder)",
@@ -116,12 +123,51 @@ function submitTraining() {
                 window.location = "/loom/experiment/simulation/" + session;
             } else {
                 $("#training-content-wrapper").html(data);
-                init();
+                initTraining();
             }
         }).error(function () {
             $("#dvDest").css('border', 'solid 1px red');
             $("#warning-alert").addClass('show');
             $("#warning-alert").removeClass('hide');
         });
+    });
+}
+
+function submitSimulation() {
+    $("#submit-simulation").click(function () {
+        var elems = $("#dvDest").find('ul li');
+        var text_all = elems.map(function () {
+            return $(this).text();
+        }).get().join(";");
+
+        console.log(text_all);
+        $.ajax({
+            url: "/loom/experiment/submitSimulation",
+            type: 'POST',
+            data: {
+                tails: text_all,
+                simulation: $("#simulation").val(),
+                roundNumber: $("#roundNumber").text()
+            }
+        }).success(function (data) {
+            if (data.indexOf("simulation") >= 0) {
+                var session = JSON.parse(data).sesId;
+                console.log("/loom/experiment/simulation/" + session);
+                window.location = "/loom/experiment/simulation/" + session;
+            } else {
+                $("#simulation-content-wrapper").html(data);
+                initSimulation();
+            }
+        }).error(function () {
+            $("#dvDest").css('border', 'solid 1px red');
+            $("#warning-alert").addClass('show');
+            $("#warning-alert").removeClass('hide');
+        });
+    });
+}
+
+function resetSimulation() {
+    $("#reset-simulation").click(function () {
+        $("#dvDest").find('ul li').remove();
     });
 }

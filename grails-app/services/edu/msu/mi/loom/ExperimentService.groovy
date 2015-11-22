@@ -94,7 +94,7 @@ class ExperimentService {
             for (int j = 0; j < json.sequence.size(); j++) {
                 for (int k = 1; k <= json.sequence.get(j).size(); k++) {
                     for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
-                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, simulation)
+                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j, simulation)
                         if (userTask.save(flush: true)) {
                             log.debug("New simulationTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
                         } else {

@@ -65,14 +65,49 @@ class ExperimentController {
             def session = Session.get(Long.parseLong(sessionId))
             if (session) {
                 def simulation = session.simulations.getAt(0)
-                def room = Room.findBySession(session)
-                def tts = SimulationTask.findAllBySimulation(simulation).tail
+                def userCount = simulation.userCount
+                def userList = [:]
 
-                render(view: '/home/simulation', model: [simulation: simulation, room: room, tts: tts])
+                if (params.roundNumber) {
+                    def roundNumber = Integer.parseInt(params.roundNumber)
+                    for (int i = 1; i <= userCount; i++) {
+                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
+                        userList.put(i, [roundNbr: roundNumber, tts: tts])
+                    }
+
+                    render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
+                    return
+                } else {
+                    for (int i = 1; i <= userCount; i++) {
+                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, 0).tail
+                        userList.put(i, [roundNbr: 0, tts: tts])
+                    }
+
+                    render(view: '/home/simulation', model: [roundNbr: 0, simulation: simulation, userList: userList])
+                    return
+                }
+            }
+        }
+        redirect(uri: '/not-found')
+    }
+
+    def submitSimulation() {
+        def userTails = params.tails
+        List<String> tailsList = Arrays.asList(userTails.split(";"));
+        def simulationId = params.simulation
+
+        if (simulationId && params.roundNumber) {
+            def simulation = Simulation.findById(simulationId)
+            def roundNumber = params.roundNumber.split("[^0-9]+")[1]
+
+            def story = Story.findBySimulation(simulation)
+            def tails = Tail.findAllByStory(story)
+            if (tails.text.equals(tailsList)) {
+                redirect(action: 'simulation', params: [roundNumber: roundNumber, id: simulation?.session?.id])
                 return
             }
         }
 
-        redirect(uri: '/not-found')
+        render(status: BAD_REQUEST)
     }
 }
