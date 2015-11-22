@@ -110,8 +110,14 @@ function submitTraining() {
                 trainingName: $("#training-name").text()
             }
         }).success(function (data) {
-            $("#training-content-wrapper").html(data);
-            init();
+            if (data.indexOf("simulation") >= 0) {
+                var session = JSON.parse(data).sesId;
+                console.log("/loom/experiment/simulation/" + session);
+                window.location = "/loom/experiment/simulation/" + session;
+            } else {
+                $("#training-content-wrapper").html(data);
+                init();
+            }
         }).error(function () {
             $("#dvDest").css('border', 'solid 1px red');
             $("#warning-alert").addClass('show');

@@ -40,5 +40,10 @@ class UrlMappings {
             controller = "home"
             action = "training"
         }
+
+        "/simulation/$session" {
+            controller = "experiment"
+            action = "simulation"
+        }
     }
 }

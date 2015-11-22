@@ -1,8 +1,10 @@
 package edu.msu.mi.loom
 
+import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
+import static org.springframework.http.HttpStatus.OK
 
 @Secured("ROLE_USER")
 class ExperimentController {
@@ -47,7 +49,7 @@ class ExperimentController {
                     return
                 } else {
                     session["seqNumber"] = null
-                    redirect(action: 'simulation', params: [session: sessionId])
+                    render(status: OK, text: [simulation: 'simulation', sesId: sessionId] as JSON)
                     return
                 }
             }
@@ -57,11 +59,17 @@ class ExperimentController {
     }
 
     def simulation() {
-        def sessionId = params.session
+        def sessionId = params.id
 
         if (sessionId) {
             def session = Session.get(Long.parseLong(sessionId))
             if (session) {
+                def simulation = session.simulations.getAt(0)
+                def room = Room.findBySession(session)
+                def tts = SimulationTask.findAllBySimulation(simulation).tail
+
+                render(view: '/home/simulation', model: [simulation: simulation, room: room, tts: tts])
+                return
             }
         }
 
