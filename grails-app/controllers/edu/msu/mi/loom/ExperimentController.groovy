@@ -67,25 +67,20 @@ class ExperimentController {
                 def simulation = session.simulations.getAt(0)
                 def userCount = simulation.userCount
                 def userList = [:]
-
+                def roundNumber
                 if (params.roundNumber) {
-                    def roundNumber = Integer.parseInt(params.roundNumber)
-                    for (int i = 1; i <= userCount; i++) {
-                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
-                        userList.put(i, [roundNbr: roundNumber, tts: tts])
-                    }
-
-                    render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
-                    return
+                    roundNumber = Integer.parseInt(params.roundNumber)
                 } else {
-                    for (int i = 1; i <= userCount; i++) {
-                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, 0).tail
-                        userList.put(i, [roundNbr: 0, tts: tts])
-                    }
-
-                    render(view: '/home/simulation', model: [roundNbr: 0, simulation: simulation, userList: userList])
-                    return
+                    roundNumber = 0
                 }
+
+                for (int i = 1; i <= userCount; i++) {
+                    def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
+                    userList.put(i, [roundNbr: roundNumber, tts: tts])
+                }
+
+                render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
+                return
             }
         }
         redirect(uri: '/not-found')
