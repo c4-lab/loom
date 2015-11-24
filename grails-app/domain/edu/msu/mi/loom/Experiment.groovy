@@ -1,11 +1,12 @@
 package edu.msu.mi.loom
 
-import groovy.transform.AutoClone
+import groovy.transform.ToString
+import groovy.util.logging.Slf4j
 
-@AutoClone
+@Slf4j
+@ToString(includeNames = true)
 class Experiment {
     String name
-    String url
     int roundCount
     int roundTime
     Date dateCreated
@@ -18,7 +19,6 @@ class Experiment {
 
     static constraints = {
         name blank: false
-        url blank: false, unique: true
         roundCount min: 1
         roundTime min: 1
         userCount min: 2
@@ -26,5 +26,26 @@ class Experiment {
     }
 
     static mapping = {
+    }
+
+    public Experiment clone() {
+        Experiment copy = new Experiment()
+
+        copy.name = this.name
+        copy.roundCount = this.roundCount
+        copy.roundTime = this.roundTime
+        copy.userCount = this.userCount
+        copy.initialNbrOfTiles = this.initialNbrOfTiles
+        copy.enabled = this.enabled
+
+        for (Story story : stories) {
+            copy.addToStories(story)
+        }
+
+        for (Edge edge : edges) {
+            copy.addToEdges(edge)
+        }
+
+        return copy
     }
 }

@@ -1,8 +1,8 @@
 package edu.msu.mi.loom
 
-import groovy.transform.AutoClone
+import groovy.transform.ToString
 
-@AutoClone
+@ToString(includeNames = true)
 class Simulation {
     String name
     int roundCount
@@ -21,5 +21,20 @@ class Simulation {
     }
 
     static mapping = {
+    }
+
+    public Simulation clone() {
+        Simulation copy = new Simulation()
+
+        copy.name = this.name
+        copy.roundCount = this.roundCount
+        copy.roundTime = this.roundTime
+        copy.userCount = this.userCount
+
+        for (Story story : stories) {
+            copy.addToStories(story)
+        }
+
+        return copy
     }
 }

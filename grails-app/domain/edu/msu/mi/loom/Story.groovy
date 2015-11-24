@@ -13,4 +13,16 @@ class Story {
         simulation nullable: true
         training nullable: true
     }
+
+    public Story clone() {
+        Story copy = new Story()
+
+        copy.title = this.title
+
+        for (Tail tail : tails) {
+            copy.addToTails(tail)
+        }
+
+        return copy
+    }
 }

@@ -10,7 +10,7 @@ import java.text.Normalizer
 class ExperimentService {
     def createSession(def json) {
         Session.withNewTransaction { status ->
-            def session = new Session(name: 'Session_' + (Session.count() + 1))
+            def session = new Session(name: 'Session_' + (Session.count() + 1), url: createExperimentUrl('Session_' + (Session.count() + 1)))
 
             if (session.save(flush: true)) {
                 log.debug("New session with id ${session.id} has been created.")
@@ -115,7 +115,7 @@ class ExperimentService {
         def tail
         def story
         Experiment experiment
-        experiment = new Experiment(name: "Experiment", url: createExperimentUrl(session, "Experiment"), session: session,
+        experiment = new Experiment(name: "Experiment", session: session,
                 roundTime: json.timeperround, roundCount: json.numberofrounds, initialNbrOfTiles: json.initialnumberoftiles, userCount: 2)
 
         if (experiment.save(flush: true)) {
@@ -126,13 +126,8 @@ class ExperimentService {
                 experiment.addToStories(story)
                 for (int i = 0; i < tr.data.size(); i++) {
                     tail = new Tail(text: tr.data.get(i), text_order: i)
-//                    if (tail.save(failOnError: true)) {
                     story.addToTails(tail).save(flush: true)
                     log.debug("New tail with id ${tail.id} has been created.")
-//                    } else {
-//                        log.error("Task creation attempt failed")
-//                        log.error(experiment?.errors?.dump())
-//                    }
                 }
             }
             return experiment
@@ -163,47 +158,7 @@ class ExperimentService {
     }
 
     def cloneExperiment(Session session) {
-        Session sessionClone = new Session()
-        def count = Session.count()
-        sessionClone.id = null
-        sessionClone.name = "Session_" + (count + 1)
-        sessionClone.dateCreated = new Date()
-        session.experiments.each { experiment ->
-            Experiment expClone = experiment.clone()
-            expClone.id = null
-            expClone.url = createExperimentUrl(sessionClone, expClone.name)
-            expClone.task = null
-            experiment.task.each { task ->
-                Tail taskClone = task.clone()
-                taskClone.id = null
-                expClone.addToTask(taskClone).save(flush: true)
-            }
-            sessionClone.addToExperiments(expClone).save(flush: true)
-        }
-        session.trainings.each { training ->
-            Training trainingClone = training.clone()
-            trainingClone.id = null
-            trainingClone.task = null
-            training.task.each { task ->
-                Tail taskClone = task.clone()
-                taskClone.id = null
-                trainingClone.addToTask(taskClone).save(flush: true)
-            }
-            sessionClone.addToTrainings(trainingClone).save(flush: true)
-        }
-        session.simulations.each { simulation ->
-            Simulation simulationClone = simulation.clone()
-            simulationClone.id = null
-            simulationClone.task = null
-            simulation.task.each { task ->
-                Tail taskClone = task.clone()
-                taskClone.id = null
-                simulationClone.addToTask(taskClone).save(flush: true)
-            }
-            sessionClone.addToSimulations(simulationClone).save(flush: true)
-        }
-
-
+        Session sessionClone = session.clone()
         if (sessionClone.save(flush: true)) {
             log.debug("Session clone has been created with id " + sessionClone.id)
             return sessionClone
@@ -239,17 +194,17 @@ class ExperimentService {
         }
     }
 
-    private static String createExperimentUrl(Session session, String title) {
-        def expUrl = Normalizer.normalize(title?.toLowerCase(), Normalizer.Form.NFD)
+    private static String createExperimentUrl(String sessionName) {
+        def expUrl = Normalizer.normalize(sessionName?.toLowerCase(), Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
                 .replaceAll("[^\\p{Alnum}]+", "-")
                 .replace("--", "-").replace("--", "-")
                 .replaceAll('[^a-z0-9]+$', "")
                 .replaceAll("^[^a-z0-9]+", "")
 
-        log.info("Generated url: " + "/" + session.name + "/" + expUrl)
+        log.info("Generated url: " + "/" + expUrl)
 
-        "/" + session.name.toLowerCase() + "/" + expUrl
+        "/" + expUrl
     }
 
     def startExperiment(Room room) {

@@ -1,9 +1,7 @@
 package edu.msu.mi.loom
 
-import groovy.transform.AutoClone
 import groovy.transform.ToString
 
-@AutoClone
 @ToString(includeNames = true)
 class Training {
     String name
@@ -17,5 +15,17 @@ class Training {
     }
 
     static mapping = {
+    }
+
+    public Training clone() {
+        Training copy = new Training()
+
+        copy.name = this.name
+
+        for (Story story : stories) {
+            copy.addToStories(story)
+        }
+
+        return copy
     }
 }
