@@ -152,9 +152,26 @@ class ExperimentService {
 
         experiment.userCount = map.size()
         experiment.enabled = true
-        experiment.save(flush: true)
+        if (experiment.save(flush: true)) {
+            shuffleTails(experiment)
+        }
 
         return experiment
+    }
+
+    private def shuffleTails(Experiment experiment) {
+        for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
+            for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
+                def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + userNbr).get(m)),
+                        userNbr, roundNbr, experiment)
+                if (experimentTask.save(flush: true)) {
+                    log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
+                } else {
+                    log.error("ExperimentTask creation attempt failed")
+                    log.error(experimentTask?.errors?.dump())
+                }
+            }
+        }
     }
 
     def cloneExperiment(Session session) {

@@ -4,8 +4,8 @@
 
         <div class="col-md-10">
             <g:render template="/home/alert-templates"/>
-            <h1 id="simulation-name">${simulation.name}</h1>
-            <g:hiddenField name="simulation" value="${simulation.id}"/>
+            <h1 id="experiment-name">${experiment.name}</h1>
+            <g:hiddenField name="simulation" value="${experiment.id}"/>
         </div>
 
         <div class="col-md-1"></div>
@@ -62,14 +62,7 @@
 
                         <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
                             <ul style="min-height: 200px !important;">
-                                <g:if test="${tempStory?.size() > 0}">
-                                    <g:each in="${tempStory}" var="tail">
-                                        <li class="ui-state-default purple" id="${tail.id}">${tail.text}</li>
-                                    </g:each>
-                                </g:if>
-                                <g:else>
-                                    <li class="placeholder">Add tails here</li>
-                                </g:else>
+                                <li class="placeholder">Add tails here</li>
                             </ul>
                         </div>
 
