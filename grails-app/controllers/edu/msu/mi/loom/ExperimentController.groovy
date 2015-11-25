@@ -2,10 +2,12 @@ package edu.msu.mi.loom
 
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
+import groovy.util.logging.Slf4j
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
 
+@Slf4j
 @Secured("ROLE_USER")
 class ExperimentController {
     static allowedMethods = [
@@ -136,23 +138,25 @@ class ExperimentController {
                 def roundNumber
                 if (params.roundNumber) {
                     roundNumber = Integer.parseInt(params.roundNumber)
+                    def tailList = []
+                    if (params.tempStory) {
+                        params.tempStory.each {
+                            tailList.add(Tail.findById(it))
+                        }
+                    }
+
                     if (roundNumber < experiment.roundCount) {
                         for (int i = 1; i <= userCount; i++) {
                             def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
                             userList.put(i, [roundNbr: roundNumber, tts: tts])
                         }
 
-                        def tailList = []
-                        if (params.tempStory) {
-                            params.tempStory.each {
-                                tailList.add(Tail.findById(it))
-                            }
-                        }
-
                         render(template: '/home/experiment_content', model: [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList])
                         return
                     } else {
-                        render(status: OK, text: [experiment: 'experiment', sesId: sessionId] as JSON)
+                        def user = springSecurityService.currentUser as User
+                        flash."${user.alias}-${experiment.id}" = tailList.text_order
+                        render(status: OK, text: [experiment: 'finishExperiment', sesId: sessionId] as JSON)
                         return
                     }
                 } else {
@@ -187,5 +191,68 @@ class ExperimentController {
         }
 
         render(status: BAD_REQUEST)
+    }
+
+    def finishExperiment() {
+        def sessionId = params.session
+
+        if (sessionId) {
+            def session = Session.get(sessionId)
+
+            if (session) {
+                def experiment = session.experiments.getAt(0)
+
+                if (experiment) {
+                    def user = springSecurityService.currentUser as User
+                    def story = UserStory.findByExperimentAndAlias(experiment, user.alias)?.story
+                    def rightStory = Tail.findAllByStory(story).text_order
+                    def userStory = flash."${user.alias}-${experiment.id}"
+//                    List<Integer> userStory = new ArrayList<Integer>(Arrays.asList(flash."${user.alias}-${experiment.id}".split(",")));
+
+                    println "-----right story--------"
+                    println rightStory
+                    println "::::::::::::::::::::::::::::::::::"
+                    println "-----user story--------"
+                    println userStory
+                    println "::::::::::::::::::::::::::::::::::"
+                    def score = score(rightStory, userStory)
+
+                    if (score != -1) {
+                        render(view: 'finish', model: [experiment: experiment, score: score])
+                        return
+                    }
+                }
+            }
+        }
+
+        render(status: BAD_REQUEST)
+
+    }
+
+    public static Float score(List<Integer> truth, List<Integer> sample) {
+        log.debug("Checking truth:" + truth + " against sample:" + sample);
+        Map<Integer, Integer> tmap = new HashMap<Integer, Integer>();
+        int i = 0;
+        for (Integer t : truth) {
+            tmap.put(t, i++);
+        }
+
+        if (sample) {
+            tmap.keySet().retainAll(sample);
+            int last = -1;
+            int accountedFor = 0;
+            for (Integer s : sample) {
+                if (last > -1) {
+                    if (tmap.get(last) < tmap.get(s)) {
+                        accountedFor++;
+                    }
+                }
+                last = s;
+
+            }
+            return Math.round(accountedFor / (float) (truth.size() - 1));
+        } else {
+            return -1;
+        }
     }
 }

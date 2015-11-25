@@ -31,6 +31,17 @@ class UserService {
             rounds.each {
                 it.delete()
             }
+
+            def tempExperiments = TempExperiment.findAllByUser(user)
+            tempExperiments.each {
+                it.delete()
+            }
+
+            def tempSimulations = TempSimulation.findAllByUser(user)
+            tempSimulations.each {
+                it.delete()
+            }
+
             user.delete(flush: true)
             log.debug("User has been deleted")
         }

@@ -50,5 +50,10 @@ class UrlMappings {
             controller = "experiment"
             action = "experiment"
         }
+
+        "/finish/$session" {
+            controller = "experiment"
+            action = "finishExperiment"
+        }
     }
 }

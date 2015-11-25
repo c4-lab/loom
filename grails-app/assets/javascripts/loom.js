@@ -196,14 +196,14 @@ function submitExperiment() {
                 roundNumber: $("#roundNumber").text()
             }
         }).success(function (data) {
-            //if (data.indexOf("experiment") >= 0) {
-            //    var session = JSON.parse(data).sesId;
-            //    console.log("/loom/experiment/experiment/" + session);
-            //    window.location = "/loom/experiment/experiment/" + session;
-            //} else {
-            $("#experiment-content-wrapper").html(data);
-            initExperiment();
-            //}
+            if (data.indexOf("finishExperiment") >= 0) {
+                var session = JSON.parse(data).sesId;
+                console.log("/loom/experiment/finishExperiment/" + session);
+                window.location = "/loom/finish/" + session;
+            } else {
+                $("#experiment-content-wrapper").html(data);
+                initExperiment();
+            }
         }).error(function () {
             $("#dvDest").css('border', 'solid 1px red');
             $("#warning-alert").addClass('show');
