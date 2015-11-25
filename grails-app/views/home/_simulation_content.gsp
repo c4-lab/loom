@@ -43,7 +43,7 @@
                                 <g:each in="${userList}" var="user">
                                     <div class="tab-pane ${user.key != 1 ?: "active"}"
                                          id="neighbour${user.key}">
-                                        <ul id="dvSource">
+                                        <ul class="dvSource">
                                             <g:each in="${user.value.tts}" var="tt">
                                                 <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
                                             </g:each>

@@ -70,17 +70,25 @@ class ExperimentController {
                 def roundNumber
                 if (params.roundNumber) {
                     roundNumber = Integer.parseInt(params.roundNumber)
+                    for (int i = 1; i <= userCount; i++) {
+                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
+                        userList.put(i, [roundNbr: roundNumber, tts: tts])
+                    }
+
+                    render(template: '/home/simulation_content', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
+                    return
                 } else {
                     roundNumber = 0
+                    for (int i = 1; i <= userCount; i++) {
+                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
+                        userList.put(i, [roundNbr: roundNumber, tts: tts])
+                    }
+
+                    render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
+                    return
                 }
 
-                for (int i = 1; i <= userCount; i++) {
-                    def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
-                    userList.put(i, [roundNbr: roundNumber, tts: tts])
-                }
 
-                render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
-                return
             }
         }
         redirect(uri: '/not-found')
@@ -94,13 +102,8 @@ class ExperimentController {
         if (simulationId && params.roundNumber) {
             def simulation = Simulation.findById(simulationId)
             def roundNumber = params.roundNumber.split("[^0-9]+")[1]
-
-            def story = Story.findBySimulation(simulation)
-            def tails = Tail.findAllByStory(story)
-            if (tails.text.equals(tailsList)) {
-                redirect(action: 'simulation', params: [roundNumber: roundNumber, id: simulation?.session?.id])
-                return
-            }
+            redirect(action: 'simulation', params: [id: simulation?.session?.id, roundNumber: roundNumber])
+            return
         }
 
         render(status: BAD_REQUEST)

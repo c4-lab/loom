@@ -12,6 +12,13 @@ ul {
     cursor: move;
 }
 
+.dvSource li {
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    cursor: move;
+}
+
 #dvSource li {
     margin: 5px;
     padding: 5px;

@@ -74,7 +74,7 @@ function initSimulation() {
 }
 
 function initDragNDrop() {
-    $("#dvSource").find("li").draggable({
+    $(".dvSource").find("li").draggable({
         appendTo: "body",
         helper: "clone"
     });
@@ -150,14 +150,14 @@ function submitSimulation() {
                 roundNumber: $("#roundNumber").text()
             }
         }).success(function (data) {
-            if (data.indexOf("simulation") >= 0) {
-                var session = JSON.parse(data).sesId;
-                console.log("/loom/experiment/simulation/" + session);
-                window.location = "/loom/experiment/simulation/" + session;
-            } else {
+            //if (data.indexOf("simulation") >= 0) {
+            //    var session = JSON.parse(data).sesId;
+            //    console.log("/loom/experiment/simulation/" + session);
+            //    window.location = "/loom/experiment/simulation/" + session;
+            //} else {
                 $("#simulation-content-wrapper").html(data);
                 initSimulation();
-            }
+            //}
         }).error(function () {
             $("#dvDest").css('border', 'solid 1px red');
             $("#warning-alert").addClass('show');

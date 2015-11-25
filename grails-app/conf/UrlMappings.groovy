@@ -41,7 +41,7 @@ class UrlMappings {
             action = "training"
         }
 
-        "/simulation/$session" {
+        "/simulation/$session/$roundNumber" {
             controller = "experiment"
             action = "simulation"
         }

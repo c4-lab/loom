@@ -27,7 +27,7 @@
                         <div class="col-md-1"></div>
 
                         <div class="col-md-10 table-bordered" style="min-height: 200px !important;">
-                            <ul id="dvSource">
+                            <ul class="dvSource">
                                 <g:each in="${tts}" var="tt">
                                     <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
                                 </g:each>
