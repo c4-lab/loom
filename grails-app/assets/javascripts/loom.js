@@ -59,7 +59,14 @@ $(document).ready(function () {
 
     initTraining();
     initSimulation();
+    initExperiment();
 });
+
+function initExperiment() {
+    initDragNDrop();
+    resetExperiment();
+    submitExperiment();
+}
 
 function initTraining() {
     initDragNDrop();
@@ -168,6 +175,45 @@ function submitSimulation() {
 
 function resetSimulation() {
     $("#reset-simulation").click(function () {
+        $("#dvDest").find('ul li').remove();
+    });
+}
+
+function submitExperiment() {
+    $("#submit-experiment").click(function () {
+        var elems = $("#dvDest").find('ul li');
+        var text_all = elems.map(function () {
+            return $(this).attr('id');
+        }).get().join(";");
+
+        console.log(text_all);
+        $.ajax({
+            url: "/loom/experiment/submitExperiment",
+            type: 'POST',
+            data: {
+                tails: text_all,
+                experiment: $("#experiment").val(),
+                roundNumber: $("#roundNumber").text()
+            }
+        }).success(function (data) {
+            //if (data.indexOf("experiment") >= 0) {
+            //    var session = JSON.parse(data).sesId;
+            //    console.log("/loom/experiment/experiment/" + session);
+            //    window.location = "/loom/experiment/experiment/" + session;
+            //} else {
+            $("#experiment-content-wrapper").html(data);
+            initExperiment();
+            //}
+        }).error(function () {
+            $("#dvDest").css('border', 'solid 1px red');
+            $("#warning-alert").addClass('show');
+            $("#warning-alert").removeClass('hide');
+        });
+    });
+}
+
+function resetExperiment() {
+    $("#reset-experiment").click(function () {
         $("#dvDest").find('ul li').remove();
     });
 }

@@ -144,7 +144,7 @@ class ExperimentService {
         def story
         for (int i = 1; i <= map.size(); i++) {
             story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)))
-            userStory = new UserStory(alias: "neighbour" + i, story: story)
+            userStory = new UserStory(experiment: experiment, alias: "neighbour" + i, story: story)
             if (userStory.save(flush: true)) {
                 log.debug("New user story with id ${userStory.id} has been created.")
             }
@@ -162,13 +162,21 @@ class ExperimentService {
     private def shuffleTails(Experiment experiment) {
         for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
             for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
-                def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + userNbr).get(m)),
-                        userNbr, roundNbr, experiment)
-                if (experimentTask.save(flush: true)) {
-                    log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
-                } else {
-                    log.error("ExperimentTask creation attempt failed")
-                    log.error(experimentTask?.errors?.dump())
+                for (int numberOfTail = 0; numberOfTail < experiment.initialNbrOfTiles; numberOfTail++) {
+                    def story = UserStory.findByAliasAndExperiment("neighbour" + userNbr, experiment)?.story
+                    def text_order = Tail.findAllByStory(story).text_order
+                    int size = text_order.size();
+                    int item = new Random().nextInt(size);
+                    println "====================="
+                    println text_order
+                    println "====================="
+                    def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, item), userNbr, roundNbr, experiment)
+                    if (experimentTask.save(flush: true)) {
+                        log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
+                    } else {
+                        log.error("ExperimentTask creation attempt failed")
+                        log.error(experimentTask?.errors?.dump())
+                    }
                 }
             }
         }

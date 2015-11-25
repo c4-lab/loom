@@ -11,6 +11,7 @@ class User {
     boolean accountExpired
     boolean accountLocked
     boolean passwordExpired
+    boolean isReady
 
     static belongsTo = [room: Room]
     static transients = ['springSecurityService']

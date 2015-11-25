@@ -5,7 +5,7 @@
         <div class="col-md-10">
             <g:render template="/home/alert-templates"/>
             <h1 id="experiment-name">${experiment.name}</h1>
-            <g:hiddenField name="simulation" value="${experiment.id}"/>
+            <g:hiddenField name="experiment" value="${experiment.id}"/>
         </div>
 
         <div class="col-md-1"></div>
@@ -62,7 +62,14 @@
 
                         <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
                             <ul style="min-height: 200px !important;">
-                                <li class="placeholder">Add tails here</li>
+                                <g:if test="${tempStory?.size() > 0}">
+                                    <g:each in="${tempStory}" var="tail">
+                                        <li class="ui-state-default purple" id="${tail.id}">${tail.text}</li>
+                                    </g:each>
+                                </g:if>
+                                <g:else>
+                                    <li class="placeholder">Add tails here</li>
+                                </g:else>
                             </ul>
                         </div>
 
@@ -76,8 +83,8 @@
 
                         <div class="col-lg-3" id="btn-panel">
                             <button type="submit" class="btn btn-success"
-                                    id="submit-simulation">Submit</button>
-                            <button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>
+                                    id="submit-experiment">Submit</button>
+                            <button type="reset" id="reset-experiment" class="btn btn-default">Reset</button>
                         </div>
                     </div>
                 </div>

@@ -142,7 +142,14 @@ class ExperimentController {
                             userList.put(i, [roundNbr: roundNumber, tts: tts])
                         }
 
-                        render(template: '/home/experiment_content', model: [roundNbr: roundNumber, experiment: experiment, userList: userList])
+                        def tailList = []
+                        if (params.tempStory) {
+                            params.tempStory.each {
+                                tailList.add(Tail.findById(it))
+                            }
+                        }
+
+                        render(template: '/home/experiment_content', model: [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList])
                         return
                     } else {
                         render(status: OK, text: [experiment: 'experiment', sesId: sessionId] as JSON)
