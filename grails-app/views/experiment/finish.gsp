@@ -6,8 +6,7 @@
                     <div class="col-md-1"></div>
 
                     <div class="col-md-10">
-                        <g:render template="alert_finish"/>
-                        <h1 id="experiment-name">${experiment.name}</h1>
+                        <g:render template="alert_finish" model="[score: score]"/>
                         <g:hiddenField name="experiment" value="${experiment.id}"/>
                     </div>
 
