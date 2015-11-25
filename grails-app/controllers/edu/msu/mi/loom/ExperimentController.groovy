@@ -90,6 +90,10 @@ class ExperimentController {
                         render(template: '/home/simulation_content', model: [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList])
                         return
                     } else {
+                        def user = springSecurityService.currentUser as User
+                        user.isReady = true
+                        user.save(flush: true)
+
                         render(status: OK, text: [experiment: 'experiment', sesId: sessionId] as JSON)
                         return
                     }
@@ -131,7 +135,7 @@ class ExperimentController {
 
         if (sessionId) {
             def session = Session.get(Long.parseLong(sessionId))
-            if (session) {
+//            if (User.countByRoomAndIsReady(session?.room, true) == session.experiments.getAt(0).userCount) {
                 def experiment = session.experiments.getAt(0)
                 def userCount = experiment.userCount
                 def userList = [:]
@@ -169,7 +173,10 @@ class ExperimentController {
                     render(view: '/home/experiment', model: [roundNbr: roundNumber, experiment: experiment, userList: userList])
                     return
                 }
-            }
+
+//            } else {
+//
+//            }
         }
 
         render(status: BAD_REQUEST)
@@ -207,7 +214,6 @@ class ExperimentController {
                     def story = UserStory.findByExperimentAndAlias(experiment, user.alias)?.story
                     def rightStory = Tail.findAllByStory(story).text_order
                     def userStory = flash."${user.alias}-${experiment.id}"
-//                    List<Integer> userStory = new ArrayList<Integer>(Arrays.asList(flash."${user.alias}-${experiment.id}".split(",")));
 
                     println "-----right story--------"
                     println rightStory
