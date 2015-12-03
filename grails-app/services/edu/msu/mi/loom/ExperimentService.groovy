@@ -52,7 +52,7 @@ class ExperimentService {
                 story = new Story(title: "Story").save(flush: true)
                 training.addToStories(story)
                 for (int i = 0; i < tr.problem.size(); i++) {
-                    tail = new Tail(text: tr.solution.get(i))
+                    tail = new Tail(text: tr.solution.get(i), text_order: i)
                     if (tail.save(flush: true)) {
                         story.addToTails(tail).save(flush: true)
                         log.debug("New task with id ${tail.id} has been created.")
@@ -160,17 +160,24 @@ class ExperimentService {
     }
 
     private def shuffleTails(Experiment experiment) {
-        for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
-            for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
+        for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
+            def story = UserStory.findByAliasAndExperiment("neighbour" + userNbr, experiment)?.story
+            def text_order = Tail.findAllByStory(story).text_order
+            Collections.shuffle(text_order)
+            int item = 0
+            for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
                 for (int numberOfTail = 0; numberOfTail < experiment.initialNbrOfTiles; numberOfTail++) {
-                    def story = UserStory.findByAliasAndExperiment("neighbour" + userNbr, experiment)?.story
-                    def text_order = Tail.findAllByStory(story).text_order
-                    int size = text_order.size();
-                    int item = new Random().nextInt(size);
-                    println "====================="
+                    println "=====text_order======"
                     println text_order
                     println "====================="
-                    def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, item), userNbr, roundNbr, experiment)
+                    def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, text_order.get(item)), userNbr, roundNbr, experiment)
+                    if (++item >= text_order.size()) {
+                        Collections.shuffle(text_order)
+                        item = 0
+                    }
+                    println "==========item============"
+                    println item
+                    println "=========================="
                     if (experimentTask.save(flush: true)) {
                         log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
                     } else {

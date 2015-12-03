@@ -64,12 +64,14 @@ $(document).ready(function () {
 
 function initExperiment() {
     initDragNDrop();
+    removeTile();
     resetExperiment();
     submitExperiment();
 }
 
 function initTraining() {
     initDragNDrop();
+    removeTile();
     resetTraining();
     submitTraining();
 }
@@ -91,13 +93,22 @@ function initDragNDrop() {
         accept: ":not(.ui-sortable-helper)",
         drop: function (event, ui) {
             $(this).find(".placeholder").remove();
-            $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>").text(ui.draggable.text()).appendTo(this);
+            $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>")
+                .html("<span>" + ui.draggable.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>").appendTo(this);
+            removeTile();
         }
     }).sortable({
         items: "li:not(.placeholder)",
         sort: function () {
             $(this).removeClass("ui-state-default");
-        }
+        },
+        cursorAt: {left: 10, top: -1}
+    });
+}
+
+function removeTile() {
+    $("#dvDest").find("li a").click(function (e) {
+        $(this).parent().remove();
     });
 }
 
@@ -109,7 +120,7 @@ function resetTraining() {
 
 function submitTraining() {
     $("#submit-training").click(function () {
-        var elems = $("#dvDest").find('ul li');
+        var elems = $("#dvDest").find('ul li span');
         var text_all = elems.map(function () {
             return $(this).text();
         }).get().join(";");

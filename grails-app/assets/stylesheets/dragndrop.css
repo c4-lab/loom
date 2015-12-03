@@ -10,6 +10,21 @@ ul {
     padding: 5px;
     display: inline-block;
     cursor: move;
+    color: #ffffff !important;
+}
+
+#dvDest li a::after {
+    position: absolute !important;
+    line-height: 22px !important;
+    font-size: 18px !important;
+    text-align: right !important;
+    padding-right: 8px !important;
+    margin-left: 8px !important;
+    content: "×";
+    width: 20px !important;
+    height: 100% !important;
+    right: 0 !important;
+    color: beige !important;
 }
 
 .dvSource li {
@@ -27,6 +42,10 @@ ul {
 }
 
 .purple {
-    background-color: purple !important;
-    color: beige !important;
+    background-color: #80617e !important;
+    color: #ffffff !important;
+}
+
+.purple a::after {
+    color: #ffffff !important;
 }

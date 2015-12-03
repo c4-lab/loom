@@ -29,7 +29,7 @@ class ExperimentController {
             def seqNumber = trainingName.split("[^0-9]+")[1]
 
             def story = Story.findByTraining(training)
-            def tails = Tail.findAllByStory(story)
+            def tails = Tail.executeQuery(("from Tail t where t.story=? order by t.text_order asc"), [story])
             if (tails.text.equals(tailsList)) {
                 redirect(action: 'nextTraining', params: [seqNumber: seqNumber, session: training?.session?.id])
                 return
@@ -212,19 +212,20 @@ class ExperimentController {
                 if (experiment) {
                     def user = springSecurityService.currentUser as User
                     def story = UserStory.findByExperimentAndAlias(experiment, user.alias)?.story
-                    def rightStory = Tail.findAllByStory(story).text_order
+                    def rightStory = Tail.findAllByStory(story)
+                    def rightTextOrder = rightStory.text_order
                     def userStory = flash."${user.alias}-${experiment.id}"
 
                     println "-----right story--------"
-                    println rightStory
+                    println rightTextOrder
                     println "::::::::::::::::::::::::::::::::::"
                     println "-----user story--------"
                     println userStory
                     println "::::::::::::::::::::::::::::::::::"
-                    def score = score(rightStory, userStory)
+                    def score = score(rightTextOrder, userStory)
 
                     if (score != -1) {
-                        render(view: 'finish', model: [experiment: experiment, score: score])
+                        render(view: 'finish', model: [rightStory: rightStory, experiment: experiment, score: score])
                         return
                     }
                 }
