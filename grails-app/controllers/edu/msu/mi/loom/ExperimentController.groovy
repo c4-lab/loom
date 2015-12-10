@@ -16,6 +16,7 @@ class ExperimentController {
 
     def experimentService
     def springSecurityService
+    def simulationService
 
     def submitTraining() {
         def userTails = params.tails
@@ -63,49 +64,18 @@ class ExperimentController {
 
     def simulation() {
         def sessionId = params.id
-
+        def roundNumber = params.roundNumber
+        def tempStory = params.tempStory
         if (sessionId) {
             def session = Session.get(Long.parseLong(sessionId))
             if (session) {
-                def simulation = session.simulations.getAt(0)
-                def userCount = simulation.userCount
-                def userList = [:]
-                def roundNumber
-                if (params.roundNumber) {
-                    roundNumber = Integer.parseInt(params.roundNumber)
-                    if (roundNumber < simulation.roundCount) {
-                        for (int i = 1; i <= userCount; i++) {
-                            def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
-                            userList.put(i, [roundNbr: roundNumber, tts: tts])
-                        }
-
-                        def tailList = []
-                        if (params.tempStory) {
-                            params.tempStory.each {
-                                tailList.add(Tail.findById(it))
-                            }
-                        }
-
-
-                        render(template: '/home/simulation_content', model: [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList])
-                        return
-                    } else {
-                        def user = springSecurityService.currentUser as User
-                        user.isReady = true
-                        user.save(flush: true)
-
-                        render(status: OK, text: [experiment: 'experiment', sesId: sessionId] as JSON)
-                        return
-                    }
+                def model = simulationService.simulation(session, roundNumber, tempStory)
+                if (model instanceof JSON) {
+                    return render(status: OK, text: model)
+                } else if (model.tempStory) {
+                    return render(template: '/home/simulation_content', model: model)
                 } else {
-                    roundNumber = 0
-                    for (int i = 1; i <= userCount; i++) {
-                        def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
-                        userList.put(i, [roundNbr: roundNumber, tts: tts])
-                    }
-
-                    render(view: '/home/simulation', model: [roundNbr: roundNumber, simulation: simulation, userList: userList])
-                    return
+                    return render(view: '/home/simulation', model: model)
                 }
             }
         }
@@ -136,43 +106,43 @@ class ExperimentController {
         if (sessionId) {
             def session = Session.get(Long.parseLong(sessionId))
 //            if (User.countByRoomAndIsReady(session?.room, true) == session.experiments.getAt(0).userCount) {
-                def experiment = session.experiments.getAt(0)
-                def userCount = experiment.userCount
-                def userList = [:]
-                def roundNumber
-                if (params.roundNumber) {
-                    roundNumber = Integer.parseInt(params.roundNumber)
-                    def tailList = []
-                    if (params.tempStory) {
-                        params.tempStory.each {
-                            tailList.add(Tail.findById(it))
-                        }
+            def experiment = session.experiments.getAt(0)
+            def userCount = experiment.userCount
+            def userList = [:]
+            def roundNumber
+            if (params.roundNumber) {
+                roundNumber = Integer.parseInt(params.roundNumber)
+                def tailList = []
+                if (params.tempStory) {
+                    params.tempStory.each {
+                        tailList.add(Tail.findById(it))
                     }
+                }
 
-                    if (roundNumber < experiment.roundCount) {
-                        for (int i = 1; i <= userCount; i++) {
-                            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
-                            userList.put(i, [roundNbr: roundNumber, tts: tts])
-                        }
-
-                        render(template: '/home/experiment_content', model: [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList])
-                        return
-                    } else {
-                        def user = springSecurityService.currentUser as User
-                        flash."${user.alias}-${experiment.id}" = tailList.text_order
-                        render(status: OK, text: [experiment: 'finishExperiment', sesId: sessionId] as JSON)
-                        return
-                    }
-                } else {
-                    roundNumber = 0
+                if (roundNumber < experiment.roundCount) {
                     for (int i = 1; i <= userCount; i++) {
                         def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
                         userList.put(i, [roundNbr: roundNumber, tts: tts])
                     }
 
-                    render(view: '/home/experiment', model: [roundNbr: roundNumber, experiment: experiment, userList: userList])
+                    render(template: '/home/experiment_content', model: [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList])
+                    return
+                } else {
+                    def user = springSecurityService.currentUser as User
+                    flash."${user.alias}-${experiment.id}" = tailList.text_order
+                    render(status: OK, text: [experiment: 'finishExperiment', sesId: sessionId] as JSON)
                     return
                 }
+            } else {
+                roundNumber = 0
+                for (int i = 1; i <= userCount; i++) {
+                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
+                    userList.put(i, [roundNbr: roundNumber, tts: tts])
+                }
+
+                render(view: '/home/experiment', model: [roundNbr: roundNumber, experiment: experiment, userList: userList])
+                return
+            }
 
 //            } else {
 //

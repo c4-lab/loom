@@ -8,6 +8,8 @@ import java.text.Normalizer
 @Slf4j
 @Transactional
 class ExperimentService {
+    def simulationService
+
     def createSession(def json) {
         Session.withNewTransaction { status ->
             def session = new Session(name: 'Session_' + (Session.count() + 1), url: createExperimentUrl('Session_' + (Session.count() + 1)))
@@ -22,7 +24,7 @@ class ExperimentService {
 
 //            Simulation creation
                 if (json.training.simulation != null) {
-                    createSimulation(json.training.simulation, session)
+                    simulationService.createSimulation(json.training.simulation, session)
                 }
 
 //            Experiment creation
@@ -74,42 +76,7 @@ class ExperimentService {
         }
     }
 
-    def createSimulation(def json, Session session) {
-        def story
-        Tail tail
-        Simulation simulation = new Simulation(name: 'Simulation', roundTime: json.timeperround,
-                roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), session: session)
 
-        if (simulation.save(flush: true)) {
-            session.addToSimulations(simulation)
-            log.debug("New simulation with id ${simulation.id} has been created for session ${session.name}.")
-            story = new Story(title: "Story").save(flush: true)
-            simulation.addToStories(story)
-            for (int i = 0; i < json.solution.size(); i++) {
-                tail = new Tail(text: json.solution.get(i), text_order: i)
-                story.addToTails(tail).save(flush: true)
-                log.debug("New task with id ${tail.id} has been created.")
-            }
-
-            for (int j = 0; j < json.sequence.size(); j++) {
-                for (int k = 1; k <= json.sequence.get(j).size(); k++) {
-                    for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
-                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j, simulation)
-                        if (userTask.save(flush: true)) {
-                            log.debug("New simulationTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
-                        } else {
-                            log.error("SimulationTask creation attempt failed")
-                            log.error(userTask?.errors?.dump())
-                        }
-                    }
-                }
-            }
-        } else {
-            log.error("Simulation creation attempt failed")
-            log.error(simulation?.errors?.dump())
-            return null;
-        }
-    }
 
     def createExperiment(def json, Session session) {
         def tail

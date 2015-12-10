@@ -31,7 +31,7 @@
                                 <g:each in="${userList}" var="user">
                                     <li class="${user.key != 1 ?: "active"}">
                                         <a href="#neighbour${user.key}"
-                                           data-toggle="tab">${"neighbour " + (user.key)}</a>
+                                           data-toggle="tab">${user.key == 1 ? "You" : "neighbour " + (user.key - 1)}</a>
                                     </li>
                                 </g:each>
                             </ul>
