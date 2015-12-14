@@ -39,15 +39,14 @@ class AdminController {
 
     def upload() {
         def file = request.getFile('inputFile')
-        def text = fileService.readFile(file as MultipartFile)
-
-        def json = jsonParserService.parseToJSON(text)
-
-        if (json) {
-            def session = experimentService.createSession(json)
-            if (session.id) {
-                redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
-                return
+        if (file) {
+            def text = fileService.readFile(file as MultipartFile)
+            def json = jsonParserService.parseToJSON(text)
+            if (json) {
+                def session = experimentService.createSession(json)
+                if (session.id) {
+                    return redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
+                }
             }
         }
 

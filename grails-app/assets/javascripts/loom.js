@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    $('#complete-btn').pro
     $("#create-experiment").click(function () {
         $("#file-upload-modal").modal('show');
     });
@@ -63,10 +62,13 @@ $(document).ready(function () {
 });
 
 function initExperiment() {
-    initDragNDrop();
-    removeTile();
-    resetExperiment();
-    submitExperiment();
+    if ($("#experiment-content-wrapper").length > 0) {
+        initDragNDrop();
+        removeTile();
+        resetExperiment();
+        submitExperiment();
+        initExperimentTimer();
+    }
 }
 
 function initTraining() {
@@ -77,9 +79,28 @@ function initTraining() {
 }
 
 function initSimulation() {
-    initDragNDrop();
-    resetSimulation();
-    submitSimulation();
+    if ($("#simulation-content-wrapper").length > 0) {
+        initDragNDrop();
+        resetSimulation();
+        removeTile();
+        submitSimulation();
+        initSimulationTimer();
+    }
+}
+
+function initSimulationTimer() {
+    var duration = $("#simulationDuration").val(),
+        display = $('#timerPanel');
+
+    console.log("init time " + duration);
+
+    startSimulationTimer(duration, display);
+}
+
+function initExperimentTimer() {
+    var duration = $("#experimentDuration").val(),
+        display = $('#timerPanel');
+    startExperimentTimer(duration, display);
 }
 
 function initDragNDrop() {
@@ -137,8 +158,9 @@ function submitTraining() {
         }).success(function (data) {
             if (data.indexOf("simulation") >= 0) {
                 var session = JSON.parse(data).sesId;
-                console.log("/loom/experiment/simulation/" + session);
-                window.location = "/loom/experiment/simulation/" + session;
+                var roundNumber = 0;
+                console.log("/loom/simulation/" + session + "/" + roundNumber);
+                window.location = "/loom/simulation/" + session + "/" + roundNumber;
             } else {
                 $("#training-content-wrapper").html(data);
                 initTraining();
@@ -151,36 +173,95 @@ function submitTraining() {
     });
 }
 
+var int;
+function startSimulationTimer(duration, display) {
+
+    var timer = duration;
+    var minutes, seconds;
+
+    console.log("simulation timer: " + timer);
+
+    int = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.text(minutes + ":" + seconds);
+
+        if (--timer < 0) {
+            timer = $("#simulationDuration").val();
+            console.log("Submitting the form");
+            submitSimulationAjax();
+        }
+
+        localStorage.seconds = timer;
+
+    }, 1000);
+}
+
+function startExperimentTimer(duration, display) {
+    var timer = duration;
+    var minutes, seconds;
+
+    console.log("experiment timer: " + timer);
+
+    int = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.text(minutes + ":" + seconds);
+
+        if (--timer < 0) {
+            timer = duration;
+            console.log("Submitting the form");
+            submitExperimentAjax();
+        }
+
+        localStorage.seconds = timer;
+
+    }, 1000);
+    console.log("reset timer");
+}
+
 function submitSimulation() {
     $("#submit-simulation").click(function () {
-        var elems = $("#dvDest").find('ul li');
-        var text_all = elems.map(function () {
-            return $(this).attr('id');
-        }).get().join(";");
+        submitSimulationAjax();
+    });
+}
 
-        console.log(text_all);
-        $.ajax({
-            url: "/loom/experiment/submitSimulation",
-            type: 'POST',
-            data: {
-                tails: text_all,
-                simulation: $("#simulation").val(),
-                roundNumber: $("#roundNumber").text()
-            }
-        }).success(function (data) {
-            if (data.indexOf("experiment") >= 0) {
-                var session = JSON.parse(data).sesId;
-                console.log("/loom/experiment/experiment/" + session);
-                window.location = "/loom/experiment/experiment/" + session;
-            } else {
-                $("#simulation-content-wrapper").html(data);
-                initSimulation();
-            }
-        }).error(function () {
-            $("#dvDest").css('border', 'solid 1px red');
-            $("#warning-alert").addClass('show');
-            $("#warning-alert").removeClass('hide');
-        });
+function submitSimulationAjax() {
+    clearInterval(int);
+    var elems = $("#dvDest").find('ul li');
+    var text_all = elems.map(function () {
+        return $(this).attr('id');
+    }).get().join(";");
+    $.ajax({
+        url: "/loom/experiment/submitSimulation",
+        type: 'POST',
+        data: {
+            tails: text_all,
+            simulation: $("#simulation").val(),
+            roundNumber: $("#roundNumber").text()
+        }
+    }).success(function (data) {
+        if (data.indexOf("experiment") >= 0) {
+            var session = JSON.parse(data).sesId;
+            var roundNumber = 0;
+            console.log("/loom/exper/" + session + "/" + roundNumber);
+            window.location = "/loom/exper/" + session + "/" + roundNumber;
+        } else {
+            $("#simulation-content-wrapper").html(data);
+            initSimulation();
+        }
+    }).error(function () {
+        $("#dvDest").css('border', 'solid 1px red');
+        $("#warning-alert").addClass('show');
+        $("#warning-alert").removeClass('hide');
     });
 }
 
@@ -192,34 +273,39 @@ function resetSimulation() {
 
 function submitExperiment() {
     $("#submit-experiment").click(function () {
-        var elems = $("#dvDest").find('ul li');
-        var text_all = elems.map(function () {
-            return $(this).attr('id');
-        }).get().join(";");
+        submitExperimentAjax();
+    });
+}
 
-        console.log(text_all);
-        $.ajax({
-            url: "/loom/experiment/submitExperiment",
-            type: 'POST',
-            data: {
-                tails: text_all,
-                experiment: $("#experiment").val(),
-                roundNumber: $("#roundNumber").text()
-            }
-        }).success(function (data) {
-            if (data.indexOf("finishExperiment") >= 0) {
-                var session = JSON.parse(data).sesId;
-                console.log("/loom/experiment/finishExperiment/" + session);
-                window.location = "/loom/finish/" + session;
-            } else {
-                $("#experiment-content-wrapper").html(data);
-                initExperiment();
-            }
-        }).error(function () {
-            $("#dvDest").css('border', 'solid 1px red');
-            $("#warning-alert").addClass('show');
-            $("#warning-alert").removeClass('hide');
-        });
+function submitExperimentAjax() {
+    clearInterval(int);
+    var elems = $("#dvDest").find('ul li');
+    var text_all = elems.map(function () {
+        return $(this).attr('id');
+    }).get().join(";");
+
+    console.log(text_all);
+    $.ajax({
+        url: "/loom/experiment/submitExperiment",
+        type: 'POST',
+        data: {
+            tails: text_all,
+            experiment: $("#experiment").val(),
+            roundNumber: $("#roundNumber").text()
+        }
+    }).success(function (data) {
+        if (data.indexOf("finishExperiment") >= 0) {
+            var session = JSON.parse(data).sesId;
+            console.log("/loom/experiment/finishExperiment/" + session);
+            window.location = "/loom/finish/" + session;
+        } else {
+            $("#experiment-content-wrapper").html(data);
+            initExperiment();
+        }
+    }).error(function () {
+        $("#dvDest").css('border', 'solid 1px red');
+        $("#warning-alert").addClass('show');
+        $("#warning-alert").removeClass('hide');
     });
 }
 

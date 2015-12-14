@@ -19,7 +19,17 @@
         <div class="col-md-10">
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
-                    <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                    <div class="col-md-2">
+                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                    </div>
+
+                    <div class="col-md-9">
+                        <g:hiddenField name="simulationDuration" value="${simulation.roundTime}"/>
+                    </div>
+
+                    <div class="col-md-1">
+                        <span id="timerPanel"></span>
+                    </div>
                 </div>
 
                 <div class="box-body">

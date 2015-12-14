@@ -4,6 +4,9 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+
 @Slf4j
 @Transactional
 class SimulationService {
@@ -12,6 +15,8 @@ class SimulationService {
     def simulation(Session session, def roundNumber, def tempStory) {
         def simulation = session.simulations.getAt(0)
         def userCount = simulation.userCount
+        def roundTime = simulation.roundTime
+        LocalDateTime endDate
 
         def userList = [:]
         if (roundNumber) {
@@ -28,7 +33,11 @@ class SimulationService {
                         tailList.add(Tail.findById(it))
                     }
                 }
+                endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
 
+                println "+++++++++++++++++++++++++++"
+                println endDate
+                println "+++++++++++++++++++++++++++"
                 return [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList]
             } else {
                 def user = springSecurityService.currentUser as User
@@ -43,7 +52,10 @@ class SimulationService {
                 def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
                 userList.put(i, [roundNbr: roundNumber, tts: tts])
             }
-
+            endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
+            println "+++++++++++++++++++++++++++"
+            println endDate
+            println "+++++++++++++++++++++++++++"
             return [roundNbr: roundNumber, simulation: simulation, userList: userList]
         }
     }

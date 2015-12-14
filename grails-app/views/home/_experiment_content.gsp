@@ -19,7 +19,17 @@
         <div class="col-md-10">
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
-                    <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                    <div class="col-md-2">
+                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                    </div>
+
+                    <div class="col-md-9">
+                        <g:hiddenField name="experimentDuration" value="${experiment.roundTime}"/>
+                    </div>
+
+                    <div class="col-md-1">
+                        <span id="timerPanel"></span>
+                    </div>
                 </div>
 
                 <div class="box-body">
@@ -29,10 +39,7 @@
                         <div class="col-md-2">
                             <ul class="nav nav-tabs tabs-left">
                                 <g:each in="${userList}" var="user">
-                                    <li class="${user.key != 1 ?: "active"}">
-                                        <a href="#neighbour${user.key}"
-                                           data-toggle="tab">${"neighbour " + (user.key)}</a>
-                                    </li>
+                                    <loom:currentUserTab userKey="${user.key}"/>
                                 </g:each>
                             </ul>
                         </div>
@@ -41,14 +48,7 @@
                             <!-- Tab panes -->
                             <div class="tab-content">
                                 <g:each in="${userList}" var="user">
-                                    <div class="tab-pane ${user.key != 1 ?: "active"}"
-                                         id="neighbour${user.key}">
-                                        <ul class="dvSource">
-                                            <g:each in="${user.value.tts}" var="tt">
-                                                <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
-                                            </g:each>
-                                        </ul>
-                                    </div>
+                                    <loom:currentUserTabContent userKey="${user.key}" userValue="${user.value}"/>
                                 </g:each>
                             </div>
                         </div>

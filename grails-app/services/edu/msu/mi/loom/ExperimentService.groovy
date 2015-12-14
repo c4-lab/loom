@@ -1,7 +1,9 @@
 package edu.msu.mi.loom
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.grails.web.util.WebUtils
 
 import java.text.Normalizer
 
@@ -9,6 +11,7 @@ import java.text.Normalizer
 @Transactional
 class ExperimentService {
     def simulationService
+    def springSecurityService
 
     def createSession(def json) {
         Session.withNewTransaction { status ->
@@ -75,7 +78,6 @@ class ExperimentService {
             }
         }
     }
-
 
 
     def createExperiment(def json, Session session) {
@@ -252,6 +254,41 @@ class ExperimentService {
         }
 
         return training
+    }
+
+    def experiment(Session session, def roundNumber, def tempStory) {
+        def experiment = session.experiments.getAt(0)
+        def userCount = experiment.userCount
+        def userList = [:]
+        if (roundNumber) {
+            def tailList = []
+            if (tempStory) {
+                tempStory.each {
+                    tailList.add(Tail.findById(it))
+                }
+            }
+
+            if (roundNumber < experiment.roundCount) {
+                for (int i = 1; i <= userCount; i++) {
+                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
+                    userList.put(i, [roundNbr: roundNumber, tts: tts])
+                }
+                return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
+            } else {
+                def user = springSecurityService.currentUser as User
+                def flash = WebUtils.retrieveGrailsWebRequest().flashScope
+                flash."${user.alias}-${experiment.id}" = tailList.text_order
+                return [experiment: 'finishExperiment', sesId: session.id] as JSON
+            }
+        } else {
+            roundNumber = 0
+            for (int i = 1; i <= userCount; i++) {
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
+                userList.put(i, [roundNbr: roundNumber, tts: tts])
+            }
+
+            return [roundNbr: roundNumber, experiment: experiment, userList: userList]
+        }
     }
 
     private List<Tail> shuffleTails(Story story) {
