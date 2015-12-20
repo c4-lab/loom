@@ -103,6 +103,10 @@ function initExperimentTimer() {
     startExperimentTimer(duration, display);
 }
 
+function markAsDropped(source) {
+    $("#" + source).css('backgroundColor', '#afebff');
+}
+
 function initDragNDrop() {
     $(".dvSource").find("li").draggable({
         appendTo: "body",
@@ -116,6 +120,8 @@ function initDragNDrop() {
             $(this).find(".placeholder").remove();
             $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>")
                 .html("<span>" + ui.draggable.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>").appendTo(this);
+            markAsDropped(ui.draggable.attr("id"));
+            $(".dvSource #"+ui.draggable.attr("id")).draggable("disable");
             removeTile();
         }
     }).sortable({
@@ -130,6 +136,9 @@ function initDragNDrop() {
 function removeTile() {
     $("#dvDest").find("li a").click(function (e) {
         $(this).parent().remove();
+        console.log($(this).parent().attr('id'));
+        $(".dvSource #"+$(this).parent().attr('id')).draggable("enable");
+        $(".dvSource #"+$(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
     });
 }
 

@@ -20,7 +20,7 @@
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
                     <div class="col-md-2">
-                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1} of ${simulation.roundCount}</h3>
                     </div>
 
                     <div class="col-md-9">
@@ -92,8 +92,8 @@
                         <div class="col-lg-9"></div>
 
                         <div class="col-lg-3" id="btn-panel">
-                            <button type="submit" class="btn btn-success"
-                                    id="submit-simulation">Submit</button>
+                            %{--<button type="submit" class="btn btn-success"--}%
+                            %{--id="submit-simulation">Submit</button>--}%
                             <button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>
                         </div>
                     </div>

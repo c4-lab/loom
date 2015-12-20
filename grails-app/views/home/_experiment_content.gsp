@@ -20,7 +20,7 @@
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
                     <div class="col-md-2">
-                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1}</h3>
+                        <h3 class="box-title" id="roundNumber">Round ${roundNbr + 1} of ${experiment.roundCount}</h3>
                     </div>
 
                     <div class="col-md-9">
