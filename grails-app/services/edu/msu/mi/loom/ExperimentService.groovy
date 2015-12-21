@@ -171,28 +171,71 @@ class ExperimentService {
     }
 
     def deleteExperiment(def id, def type) {
-        def source
+        def source, ets
         switch (type) {
             case ExpType.TRAINING.toString():
                 source = Training.get(id)
+                deleteTrainingTasks(source)
                 break;
             case ExpType.SIMULATION.toString():
                 source = Simulation.get(id)
+                deleteSimulationTasks(source)
                 break
             case ExpType.EXPERIMENT.toString():
                 source = Experiment.get(id)
+                deleteExperimentTasks(source)
+                deleteUserStories(source)
                 break
             case ExpType.SESSION.toString():
                 source = Session.get(id)
+                source?.trainings?.each { training ->
+                    deleteTrainingTasks(training)
+                }
+                deleteSimulationTasks(source?.simulations?.getAt(0))
+                deleteExperimentTasks(source?.experiments?.getAt(0))
+                deleteUserStories(source?.experiments?.getAt(0))
+
+                deleteRooms(source)
                 break
         }
         if (source) {
             source.delete(flush: true)
-            log.info("Experiment with id ${id} has been deleted.")
+            log.info("Session with id ${id} has been deleted.")
             return true
         } else {
             return false
         }
+    }
+
+    private def deleteRooms(def source) {
+        def rooms = Room.findAllBySession(source)
+        rooms.each { room -> room.delete() }
+    }
+
+    private def deleteTrainingTasks(source) {
+        def tts = TrainingTask.findAllByTraining(source)
+        tts.each { tt ->
+            tt.delete()
+        }
+    }
+
+    private def deleteSimulationTasks(source) {
+        def sts = SimulationTask.findAllBySimulation(source)
+        sts.each { st ->
+            st.delete()
+        }
+    }
+
+    private def deleteExperimentTasks(source) {
+        def ets = ExperimentTask.findAllByExperiment(source)
+        ets.each { et ->
+            et.delete()
+        }
+    }
+
+    private def deleteUserStories(source) {
+        def us = UserStory.findAllByExperiment(source)
+        us.each { it.delete() }
     }
 
     private static String createExperimentUrl(String sessionName) {

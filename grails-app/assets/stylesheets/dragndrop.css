@@ -49,3 +49,7 @@ ul {
 .purple a::after {
     color: #ffffff !important;
 }
+
+.blue {
+    background-color: #afebff !important;
+}

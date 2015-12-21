@@ -64,6 +64,7 @@ $(document).ready(function () {
 function initExperiment() {
     if ($("#experiment-content-wrapper").length > 0) {
         initDragNDrop();
+        initTiles();
         removeTile();
         resetExperiment();
         submitExperiment();
@@ -81,6 +82,7 @@ function initTraining() {
 function initSimulation() {
     if ($("#simulation-content-wrapper").length > 0) {
         initDragNDrop();
+        initTiles();
         resetSimulation();
         removeTile();
         submitSimulation();
@@ -103,8 +105,23 @@ function initExperimentTimer() {
     startExperimentTimer(duration, display);
 }
 
+function initTiles() {
+    $("#dvSourceContainer").find(".ui-state-default").each(function () {
+        var sourceTileId = $(this).attr('id');
+        console.log(sourceTileId);
+        $("#dvDest").find(".purple").each(function () {
+            console.log($(this).attr('id'));
+            if ($(this).attr('id') == sourceTileId) {
+                $("#dvSourceContainer #" + sourceTileId).addClass('blue');
+                $("#dvSourceContainer #" + sourceTileId).addClass('ui-draggable-disabled');
+                $("#dvSourceContainer #" + sourceTileId).draggable("disable");
+            }
+        });
+    });
+}
+
 function markAsDropped(source) {
-    $("#" + source).css('backgroundColor', '#afebff');
+    $("#" + source).addClass('blue');
 }
 
 function initDragNDrop() {

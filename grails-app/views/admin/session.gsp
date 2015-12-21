@@ -82,7 +82,7 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${experiment.stories[0].tails}" var="tail">
+                                                <g:each in="${experiment.stories[0]?.tails}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>
@@ -106,7 +106,7 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${training.stories[0].tails}" var="tail">
+                                                <g:each in="${training.stories[0]?.tails}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>
@@ -131,7 +131,7 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${simulation.stories[0].tails}" var="tail">
+                                                <g:each in="${simulation.stories[0]?.tails}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>
