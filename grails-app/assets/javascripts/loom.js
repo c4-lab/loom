@@ -261,6 +261,7 @@ function submitSimulation() {
 }
 
 function submitSimulationAjax() {
+    $(".ui-draggable-dragging").remove();
     clearInterval(int);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
@@ -304,6 +305,7 @@ function submitExperiment() {
 }
 
 function submitExperimentAjax() {
+    $(".ui-draggable-dragging").remove();
     clearInterval(int);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
