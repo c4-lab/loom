@@ -1,9 +1,9 @@
 package edu.msu.mi.loom
 
 class Edge {
-    User source
-    User target
-    Boolean isDirected
+    String source
+    String target
+    Boolean isDirected = false
 
     static belongsTo = [experiment: Experiment]
 

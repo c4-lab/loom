@@ -114,6 +114,7 @@ class HomeController {
         redirect(uri: '/not-found')
     }
 
+    @Secured('permitAll')
     def updateRooms() {
         def rooms = Room.list()
         render(template: 'rooms', model: [rooms: rooms])

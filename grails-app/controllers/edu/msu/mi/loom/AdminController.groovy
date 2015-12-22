@@ -39,15 +39,14 @@ class AdminController {
 
     def upload() {
         def file = request.getFile('inputFile')
-        def text = fileService.readFile(file as MultipartFile)
-
-        def json = jsonParserService.parseToJSON(text)
-
-        if (json) {
-            def session = experimentService.createSession(json)
-            if (session.id) {
-                redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
-                return
+        if (file) {
+            def text = fileService.readFile(file as MultipartFile)
+            def json = jsonParserService.parseToJSON(text)
+            if (json) {
+                def session = experimentService.createSession(json)
+                if (session.id) {
+                    return redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
+                }
             }
         }
 
@@ -60,7 +59,7 @@ class AdminController {
             render(view: 'complete', model: [sessionCount: sessionCount, experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
         } else {
             def file = request.getFile('graphmlFile').inputStream
-            HashMap<String, String> nodeStoryMap = graphParserService.parseGraph(file)
+            HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(file)
 
             def experiment = experimentService.completeExperiment(nodeStoryMap, params.experimentId)
             if (experiment.enabled) {

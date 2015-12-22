@@ -25,9 +25,6 @@ class Session {
     public Session clone() {
         Session copy = new Session()
         def count = count()
-        println "::::::::::::::::::::::"
-        println count
-        println "::::::::::::::::::::::"
         copy.name = "Session_${count + 1}"
         copy.url = createExperimentUrl(copy.name)
 

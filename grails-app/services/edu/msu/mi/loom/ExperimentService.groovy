@@ -1,13 +1,18 @@
 package edu.msu.mi.loom
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.grails.web.util.WebUtils
 
 import java.text.Normalizer
 
 @Slf4j
 @Transactional
 class ExperimentService {
+    def simulationService
+    def springSecurityService
+
     def createSession(def json) {
         Session.withNewTransaction { status ->
             def session = new Session(name: 'Session_' + (Session.count() + 1), url: createExperimentUrl('Session_' + (Session.count() + 1)))
@@ -22,7 +27,7 @@ class ExperimentService {
 
 //            Simulation creation
                 if (json.training.simulation != null) {
-                    createSimulation(json.training.simulation, session)
+                    simulationService.createSimulation(json.training.simulation, session)
                 }
 
 //            Experiment creation
@@ -74,42 +79,6 @@ class ExperimentService {
         }
     }
 
-    def createSimulation(def json, Session session) {
-        def story
-        Tail tail
-        Simulation simulation = new Simulation(name: 'Simulation', roundTime: json.timeperround,
-                roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), session: session)
-
-        if (simulation.save(flush: true)) {
-            session.addToSimulations(simulation)
-            log.debug("New simulation with id ${simulation.id} has been created for session ${session.name}.")
-            story = new Story(title: "Story").save(flush: true)
-            simulation.addToStories(story)
-            for (int i = 0; i < json.solution.size(); i++) {
-                tail = new Tail(text: json.solution.get(i), text_order: i)
-                story.addToTails(tail).save(flush: true)
-                log.debug("New task with id ${tail.id} has been created.")
-            }
-
-            for (int j = 0; j < json.sequence.size(); j++) {
-                for (int k = 1; k <= json.sequence.get(j).size(); k++) {
-                    for (int m = 0; m < json.sequence.get(j).getJSONArray("neighbor" + k).size(); m++) {
-                        def userTask = SimulationTask.createForSimulation(Tail.findByStoryAndText_order(story, json.sequence.get(j).getJSONArray("neighbor" + k).get(m)), k, j, simulation)
-                        if (userTask.save(flush: true)) {
-                            log.debug("New simulationTask with id ${userTask.id} has been created for simulation ${simulation.id}.")
-                        } else {
-                            log.error("SimulationTask creation attempt failed")
-                            log.error(userTask?.errors?.dump())
-                        }
-                    }
-                }
-            }
-        } else {
-            log.error("Simulation creation attempt failed")
-            log.error(simulation?.errors?.dump())
-            return null;
-        }
-    }
 
     def createExperiment(def json, Session session) {
         def tail
@@ -138,13 +107,21 @@ class ExperimentService {
         }
     }
 
-    def completeExperiment(def map, def experimentId) {
+    def completeExperiment(HashMap<String, List<String>> map, def experimentId) {
         def experiment = Experiment.get(experimentId)
         def userStory
         def story
+        def edge
         for (int i = 1; i <= map.size(); i++) {
-            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)))
+            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)).get(0))
             userStory = new UserStory(experiment: experiment, alias: "neighbour" + i, story: story)
+            map.get("n" + (i - 1)).eachWithIndex { it, idx ->
+                if (idx != 0) {
+                    edge = new Edge(source: "n" + (i - 1), target: it, experiment: experiment).save(failOnError: true)
+                    log.debug("New edge with id ${edge.id} has been created.")
+                }
+            }
+
             if (userStory.save(flush: true)) {
                 log.debug("New user story with id ${userStory.id} has been created.")
             }
@@ -167,17 +144,11 @@ class ExperimentService {
             int item = 0
             for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
                 for (int numberOfTail = 0; numberOfTail < experiment.initialNbrOfTiles; numberOfTail++) {
-                    println "=====text_order======"
-                    println text_order
-                    println "====================="
                     def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, text_order.get(item)), userNbr, roundNbr, experiment)
                     if (++item >= text_order.size()) {
                         Collections.shuffle(text_order)
                         item = 0
                     }
-                    println "==========item============"
-                    println item
-                    println "=========================="
                     if (experimentTask.save(flush: true)) {
                         log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
                     } else {
@@ -202,28 +173,71 @@ class ExperimentService {
     }
 
     def deleteExperiment(def id, def type) {
-        def source
+        def source, ets
         switch (type) {
             case ExpType.TRAINING.toString():
                 source = Training.get(id)
+                deleteTrainingTasks(source)
                 break;
             case ExpType.SIMULATION.toString():
                 source = Simulation.get(id)
+                deleteSimulationTasks(source)
                 break
             case ExpType.EXPERIMENT.toString():
                 source = Experiment.get(id)
+                deleteExperimentTasks(source)
+                deleteUserStories(source)
                 break
             case ExpType.SESSION.toString():
                 source = Session.get(id)
+                source?.trainings?.each { training ->
+                    deleteTrainingTasks(training)
+                }
+                deleteSimulationTasks(source?.simulations?.getAt(0))
+                deleteExperimentTasks(source?.experiments?.getAt(0))
+                deleteUserStories(source?.experiments?.getAt(0))
+
+                deleteRooms(source)
                 break
         }
         if (source) {
             source.delete(flush: true)
-            log.info("Experiment with id ${id} has been deleted.")
+            log.info("Session with id ${id} has been deleted.")
             return true
         } else {
             return false
         }
+    }
+
+    private def deleteRooms(def source) {
+        def rooms = Room.findAllBySession(source)
+        rooms.each { room -> room.delete() }
+    }
+
+    private def deleteTrainingTasks(source) {
+        def tts = TrainingTask.findAllByTraining(source)
+        tts.each { tt ->
+            tt.delete()
+        }
+    }
+
+    private def deleteSimulationTasks(source) {
+        def sts = SimulationTask.findAllBySimulation(source)
+        sts.each { st ->
+            st.delete()
+        }
+    }
+
+    private def deleteExperimentTasks(source) {
+        def ets = ExperimentTask.findAllByExperiment(source)
+        ets.each { et ->
+            et.delete()
+        }
+    }
+
+    private def deleteUserStories(source) {
+        def us = UserStory.findAllByExperiment(source)
+        us.each { it.delete() }
     }
 
     private static String createExperimentUrl(String sessionName) {
@@ -285,6 +299,53 @@ class ExperimentService {
         }
 
         return training
+    }
+
+    def experiment(Session session, def roundNumber, def tempStory) {
+        def experiment = session.experiments.getAt(0)
+        deleteSimulationTasks(session.simulations.getAt(0))
+        def userCount = experiment.userCount
+        def userList = [:]
+        def currentUser = springSecurityService.currentUser as User
+        if (roundNumber) {
+            def tailList = []
+            if (tempStory) {
+                tempStory.each {
+                    tailList.add(Tail.findById(it))
+                }
+            }
+
+            if (roundNumber < experiment.roundCount) {
+                def alias = currentUser.alias.split("[^0-9]+")[1]
+                def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+                targets.eachWithIndex { String target, int index ->
+                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
+                    userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
+                }
+
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+                userList.put(0, [roundNbr: roundNumber, tts: tts])
+
+                return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
+            } else {
+                def user = springSecurityService.currentUser as User
+                def flash = WebUtils.retrieveGrailsWebRequest().flashScope
+                flash."${user.alias}-${experiment.id}" = tailList.text_order
+                return [experiment: 'finishExperiment', sesId: session.id] as JSON
+            }
+        } else {
+            roundNumber = 0
+            def alias = currentUser.alias.split("[^0-9]+")[1]
+            def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+            targets.eachWithIndex { String target, int index ->
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
+                userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
+            }
+
+            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+            userList.put(0, [roundNbr: roundNumber, tts: tts])
+            return [roundNbr: roundNumber, experiment: experiment, userList: userList]
+        }
     }
 
     private List<Tail> shuffleTails(Story story) {
