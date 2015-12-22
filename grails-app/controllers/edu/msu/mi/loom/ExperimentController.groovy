@@ -107,6 +107,9 @@ class ExperimentController {
             roundNumber = Integer.parseInt(params.roundNumber)
         }
         if (sessionId) {
+            def user = springSecurityService.currentUser as User
+            user.isReady = true
+            user.save(flush: true)
             Session session = Session.get(Long.parseLong(sessionId))
             def room = Room.findBySession(session)
             if (User.countByRoomAndIsReady(room, true) == session.experiments.getAt(0).userCount) {
@@ -175,14 +178,16 @@ class ExperimentController {
                     def rightTextOrder = rightStory.text_order
                     def userStory = flash."${user.alias}-${experiment.id}"
 
-                    println "-----right story--------"
-                    println rightTextOrder
-                    println "::::::::::::::::::::::::::::::::::"
-                    println "-----user story--------"
-                    println userStory
-                    println "::::::::::::::::::::::::::::::::::"
+//                    println "-----right story--------"
+//                    println rightTextOrder
+//                    println "::::::::::::::::::::::::::::::::::"
+//                    println "-----user story--------"
+//                    println userStory
+//                    println "::::::::::::::::::::::::::::::::::"
                     def score = score(rightTextOrder, userStory)
 
+                    def ets = ExperimentTask.findAllByExperiment(experiment)
+                    ets.each { it.delete() }
                     if (score != -1) {
                         render(view: 'finish', model: [rightStory: rightStory, experiment: experiment, score: score])
                         return

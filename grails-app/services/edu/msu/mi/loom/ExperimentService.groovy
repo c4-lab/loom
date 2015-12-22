@@ -107,13 +107,21 @@ class ExperimentService {
         }
     }
 
-    def completeExperiment(def map, def experimentId) {
+    def completeExperiment(HashMap<String, List<String>> map, def experimentId) {
         def experiment = Experiment.get(experimentId)
         def userStory
         def story
+        def edge
         for (int i = 1; i <= map.size(); i++) {
-            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)))
+            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)).get(0))
             userStory = new UserStory(experiment: experiment, alias: "neighbour" + i, story: story)
+            map.get("n" + (i - 1)).eachWithIndex { it, idx ->
+                if (idx != 0) {
+                    edge = new Edge(source: "n" + (i - 1), target: it, experiment: experiment).save(failOnError: true)
+                    log.debug("New edge with id ${edge.id} has been created.")
+                }
+            }
+
             if (userStory.save(flush: true)) {
                 log.debug("New user story with id ${userStory.id} has been created.")
             }
@@ -136,17 +144,11 @@ class ExperimentService {
             int item = 0
             for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
                 for (int numberOfTail = 0; numberOfTail < experiment.initialNbrOfTiles; numberOfTail++) {
-                    println "=====text_order======"
-                    println text_order
-                    println "====================="
                     def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, text_order.get(item)), userNbr, roundNbr, experiment)
                     if (++item >= text_order.size()) {
                         Collections.shuffle(text_order)
                         item = 0
                     }
-                    println "==========item============"
-                    println item
-                    println "=========================="
                     if (experimentTask.save(flush: true)) {
                         log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
                     } else {
@@ -301,8 +303,10 @@ class ExperimentService {
 
     def experiment(Session session, def roundNumber, def tempStory) {
         def experiment = session.experiments.getAt(0)
+        deleteSimulationTasks(session.simulations.getAt(0))
         def userCount = experiment.userCount
         def userList = [:]
+        def currentUser = springSecurityService.currentUser as User
         if (roundNumber) {
             def tailList = []
             if (tempStory) {
@@ -312,10 +316,16 @@ class ExperimentService {
             }
 
             if (roundNumber < experiment.roundCount) {
-                for (int i = 1; i <= userCount; i++) {
-                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
-                    userList.put(i, [roundNbr: roundNumber, tts: tts])
+                def alias = currentUser.alias.split("[^0-9]+")[1]
+                def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+                targets.eachWithIndex { String target, int index ->
+                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
+                    userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
                 }
+
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+                userList.put(0, [roundNbr: roundNumber, tts: tts])
+
                 return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
             } else {
                 def user = springSecurityService.currentUser as User
@@ -325,11 +335,15 @@ class ExperimentService {
             }
         } else {
             roundNumber = 0
-            for (int i = 1; i <= userCount; i++) {
-                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, i, roundNumber).tail
-                userList.put(i, [roundNbr: roundNumber, tts: tts])
+            def alias = currentUser.alias.split("[^0-9]+")[1]
+            def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+            targets.eachWithIndex { String target, int index ->
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
+                userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
             }
 
+            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+            userList.put(0, [roundNbr: roundNumber, tts: tts])
             return [roundNbr: roundNumber, experiment: experiment, userList: userList]
         }
     }

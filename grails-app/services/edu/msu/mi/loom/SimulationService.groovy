@@ -35,16 +35,17 @@ class SimulationService {
                 }
                 endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
 
-                println "+++++++++++++++++++++++++++"
-                println endDate
-                println "+++++++++++++++++++++++++++"
                 return [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList]
             } else {
-                def user = springSecurityService.currentUser as User
-                user.isReady = true
-                user.save(flush: true)
+                Story story = simulation.stories.getAt(0)
+                def rightStory = Tail.findAllByStory(story)
+                def rightTextOrder = rightStory.text_order
+                def intList = []
+                for (String s : tempStory)
+                    intList.add(Integer.valueOf(s));
+                def simulationScore = simulationScore(rightTextOrder, intList)
 
-                return [experiment: 'experiment', sesId: session.id] as JSON
+                return [experiment: 'experiment', sesId: session.id, simulationScore: simulationScore] as JSON
             }
         } else {
             roundNumber = 0
@@ -53,10 +54,34 @@ class SimulationService {
                 userList.put(i, [roundNbr: roundNumber, tts: tts])
             }
             endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
-            println "+++++++++++++++++++++++++++"
-            println endDate
-            println "+++++++++++++++++++++++++++"
             return [roundNbr: roundNumber, simulation: simulation, userList: userList]
+        }
+    }
+
+    public static Float simulationScore(List<Integer> truth, List<Integer> sample) {
+        log.debug("Checking truth:" + truth + " against sample:" + sample);
+        Map<Integer, Integer> tmap = new HashMap<Integer, Integer>();
+        int i = 0;
+        for (Integer t : truth) {
+            tmap.put(t, i++);
+        }
+
+        if (sample) {
+            tmap.keySet().retainAll(sample);
+            int last = -1;
+            int accountedFor = 0;
+            for (Integer s : sample) {
+                if (last > -1) {
+                    if (tmap.get(last) < tmap.get(s)) {
+                        accountedFor++;
+                    }
+                }
+                last = s;
+
+            }
+            return Math.round(accountedFor / (float) (truth.size() - 1));
+        } else {
+            return -1;
         }
     }
 

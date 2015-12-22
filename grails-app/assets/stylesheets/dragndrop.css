@@ -11,6 +11,7 @@ ul {
     display: inline-block;
     cursor: move;
     color: #ffffff !important;
+    /*width: 243px;*/
 }
 
 #dvDest li a::after {
@@ -52,4 +53,9 @@ ul {
 
 .blue {
     background-color: #afebff !important;
+}
+
+.ui-state-highlight {
+    height: 1.5em;
+    line-height: 0.5em;
 }

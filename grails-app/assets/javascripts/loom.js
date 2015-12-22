@@ -13,8 +13,6 @@ $(document).ready(function () {
         }).success(function (data) {
             $("#success-alert").toggleClass('hide show');
             var session = $.parseJSON(data);
-            console.log(session.session.name);
-            console.log(session.session.id);
             $("#session-link").text(session.session.name);
             $("#session-link").attr('href', '/loom/session/' + session.session.id);
         }).error(function () {
@@ -80,7 +78,7 @@ function initTraining() {
 }
 
 function initSimulation() {
-    if ($("#simulation-content-wrapper").length > 0) {
+    if ($("#simulationMainContainer").length > 0) {
         initDragNDrop();
         initTiles();
         resetSimulation();
@@ -108,9 +106,7 @@ function initExperimentTimer() {
 function initTiles() {
     $("#dvSourceContainer").find(".ui-state-default").each(function () {
         var sourceTileId = $(this).attr('id');
-        console.log(sourceTileId);
         $("#dvDest").find(".purple").each(function () {
-            console.log($(this).attr('id'));
             if ($(this).attr('id') == sourceTileId) {
                 $("#dvSourceContainer #" + sourceTileId).addClass('blue');
                 $("#dvSourceContainer #" + sourceTileId).addClass('ui-draggable-disabled');
@@ -138,24 +134,34 @@ function initDragNDrop() {
             $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>")
                 .html("<span>" + ui.draggable.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>").appendTo(this);
             markAsDropped(ui.draggable.attr("id"));
-            $(".dvSource #"+ui.draggable.attr("id")).draggable("disable");
+            $(".dvSource #" + ui.draggable.attr("id")).draggable("disable");
             removeTile();
         }
     }).sortable({
         items: "li:not(.placeholder)",
+        placeholder: "ui-state-highlight",
         sort: function () {
             $(this).removeClass("ui-state-default");
-        },
-        cursorAt: {left: 10, top: -1}
-    });
+        }
+    }).disableSelection();
+    if (/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) {
+        $("#dvDest").find("ul").sortable({
+            items: "li:not(.placeholder)",
+            placeholder: "ui-state-highlight",
+            sort: function () {
+                $(this).removeClass("ui-state-default");
+            },
+            cursorAt: {top: -35, left: 5}
+        }).disableSelection();
+    }
 }
 
 function removeTile() {
     $("#dvDest").find("li a").click(function (e) {
         $(this).parent().remove();
         console.log($(this).parent().attr('id'));
-        $(".dvSource #"+$(this).parent().attr('id')).draggable("enable");
-        $(".dvSource #"+$(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
+        $(".dvSource #" + $(this).parent().attr('id')).draggable("enable");
+        $(".dvSource #" + $(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
     });
 }
 
@@ -261,7 +267,12 @@ function submitSimulation() {
 }
 
 function submitSimulationAjax() {
-    $(".ui-draggable-dragging").remove();
+    if ($(".ui-draggable-dragging").length > 0) {
+        $('html').on('mouseup', function () {
+            $(".ui-draggable-dragging").remove();
+            $(".ui-draggable-dragging").draggable("destroy");
+        });
+    }
     clearInterval(int);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
@@ -276,11 +287,18 @@ function submitSimulationAjax() {
             roundNumber: $("#roundNumber").text()
         }
     }).success(function (data) {
+        $("#dvDest").find("ul").droppable("option", "disabled", false);
         if (data.indexOf("experiment") >= 0) {
             var session = JSON.parse(data).sesId;
+            var simulationScore = JSON.parse(data).simulationScore;
             var roundNumber = 0;
             console.log("/loom/exper/" + session + "/" + roundNumber);
-            window.location = "/loom/exper/" + session + "/" + roundNumber;
+            //window.location = "/loom/exper/" + session + "/" + roundNumber;
+            $("#simulationMainContainer").remove();
+            $("#simulationScore").css('display', 'block');
+            $("#scorePanel").text(simulationScore);
+            $("#roundNumber").val(roundNumber);
+            $("#session").val(session);
         } else {
             $("#simulation-content-wrapper").html(data);
             initSimulation();
@@ -312,7 +330,6 @@ function submitExperimentAjax() {
         return $(this).attr('id');
     }).get().join(";");
 
-    console.log(text_all);
     $.ajax({
         url: "/loom/experiment/submitExperiment",
         type: 'POST',
