@@ -162,6 +162,7 @@ function removeTile() {
         console.log($(this).parent().attr('id'));
         $(".dvSource #" + $(this).parent().attr('id')).draggable("enable");
         $(".dvSource #" + $(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
+        $(".dvSource #" + $(this).parent().attr('id')).removeClass('blue');
     });
 }
 
