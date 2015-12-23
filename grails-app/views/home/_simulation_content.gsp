@@ -1,4 +1,4 @@
-<section class="content-header">
+<section class="content-header" id="simTemplate">
     <div class="row">
         <div class="col-md-1"></div>
 
@@ -102,7 +102,7 @@
                         <div class="col-lg-10"></div>
 
                         <div class="col-lg-2" id="btn-panel">
-                            <button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>
+                            %{--<button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>--}%
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-<section class="content-header">
+<section class="content-header" id="expTemplate">
     <div class="row">
         <div class="col-md-1"></div>
 
@@ -103,9 +103,9 @@
                         <div class="col-lg-9"></div>
 
                         <div class="col-lg-3" id="btn-panel">
-                            <button type="submit" class="btn btn-success"
-                                    id="submit-experiment">Submit</button>
-                            <button type="reset" id="reset-experiment" class="btn btn-default">Reset</button>
+                            %{--<button type="submit" class="btn btn-success"--}%
+                                    %{--id="submit-experiment">Submit</button>--}%
+                            %{--<button type="reset" id="reset-experiment" class="btn btn-default">Reset</button>--}%
                         </div>
                     </div>
                 </div>
