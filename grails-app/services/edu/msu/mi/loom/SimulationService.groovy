@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -30,21 +31,20 @@ class SimulationService {
                 def tailList = []
                 if (tempStory) {
                     tempStory.each {
-                        tailList.add(Tail.findById(it))
+                        tailList.add(Tail.findByText_orderAndStory(it, simulation.stories.getAt(0)))
                     }
                 }
                 endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
 
                 return [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList]
             } else {
-                Story story = simulation.stories.getAt(0)
+                Story story = Story.findBySimulation(simulation)
                 def rightStory = Tail.findAllByStory(story)
                 def rightTextOrder = rightStory.text_order
                 def intList = []
                 for (String s : tempStory)
                     intList.add(Integer.valueOf(s));
-                def simulationScore = simulationScore(rightTextOrder, intList)
-
+                float simulationScore = simulationScore(rightTextOrder, intList)
                 return [experiment: 'experiment', sesId: session.id, simulationScore: simulationScore] as JSON
             }
         } else {
@@ -79,7 +79,8 @@ class SimulationService {
                 last = s;
 
             }
-            return Math.round(accountedFor / (float) (truth.size() - 1));
+            DecimalFormat df = new DecimalFormat("####0.00");
+            return Float.parseFloat(df.format(accountedFor / (float) (truth.size() - 1)));
         } else {
             return -1;
         }

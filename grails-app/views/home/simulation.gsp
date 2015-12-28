@@ -37,4 +37,19 @@
             </section>
         </div>
     </div>
+
+    <script type="text/javascript">
+        var timeout;
+        $(window).on('beforeunload', function () {
+            if (jQuery("#simTemplate").length > 0) {
+                before = new Date();
+                timeout = setTimeout(function () {
+                    after = new Date();
+                    clearInterval(int);
+                    calculateTime();
+                }, 10);
+                return "Your work will be lost.";
+            }
+        });
+    </script>
 </g:applyLayout>

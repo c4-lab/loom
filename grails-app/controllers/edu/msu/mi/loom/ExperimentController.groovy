@@ -4,6 +4,8 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 
+import java.text.DecimalFormat
+
 import static org.springframework.http.HttpStatus.*
 
 @Slf4j
@@ -221,7 +223,9 @@ class ExperimentController {
                 last = s;
 
             }
-            return Math.round(accountedFor / (float) (truth.size() - 1));
+
+            DecimalFormat df = new DecimalFormat("####0.00");
+            return Float.parseFloat(df.format(accountedFor / (float) (truth.size() - 1)));
         } else {
             return -1;
         }

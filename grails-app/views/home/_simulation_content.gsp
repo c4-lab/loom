@@ -1,4 +1,4 @@
-<section class="content-header">
+<section class="content-header" id="simTemplate">
     <div class="row">
         <div class="col-md-1"></div>
 
@@ -56,7 +56,7 @@
                                         <div class="tab-pane ${user.key != 2 ?: "active"}" id="neighbour${user.key}">
                                             <ul class="dvSource">
                                                 <g:each in="${user.value.tts}" var="tt">
-                                                    <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
+                                                    <li class="ui-state-default" id="${tt.text_order}">${tt.text}</li>
                                                 </g:each>
                                             </ul>
                                         </div>
@@ -77,14 +77,14 @@
                                 <g:each in="${userList}" var="user">
                                     <g:if test="${user.key == 1}">
                                         <g:each in="${user.value.tts}" var="tt">
-                                            <li class="ui-state-default purple" id="${tt.id}">${tt.text}</li>
+                                            <li class="ui-state-default purple" id="${tt.text_order}">${tt.text}</li>
                                         </g:each>
                                     </g:if>
                                 </g:each>
 
                                 <g:if test="${tempStory?.size() > 0}">
                                     <g:each in="${tempStory}" var="tail">
-                                        <li class="ui-state-default purple" id="${tail.id}">${tail.text}</li>
+                                        <li class="ui-state-default purple" id="${tail.text_order}">${tail.text}</li>
                                     </g:each>
                                 </g:if>
                                 <g:else>
@@ -102,7 +102,7 @@
                         <div class="col-lg-10"></div>
 
                         <div class="col-lg-2" id="btn-panel">
-                            <button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>
+                            %{--<button type="reset" id="reset-simulation" class="btn btn-default">Reset</button>--}%
                         </div>
                     </div>
                 </div>

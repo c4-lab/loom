@@ -66,6 +66,8 @@ function initExperiment() {
         removeTile();
         resetExperiment();
         submitExperiment();
+        localStorage.setItem('remainingTime', 'null');
+        clearInterval(int);
         initExperimentTimer();
     }
 }
@@ -84,6 +86,8 @@ function initSimulation() {
         resetSimulation();
         removeTile();
         submitSimulation();
+        localStorage.setItem('remainingTime', 'null');
+        clearInterval(int);
         initSimulationTimer();
     }
 }
@@ -162,6 +166,7 @@ function removeTile() {
         console.log($(this).parent().attr('id'));
         $(".dvSource #" + $(this).parent().attr('id')).draggable("enable");
         $(".dvSource #" + $(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
+        $(".dvSource #" + $(this).parent().attr('id')).removeClass('blue');
     });
 }
 
@@ -205,10 +210,31 @@ function submitTraining() {
     });
 }
 
+var after;
+var before;
+function calculateTime() {
+    var seconds = Math.round((after - before) / 1000);
+
+    console.log("seconds: " + seconds);
+    //$("#simulationMainContainer").length > 0
+    if (localStorage.remainingTime != 'null') {
+        console.log("localStorage.remainingTime: "+localStorage.remainingTime);
+        localStorage.remainingTime = localStorage.remainingTime - seconds;
+        var display = $('#timerPanel');
+        startSimulationTimer(localStorage.remainingTime, display);
+    }
+}
+
 var int;
 function startSimulationTimer(duration, display) {
-
-    var timer = duration;
+    var timer;
+    if (isNaN(localStorage.remainingTime) || localStorage.remainingTime == 'null') {
+        console.log('duration works');
+        timer = duration;
+    } else {
+        console.log('localstorage works');
+        timer = localStorage.remainingTime;
+    }
     var minutes, seconds;
 
     console.log("simulation timer: " + timer);
@@ -219,7 +245,7 @@ function startSimulationTimer(duration, display) {
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-
+        console.log('timer inside: '+timer);
         display.text(minutes + ":" + seconds);
 
         if (--timer < 0) {
@@ -228,13 +254,20 @@ function startSimulationTimer(duration, display) {
             submitSimulationAjax();
         }
 
-        localStorage.seconds = timer;
+        localStorage.setItem('remainingTime', timer);
 
     }, 1000);
 }
 
 function startExperimentTimer(duration, display) {
-    var timer = duration;
+    var timer;
+    if (isNaN(localStorage.remainingTime) || localStorage.remainingTime == 'null') {
+        console.log('duration works');
+        timer = duration;
+    } else {
+        console.log('localstorage works');
+        timer = localStorage.remainingTime;
+    }
     var minutes, seconds;
 
     console.log("experiment timer: " + timer);
@@ -245,7 +278,7 @@ function startExperimentTimer(duration, display) {
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-
+        console.log('timer inside: '+timer);
         display.text(minutes + ":" + seconds);
 
         if (--timer < 0) {
@@ -254,10 +287,9 @@ function startExperimentTimer(duration, display) {
             submitExperimentAjax();
         }
 
-        localStorage.seconds = timer;
+        localStorage.setItem('remainingTime', timer);
 
     }, 1000);
-    console.log("reset timer");
 }
 
 function submitSimulation() {
@@ -287,6 +319,7 @@ function submitSimulationAjax() {
             roundNumber: $("#roundNumber").text()
         }
     }).success(function (data) {
+        localStorage.setItem('remainingTime', 'null');
         $("#dvDest").find("ul").droppable("option", "disabled", false);
         if (data.indexOf("experiment") >= 0) {
             var session = JSON.parse(data).sesId;
@@ -339,6 +372,7 @@ function submitExperimentAjax() {
             roundNumber: $("#roundNumber").text()
         }
     }).success(function (data) {
+        localStorage.setItem('remainingTime', 'null');
         if (data.indexOf("finishExperiment") >= 0) {
             var session = JSON.parse(data).sesId;
             console.log("/loom/experiment/finishExperiment/" + session);
