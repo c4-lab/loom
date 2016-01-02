@@ -48,6 +48,19 @@ class HomeController {
         redirect(uri: '/not-found')
     }
 
+    @Secured('permitAll')
+    def joinByEmail() {
+        def user = userService.createUserWithRandomUsername()
+        if (user?.id) {
+            springSecurityService.reauthenticate(user.username)
+            redirect(action: "joinRoom", params: [id: params.id])
+        } else {
+            log.error("Failed to register new user account")
+            flash.message = "page.auth.already.exists"
+            redirect(uri: "/")
+        }
+    }
+
     def joinRoom() {
         def roomId = params.id
         if (roomId) {

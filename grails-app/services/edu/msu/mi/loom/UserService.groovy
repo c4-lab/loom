@@ -3,9 +3,12 @@ package edu.msu.mi.loom
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
+import java.security.SecureRandom
+
 @Slf4j
 @Transactional
 class UserService {
+    private SecureRandom random = new SecureRandom();
 
     def createUser(String username) {
         def password = makeRandomPassword();
@@ -20,7 +23,22 @@ class UserService {
             log.error(user?.errors?.dump())
             return null;
         }
+    }
 
+    def createUserWithRandomUsername() {
+        def username = makeRandomUsername()
+        def password = makeRandomPassword()
+        def user = new User(username: username, password: password)
+
+        if (user.save(flush: true)) {
+            log.debug("Created ${user.username} with id ${user.id}")
+            addDefaultRole(user)
+            return user
+        } else {
+            log.error("User creation attempt failed")
+            log.error(user?.errors?.dump())
+            return null;
+        }
     }
 
     def deleteUser(User user) {
@@ -49,6 +67,10 @@ class UserService {
 
     private String makeRandomPassword() {
         return "${System.currentTimeMillis()}"
+    }
+
+    private String makeRandomUsername() {
+        return new BigInteger(80, random).toString(15);
     }
 
     private void addDefaultRole(User user) {

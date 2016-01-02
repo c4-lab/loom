@@ -14,7 +14,7 @@ class EmailService {
     def sendInvitationEmail(String emails, def id) {
         List<String> emailList = parseEmailsString(emails)
         String title = messageService.getMessage("email.invitation.title")
-        String link = grailsLinkGenerator.link(controller: 'home', action: 'joinRoom', params: [id: id], absolute: true)
+        String link = grailsLinkGenerator.link(controller: 'home', action: 'joinByEmail', params: [id: id], absolute: true)
         runAsync {
             User.withSession {
                 sendEmailHtml(emailList, title, [link: link])
