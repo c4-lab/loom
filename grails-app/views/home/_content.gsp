@@ -27,9 +27,9 @@
                         <div class="col-md-1"></div>
 
                         <div class="col-md-10 table-bordered" style="min-height: 200px !important;">
-                            <ul class="dvSource">
+                            <ul class="dvSource g_list" id="sort1">
                                 <g:each in="${tts}" var="tt">
-                                    <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
+                                    <li class="draggable ui-state-default" drag-id="${tt.id}">${tt.text}</li>
                                 </g:each>
                             </ul>
                         </div>
@@ -44,8 +44,8 @@
                         <div class="col-md-1"></div>
 
                         <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
-                            <ul style="min-height: 200px !important;">
-                                <li class="placeholder">Add tails here</li>
+                            <ul style="min-height: 200px !important;" id="sort2" class="g_list">
+                                %{--<li class="placeholder">Add tails here</li>--}%
                             </ul>
                         </div>
 
