@@ -164,7 +164,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="emailAddress"></label>
-                        <g:textArea id="emailAddress" style="color: #000444" name="emailAddress" rows="10" cols="90"
+                        <g:textArea id="emailAddress" style="color: #000444" name="emailAddress" rows="10" cols="85"
                                     placeholder="example1@loom.com, example2@loom.com"/>
                     </div>
                 </div>

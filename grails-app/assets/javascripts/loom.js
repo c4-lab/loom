@@ -109,65 +109,63 @@ function initExperimentTimer() {
 
 function initTiles() {
     $("#dvSourceContainer").find(".ui-state-default").each(function () {
-        var sourceTileId = $(this).attr('id');
-        $("#dvDest").find(".purple").each(function () {
-            if ($(this).attr('id') == sourceTileId) {
-                $("#dvSourceContainer #" + sourceTileId).addClass('blue');
-                $("#dvSourceContainer #" + sourceTileId).addClass('ui-draggable-disabled');
-                $("#dvSourceContainer #" + sourceTileId).draggable("disable");
+        var sourceTileId = $(this).attr('drag-id');
+        $("#sort2").find(".purple").each(function () {
+            if ($(this).attr('drag-id') == sourceTileId) {
+                $("#dvSourceContainer").find("[drag-id='" + sourceTileId + "']").addClass('blue');
             }
         });
     });
 }
 
 function markAsDropped(source) {
-    $("#" + source).addClass('blue');
+    $(".dvSource").find("[drag-id='" + source + "']").addClass('blue');
+    $("#sort2").find("[drag-id='" + source + "']").addClass('purple');
+    $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
+}
+
+function addRemoveBtn(source) {
+    var elem = $("#sort2").find("[drag-id='" + source + "']");
+    elem.text('');
+    var elem2 = $(".dvSource").find("[drag-id='" + source + "']").first();
+    elem.append("<span>" + elem2.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>");
+
+}
+
+function removeTile() {
+    $("#sort2").find("li a").click(function (e) {
+        $(this).parent().remove();
+        console.log($(this).parent().attr('id'));
+        var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+        elem.css("backgroundColor", "#e6e6e6");
+        elem.removeClass('blue');
+    });
 }
 
 function initDragNDrop() {
     $(".dvSource").find("li").draggable({
-        appendTo: "body",
-        helper: "clone"
+        helper: "clone",
+        opacity: 0.5,
+        cursor: "crosshair",
+        connectToSortable: "#sort2",
+        revert: "invalid",
+        cancel: ".blue",
+        stop: function (event, ui) {
+            console.log($(event.target).attr("drag-id"));
+            if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
+                markAsDropped($(event.target).attr("drag-id"));
+                addRemoveBtn($(event.target).attr("drag-id"));
+                removeTile();
+                console.log('receive');
+            }
+        }
     });
-    $("#dvDest").find("ul").droppable({
-        activeClass: "ui-state-default",
-        hoverClass: "ui-state-hover",
-        accept: ":not(.ui-sortable-helper)",
-        drop: function (event, ui) {
-            $(this).find(".placeholder").remove();
-            $("<li class='ui-state-default ui-draggable ui-draggable-handle purple' id='" + ui.draggable.attr("id") + "'></li>")
-                .html("<span>" + ui.draggable.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>").appendTo(this);
-            markAsDropped(ui.draggable.attr("id"));
-            $(".dvSource #" + ui.draggable.attr("id")).draggable("disable");
-            removeTile();
-        }
-    }).sortable({
-        items: "li:not(.placeholder)",
-        placeholder: "ui-state-highlight",
-        sort: function () {
-            $(this).removeClass("ui-state-default");
-        }
-    }).disableSelection();
-    if (/chrom(e|ium)/.test(navigator.userAgent.toLowerCase())) {
-        $("#dvDest").find("ul").sortable({
-            items: "li:not(.placeholder)",
-            placeholder: "ui-state-highlight",
-            sort: function () {
-                $(this).removeClass("ui-state-default");
-            },
-            cursorAt: {top: -35, left: 5}
-        }).disableSelection();
-    }
-}
 
-function removeTile() {
-    $("#dvDest").find("li a").click(function (e) {
-        $(this).parent().remove();
-        console.log($(this).parent().attr('id'));
-        $(".dvSource #" + $(this).parent().attr('id')).draggable("enable");
-        $(".dvSource #" + $(this).parent().attr('id')).css("backgroundColor", "#e6e6e6");
-        $(".dvSource #" + $(this).parent().attr('id')).removeClass('blue');
+    $("#sort2").sortable({
+        opacity: 0.5,
+        cursor: "crosshair"
     });
+    $(".dvSource, #sort2").disableSelection();
 }
 
 function resetTraining() {
@@ -218,7 +216,7 @@ function calculateTime() {
     console.log("seconds: " + seconds);
     //$("#simulationMainContainer").length > 0
     if (localStorage.remainingTime != 'null') {
-        console.log("localStorage.remainingTime: "+localStorage.remainingTime);
+        console.log("localStorage.remainingTime: " + localStorage.remainingTime);
         localStorage.remainingTime = localStorage.remainingTime - seconds;
         var display = $('#timerPanel');
         startSimulationTimer(localStorage.remainingTime, display);
@@ -245,7 +243,7 @@ function startSimulationTimer(duration, display) {
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-        console.log('timer inside: '+timer);
+        console.log('timer inside: ' + timer);
         display.text(minutes + ":" + seconds);
 
         if (--timer < 0) {
@@ -278,7 +276,7 @@ function startExperimentTimer(duration, display) {
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-        console.log('timer inside: '+timer);
+        console.log('timer inside: ' + timer);
         display.text(minutes + ":" + seconds);
 
         if (--timer < 0) {
@@ -308,7 +306,7 @@ function submitSimulationAjax() {
     clearInterval(int);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
-        return $(this).attr('id');
+        return $(this).attr('drag-id');
     }).get().join(";");
     $.ajax({
         url: "/loom/experiment/submitSimulation",
@@ -320,8 +318,8 @@ function submitSimulationAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        $("#dvDest").find("ul").droppable("option", "disabled", false);
-        if (data.indexOf("experiment") >= 0) {
+        //$("#dvDest").find("ul").droppable("option", "disabled", false);
+        if (data.indexOf("experiment_ready") >= 0) {
             var session = JSON.parse(data).sesId;
             var simulationScore = JSON.parse(data).simulationScore;
             var roundNumber = 0;
@@ -360,7 +358,7 @@ function submitExperimentAjax() {
     clearInterval(int);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
-        return $(this).attr('id');
+        return $(this).attr('drag-id');
     }).get().join(";");
 
     $.ajax({

@@ -56,7 +56,7 @@
                                         <div class="tab-pane ${user.key != 1 ?: "active"}" id="neighbour${user.key}">
                                             <ul class="dvSource">
                                                 <g:each in="${user.value.tts}" var="tt">
-                                                    <li class="ui-state-default" id="${tt.id}">${tt.text}</li>
+                                                    <li class="ui-state-default" drag-id="${tt.id}">${tt.text}</li>
                                                 </g:each>
                                             </ul>
                                         </div>
@@ -74,23 +74,23 @@
                         <div class="col-md-1"></div>
 
                         <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
-                            <ul style="min-height: 200px !important;">
+                            <ul style="min-height: 200px !important;" id="sort2" class="g_list">
                                 <g:each in="${userList}" var="user">
                                     <g:if test="${user.key == 0}">
                                         <g:each in="${user.value.tts}" var="tt">
-                                            <li class="ui-state-default purple" id="${tt.id}">${tt.text}</li>
+                                            <li class="ui-state-default purple" drag-id="${tt.id}">${tt.text}</li>
                                         </g:each>
                                     </g:if>
                                 </g:each>
 
                                 <g:if test="${tempStory?.size() > 0}">
                                     <g:each in="${tempStory}" var="tail">
-                                        <li class="ui-state-default purple" id="${tail.id}">${tail.text}</li>
+                                        <li class="ui-state-default purple" drag-id="${tail.id}">${tail.text}</li>
                                     </g:each>
                                 </g:if>
-                                <g:else>
-                                    <li class="placeholder">Add tails here</li>
-                                </g:else>
+                            %{--<g:else>--}%
+                            %{--<li class="placeholder">Add tails here</li>--}%
+                            %{--</g:else>--}%
                             </ul>
                         </div>
 
