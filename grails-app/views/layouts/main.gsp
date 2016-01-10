@@ -30,6 +30,7 @@
     <asset:javascript src="jquery-1.11.3.js"/>
     <asset:javascript src="jquery-ui.js"/>
     <asset:javascript src="bootstrap.min.js"/>
+    <asset:javascript src="jquery.blockUI.js"/>
     <asset:javascript src="application.js"/>
     <asset:javascript src="loom.js"/>
     <g:layoutHead/>
