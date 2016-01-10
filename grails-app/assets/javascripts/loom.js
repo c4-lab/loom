@@ -150,6 +150,10 @@ function initDragNDrop() {
         connectToSortable: "#sort2",
         revert: "invalid",
         cancel: ".blue",
+        placeholder: "ui-state-highlight",
+        start: function (event, ui) {
+            $('.ui-draggable-dragging').css("white-space", "nowrap");
+        },
         stop: function (event, ui) {
             console.log($(event.target).attr("drag-id"));
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
@@ -163,7 +167,8 @@ function initDragNDrop() {
 
     $("#sort2").sortable({
         opacity: 0.5,
-        cursor: "crosshair"
+        cursor: "crosshair",
+        placeholder: "ui-state-highlight"
     });
     $(".dvSource, #sort2").disableSelection();
 }
