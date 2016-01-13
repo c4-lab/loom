@@ -10,7 +10,7 @@ import spock.lang.Unroll
 class SessionSpec extends ConstraintUnitSpec {
 
     def setup() {
-        mockForConstraintsTests(Session, [Session.build(name: "Session1")])
+        mockForConstraintsTests(Session, [Session.build(name: "Session1", url: "http://loom.com")])
     }
 
     @Unroll("test Session all constraints #field is #error")
@@ -29,5 +29,8 @@ class SessionSpec extends ConstraintUnitSpec {
         'valid'    | 'experiments' | null
         'valid'    | 'simulations' | null
         'valid'    | 'trainings'   | null
+        'nullable' | 'url'         | null
+        'nullable' | 'url'         | getEmptyString()
+        'unique'   | 'url'         | "http://loom.com"
     }
 }

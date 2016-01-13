@@ -10,7 +10,7 @@ import spock.lang.Unroll
 class ExperimentSpec extends ConstraintUnitSpec {
 
     def setup() {
-        mockForConstraintsTests(Experiment, [Experiment.build(name: "First experiment", url: "http://loom.com")])
+        mockForConstraintsTests(Experiment, [Experiment.build(name: "First experiment")])
     }
 
     @Unroll("test Experiment all constraints #field is #error")
@@ -25,11 +25,7 @@ class ExperimentSpec extends ConstraintUnitSpec {
         error      | field        | val
         'nullable' | 'name'       | getEmptyString()
         'nullable' | 'name'       | null
-        'nullable' | 'url'        | null
-        'nullable' | 'url'        | getEmptyString()
-        'unique'   | 'url'        | "http://loom.com"
         'min'      | 'roundCount' | 0
         'min'      | 'roundTime'  | 0
-
     }
 }
