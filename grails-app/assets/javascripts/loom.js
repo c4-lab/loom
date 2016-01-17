@@ -168,7 +168,14 @@ function initDragNDrop() {
     $("#sort2").sortable({
         opacity: 0.5,
         cursor: "crosshair",
-        placeholder: "ui-state-highlight"
+        placeholder: "ui-state-highlight",
+        start: function (event, ui) {
+            ui.item.toggleClass("ui-state-highlight");
+            $(event.target).find('li').css("white-space", "nowrap");
+        },
+        stop: function (event, ui) {
+            ui.item.toggleClass("ui-state-highlight");
+        }
     });
     $(".dvSource, #sort2").disableSelection();
 }

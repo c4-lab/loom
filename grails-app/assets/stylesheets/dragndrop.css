@@ -56,8 +56,8 @@ ul {
 }
 
 .ui-state-highlight {
-    height: 32px;
-    margin: 10px;
-    padding: 10px;
-    width: 40px;
+    margin: 0 !important;
+    margin-top: 5px !important;
+    padding-top: 15px !important;
+    width: 50px;
 }
