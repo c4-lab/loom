@@ -303,7 +303,7 @@ class ExperimentService {
 
     def experiment(Session session, def roundNumber, def tempStory) {
         def experiment = session.experiments.getAt(0)
-        deleteSimulationTasks(session.simulations.getAt(0))
+//        deleteSimulationTasks(session.simulations.getAt(0))
         def userCount = experiment.userCount
         def userList = [:]
         def currentUser = springSecurityService.currentUser as User

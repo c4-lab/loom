@@ -18,6 +18,7 @@ class ExperimentController {
     def experimentService
     def springSecurityService
     def simulationService
+    def statService
 
     def submitTraining() {
         def userTails = params.tails
@@ -53,6 +54,12 @@ class ExperimentController {
                     render(template: '/home/content', model: [tts: tts, training: training])
                     return
                 } else {
+                    session.trainingEndTime = new Date().getTime()
+                    def trainingTime = (session.trainingEndTime - session.trainingStartTime)
+                    println "================="
+                    println trainingTime
+                    println "================="
+                    statService.setTrainingTime(expSession, trainingTime)
                     session["seqNumber"] = null
                     render(status: OK, text: [simulation: 'simulation', sesId: sessionId] as JSON)
                     return

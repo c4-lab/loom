@@ -20,4 +20,9 @@ class RoomService {
             return null;
         }
     }
+
+    def deleteRoom(def roomId) {
+        def room = Room.get(roomId)
+        room.delete(flush: true)
+    }
 }

@@ -7,6 +7,7 @@ class HomeController {
     def springSecurityService
     def userService
     def experimentService
+    def statService
 
     static allowedMethods = [
             index: 'GET',
@@ -70,6 +71,9 @@ class HomeController {
             room.addToUsers(user)
             room.save(flush: true)
 
+//            Create UserStatistics for current user
+            statService.createStat(room.session, user)
+
             redirect(action: 'training', params: [session: room.session.id])
             return
         }
@@ -79,6 +83,7 @@ class HomeController {
 
     def training() {
         def sessionId = params.session
+        session.trainingStartTime = new Date().getTime()
         if (sessionId) {
             if (session["seqNumber"]) {
                 redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: session["seqNumber"]])
