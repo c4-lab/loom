@@ -5,7 +5,7 @@ class CommonTagLib {
     static defaultEncodeAs = [taglib: 'raw']
 //    static encodeAsForTags = [tagName: [taglib:'html'], otherTagName: [taglib:'none']]
     static namespace = "loom"
-    static returnObjectForTags = ['checkForCurrentUser']
+    static returnObjectForTags = ['checkForCurrentUser', 'checkCurrentUserAndRoomConnection']
 
     def progressBar = { attrs ->
         def completePercent = attrs.userCount * 100 / attrs.userMaxCount
@@ -16,6 +16,19 @@ class CommonTagLib {
         out << "<span class='sr-only'>${completePercent}% Complete</span>"
         out << '</div></div>'
         out << "<p>Number of users connected: ${attrs.userCount}</p>"
+    }
+
+    def checkCurrentUserAndRoomConnection = { attrs ->
+        def currentUser = springSecurityService.currentUser as User
+        def room = Room.get(attrs.room)
+        if (room) {
+            def userRoom = UserRoom.countByRoomAndUser(room, currentUser)
+            if (userRoom > 0) {
+                return true
+            }
+        }
+
+        return false
     }
 
     def checkForCurrentUser = { attrs ->
@@ -43,6 +56,5 @@ class CommonTagLib {
             out << "<li class='ui-state-default' id='${tt.id}'>${tt.text}</li>"
         }
         out << '</ul></div>'
-
     }
 }

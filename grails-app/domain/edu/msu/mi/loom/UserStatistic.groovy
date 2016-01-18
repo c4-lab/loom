@@ -6,16 +6,15 @@ class UserStatistic {
     double trainingTime
     float simulationScore
     float experimentScore
-    HashMap<String, String> experimentRoundScore
+    List<Integer> textOrder = new ArrayList<>()
+    List<Float> experimentRoundScore = new ArrayList<>()
 
-    static hasMany = [textOrder: String]
+    static hasMany = [textOrder: Integer, experimentRoundScore: Float]
 
     static constraints = {
         simulationScore nullable: true
         trainingTime nullable: true
         simulationScore nullable: true
         experimentScore nullable: true
-        experimentRoundScore nullable: true
-        textOrder nullable: true
     }
 }

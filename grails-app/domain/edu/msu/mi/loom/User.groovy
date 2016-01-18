@@ -6,21 +6,16 @@ class User {
 
     String username
     String password
-    String alias
     boolean enabled = true
     boolean accountExpired
     boolean accountLocked
     boolean passwordExpired
-    boolean isReady
 
-    static belongsTo = [room: Room]
     static transients = ['springSecurityService']
 
     static constraints = {
         username blank: false, unique: true, maxSize: 20
         password blank: false
-        alias nullable: true
-        room nullable: true
     }
 
     static mapping = {

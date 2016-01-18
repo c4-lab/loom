@@ -8,15 +8,30 @@ class HomeController {
     def userService
     def experimentService
     def statService
+    def roomService
 
     static allowedMethods = [
-            index: 'GET',
+            index       : 'GET',
             authenticate: 'POST'
     ]
 
     def index() {
         def rooms = Room.list()
         render(view: 'index', model: [rooms: rooms])
+    }
+
+    def leaveExperiment() {
+        def roomId = params.room
+        def currentUser = springSecurityService.currentUser as User
+        if (roomId) {
+            def room = Room.get(roomId)
+
+            def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
+            if (userRoom) {
+                userRoom.delete(flush: true)
+                redirect(action: 'index')
+            }
+        }
     }
 
     @Secured('permitAll')
@@ -67,14 +82,32 @@ class HomeController {
         if (roomId) {
             def room = Room.get(roomId)
             def user = springSecurityService.currentUser as User
-            user.alias = "neighbour" + (room.users.size() + 1)
-            room.addToUsers(user)
-            room.save(flush: true)
+
+            roomService.joinRoom(room, user)
 
 //            Create UserStatistics for current user
             statService.createStat(room.session, user)
 
             redirect(action: 'training', params: [session: room.session.id])
+            return
+        }
+
+        redirect(uri: '/not-found')
+    }
+
+    def rejoinRoom() {
+        def roomId = params.id
+        if (roomId) {
+            def room = Room.get(roomId)
+            def user = springSecurityService.currentUser as User
+            def userRoom = UserRoom.findByRoomAndUser(room, user)
+            if (!userRoom.isTrainingPassed) {
+                redirect(action: 'training', params: [session: room.session.id])
+            } else if (!userRoom.isSimulationPassed) {
+                redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
+            } else {
+                redirect(controller: 'experiment', action: 'experiment', params: [roundNumber: 0, session: room.session.id])
+            }
             return
         }
 
