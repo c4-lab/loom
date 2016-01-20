@@ -188,6 +188,7 @@ class ExperimentController {
                     def rightStory = Tail.findAllByStory(story)
                     def rightTextOrder = rightStory.text_order
                     def userStory = flash."${alias}-${experiment.id}"
+                    def userStats = UserStatistic.findBySessionAndUser(session, user)
 
 //                    println "-----right story--------"
 //                    println rightTextOrder
@@ -196,6 +197,8 @@ class ExperimentController {
 //                    println userStory
 //                    println "::::::::::::::::::::::::::::::::::"
                     def score = score(rightTextOrder, userStory)
+                    userStats.experimentRoundScore.add(score)
+                    userStats.save(flush: true)
 
                     def ets = ExperimentTask.findAllByExperiment(experiment)
                     ets.each { it.delete() }

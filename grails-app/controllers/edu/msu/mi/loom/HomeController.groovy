@@ -106,10 +106,8 @@ class HomeController {
             def userRoom = UserRoom.findByRoomAndUser(room, user)
             if (!userRoom.isTrainingPassed) {
                 redirect(action: 'training', params: [session: room.session.id])
-            } else if (!userRoom.isSimulationPassed) {
-                redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
             } else {
-                redirect(controller: 'experiment', action: 'experiment', params: [roundNumber: 0, session: room.session.id])
+                redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
             }
             return
         }

@@ -48,7 +48,6 @@ class RoomService {
         def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
 
         if (userRoom) {
-            userRoom.isSimulationPassed = true
             userRoom.isReady = true
             userRoom.save(flush: true)
         }
