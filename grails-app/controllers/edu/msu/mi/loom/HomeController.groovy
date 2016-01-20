@@ -29,6 +29,9 @@ class HomeController {
             def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
             if (userRoom) {
                 userRoom.delete(flush: true)
+                if (UserRoom.countByRoom(room) == 0) {
+                    room.delete(flush: true)
+                }
                 redirect(action: 'index')
             }
         }
@@ -139,9 +142,9 @@ class HomeController {
         if (roomId) {
             def room = Room.get(roomId)
             def user = springSecurityService.currentUser as User
-            user.alias = null
-            room.removeFromUsers(user)
-            if (room.save(flush: true)) {
+            def userRoom = UserRoom.findByRoomAndUser(room, user)
+            if (userRoom) {
+                userRoom.delete(flush: true)
                 redirect(action: 'index')
                 return
             }
