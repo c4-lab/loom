@@ -1,7 +1,7 @@
 package edu.msu.mi.loom
 
 class UserStory {
-    String alias
+    int alias
     Story story
     Experiment experiment
 

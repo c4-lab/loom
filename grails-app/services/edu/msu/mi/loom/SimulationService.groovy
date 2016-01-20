@@ -12,6 +12,7 @@ import java.time.ZoneOffset
 @Transactional
 class SimulationService {
     def springSecurityService
+    def statService
 
     def simulation(Session session, def roundNumber, def tempStory) {
         def simulation = session.simulations.getAt(0)
@@ -45,6 +46,7 @@ class SimulationService {
                 for (String s : tempStory)
                     intList.add(Integer.valueOf(s));
                 float simulationScore = simulationScore(rightTextOrder, intList)
+                statService.setSimulationScore(session, simulationScore)
                 return [experiment: 'experiment_ready', sesId: session.id, simulationScore: simulationScore] as JSON
             }
         } else {

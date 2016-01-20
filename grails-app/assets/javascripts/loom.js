@@ -168,7 +168,10 @@ function initDragNDrop() {
     $("#sort2").sortable({
         opacity: 0.5,
         cursor: "crosshair",
-        placeholder: "ui-state-highlight"
+        placeholder: "ui-state-highlight",
+        start: function (event, ui) {
+            $(event.target).find('li').css("white-space", "nowrap");
+        }
     });
     $(".dvSource, #sort2").disableSelection();
 }
@@ -189,7 +192,7 @@ function submitTraining() {
         console.log(text_all);
         $.blockUI({
             message: '<h1>Processing!</h1>',
-            timeout: 2000
+            timeout: 1000
         });
         $.ajax({
             url: "/loom/experiment/submitTraining",
@@ -209,12 +212,14 @@ function submitTraining() {
                 setTimeout(function () {
                     $("#training-content-wrapper").html(data);
                     initTraining();
-                }, 2000);
+                }, 1000);
             }
         }).error(function () {
-            $("#dvDest").css('border', 'solid 1px red');
-            $("#warning-alert").addClass('show');
-            $("#warning-alert").removeClass('hide');
+            setTimeout(function () {
+                $("#dvDest").css('border', 'solid 1px red');
+                $("#warning-alert").addClass('show');
+                $("#warning-alert").removeClass('hide');
+            }, 1000);
         });
     });
 }
@@ -322,7 +327,7 @@ function submitSimulationAjax() {
 
     $.blockUI({
         message: '<h1>Processing!</h1>',
-        timeout: 2000
+        timeout: 1000
     });
     $.ajax({
         url: "/loom/experiment/submitSimulation",
@@ -349,7 +354,7 @@ function submitSimulationAjax() {
             setTimeout(function () {
                 $("#simulation-content-wrapper").html(data);
                 initSimulation();
-            }, 2000);
+            }, 1000);
         }
     }).error(function () {
         $("#dvDest").css('border', 'solid 1px red');
@@ -380,7 +385,7 @@ function submitExperimentAjax() {
 
     $.blockUI({
         message: '<h1>Processing!</h1>',
-        timeout: 2000
+        timeout: 1000
     });
     $.ajax({
         url: "/loom/experiment/submitExperiment",
@@ -400,7 +405,7 @@ function submitExperimentAjax() {
             setTimeout(function () {
                 $("#experiment-content-wrapper").html(data);
                 initExperiment();
-            }, 2000);
+            }, 1000);
         }
     }).error(function () {
         $("#dvDest").css('border', 'solid 1px red');

@@ -36,16 +36,13 @@
                                     <li class="list-group-item">
                                         <b>Rooms</b> <a class="pull-right">${roomsCount}</a>
                                     </li>
-                                    %{--<li class="list-group-item">--}%
-                                    %{--<b>Trainings</b> <a class="pull-right">${trainingsCount}</a>--}%
-                                    %{--</li>--}%
-                                    %{--<li class="list-group-item">--}%
-                                    %{--<b>Simulations</b> <a class="pull-right">${simulationsCount}</a>--}%
-                                    %{--</li>--}%
                                 </ul>
 
                                 <a href="javascript:void(0);" id="create-experiment"
                                    class="btn btn-primary btn-block"><b>Create a session</b></a>
+
+                                <g:link controller="admin" action="exportCSV" id="export-csv"
+                                        class="btn btn-primary btn-block"><b>Export CSV</b></g:link>
                             </div><!-- /.box-body -->
                         </div><!-- /.box -->
 
@@ -85,7 +82,7 @@
                                 </div>
                             </div>
                         </div>
-                </div>
+                    </div>
                 </div>
 
     </section>

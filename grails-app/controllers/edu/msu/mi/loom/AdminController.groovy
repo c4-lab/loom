@@ -19,6 +19,7 @@ class AdminController {
     def emailService
     def userService
     def springSecurityService
+    def exportService
 
     static allowedMethods = [
             board       : 'GET',
@@ -106,6 +107,28 @@ class AdminController {
         } else {
             redirect(uri: '/not-found')
         }
+    }
+
+    def exportCSV() {
+        def userStats = UserStatistic.list()
+        def file = exportService.writeCSV(userStats)
+        response.setHeader "Content-disposition", "attachment; filename=test.csv"
+        response.contentType = 'text/csv'
+
+//        ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(),
+//                CsvPreference.STANDARD_PREFERENCE);
+//
+//        String[] header = ["user", "session", "training time", "simulation score", "experiment score by rounds", "tiles order"];
+//
+//        csvWriter.writeHeader(header);
+//
+//        for (UserStatistic stat : userStats) {
+//            csvWriter.write(stat, header);
+//        }
+//
+//        csvWriter.close();
+        response.outputStream << file
+        response.outputStream.flush()
     }
 
     def cloneSession() {

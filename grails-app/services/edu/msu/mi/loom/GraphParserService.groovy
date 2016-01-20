@@ -85,24 +85,23 @@ class GraphParserService {
                     String key = reader.getAttributeValue(null, GraphMLTokens.KEY);
                     String attributeName = keyIdMap.get(key);
 
-                    if (attributeName != null) {
-                        String value = reader.getElementText();
-                        if (inVertex) {
-                            paramList.add(value)
-                            nodeStoryMap.put(vertexId, paramList)
-                            if ((vertexIdKey != null) && (key.equals(vertexIdKey))) {
-                            } else
-                                vertexProps.put(attributeName, typeCastValue(key, value, keyTypesMaps));
-                        } else if (inEdge) {
-                            if ((edgeLabelKey != null) && (key.equals(edgeLabelKey)))
-                                edgeLabel = value;
-                            else if ((edgeIdKey != null) && (key.equals(edgeIdKey)))
-                                edgeId = value;
-                            else
-                                edgeProps.put(attributeName, typeCastValue(key, value, keyTypesMaps));
+                    String value = reader.getElementText();
+                    if (inVertex) {
+                        paramList.add(value)
+                        nodeStoryMap.put(vertexId, paramList)
+                        if ((vertexIdKey != null) && (key.equals(vertexIdKey))) {
+                        } else
+                            vertexProps.put(attributeName, typeCastValue(key, value, keyTypesMaps));
+                    } else if (inEdge) {
+                        if ((edgeLabelKey != null) && (key.equals(edgeLabelKey)))
+                            edgeLabel = value;
+                        else if ((edgeIdKey != null) && (key.equals(edgeIdKey)))
+                            edgeId = value;
+                        else
+                            edgeProps.put(attributeName, typeCastValue(key, value, keyTypesMaps));
 
-                        }
                     }
+
                 } else if (elementName.equals(GraphMLTokens.GRAPH)) {
                     edgeDefault = reader.getAttributeValue(null, GraphMLTokens.EDGEDEFAULT);
                 }

@@ -10,6 +10,23 @@ import java.security.SecureRandom
 class UserService {
     private SecureRandom random = new SecureRandom();
 
+    def createUser(String username, String password, String confirmPass) {
+        if (password != confirmPass) {
+            return [message: "The password and its confirm are not the same."]
+        }
+
+        def user = new User(username: username, password: password)
+        if (user.save(flush: true)) {
+            log.info("Registered user with id ${user.id}")
+            addDefaultRole(user)
+            return [user: user]
+        } else {
+            log.error("User creation attempt failed")
+            log.error(user?.errors?.dump())
+            return [user: user]
+        }
+    }
+
     def createUser(String username) {
         def password = makeRandomPassword();
         def user = new User(username: username, password: password)
@@ -37,7 +54,7 @@ class UserService {
         } else {
             log.error("User creation attempt failed")
             log.error(user?.errors?.dump())
-            return null;
+            return [errors: user?.errors];
         }
     }
 

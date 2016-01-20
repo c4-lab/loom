@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.grails.web.util.WebUtils
 
+import java.text.DecimalFormat
 import java.text.Normalizer
 
 @Slf4j
@@ -114,7 +115,7 @@ class ExperimentService {
         def edge
         for (int i = 1; i <= map.size(); i++) {
             story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)).get(0))
-            userStory = new UserStory(experiment: experiment, alias: "neighbour" + i, story: story)
+            userStory = new UserStory(experiment: experiment, alias: i, story: story)
             map.get("n" + (i - 1)).eachWithIndex { it, idx ->
                 if (idx != 0) {
                     edge = new Edge(source: "n" + (i - 1), target: it, experiment: experiment).save(failOnError: true)
@@ -138,7 +139,7 @@ class ExperimentService {
 
     private def shuffleTails(Experiment experiment) {
         for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
-            def story = UserStory.findByAliasAndExperiment("neighbour" + userNbr, experiment)?.story
+            def story = UserStory.findByAliasAndExperiment(userNbr, experiment)?.story
             def text_order = Tail.findAllByStory(story).text_order
             Collections.shuffle(text_order)
             int item = 0
@@ -257,12 +258,12 @@ class ExperimentService {
         def session = room.session
         def experiment = session.experiments.getAt(0)
         def stories = experiment.stories
-        def users = room.users
+        def userRooms = UserRoom.findAllByRoom(room)
         def roundCount = experiment.roundCount
         def nbrTiles = experiment.initialNbrOfTiles
 
-        for (User user : users) {
-            def story = UserStory.findByAliasAndStoryInList(user.alias, stories as List).story
+        for (UserRoom userRoom : userRooms) {
+            def story = UserStory.findByAliasAndStoryInList(userRoom.userAlias, stories as List).story
             def tails = shuffleTails(story)
             Round.withNewTransaction { status ->
                 try {
@@ -303,12 +304,18 @@ class ExperimentService {
 
     def experiment(Session session, def roundNumber, def tempStory) {
         def experiment = session.experiments.getAt(0)
-        deleteSimulationTasks(session.simulations.getAt(0))
-        def userCount = experiment.userCount
         def userList = [:]
         def currentUser = springSecurityService.currentUser as User
+        def userRoom = UserRoom.findByUserAndRoom(currentUser, Room.findBySession(session))
+        def alias = userRoom.userAlias
+        def scoreByRound = []
+        def story = UserStory.findByExperimentAndAlias(experiment, alias)?.story
+        def rightStory = Tail.findAllByStory(story)
+        def rightTextOrder = rightStory.text_order
+        def user = springSecurityService.currentUser as User
+        def userStats = UserStatistic.findBySessionAndUser(session, user)
         if (roundNumber) {
-            def tailList = []
+            List<Tail> tailList = []
             if (tempStory) {
                 tempStory.each {
                     tailList.add(Tail.findById(it))
@@ -316,35 +323,69 @@ class ExperimentService {
             }
 
             if (roundNumber < experiment.roundCount) {
-                def alias = currentUser.alias.split("[^0-9]+")[1]
-                def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+                def targets = Edge.findAllBySourceAndExperiment("n" + (alias - 1), experiment).target
                 targets.eachWithIndex { String target, int index ->
                     def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
                     userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
                 }
 
-                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, alias, roundNumber).tail
                 userList.put(0, [roundNbr: roundNumber, tts: tts])
+                def score = score(rightTextOrder, tailList.text_order)
+                println "--------------------"
+                println score
+                println "===================="
+                scoreByRound.add(score)
 
                 return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
             } else {
-                def user = springSecurityService.currentUser as User
                 def flash = WebUtils.retrieveGrailsWebRequest().flashScope
-                flash."${user.alias}-${experiment.id}" = tailList.text_order
+                flash."${alias}-${experiment.id}" = tailList.text_order
+                userStats.experimentRoundScore = scoreByRound
+                userStats.textOrder = tailList.text_order
+                userStats.save(flush: true)
                 return [experiment: 'finishExperiment', sesId: session.id] as JSON
             }
         } else {
             roundNumber = 0
-            def alias = currentUser.alias.split("[^0-9]+")[1]
-            def targets = Edge.findAllBySourceAndExperiment("n" + (Integer.parseInt(alias) - 1), experiment).target
+            def targets = Edge.findAllBySourceAndExperiment("n" + (alias - 1), experiment).target
             targets.eachWithIndex { String target, int index ->
                 def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
                 userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
             }
 
-            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(currentUser.alias.split("[^0-9]+")[1])), roundNumber).tail
+            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, alias, roundNumber).tail
             userList.put(0, [roundNbr: roundNumber, tts: tts])
             return [roundNbr: roundNumber, experiment: experiment, userList: userList]
+        }
+    }
+
+    public static Float score(List<Integer> truth, List<Integer> sample) {
+        log.debug("Checking truth:" + truth + " against sample:" + sample);
+        Map<Integer, Integer> tmap = new HashMap<Integer, Integer>();
+        int i = 0;
+        for (Integer t : truth) {
+            tmap.put(t, i++);
+        }
+
+        if (sample) {
+            tmap.keySet().retainAll(sample);
+            int last = -1;
+            int accountedFor = 0;
+            for (Integer s : sample) {
+                if (last > -1) {
+                    if (tmap.get(last) < tmap.get(s)) {
+                        accountedFor++;
+                    }
+                }
+                last = s;
+
+            }
+
+            DecimalFormat df = new DecimalFormat("####0.00");
+            return Float.parseFloat(df.format(accountedFor / (float) (truth.size() - 1)));
+        } else {
+            return -1;
         }
     }
 

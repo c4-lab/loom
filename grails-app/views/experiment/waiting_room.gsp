@@ -1,4 +1,4 @@
-<%@ page import="edu.msu.mi.loom.User" %>
+<%@ page import="edu.msu.mi.loom.UserRoom; edu.msu.mi.loom.User" %>
 <g:applyLayout name="main">
     <div class="wrapper">
         <div class="content-wrapper">
@@ -28,7 +28,7 @@
                             </div>
 
                             <div class="box-body">
-                                <loom:progressBar userCount="${User.countByRoomAndIsReady(room, true)}"
+                                <loom:progressBar userCount="${UserRoom.countByRoomAndIsReady(room, true)}"
                                                   userMaxCount="${room.userMaxCount}"/>
                                 <g:link controller="home" action="stopWaiting" params="[id: room.id]"
                                         class="btn btn-block btn-success">Stop waiting</g:link>

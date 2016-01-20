@@ -1,3 +1,4 @@
+<%@ page import="edu.msu.mi.loom.UserRoom" %>
 <g:each in="${rooms}" var="room">
     <div class="col-md-4">
         <div class="box box-success box-solid">
@@ -9,11 +10,21 @@
 
             <div class="box-body">
                 <loom:progressBar userMaxCount="${room.userMaxCount}"
-                                  userCount="${room?.users?.size()}"/>
-                <g:if test="${room.users.size() != room.userMaxCount}">
-                    <g:link controller="home" action="joinRoom" params="[id: room.id]"
-                            class="btn btn-block btn-success">Join</g:link>
+                                  userCount="${UserRoom.countByRoom(room)}"/>
+                <g:if test="${UserRoom.countByRoom(room) != room.userMaxCount}">
+                    <g:if test="${!loom.checkCurrentUserAndRoomConnection([room: room.id])}">
+                        <g:link controller="home" action="joinRoom" params="[id: room.id]"
+                                class="btn btn-block btn-success">Join</g:link>
+                    </g:if>
+                    <g:else>
+                        <g:link controller="home" action="rejoinRoom" params="[id: room.id]"
+                                class="btn btn-block btn-success">Rejoin</g:link>
+                    </g:else>
                 </g:if>
+                <g:elseif test="${loom.checkCurrentUserAndRoomConnection([room: room.id])}">
+                    <g:link controller="home" action="rejoinRoom" params="[id: room.id]"
+                            class="btn btn-block btn-success">Rejoin</g:link>
+                </g:elseif>
             </div>
         </div>
     </div>

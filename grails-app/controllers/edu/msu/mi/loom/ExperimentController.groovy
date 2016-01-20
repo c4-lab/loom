@@ -18,6 +18,8 @@ class ExperimentController {
     def experimentService
     def springSecurityService
     def simulationService
+    def statService
+    def roomService
 
     def submitTraining() {
         def userTails = params.tails
@@ -53,6 +55,13 @@ class ExperimentController {
                     render(template: '/home/content', model: [tts: tts, training: training])
                     return
                 } else {
+                    session.trainingEndTime = new Date().getTime()
+                    def trainingTime = (session.trainingEndTime - session.trainingStartTime)
+                    roomService.changeTrainingState(Room.findBySession(expSession))
+                    println "================="
+                    println trainingTime
+                    println "================="
+                    statService.setTrainingTime(expSession, trainingTime)
                     session["seqNumber"] = null
                     render(status: OK, text: [simulation: 'simulation', sesId: sessionId] as JSON)
                     return
@@ -109,12 +118,10 @@ class ExperimentController {
             roundNumber = Integer.parseInt(params.roundNumber)
         }
         if (sessionId) {
-            def user = springSecurityService.currentUser as User
-            user.isReady = true
-            user.save(flush: true)
             Session session = Session.get(Long.parseLong(sessionId))
+            roomService.changeSimulationAndUserState(Room.findBySession(session))
             def room = Room.findBySession(session)
-            if (User.countByRoomAndIsReady(room, true) == session.experiments.getAt(0).userCount) {
+            if (UserRoom.countByRoomAndIsReady(room, true) == session.experiments.getAt(0).userCount) {
                 def model = experimentService.experiment(session, roundNumber, tempStory)
                 if (model instanceof JSON) {
                     return render(status: OK, text: model)
@@ -136,7 +143,7 @@ class ExperimentController {
         if (sessionId) {
             def session = Session.get(sessionId)
             def room = Room.findBySession(session)
-            if (User.countByRoomAndIsReady(room, true) == session.experiments.getAt(0).userCount) {
+            if (UserRoom.countByRoomAndIsReady(room, true) == session.experiments.getAt(0).userCount) {
                 return render(status: OK)
             } else {
                 return render(status: NOT_FOUND)
@@ -175,10 +182,12 @@ class ExperimentController {
 
                 if (experiment) {
                     def user = springSecurityService.currentUser as User
-                    def story = UserStory.findByExperimentAndAlias(experiment, user.alias)?.story
+                    def userRoom = UserRoom.findByRoomAndUser(Room.findBySession(session), user)
+                    def alias = userRoom.userAlias
+                    def story = UserStory.findByExperimentAndAlias(experiment, alias)?.story
                     def rightStory = Tail.findAllByStory(story)
                     def rightTextOrder = rightStory.text_order
-                    def userStory = flash."${user.alias}-${experiment.id}"
+                    def userStory = flash."${alias}-${experiment.id}"
 
 //                    println "-----right story--------"
 //                    println rightTextOrder
