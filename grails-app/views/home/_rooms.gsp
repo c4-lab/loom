@@ -10,8 +10,8 @@
 
             <div class="box-body">
                 <loom:progressBar userMaxCount="${room.userMaxCount}"
-                                  userCount="${UserRoom.countByRoom(room)}"/>
-                <g:if test="${UserRoom.countByRoom(room) != room.userMaxCount}">
+                                  userCount="${UserRoom.countByRoomAndUserAliasIsNotNull(room)}"/>
+                <g:if test="${UserRoom.countByRoomAndUserAliasIsNotNull(room) != room.userMaxCount}">
                     <g:if test="${!loom.checkCurrentUserAndRoomConnection([room: room.id])}">
                         <g:link controller="home" action="joinRoom" params="[id: room.id]"
                                 class="btn btn-block btn-success">Join</g:link>
@@ -21,10 +21,6 @@
                                 class="btn btn-block btn-success">Rejoin</g:link>
                     </g:else>
                 </g:if>
-                <g:elseif test="${loom.checkCurrentUserAndRoomConnection([room: room.id])}">
-                    <g:link controller="home" action="rejoinRoom" params="[id: room.id]"
-                            class="btn btn-block btn-success">Rejoin</g:link>
-                </g:elseif>
             </div>
         </div>
     </div>

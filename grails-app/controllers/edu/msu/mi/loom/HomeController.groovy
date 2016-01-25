@@ -1,7 +1,9 @@
 package edu.msu.mi.loom
 
 import grails.plugin.springsecurity.annotation.Secured
+import groovy.util.logging.Slf4j
 
+@Slf4j
 @Secured(['ROLE_USER', 'ROLE_ADMIN'])
 class HomeController {
     def springSecurityService
@@ -29,7 +31,7 @@ class HomeController {
             def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
             if (userRoom) {
                 userRoom.delete(flush: true)
-                if (UserRoom.countByRoom(room) == 0) {
+                if (UserRoom.countByRoomAndUserAliasIsNotNull(room) == 0) {
                     room.delete(flush: true)
                 }
                 redirect(action: 'index')
@@ -104,6 +106,7 @@ class HomeController {
             def room = Room.get(roomId)
             def user = springSecurityService.currentUser as User
             def userRoom = UserRoom.findByRoomAndUser(room, user)
+            roomService.joinRoom(room, user)
             if (!userRoom.isTrainingPassed) {
                 redirect(action: 'training', params: [session: room.session.id])
             } else {
@@ -139,13 +142,9 @@ class HomeController {
         def roomId = params.id
         if (roomId) {
             def room = Room.get(roomId)
-            def user = springSecurityService.currentUser as User
-            def userRoom = UserRoom.findByRoomAndUser(room, user)
-            if (userRoom) {
-                userRoom.delete(flush: true)
-                redirect(action: 'index')
-                return
-            }
+            roomService.leaveRoom(room)
+            redirect(action: 'index')
+            return
         }
 
         redirect(uri: '/not-found')

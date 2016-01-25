@@ -5,8 +5,9 @@ class UserRoom {
     Room room
     boolean isTrainingPassed
     boolean isReady
-    int userAlias
+    Integer userAlias
 
     static constraints = {
+        userAlias nullable: true
     }
 }
