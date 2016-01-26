@@ -36,9 +36,14 @@ class UrlMappings {
             action = "room"
         }
 
-        "/training/$session" {
+        "/tr/$session/$trainingNumber" {
             controller = "home"
             action = "training"
+        }
+
+        "/training/$session/$seqNumber" {
+            controller = "experiment"
+            action = "nextTraining"
         }
 
         "/simulation/$session/$roundNumber" {

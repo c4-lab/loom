@@ -343,6 +343,7 @@ class ExperimentService {
                 def flash = WebUtils.retrieveGrailsWebRequest().flashScope
                 flash."${alias}-${experiment.id}" = tailList.text_order
                 userStats.textOrder = tailList.text_order
+//TODO: Deadlock found when trying to get lock; try restarting transaction. Stacktrace follows:
                 userStats.save(flush: true)
                 return [experiment: 'finishExperiment', sesId: expSession.id] as JSON
             }

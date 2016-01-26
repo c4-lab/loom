@@ -36,12 +36,16 @@ class RoomService {
         }
     }
 
-    def changeTrainingState(Room room) {
+    def changeTrainingState(Room room, Training training) {
         def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
 
         if (userRoom) {
-            userRoom.isTrainingPassed = true
+            userRoom.isTrainingPassed.add(training.id)
             userRoom.save(flush: true)
+
+            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
+            println userRoom.isTrainingPassed
+            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
         }
     }
 

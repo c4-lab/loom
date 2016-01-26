@@ -40,29 +40,40 @@
 
                     <div class="row"></div>
 
-                    <div class="row">
-                        <div class="col-md-1"></div>
+                    <g:form name="trainingForm" method="post" controller="experiment" action="submitTraining">
+                        <div class="row">
+                            <div class="col-md-1"></div>
 
-                        <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
-                            <ul style="min-height: 200px !important;" id="sort2" class="g_list">
-                                %{--<li class="placeholder">Add tails here</li>--}%
-                            </ul>
+                            <div class="col-md-10 table-bordered ui-widget-content" id="dvDest">
+                                <ul style="min-height: 200px !important;" id="sort2" class="g_list">
+                                    <g:if test="${tailsList}">
+                                        <g:each in="${tailsList}" var="tail">
+                                            <li class="draggable ui-state-default ui-draggable ui-draggable-handle purple">
+                                                <span>${tail}</span>
+                                                <a href="javascript:void(0);">x</a>
+                                            </li>
+                                        </g:each>
+                                    </g:if>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-1"></div>
+                            <g:hiddenField name="tails" value="${rawTails}"/>
+                            <g:hiddenField name="training" value="${training.id}"/>
                         </div>
 
-                        <div class="col-md-1"></div>
-                    </div>
+                        <hr/>
 
-                    <hr/>
+                        <div class="row">
+                            <div class="col-lg-9"></div>
 
-                    <div class="row">
-                        <div class="col-lg-9"></div>
-
-                        <div class="col-lg-3" id="btn-panel">
-                            <button type="submit" class="btn btn-success"
-                                    id="submit-training">Submit</button>
-                            <button type="reset" id="reset-training" class="btn btn-default">Reset</button>
+                            <div class="col-lg-3" id="btn-panel">
+                                <button type="submit" class="btn btn-success"
+                                        id="submit-training">Submit</button>
+                                <button type="reset" id="reset-training" class="btn btn-default">Reset</button>
+                            </div>
                         </div>
-                    </div>
+                    </g:form>
                 </div>
             </div>
         </div>

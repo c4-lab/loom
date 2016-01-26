@@ -93,7 +93,7 @@ class HomeController {
 //            Create UserStatistics for current user
             statService.createStat(room.session, user)
 
-            redirect(action: 'training', params: [session: room.session.id])
+            redirect(action: 'training', params: [session: room.session.id, trainingNumber: 0])
             return
         }
 
@@ -107,8 +107,9 @@ class HomeController {
             def user = springSecurityService.currentUser as User
             def userRoom = UserRoom.findByRoomAndUser(room, user)
             roomService.joinRoom(room, user)
-            if (!userRoom.isTrainingPassed) {
-                redirect(action: 'training', params: [session: room.session.id])
+
+            if (userRoom.isTrainingPassed.size() < room.session.trainings.size()) {
+                redirect(action: 'training', params: [session: room.session.id, trainingNumber: userRoom.isTrainingPassed.size()])
             } else {
                 redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
             }
@@ -120,10 +121,11 @@ class HomeController {
 
     def training() {
         def sessionId = params.session
+        def trainingNumber = params.trainingNumber
         session.trainingStartTime = new Date().getTime()
         if (sessionId) {
-            if (session["seqNumber"]) {
-                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: session["seqNumber"]])
+            if (trainingNumber) {
+                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: trainingNumber])
                 return
             }
             def session = Session.get(Long.parseLong(sessionId))
