@@ -3,6 +3,7 @@ package edu.msu.mi.loom
 import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsHttpSession
 import org.codehaus.groovy.grails.web.util.WebUtils
 
 import java.text.DecimalFormat
@@ -19,7 +20,7 @@ class ExperimentService {
             def session = new Session(name: 'Session_' + (Session.count() + 1), url: createExperimentUrl('Session_' + (Session.count() + 1)))
 
             if (session.save(flush: true)) {
-                log.debug("New session with id ${session.id} has been created.")
+                log.debug("New expSession with id ${session.id} has been created.")
 
 //            Training creation
                 if (json.training.practice != null) {
@@ -54,7 +55,7 @@ class ExperimentService {
             training = new Training(name: "Training ${(idx + 1)}", session: session)
             if (training.save(flush: true)) {
                 session.addToTrainings(training)
-                log.debug("New training with id ${training.id} has been created for session ${session.name}.")
+                log.debug("New training with id ${training.id} has been created for expSession ${session.name}.")
                 story = new Story(title: "Story").save(flush: true)
                 training.addToStories(story)
                 for (int i = 0; i < tr.problem.size(); i++) {
@@ -90,7 +91,7 @@ class ExperimentService {
 
         if (experiment.save(flush: true)) {
             session.addToExperiments(experiment)
-            log.debug("New experiment with id ${experiment.id} has been created for session ${session.name}.")
+            log.debug("New experiment with id ${experiment.id} has been created for expSession ${session.name}.")
             json.stories.each { tr ->
                 story = new Story(title: tr.title).save(flush: true)
                 experiment.addToStories(story)
@@ -167,7 +168,7 @@ class ExperimentService {
             log.debug("Session clone has been created with id " + sessionClone.id)
             return sessionClone
         } else {
-            log.debug("There was problem with session cloning ")
+            log.debug("There was problem with expSession cloning ")
             log.error(session?.errors?.dump())
             return null
         }
@@ -302,18 +303,17 @@ class ExperimentService {
         return training
     }
 
-    def experiment(Session session, def roundNumber, def tempStory) {
-        def experiment = session.experiments.getAt(0)
+    def experiment(Session expSession, def roundNumber, def tempStory) {
+        def experiment = expSession.experiments.getAt(0)
         def userList = [:]
         def currentUser = springSecurityService.currentUser as User
-        def userRoom = UserRoom.findByUserAndRoom(currentUser, Room.findBySession(session))
+        def userRoom = UserRoom.findByUserAndRoom(currentUser, Room.findBySession(expSession))
         def alias = userRoom.userAlias
-        def scoreByRound = []
         def story = UserStory.findByExperimentAndAlias(experiment, alias)?.story
         def rightStory = Tail.findAllByStory(story)
         def rightTextOrder = rightStory.text_order
         def user = springSecurityService.currentUser as User
-        def userStats = UserStatistic.findBySessionAndUser(session, user)
+        def userStats = UserStatistic.findBySessionAndUser(expSession, user)
         if (roundNumber) {
             List<Tail> tailList = []
             if (tempStory) {
@@ -332,19 +332,20 @@ class ExperimentService {
                 def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, alias, roundNumber).tail
                 userList.put(0, [roundNbr: roundNumber, tts: tts])
                 def score = score(rightTextOrder, tailList.text_order)
+                userStats.experimentRoundScore.add(score)
+                userStats.save(flush: true)
                 println "--------------------"
                 println score
-                println "===================="
-                scoreByRound.add(score)
+                println "--------------------"
 
                 return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
             } else {
                 def flash = WebUtils.retrieveGrailsWebRequest().flashScope
                 flash."${alias}-${experiment.id}" = tailList.text_order
-                userStats.experimentRoundScore = scoreByRound
                 userStats.textOrder = tailList.text_order
+//TODO: Deadlock found when trying to get lock; try restarting transaction. Stacktrace follows:
                 userStats.save(flush: true)
-                return [experiment: 'finishExperiment', sesId: session.id] as JSON
+                return [experiment: 'finishExperiment', sesId: expSession.id] as JSON
             }
         } else {
             roundNumber = 0
@@ -358,6 +359,11 @@ class ExperimentService {
             userList.put(0, [roundNbr: roundNumber, tts: tts])
             return [roundNbr: roundNumber, experiment: experiment, userList: userList]
         }
+    }
+
+    private GrailsHttpSession getCurrentSession() {
+        def webUtils = WebUtils.retrieveGrailsWebRequest()
+        return webUtils.getSession()
     }
 
     public static Float score(List<Integer> truth, List<Integer> sample) {

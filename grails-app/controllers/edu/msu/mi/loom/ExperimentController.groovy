@@ -23,7 +23,7 @@ class ExperimentController {
 
     def submitTraining() {
         def userTails = params.tails
-        List<String> tailsList = Arrays.asList(userTails.split(";"));
+        List<String> tailsList = Arrays.asList(userTails?.split(";"));
 
         def trainingId = params.training
 
@@ -35,7 +35,13 @@ class ExperimentController {
             def story = Story.findByTraining(training)
             def tails = Tail.executeQuery(("from Tail t where t.story=? order by t.text_order asc"), [story])
             if (tails.text.equals(tailsList)) {
+                roomService.changeTrainingState(Room.findBySession(training.session), training)
                 redirect(action: 'nextTraining', params: [seqNumber: seqNumber, session: training?.session?.id])
+                return
+            } else {
+                def tts = TrainingTask.findAllByTraining(training).tail
+                flash.error = true
+                render(view: '/home/training', model: [tts: tts, training: training, tailsList: tailsList, rawTails: userTails])
                 return
             }
         }
@@ -50,20 +56,14 @@ class ExperimentController {
             if (expSession && params.seqNumber) {
                 def training = experimentService.getNextTraining(expSession, Integer.parseInt(params.seqNumber))
                 if (training) {
-                    session["seqNumber"] = params.seqNumber
                     def tts = TrainingTask.findAllByTraining(training).tail
-                    render(template: '/home/content', model: [tts: tts, training: training])
+                    render(view: '/home/training', model: [tts: tts, training: training])
                     return
                 } else {
                     session.trainingEndTime = new Date().getTime()
                     def trainingTime = (session.trainingEndTime - session.trainingStartTime)
-                    roomService.changeTrainingState(Room.findBySession(expSession))
-                    println "================="
-                    println trainingTime
-                    println "================="
                     statService.setTrainingTime(expSession, trainingTime)
-                    session["seqNumber"] = null
-                    render(status: OK, text: [simulation: 'simulation', sesId: sessionId] as JSON)
+                    redirect(action: 'simulation', params: [session: sessionId, roundNumber: 0])
                     return
                 }
             }
@@ -188,6 +188,7 @@ class ExperimentController {
                     def rightStory = Tail.findAllByStory(story)
                     def rightTextOrder = rightStory.text_order
                     def userStory = flash."${alias}-${experiment.id}"
+                    def userStats = UserStatistic.findBySessionAndUser(session, user)
 
 //                    println "-----right story--------"
 //                    println rightTextOrder
@@ -196,6 +197,8 @@ class ExperimentController {
 //                    println userStory
 //                    println "::::::::::::::::::::::::::::::::::"
                     def score = score(rightTextOrder, userStory)
+                    userStats.experimentRoundScore.add(score)
+                    userStats.save(flush: true)
 
                     def ets = ExperimentTask.findAllByExperiment(experiment)
                     ets.each { it.delete() }

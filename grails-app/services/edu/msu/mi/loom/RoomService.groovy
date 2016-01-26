@@ -28,19 +28,24 @@ class RoomService {
     }
 
     def joinRoom(Room room, User user) {
-        def userRoom = new UserRoom(room: room, user: user, userAlias: getAlias(room))
+        def userRoom = UserRoom.findOrCreateByRoomAndUser(room, user)
+        userRoom.userAlias = getAlias(room)
 
         if (userRoom.save(flush: true)) {
             log.info("UserRoom with id ${userRoom.id} has been created.")
         }
     }
 
-    def changeTrainingState(Room room) {
+    def changeTrainingState(Room room, Training training) {
         def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
 
         if (userRoom) {
-            userRoom.isTrainingPassed = true
+            userRoom.isTrainingPassed.add(training.id)
             userRoom.save(flush: true)
+
+            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
+            println userRoom.isTrainingPassed
+            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
         }
     }
 
@@ -48,19 +53,51 @@ class RoomService {
         def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
 
         if (userRoom) {
-            userRoom.isSimulationPassed = true
             userRoom.isReady = true
             userRoom.save(flush: true)
         }
     }
 
+    def leaveAllRooms() {
+        def userRooms = UserRoom.findAllByUser(currentUser)
+
+        if (userRooms) {
+            userRooms.each { userRoom ->
+                userRoom.userAlias = null
+                userRoom.save(flush: true)
+                reorderAliases(userRoom.room)
+                log.info("User with id ${currentUser.id} left the room.")
+            }
+        }
+    }
+
+    def leaveRoom(Room room) {
+        def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
+
+        if (userRoom) {
+            userRoom.userAlias = null
+            userRoom.save(flush: true)
+            reorderAliases(room)
+            log.info("User with id ${currentUser.id} left the room with id ${room.id}.")
+        }
+    }
+
     private def getAlias(Room room) {
-        def userCount = UserRoom.countByRoom(room)
+        def userCount = UserRoom.countByRoomAndUserAliasIsNotNull(room)
         def alias = userCount + 1
         return alias
     }
 
     private User getCurrentUser() {
         return springSecurityService.currentUser as User
+    }
+
+    private void reorderAliases(Room room) {
+        def userRooms = UserRoom.findAllByRoomAndUserAliasIsNotNull(room)
+
+        userRooms.eachWithIndex { UserRoom userRoom, Integer i ->
+            userRoom.userAlias = i + 1
+            userRoom.save(flush: true)
+        }
     }
 }

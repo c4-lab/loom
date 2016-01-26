@@ -161,6 +161,11 @@ function initDragNDrop() {
                 addRemoveBtn($(event.target).attr("drag-id"));
                 removeTile();
                 console.log('receive');
+                var elems = $("#dvDest").find('ul li span');
+                var text_all = elems.map(function () {
+                    return $(this).text();
+                }).get().join(";");
+                $("#tails").val(text_all);
             }
         }
     });
@@ -171,6 +176,13 @@ function initDragNDrop() {
         placeholder: "ui-state-highlight",
         start: function (event, ui) {
             $(event.target).find('li').css("white-space", "nowrap");
+        },
+        stop: function (event, ui) {
+            var elems = $("#dvDest").find('ul li span');
+            var text_all = elems.map(function () {
+                return $(this).text();
+            }).get().join(";");
+            $("#tails").val(text_all);
         }
     });
     $(".dvSource, #sort2").disableSelection();
@@ -183,45 +195,45 @@ function resetTraining() {
 }
 
 function submitTraining() {
-    $("#submit-training").click(function () {
-        var elems = $("#dvDest").find('ul li span');
-        var text_all = elems.map(function () {
-            return $(this).text();
-        }).get().join(";");
-
-        console.log(text_all);
-        $.blockUI({
-            message: '<h1>Processing!</h1>',
-            timeout: 1000
-        });
-        $.ajax({
-            url: "/loom/experiment/submitTraining",
-            type: 'POST',
-            data: {
-                tails: text_all,
-                training: $("#training").val(),
-                trainingName: $("#training-name").text()
-            }
-        }).success(function (data) {
-            if (data.indexOf("simulation") >= 0) {
-                var session = JSON.parse(data).sesId;
-                var roundNumber = 0;
-                console.log("/loom/simulation/" + session + "/" + roundNumber);
-                window.location = "/loom/simulation/" + session + "/" + roundNumber;
-            } else {
-                setTimeout(function () {
-                    $("#training-content-wrapper").html(data);
-                    initTraining();
-                }, 1000);
-            }
-        }).error(function () {
-            setTimeout(function () {
-                $("#dvDest").css('border', 'solid 1px red');
-                $("#warning-alert").addClass('show');
-                $("#warning-alert").removeClass('hide');
-            }, 1000);
-        });
-    });
+    //$("#submit-training").click(function () {
+    //    var elems = $("#dvDest").find('ul li span');
+    //    var text_all = elems.map(function () {
+    //        return $(this).text();
+    //    }).get().join(";");
+    //
+    //    console.log(text_all);
+    //    $.blockUI({
+    //        message: '<h1>Processing!</h1>',
+    //        timeout: 1000
+    //    });
+    //    $.ajax({
+    //        url: "/loom/experiment/submitTraining",
+    //        type: 'POST',
+    //        data: {
+    //            tails: text_all,
+    //            training: $("#training").val(),
+    //            trainingName: $("#training-name").text()
+    //        }
+    //    }).success(function (data) {
+    //        if (data.indexOf("simulation") >= 0) {
+    //            var session = JSON.parse(data).sesId;
+    //            var roundNumber = 0;
+    //            console.log("/loom/simulation/" + session + "/" + roundNumber);
+    //            window.location = "/loom/simulation/" + session + "/" + roundNumber;
+    //        } else {
+    //            setTimeout(function () {
+    //                $("#training-content-wrapper").html(data);
+    //                initTraining();
+    //            }, 1000);
+    //        }
+    //    }).error(function () {
+    //        setTimeout(function () {
+    //            $("#dvDest").css('border', 'solid 1px red');
+    //            $("#warning-alert").addClass('show');
+    //            $("#warning-alert").removeClass('hide');
+    //        }, 1000);
+    //    });
+    //});
 }
 
 var after;
