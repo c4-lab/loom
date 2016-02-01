@@ -60,6 +60,7 @@
                             <div class="col-md-1"></div>
                             <g:hiddenField name="tails" value="${rawTails}"/>
                             <g:hiddenField name="training" value="${training.id}"/>
+                            <g:hiddenField name="roomUrl" value="${roomUrl}"/>
                         </div>
 
                         <hr/>

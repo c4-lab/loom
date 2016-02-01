@@ -17,7 +17,7 @@ class ExperimentService {
 
     def createSession(def json) {
         Session.withNewTransaction { status ->
-            def session = new Session(name: 'Session_' + (Session.count() + 1), url: createExperimentUrl('Session_' + (Session.count() + 1)))
+            def session = new Session(name: 'Session_' + (Session.count() + 1))
 
             if (session.save(flush: true)) {
                 log.debug("New expSession with id ${session.id} has been created.")
@@ -242,19 +242,6 @@ class ExperimentService {
         us.each { it.delete() }
     }
 
-    private static String createExperimentUrl(String sessionName) {
-        def expUrl = Normalizer.normalize(sessionName?.toLowerCase(), Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .replaceAll("[^\\p{Alnum}]+", "-")
-                .replace("--", "-").replace("--", "-")
-                .replaceAll('[^a-z0-9]+$', "")
-                .replaceAll("^[^a-z0-9]+", "")
-
-        log.info("Generated url: " + "/" + expUrl)
-
-        "/" + expUrl
-    }
-
     def startExperiment(Room room) {
         def session = room.session
         def experiment = session.experiments.getAt(0)
@@ -313,7 +300,7 @@ class ExperimentService {
         def rightStory = Tail.findAllByStory(story)
         def rightTextOrder = rightStory.text_order
         def user = springSecurityService.currentUser as User
-        def userStats = UserStatistic.findBySessionAndUser(expSession, user)
+        def userStats = UserStatistic.findBySessionAndUserAndRoom(expSession, user, Room.findBySession(expSession))
         if (roundNumber) {
             List<Tail> tailList = []
             if (tempStory) {

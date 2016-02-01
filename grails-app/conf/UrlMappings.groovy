@@ -36,12 +36,12 @@ class UrlMappings {
             action = "room"
         }
 
-        "/tr/$session/$trainingNumber" {
+        "/tr/$session/$trainingNumber/$roomUrl" {
             controller = "home"
             action = "training"
         }
 
-        "/training/$session/$seqNumber" {
+        "/$roomUrl/training/$session/$seqNumber" {
             controller = "experiment"
             action = "nextTraining"
         }

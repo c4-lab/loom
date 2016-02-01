@@ -3,6 +3,8 @@ package edu.msu.mi.loom
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
+import java.text.Normalizer
+
 @Slf4j
 @Transactional
 class RoomService {
@@ -10,7 +12,7 @@ class RoomService {
 
     def createRoom(Session session) {
         def room = new Room(name: 'Room ' +
-                (Room.count() + 1), userMaxCount: session.experiments.getAt(0).userCount, session: session)
+                (Room.count() + 1), userMaxCount: session.experiments.getAt(0).userCount, session: session, url: createRoomUrl('Room ' + (Room.count() + 1)))
 
         if (room.save(flush: true)) {
             log.debug("New room has been created with id " + room.id + ".")
@@ -42,10 +44,6 @@ class RoomService {
         if (userRoom) {
             userRoom.isTrainingPassed.add(training.id)
             userRoom.save(flush: true)
-
-            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
-            println userRoom.isTrainingPassed
-            println ";;;;;;;;;;;;;;;;;;;;;;;;;;"
         }
     }
 
@@ -99,5 +97,18 @@ class RoomService {
             userRoom.userAlias = i + 1
             userRoom.save(flush: true)
         }
+    }
+
+    private static String createRoomUrl(String roomName) {
+        def roomUrl = Normalizer.normalize(roomName?.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replaceAll("[^\\p{Alnum}]+", "-")
+                .replace("--", "-").replace("--", "-")
+                .replaceAll('[^a-z0-9]+$', "")
+                .replaceAll("^[^a-z0-9]+", "")
+
+        log.info("Generated url: " + "/" + roomUrl)
+
+        roomUrl
     }
 }

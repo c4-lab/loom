@@ -46,7 +46,7 @@ class SimulationService {
                 for (String s : tempStory)
                     intList.add(Integer.valueOf(s));
                 float simulationScore = simulationScore(rightTextOrder, intList)
-                statService.setSimulationScore(session, simulationScore)
+                statService.setSimulationScore(session, simulationScore, Room.findBySession(session))
                 return [experiment: 'experiment_ready', sesId: session.id, simulationScore: simulationScore] as JSON
             }
         } else {
