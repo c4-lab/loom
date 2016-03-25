@@ -23,9 +23,14 @@ class ExperimentController {
 
     def submitTraining() {
         def userTails = params.tails
-        List<String> tailsList = Arrays.asList(userTails?.split(";"));
+        log.debug("User Tails: ${userTails}")
+        List<String> tailsList
+        if (userTails) {
+            tailsList = Arrays.asList(userTails?.split(";"));
+        }
 
         def trainingId = params.training
+        def roomUrl = params.roomUrl
 
         if (trainingId) {
             def training = Training.findById(trainingId)
@@ -36,7 +41,7 @@ class ExperimentController {
             def tails = Tail.executeQuery(("from Tail t where t.story=? order by t.text_order asc"), [story])
             if (tails.text.equals(tailsList)) {
                 roomService.changeTrainingState(Room.findBySession(training.session), training)
-                redirect(action: 'nextTraining', params: [seqNumber: seqNumber, session: training?.session?.id])
+                redirect(action: 'nextTraining', params: [seqNumber: seqNumber, session: training?.session?.id, roomUrl: roomUrl])
                 return
             } else {
                 def tts = TrainingTask.findAllByTraining(training).tail
@@ -51,18 +56,19 @@ class ExperimentController {
 
     def nextTraining() {
         def sessionId = params.session
+        def roomUrl = params.roomUrl
         if (sessionId) {
             def expSession = Session.get(Long.parseLong(sessionId))
             if (expSession && params.seqNumber) {
                 def training = experimentService.getNextTraining(expSession, Integer.parseInt(params.seqNumber))
                 if (training) {
                     def tts = TrainingTask.findAllByTraining(training).tail
-                    render(view: '/home/training', model: [tts: tts, training: training])
+                    render(view: '/home/training', model: [tts: tts, training: training, roomUrl: roomUrl])
                     return
                 } else {
                     session.trainingEndTime = new Date().getTime()
                     def trainingTime = (session.trainingEndTime - session.trainingStartTime)
-                    statService.setTrainingTime(expSession, trainingTime)
+                    statService.setTrainingTime(expSession, trainingTime, Room.findBySession(expSession))
                     redirect(action: 'simulation', params: [session: sessionId, roundNumber: 0])
                     return
                 }
@@ -94,7 +100,10 @@ class ExperimentController {
 
     def submitSimulation() {
         def userTails = params.tails
-        List<Integer> tailsList = Arrays.asList(userTails.split(";"));
+        List<Integer> tailsList
+        if (userTails) {
+            tailsList = Arrays.asList(userTails.split(";"))
+        }
         def simulationId = params.simulation
 
         if (simulationId && params.roundNumber) {
@@ -155,7 +164,10 @@ class ExperimentController {
 
     def submitExperiment() {
         def userTails = params.tails
-        List<String> tailsList = Arrays.asList(userTails.split(";"));
+        List<String> tailsList = null
+        if (userTails) {
+            tailsList = Arrays.asList(userTails.split(";"));
+        }
         def experimentId = params.experiment
 
         if (experimentId && params.roundNumber) {
@@ -188,7 +200,7 @@ class ExperimentController {
                     def rightStory = Tail.findAllByStory(story)
                     def rightTextOrder = rightStory.text_order
                     def userStory = flash."${alias}-${experiment.id}"
-                    def userStats = UserStatistic.findBySessionAndUser(session, user)
+                    def userStats = UserStatistic.findBySessionAndUserAndRoom(session, user, Room.findBySession(session))
 
 //                    println "-----right story--------"
 //                    println rightTextOrder

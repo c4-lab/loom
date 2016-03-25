@@ -8,8 +8,9 @@ import groovy.util.logging.Slf4j
 class StatService {
     def springSecurityService
 
-    def createStat(Session session, User user) {
-        def userStat = UserStatistic.findOrCreateBySessionAndUser(session, user)
+    def createStat(User user, Room room) {
+        Session session = room.session
+        def userStat = new UserStatistic(session: session, user: user, room: room)
         if (userStat.save(flush: true)) {
             log.info("Created user stat for user with id ${user.id}")
             return userStat
@@ -20,8 +21,8 @@ class StatService {
         }
     }
 
-    def setTrainingTime(Session session, def trainingTime) {
-        def stat = UserStatistic.findBySessionAndUser(session, currentUser)
+    def setTrainingTime(Session session, def trainingTime, Room room) {
+        def stat = UserStatistic.findBySessionAndUserAndRoom(session, currentUser, room)
 
         if (stat) {
             stat.trainingTime = trainingTime / 1000
@@ -29,8 +30,8 @@ class StatService {
         }
     }
 
-    def setSimulationScore(Session session, def simulationScore) {
-        def stat = UserStatistic.findBySessionAndUser(session, currentUser)
+    def setSimulationScore(Session session, def simulationScore, Room room) {
+        def stat = UserStatistic.findBySessionAndUserAndRoom(session, currentUser, room)
 
         if (stat) {
             stat.setSimulationScore(simulationScore)

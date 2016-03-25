@@ -32,6 +32,11 @@ class HomeController {
             if (userRoom) {
                 userRoom.delete(flush: true)
                 if (UserRoom.countByRoomAndUserAliasIsNotNull(room) == 0) {
+                    def userStats = UserStatistic.findAllByRoom(room)
+                    userStats.each {userStat ->
+                        userStat.room = null
+                        userStat.save(flush: true)
+                    }
                     room.delete(flush: true)
                 }
                 redirect(action: 'index')
@@ -91,9 +96,9 @@ class HomeController {
             roomService.joinRoom(room, user)
 
 //            Create UserStatistics for current user
-            statService.createStat(room.session, user)
+            statService.createStat(user, room)
 
-            redirect(action: 'training', params: [session: room.session.id, trainingNumber: 0])
+            redirect(action: 'training', params: [roomUrl: room?.url, session: room.session.id, trainingNumber: 0])
             return
         }
 
@@ -109,7 +114,7 @@ class HomeController {
             roomService.joinRoom(room, user)
 
             if (userRoom.isTrainingPassed.size() < room.session.trainings.size()) {
-                redirect(action: 'training', params: [session: room.session.id, trainingNumber: userRoom.isTrainingPassed.size()])
+                redirect(action: 'training', params: [roomUrl: room?.url, session: room.session.id, trainingNumber: userRoom.isTrainingPassed.size()])
             } else {
                 redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
             }
@@ -123,9 +128,10 @@ class HomeController {
         def sessionId = params.session
         def trainingNumber = params.trainingNumber
         session.trainingStartTime = new Date().getTime()
+        def roomUrl = params.roomUrl
         if (sessionId) {
             if (trainingNumber) {
-                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: trainingNumber])
+                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: trainingNumber, roomUrl: roomUrl])
                 return
             }
             def session = Session.get(Long.parseLong(sessionId))

@@ -8,7 +8,7 @@
     <script type="text/javascript">
         var timeout;
         $(window).on('beforeunload', function () {
-            if (jQuery("#expTemplate").length > 0) {
+            if (jQuery("#expTemplate").length > 0 && $('#timerPanel').text().not(':contains("0:00")')) {
                 before = new Date();
                 timeout = setTimeout(function () {
                     after = new Date();
