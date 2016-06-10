@@ -33,13 +33,11 @@ environments {
     }
     production {
         dataSource {
-            dataSource {
-                url = "jdbc:mysql://localhost/loom"
-                driverClassName = "com.mysql.jdbc.Driver"
-                dbCreate = "update"
-                username = "loom"
-                password = "loom"
-            }
+            url = "jdbc:mysql://localhost/loom"
+            driverClassName = "com.mysql.jdbc.Driver"
+            dbCreate = "update"
+            username = "loom"
+            password = "loom"
         }
     }
 }
