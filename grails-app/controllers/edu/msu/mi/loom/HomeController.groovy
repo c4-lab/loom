@@ -17,32 +17,20 @@ class HomeController {
             authenticate: 'POST'
     ]
 
+
     def index() {
-        def rooms = Room.list()
-        render(view: 'index', model: [rooms: rooms])
-    }
-
-    def leaveExperiment() {
-        def roomId = params.room
-        def currentUser = springSecurityService.currentUser as User
-        if (roomId) {
-            def room = Room.get(roomId)
-
-            def userRoom = UserRoom.findByRoomAndUser(room, currentUser)
-            if (userRoom) {
-                userRoom.delete(flush: true)
-                if (UserRoom.countByRoomAndUserAliasIsNotNull(room) == 0) {
-                    def userStats = UserStatistic.findAllByRoom(room)
-                    userStats.each {userStat ->
-                        userStat.room = null
-                        userStat.save(flush: true)
-                    }
-                    room.delete(flush: true)
-                }
-                redirect(action: 'index')
-            }
+        User u = User.findByUsername(params.workerId)
+        def active = UserSession.findByUser(u)?.room
+        if (session?.state) {
+            redirect(controller: "session", action: "experiment", params: [sessionId: active.session.id])
+        } else {
+            redirect(controller: "training", action: "index")
         }
+
     }
+
+
+
 
     @Secured('permitAll')
     def authenticate() {
@@ -62,17 +50,6 @@ class HomeController {
         }
     }
 
-    def waitingRoom() {
-        def roomId = params.room
-        if (roomId) {
-            def room = Room.get(roomId)
-            if (room) {
-                render(view: 'waiting', model: [room: room])
-                return
-            }
-        }
-        redirect(uri: '/not-found')
-    }
 
     @Secured('permitAll')
     def joinByEmail() {
@@ -87,95 +64,11 @@ class HomeController {
         }
     }
 
-    def joinRoom() {
-        def roomId = params.id
-        if (roomId) {
-            def room = Room.get(roomId)
-            def user = springSecurityService.currentUser as User
 
-            roomService.joinRoom(room, user)
 
-//            Create UserStatistics for current user
-            statService.createStat(user, room)
 
-            redirect(action: 'training', params: [roomUrl: room?.url, session: room.session.id, trainingNumber: 0])
-            return
-        }
 
-        redirect(uri: '/not-found')
-    }
 
-    def rejoinRoom() {
-        def roomId = params.id
-        if (roomId) {
-            def room = Room.get(roomId)
-            def user = springSecurityService.currentUser as User
-            def userRoom = UserRoom.findByRoomAndUser(room, user)
-            roomService.joinRoom(room, user)
 
-            if (userRoom.isTrainingPassed.size() < room.session.trainings.size()) {
-                redirect(action: 'training', params: [roomUrl: room?.url, session: room.session.id, trainingNumber: userRoom.isTrainingPassed.size()])
-            } else {
-                redirect(controller: 'experiment', action: 'simulation', params: [roundNumber: 0, session: room.session.id])
-            }
-            return
-        }
 
-        redirect(uri: '/not-found')
-    }
-
-    def training() {
-        def sessionId = params.session
-        def trainingNumber = params.trainingNumber
-        session.trainingStartTime = new Date().getTime()
-        def roomUrl = params.roomUrl
-        if (sessionId) {
-            if (trainingNumber) {
-                redirect(controller: 'experiment', action: 'nextTraining', params: [session: sessionId, seqNumber: trainingNumber, roomUrl: roomUrl])
-                return
-            }
-            def session = Session.get(Long.parseLong(sessionId))
-            if (session) {
-                def training = experimentService.getNextTraining(session)
-                def tts = TrainingTask.findAllByTraining(training).tail
-                render(view: 'training', model: [tts: tts, training: training])
-                return
-            }
-        }
-
-        redirect(uri: '/not-found')
-    }
-
-    def stopWaiting() {
-        def roomId = params.id
-        if (roomId) {
-            def room = Room.get(roomId)
-            roomService.leaveRoom(room)
-            redirect(action: 'index')
-            return
-        }
-
-        redirect(uri: '/not-found')
-    }
-
-    def room() {
-        def roomId = params.room
-        if (roomId) {
-            def room = Room.get(roomId)
-
-            if (room) {
-                experimentService.startExperiment(room)
-                render(view: 'room', model: [room: room])
-                return
-            }
-        }
-
-        redirect(uri: '/not-found')
-    }
-
-    @Secured('permitAll')
-    def updateRooms() {
-        def rooms = Room.list()
-        render(template: 'rooms', model: [rooms: rooms])
-    }
 }

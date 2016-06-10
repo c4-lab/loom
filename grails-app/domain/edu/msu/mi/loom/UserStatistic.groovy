@@ -3,7 +3,8 @@ package edu.msu.mi.loom
 class UserStatistic {
     User user
     Session session
-    Room room
+
+    TrainingSet trainingSet
     double trainingTime
     float simulationScore
     List<Integer> textOrder = new ArrayList<>()
@@ -15,6 +16,8 @@ class UserStatistic {
         simulationScore nullable: true
         trainingTime nullable: true
         simulationScore nullable: true
-        room nullable: true
+
+        session nullable: true
+        trainingSet nullable: true
     }
 }

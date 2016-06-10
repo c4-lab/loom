@@ -135,6 +135,10 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/**/favicon.ico': ['permitAll']
 ]
 
+grails.plugin.springsecurity.logout.handlerNames = [
+        'rememberMeServices', 'securityContextLogoutHandler'
+]
+
 grails {
     mail {
         enabled = true

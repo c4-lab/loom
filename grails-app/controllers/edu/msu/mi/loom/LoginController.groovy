@@ -16,6 +16,7 @@ package edu.msu.mi.loom
 
 import grails.converters.JSON
 import grails.plugin.springsecurity.SpringSecurityUtils
+import groovy.util.logging.Slf4j
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.authentication.AccountExpiredException
 import org.springframework.security.authentication.CredentialsExpiredException
@@ -26,6 +27,7 @@ import org.springframework.security.web.WebAttributes
 
 import javax.servlet.http.HttpServletResponse
 
+@Slf4j
 @Secured('permitAll')
 class LoginController {
 
@@ -39,11 +41,15 @@ class LoginController {
      */
     def springSecurityService
 
+    def userService
+
     /**
      * Default action; redirects to 'defaultTargetUrl' if logged in, /login/auth otherwise.
      */
     def index() {
+        //log.debug("${request.contextPath}${config.apf.filterProcessesUrl}")
         if (springSecurityService.isLoggedIn()) {
+            log.debug("We are here in login controller")
             redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
         } else {
             redirect action: 'auth', params: params
@@ -54,22 +60,52 @@ class LoginController {
      * Show the login page.
      */
     def auth() {
+         println "Authenticating..."
 
-        def config = SpringSecurityUtils.securityConfig
-
-        if (springSecurityService.isLoggedIn()) {
-            redirect uri: config.successHandler.defaultTargetUrl
-            return
-        }
-
-        String view = "auth"
         if (request.forwardURI.contains('admin')) {
-            view = 'admin_auth'
+            def config = SpringSecurityUtils.securityConfig
+            String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
+            return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
+
+        } else {
+            def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
+            println "${orig?.parameters}"
+            println params
+
+
+            def original = orig?.requestURL
+            def username = null
+            if (orig?.parameters?.workerId) {
+                username = orig.parameters.workerId[0]
+
+                User u = User.findByUsername(username)
+                if (u) {
+                    springSecurityService.reauthenticate(u.username)
+                } else {
+                    u = userService.createUser(username)
+                    if (u?.id) {
+                        springSecurityService.reauthenticate(u.username)
+                    }
+                }
+            }
+
+            if (springSecurityService.isLoggedIn()) {
+                if (original) {
+                    if (username) {
+                        log.debug("Redirecting with parameters")
+                        return redirect(url: "$original?workerid=$username")
+                    } else {
+                        return redirect(url: "$original")
+                    }
+                }
+            }
         }
-        String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-        render view: view, model: [postUrl            : postUrl,
-                                   rememberMeParameter: config.rememberMe.parameter]
+
+        return redirect(url: '/')
+
     }
+
+    //String view = "auth"
 
     /**
      * The redirect action for Ajax requests.

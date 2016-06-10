@@ -7,17 +7,19 @@ import groovy.util.logging.Slf4j
 @ToString(includeNames = true)
 class Experiment {
     String name
+    String nodes
     int roundCount
     int roundTime
     Date dateCreated
     int userCount
     int initialNbrOfTiles
+    Story story
     boolean enabled = false
 
-    static hasMany = [stories: Story, edges: Edge]
-    static belongsTo = [session: Session]
+    static hasMany = [edges: Edge, sessions:Session, initialStories:ExperimentInitialUserStory]
 
     static constraints = {
+        nodes nullable:true
         name blank: false
         roundCount min: 1
         roundTime min: 1
@@ -37,10 +39,7 @@ class Experiment {
         copy.userCount = this.userCount
         copy.initialNbrOfTiles = this.initialNbrOfTiles
         copy.enabled = this.enabled
-
-        for (Story story : stories) {
-            copy.addToStories(story)
-        }
+        copy.story = story
 
         for (Edge edge : edges) {
             copy.addToEdges(edge)

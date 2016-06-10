@@ -10,55 +10,43 @@ class UrlMappings {
         "500"(view: '/error')
         "/not-found"(view: '/not-found')
 
-        "/"(controller: 'login', action: 'auth')
+        "/"(view: '/not-found')
         "/admin"(controller: 'login', action: 'auth')
-        "/session/$session" {
+
+        "/admin/session/$session" {
             controller = "admin"
             action = "view"
         }
-        "/session/clone/" {
-            controller = "admin"
-            action = "cloneSession"
-        }
 
-        "/session/complete" {
+
+        "/admin/session/complete" {
             controller = "admin"
             action = "completeExperimentCreation"
         }
 
-        "/room/join/$id" {
-            controller = "home"
-            action = "joinRoom"
-        }
 
-        "/room/$room" {
-            controller = "home"
-            action = "room"
-        }
 
-        "/tr/$session/$trainingNumber/$roomUrl" {
-            controller = "home"
+        "/training/t/$trainingId/$seqNumber?" {
+            controller = "training"
             action = "training"
         }
 
-        "/$roomUrl/training/$session/$seqNumber" {
-            controller = "experiment"
-            action = "nextTraining"
+        "/training/score/$simulationId" {
+            controller = "training"
+            action = "score"
         }
 
-        "/simulation/$session/$roundNumber" {
-            controller = "experiment"
-            action = "simulation"
-        }
 
-        "/exper/$session/$roundNumber" {
-            controller = "experiment"
+
+        "/session/s/$session" {
+            controller = "session"
             action = "experiment"
         }
 
-        "/finish/$session" {
-            controller = "experiment"
+        "/session/finishExperiment/$session" {
+            controller = "session"
             action = "finishExperiment"
         }
+
     }
 }

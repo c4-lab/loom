@@ -1,6 +1,10 @@
 $(document).ready(function () {
     $("#create-experiment").click(function () {
-        $("#file-upload-modal").modal('show');
+        $("#experiment-file-upload-modal").modal('show');
+    });
+
+    $("#create-trainingset").click(function () {
+        $("#training-set-file-upload-modal").modal('show');
     });
 
     $("#clone-session").click(function () {
@@ -22,6 +26,11 @@ $(document).ready(function () {
 
     $("#publish-by-email").click(function () {
         $("#email-modal").modal('show');
+    });
+
+    $("#launch-experiment").click(function () {
+        $("#sessionLaunchId").val($("span",this).text());
+        $("#launch-modal").modal('show');
     });
 
     $('#complete-form').find('input').change(function () {
@@ -59,6 +68,19 @@ $(document).ready(function () {
     initExperiment();
 });
 
+var shouldLogout = true;
+
+function logout() {
+    if (shouldLogout) {
+        $.ajax({
+            url: "/loom/logout/index",
+            type: 'GET',
+            async: false
+
+        });
+    }
+}
+
 function initExperiment() {
     if ($("#experiment-content-wrapper").length > 0) {
         initDragNDrop();
@@ -67,16 +89,22 @@ function initExperiment() {
         resetExperiment();
         submitExperiment();
         localStorage.setItem('remainingTime', 'null');
-        clearInterval(int);
+        clearInterval(roundInterval);
         initExperimentTimer();
+
     }
 }
 
 function initTraining() {
-    initDragNDrop();
-    removeTile();
-    resetTraining();
-    submitTraining();
+    if ($("#training-content-wrapper").length > 0) {
+        initTiles();
+        initDragNDrop();
+        removeTile();
+        resetTraining();
+        submitTraining();
+        updateTrainingScore();
+
+    }
 }
 
 function initSimulation() {
@@ -87,7 +115,7 @@ function initSimulation() {
         removeTile();
         submitSimulation();
         localStorage.setItem('remainingTime', 'null');
-        clearInterval(int);
+        clearInterval(roundInterval);
         initSimulationTimer();
     }
 }
@@ -108,19 +136,26 @@ function initExperimentTimer() {
 }
 
 function initTiles() {
-    $("#dvSourceContainer").find(".ui-state-default").each(function () {
+    console.log("Init tiles...");
+    $("#dvSourceContainer").find(".tile-available").each(function () {
         var sourceTileId = $(this).attr('drag-id');
+        console.log("Found "+sourceTileId);
         $("#sort2").find(".purple").each(function () {
             if ($(this).attr('drag-id') == sourceTileId) {
-                $("#dvSourceContainer").find("[drag-id='" + sourceTileId + "']").addClass('blue');
+                $("#dvSourceContainer").find("[drag-id='" + sourceTileId + "']").removeClass('tile-available').addClass('blue');
             }
+            addRemoveBtn(sourceTileId);
         });
     });
+    //$("#dvDest").find("li.purple").each(function() {
+    //    addRemoveBtn($(this).attr("drag-id"))
+    //})
+
 }
 
 function markAsDropped(source) {
-    $(".dvSource").find("[drag-id='" + source + "']").addClass('blue');
-    $("#sort2").find("[drag-id='" + source + "']").addClass('purple');
+    $(".dvSource").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
+    $("#sort2").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
 }
 
@@ -128,7 +163,7 @@ function addRemoveBtn(source) {
     var elem = $("#sort2").find("[drag-id='" + source + "']");
     elem.text('');
     var elem2 = $(".dvSource").find("[drag-id='" + source + "']").first();
-    elem.append("<span>" + elem2.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'>x</a>");
+    elem.append("<span>" + elem2.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a>");
 
 }
 
@@ -137,8 +172,10 @@ function removeTile() {
         $(this).parent().remove();
         console.log($(this).parent().attr('id'));
         var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
-        elem.css("backgroundColor", "#e6e6e6");
+        //elem.css("backgroundColor", "#e6e6e6");
         elem.removeClass('blue');
+        elem.addClass('tile-available');
+        updateTrainingScore();
     });
 }
 
@@ -151,10 +188,10 @@ function initDragNDrop() {
         revert: "invalid",
         cancel: ".blue",
         placeholder: "ui-state-highlight",
-        start: function (event, ui) {
+        start: function (event,ui) {
             $('.ui-draggable-dragging').css("white-space", "nowrap");
         },
-        stop: function (event, ui) {
+        stop: function (event,ui) {
             console.log($(event.target).attr("drag-id"));
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
                 markAsDropped($(event.target).attr("drag-id"));
@@ -167,6 +204,10 @@ function initDragNDrop() {
                 }).get().join(";");
                 $("#tails").val(text_all);
             }
+
+           // console.log($("#trainingForm .ui-draggable").map(function() {return $(this).attr("drag-id")}).get().join(";"))
+
+
         }
     });
 
@@ -174,24 +215,61 @@ function initDragNDrop() {
         opacity: 0.5,
         cursor: "crosshair",
         placeholder: "ui-state-highlight",
-        start: function (event, ui) {
+        forcePlaceholderSize: true,
+
+        start: function (event,ui) {
+            ui.placeholder.height(ui.item.height());
+            ui.placeholder.width(ui.item.width());
             $(event.target).find('li').css("white-space", "nowrap");
         },
-        stop: function (event, ui) {
+        stop: function (event,ui) {
             var elems = $("#dvDest").find('ul li span');
             var text_all = elems.map(function () {
                 return $(this).text();
             }).get().join(";");
             $("#tails").val(text_all);
+            updateTrainingScore();
         }
     });
-    $(".dvSource, #sort2").disableSelection();
+   // $(".dvSource, #sort2").disableSelection();
+}
+
+function updateTrainingScore() {
+    if ($("#training-name").length > 0) {
+        $.ajax({
+            url: "/loom/training/getTrainingScore",
+            type: 'POST',
+            data: {
+                userTiles: $("#trainingForm .ui-draggable").map(function () {
+                    return $(this).attr("drag-id")
+                }).get().join(";"),
+                training: $("#training").val()
+            },
+            timeout: 999
+        }).success(function (data) {
+            $("#training-score").text(data);
+            var orig = "black";
+            $("#training-score").css("color", "red");
+            $("#training-score").animate({color: orig}, 1000);
+        }).error(function (data) {
+            //check if something is going on here
+        });
+    }
+
 }
 
 function resetTraining() {
     $("#reset-training").click(function () {
-        $("#dvDest").find('ul li').remove();
+        $("#sort2").find("li a").each(function () {
+            $(this).parent().remove();
+            console.log($(this).parent().attr('id'));
+            var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+
+            elem.removeClass('blue').addClass('tile-available');
+        });
+        $("#training-score").text("0.0")
     });
+
 }
 
 function submitTraining() {
@@ -251,7 +329,39 @@ function calculateTime() {
     }
 }
 
-var int;
+var roundInterval;
+var pingTimer;
+
+function startPingingForNextRound() {
+    var session = $("#session").val();
+    pingTimer = setInterval(function() {
+        $.ajax({
+            url: "/loom/session/s/"+session,
+            type: 'GET',
+            timeout: 999,
+            data: {
+                internal:true
+            }
+        }).success(function (data) {
+            if (data.indexOf("finishExperiment") >=0) {
+                shouldLogout = false;
+                clearInterval(pingTimer);
+                console.log("/loom/experiment/finishExperiment/" + session);
+                window.location = "/loom/session/finishExperiment/" + session;
+
+            } else if (data!="WAITING") {
+                console.log("Processing round data");
+                clearInterval(pingTimer);
+                processRoundData(data)
+            }
+        }).error(function (data) {
+            //check if something is going on here
+        })
+    },1000)
+}
+
+
+
 function startSimulationTimer(duration, display) {
     var timer;
     if (isNaN(localStorage.remainingTime) || localStorage.remainingTime == 'null') {
@@ -265,7 +375,7 @@ function startSimulationTimer(duration, display) {
 
     console.log("simulation timer: " + timer);
 
-    int = setInterval(function () {
+    roundInterval = setInterval(function () {
         minutes = parseInt(timer / 60, 10);
         seconds = parseInt(timer % 60, 10);
 
@@ -298,7 +408,7 @@ function startExperimentTimer(duration, display) {
 
     console.log("experiment timer: " + timer);
 
-    int = setInterval(function () {
+    roundInterval = setInterval(function () {
         minutes = parseInt(timer / 60, 10);
         seconds = parseInt(timer % 60, 10);
 
@@ -324,25 +434,38 @@ function submitSimulation() {
     });
 }
 
-function submitSimulationAjax() {
-    if ($(".ui-draggable-dragging").length > 0) {
-        $('html').on('mouseup', function () {
-            $(".ui-draggable-dragging").remove();
-            $(".ui-draggable-dragging").draggable("destroy");
-        });
+function updateProgressBar(count, max) {
+    if (count == max) {
+        $.blockUI("Please wait...")
     }
-    clearInterval(int);
+    var percent = count*100/max;
+    $(".progress-bar").attr("aria-valuenow",percent).css("width",percent+"%");
+    $(".sr-only").text(percent+"% Complete");
+    $(".prog-bar-count").text(count);
+
+}
+
+function submitSimulationAjax() {
+    $(".ui-draggable-dragging").remove();
+    //if ($(".ui-draggable-dragging").length > 0) {
+    //    $(".ui-draggable-dragging").remove();
+    //    //$('html').on('mouseup', function () {
+    //    //
+    //    //    $(".ui-draggable-dragging").draggable("destroy");
+    //    //});
+    //}
+    clearInterval(roundInterval);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
-
+    console.log(text_all);
     $.blockUI({
-        message: '<h1>Processing!</h1>',
+        message: '<h1>Waiting for other participants...</h1>',
         timeout: 1000
     });
     $.ajax({
-        url: "/loom/experiment/submitSimulation",
+        url: "/loom/training/submitSimulation",
         type: 'POST',
         data: {
             tails: text_all,
@@ -352,16 +475,18 @@ function submitSimulationAjax() {
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
         if (data.indexOf("experiment_ready") >= 0) {
-            var session = JSON.parse(data).sesId;
-            var simulationScore = JSON.parse(data).simulationScore;
-            var roundNumber = 0;
-            console.log("/loom/exper/" + session + "/" + roundNumber);
-            //window.location = "/loom/exper/" + session + "/" + roundNumber;
-            $("#simulationMainContainer").remove();
-            $("#simulationScore").css('display', 'block');
-            $("#scorePanel").text(simulationScore);
-            $("#roundNumber").val(roundNumber);
-            $("#session").val(session);
+            confirmSimNav = false;
+            window.location ="/loom/training/score/"+$("#simulation").val();
+            //
+            //var simulationScore = JSON.parse(data).simulationScore;
+            //var roundNumber = 0;
+            ////console.log("/loom/exper/" + session + "/" + roundNumber);
+            ////window.location = "/loom/exper/" + session + "/" + roundNumber;
+            //$("#simulationMainContainer").remove();
+            //$("#simulationScore").css('display', 'block');
+            //$("#scorePanel").text(simulationScore);
+            //$("#roundNumber").val(roundNumber);
+            ////$("#session").val(session);
         } else {
             setTimeout(function () {
                 $("#simulation-content-wrapper").html(data);
@@ -387,39 +512,49 @@ function submitExperiment() {
     });
 }
 
+function processRoundData(data) {
+    setTimeout(function () {
+        $("#experiment-content-wrapper").html(data);
+        initExperiment();
+        $.unblockUI()
+    }, 1000);
+}
+
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
-    clearInterval(int);
+    clearInterval(roundInterval);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
 
     $.blockUI({
-        message: '<h1>Processing!</h1>',
-        timeout: 1000
+        message: '<h1>Waiting for other participants...</h1>'
+
     });
+    var session =  $("#session").val();
     $.ajax({
-        url: "/loom/experiment/submitExperiment",
+        url: "/loom/session/submitExperiment",
         type: 'POST',
         data: {
             tails: text_all,
-            experiment: $("#experiment").val(),
-            roundNumber: $("#roundNumber").text()
+            session: session,
+            roundNumber: $("#roundNumber").val()
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        if (data.indexOf("finishExperiment") >= 0) {
-            var session = JSON.parse(data).sesId;
+        if (data.indexOf("WAITING") >=0) {
+          startPingingForNextRound()
+        } else if (data.indexOf("finishExperiment") >= 0) {
+            shouldLogout = false;
             console.log("/loom/experiment/finishExperiment/" + session);
-            window.location = "/loom/finish/" + session;
+            window.location = "/loom/session/finishExperiment/" + session;
         } else {
-            setTimeout(function () {
-                $("#experiment-content-wrapper").html(data);
-                initExperiment();
-            }, 1000);
+            processRoundData(data);
+
         }
     }).error(function () {
+        $.unblockUI();
         $("#dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');

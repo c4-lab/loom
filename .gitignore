@@ -3,3 +3,6 @@
 .project
 target/
 *.iml
+.slcache
+.slcache-old
+lib/third-party

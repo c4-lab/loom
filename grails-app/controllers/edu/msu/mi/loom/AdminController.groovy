@@ -15,39 +15,68 @@ class AdminController {
     def jsonParserService
     def experimentService
     def graphParserService
-    def roomService
+
     def emailService
     def userService
     def springSecurityService
     def exportService
+    def trainingSetService
+    def sessionService
 
     static allowedMethods = [
-            board       : 'GET',
-            upload      : 'POST',
-            view        : 'GET',
-            cloneSession: 'POST'
+            board           : 'GET',
+            uploadExperiment: 'POST',
+            view            : 'GET',
+            cloneSession    : 'POST'
     ]
 
     def index() {}
 
     def board() {
-        def sessionCount = Session.count();
-        def sessions = Session.list()
-        def roomsCount = Room.count()
-
-        render(view: 'board', model: [roomsCount: roomsCount, sessionCount: sessionCount, sessions: sessions])
+        def sessionStates = Session.list().collectEntries {
+            boolean active = false
+            if (it.state == Session.State.PENDING) {
+               active = experimentService.waitingTimer[it.id]
+            } else if (it.state == Session.State.ACTIVE) {
+               active = experimentService.experimentsRunning.containsKey(it.id)
+            }
+            [it.id,active]
+        }
+        render(view: 'board', model: [sessions: Session.list(), sessionState: sessionStates, experiments: Experiment.list(), trainings: TrainingSet.list()])
     }
 
-    def upload() {
+    def launchExperiment() {
+        Experiment exp = Experiment.get(params.experimentId)
+        TrainingSet ts = TrainingSet.get(params.trainingSet)
+        def session = experimentService.createSession(exp,ts)
+        sessionService.launchSession(session)
+        redirect(action: 'board')
+    }
+
+    def uploadExperiment() {
         def file = request.getFile('inputFile')
         if (file) {
             def text = fileService.readFile(file as MultipartFile)
             def json = jsonParserService.parseToJSON(text)
             if (json) {
-                def session = experimentService.createSession(json)
-                if (session.id) {
-                    return redirect(action: 'completeExperimentCreation', params: [experiment: session.experiments[0].id, initNbrOfTiles: session.experiments[0].initialNbrOfTiles])
+                def experiment = experimentService.createExperiment(json,params.trainingSet)
+                if (experiment.id) {
+                    return redirect(action: 'completeExperimentCreation', params: [experiment: experiment.id, initNbrOfTiles: experiment.initialNbrOfTiles])
                 }
+            }
+        }
+
+        redirect(action: 'board')
+    }
+
+    def uploadTrainingSet() {
+        def file = request.getFile('inputFile')
+        if (file) {
+            def text = fileService.readFile(file as MultipartFile)
+            def json = jsonParserService.parseToJSON(text)
+            if (json) {
+                trainingSetService.createTrainingSet(json,params.name)
+
             }
         }
 
@@ -62,7 +91,7 @@ class AdminController {
             def file = request.getFile('graphmlFile').inputStream
             HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(file)
 
-            def experiment = experimentService.completeExperiment(nodeStoryMap, params.experimentId)
+            def experiment = experimentService.setExperimentNetwork(nodeStoryMap, params.experimentId)
             if (experiment.enabled) {
                 log.debug("Experiment with id ${experiment.id} is enabled.")
             } else {
@@ -89,18 +118,17 @@ class AdminController {
         if (sessionId) {
             def session = Session.get(sessionId)
             if (session) {
-                def trainingsCount = Training.countBySession(session)
-                def experimentsCount = Experiment.countBySession(session)
-                def simulationsCount = Simulation.countBySession(session)
 
-                def experiments = Experiment.findAllBySession(session)
-                def trainings = Training.findAllBySession(session)
-                def simulations = Simulation.findAllBySession(session)
 
-                render(view: 'session', model: [trainingsCount  : trainingsCount, experimentsCount: experimentsCount,
-                                                simulationsCount: simulationsCount, experiments: experiments,
-                                                trainings       : trainings, simulations: simulations,
-                                                session         : session])
+
+
+ //               def simulationsCount = Simulation.countBySession(session)
+
+
+//                def trainings = Training.findAllBySession(session)
+//                def simulations = Simulation.findAllBySession(session)
+
+                render(view: 'session', model: [ session         : session])
             } else {
                 redirect(uri: '/not-found')
             }
@@ -150,40 +178,42 @@ class AdminController {
         render(status: BAD_REQUEST)
     }
 
-    def publishAnonym() {
-        def sessionId = params.session
-
-        if (sessionId) {
-            def session = Session.get(sessionId)
-            def room = roomService.createRoom(session)
-            if (room.id) {
-                render(status: OK)
-            } else {
-                render(status: BAD_REQUEST)
-            }
-        } else {
-            redirect(uri: '/not-found')
-        }
-    }
-
-    def publishEmail() {
-        def emailsString = params.emailAddress
-        def sessionId = params.session
-        if (sessionId) {
-            def session = Session.get(sessionId)
-            if (session) {
-                def room = roomService.createRoom(session)
-
-                if (room.id) {
-                    emailService.sendInvitationEmail(emailsString, room.id)
-                    log.info("Invitations have been sent for room with id ${room.id}.")
-                    redirect(action: 'board')
-                    return
-                }
-            }
-        }
-        redirect(uri: '/not-found')
-    }
+//    def publishAnonym() {
+//        def sessionId = params.session
+//
+//        if (sessionId) {
+//            def session = Session.get(sessionId)
+//            session.isActive = true
+//            session.save(flush:true)
+//            def room = roomService.createRoom(session)
+//            if (room.id) {
+//                render(status: OK)
+//            } else {
+//                render(status: BAD_REQUEST)
+//            }
+//        } else {
+//            redirect(uri: '/not-found')
+//        }
+//    }
+//
+//    def publishEmail() {
+//        def emailsString = params.emailAddress
+//        def sessionId = params.session
+//        if (sessionId) {
+//            def session = Session.get(sessionId)
+//            if (session) {
+//                def room = roomService.createRoom(session)
+//
+//                if (room.id) {
+//                    emailService.sendInvitationEmail(emailsString, room.id)
+//                    log.info("Invitations have been sent for room with id ${room.id}.")
+//                    redirect(action: 'board')
+//                    return
+//                }
+//            }
+//        }
+//        redirect(uri: '/not-found')
+//    }
 
     @Secured('permitAll')
     def deleteUser() {
