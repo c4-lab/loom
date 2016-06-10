@@ -28,7 +28,7 @@ $(document).ready(function () {
         $("#email-modal").modal('show');
     });
 
-    $("#launch-experiment").click(function () {
+    $(".launch-experiment").click(function () {
         $("#sessionLaunchId").val($("span",this).text());
         $("#launch-modal").modal('show');
     });

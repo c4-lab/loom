@@ -116,13 +116,13 @@
                                                 </span>
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
-                                                        date="${experiment.dateCreated}"/></span>
+                                                        date="${experiment.dateCreated}"/>, Rounds: ${experiment.roundCount}, Users: ${experiment.userCount}</span><br/>
                                                 <span class='description'>${experiment.story.tails.sort{it.text_order}.text.join(" ")}</span>
                                             </div>
                                             <div class="user-block col-xs-2">
 
-                                                <a href="javascript:void(0);" id="launch-experiment"
-                                                   class="btn btn-primary btn-block"><span style="display:none">${experiment.id}</span><b>Launch</b></a> <br/>
+                                                <a href="javascript:void(0);"
+                                                   class="launch-experiment btn btn-primary btn-block"><span style="display:none">${experiment.id}</span><b>Launch</b></a> <br/>
                                             </div>
                                         </div>
                                     </g:each>
