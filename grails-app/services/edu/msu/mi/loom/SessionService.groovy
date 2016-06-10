@@ -31,10 +31,13 @@ class SessionService {
     def assignAliasesAndMakeActive(Session session) {
         List<String> aliases = session.experiment.initialStories.collect {it.alias}
         Collections.shuffle(aliases)
-        UserSession.findAllBySessionAndState(session,"WAITING").each {
-            it.userAlias = aliases.pop()
-            it.state="ACTIVE"
-            it.save(flush:true)
+        List<UserSession> sessions = UserSession.findAllBySessionAndState(session,"WAITING")
+
+        aliases.each {
+            UserSession s = sessions.pop()
+            s.userAlias = it
+            s.state="ACTIVE"
+            s.save(flush:true)
         }
         session.state = Session.State.ACTIVE
         session.save(flush:true)
