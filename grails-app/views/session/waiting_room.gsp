@@ -1,4 +1,4 @@
-<%@ page import="edu.msu.mi.loom.UserSession; edu.msu.mi.loom.UserRoom; edu.msu.mi.loom.User" %>
+<%@ page import="edu.msu.mi.loom.UserSession; edu.msu.mi.loom.User" %>
 <g:applyLayout name="main">
     <div class="wrapper">
         <div class="content-wrapper">
