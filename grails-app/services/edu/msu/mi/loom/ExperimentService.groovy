@@ -1,42 +1,32 @@
 package edu.msu.mi.loom
 
-import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsHttpSession
-import org.codehaus.groovy.grails.web.util.WebUtils
 
 import java.text.DecimalFormat
-import java.text.Normalizer
 
 @Slf4j
 @Transactional
 class ExperimentService {
-    def simulationService
-    def springSecurityService
 
-    def createSession(def json) {
+    static final enum Status {
+        RUNNING, PAUSING
+    }
+
+
+    def sessionService
+    def springSecurityService
+    def experimentsRunning = [:]
+    def waitingTimer = [:]
+
+
+    def createSession(Experiment experiment, TrainingSet trainingSet, String type = "mturk") {
         Session.withNewTransaction { status ->
-            def session = new Session(name: 'Session_' + (Session.count() + 1))
+            def session = new Session(name: 'Session_' + (Session.count() + 1), experiment: experiment, trainingSet: trainingSet, type: type)
+
 
             if (session.save(flush: true)) {
                 log.debug("New expSession with id ${session.id} has been created.")
-
-//            Training creation
-                if (json.training.practice != null) {
-                    createTraining(json.training.practice, session)
-                }
-
-//            Simulation creation
-                if (json.training.simulation != null) {
-                    simulationService.createSimulation(json.training.simulation, session)
-                }
-
-//            Experiment creation
-                if (json.experiment != null) {
-                    createExperiment(json.experiment, session)
-                }
-
                 return session
             } else {
                 status.setRollbackOnly()
@@ -47,120 +37,77 @@ class ExperimentService {
         }
     }
 
-    def createTraining(def json, Session session) {
+    /**
+     * Create an initial experiment
+     * @param json
+     * @param session
+     * @return
+     */
+    def createExperiment(def json) {
         def tail
         def story
-        Training training
-        json.eachWithIndex { tr, idx ->
-            training = new Training(name: "Training ${(idx + 1)}", session: session)
-            if (training.save(flush: true)) {
-                session.addToTrainings(training)
-                log.debug("New training with id ${training.id} has been created for expSession ${session.name}.")
-                story = new Story(title: "Story").save(flush: true)
-                training.addToStories(story)
-                for (int i = 0; i < tr.problem.size(); i++) {
-                    tail = new Tail(text: tr.solution.get(i), text_order: i)
-                    if (tail.save(flush: true)) {
-                        story.addToTails(tail).save(flush: true)
-                        log.debug("New task with id ${tail.id} has been created.")
-                    } else {
-                        log.error("Task creation attempt failed")
-                        log.error(training?.errors?.dump())
-                    }
-                }
+        Experiment experiment
 
-                def tails = Tail.findAllByStory(story)
-                for (int i = 0; i < tr.problem.size(); i++) {
-                    new TrainingTask(training: training, tail: tails.get(tr.problem.get(i))).save(flush: true)
-                }
+        Experiment.withSession { status ->
+            def tr = json.stories.first()
+            story = new Story(title: tr.title).save(flush: true)
+
+            for (int i = 0; i < tr.data.size(); i++) {
+                tail = new Tile(text: tr.data.get(i), text_order: i)
+                story.addToTails(tail).save(flush: true)
+                log.debug("New tail with id ${tail.id} has been created.")
+            }
+            experiment = new Experiment(name: "Experiment", story: story,
+                    roundTime: json.timeperround, roundCount: json.numberofrounds, initialNbrOfTiles: json.initialnumberoftiles, userCount: 2)
+
+            if (experiment.save(flush: true)) {
+
+                log.debug("New experiment with id ${experiment.id} has been created.")
+
+
+                experiment.save(flush: true)
+
+                return experiment
             } else {
-                log.error("Training creation attempt failed")
-                log.error(training?.errors?.dump())
+                log.error("Experiment creation attempt failed")
+                log.error(experiment?.errors?.dump())
                 return null;
             }
         }
     }
 
-
-    def createExperiment(def json, Session session) {
-        def tail
-        def story
-        Experiment experiment
-        experiment = new Experiment(name: "Experiment", session: session,
-                roundTime: json.timeperround, roundCount: json.numberofrounds, initialNbrOfTiles: json.initialnumberoftiles, userCount: 2)
-
-        if (experiment.save(flush: true)) {
-            session.addToExperiments(experiment)
-            log.debug("New experiment with id ${experiment.id} has been created for expSession ${session.name}.")
-            json.stories.each { tr ->
-                story = new Story(title: tr.title).save(flush: true)
-                experiment.addToStories(story)
-                for (int i = 0; i < tr.data.size(); i++) {
-                    tail = new Tail(text: tr.data.get(i), text_order: i)
-                    story.addToTails(tail).save(flush: true)
-                    log.debug("New tail with id ${tail.id} has been created.")
-                }
-            }
-            return experiment
-        } else {
-            log.error("Experiment creation attempt failed")
-            log.error(experiment?.errors?.dump())
-            return null;
-        }
-    }
-
-    def completeExperiment(HashMap<String, List<String>> map, def experimentId) {
+    def setExperimentNetwork(HashMap<String, List<String>> map, def experimentId) {
         def experiment = Experiment.get(experimentId)
-        def userStory
-        def story
-        def edge
-        for (int i = 1; i <= map.size(); i++) {
-            story = Story.findByExperimentAndTitle(experiment, map.get("n" + (i - 1)).get(0))
-            userStory = new UserStory(experiment: experiment, alias: i, story: story)
-            map.get("n" + (i - 1)).eachWithIndex { it, idx ->
-                if (idx != 0) {
-                    edge = new Edge(source: "n" + (i - 1), target: it, experiment: experiment).save(failOnError: true)
-                    log.debug("New edge with id ${edge.id} has been created.")
-                }
+        def idx = 0
+        List<Tile> tileSrc = experiment.story.tails as List<Tile>
+        def nextTile = {
+            idx %= tileSrc.size()
+            if (idx == 0) {
+                Collections.shuffle(tileSrc)
             }
+            tileSrc[idx++]
+        }
 
+        map.each { String node, List<String> data ->
+            def userStory = new ExperimentInitialUserStory(experiment: experiment, alias: node)
+            (1..experiment.initialNbrOfTiles).each {
+                userStory.addToInitialTiles(nextTile())
+            }
             if (userStory.save(flush: true)) {
                 log.debug("New user story with id ${userStory.id} has been created.")
+            }
+            data.takeRight(data.size() - 1).each {
+                def edge = new Edge(source: node, target: it, experiment: experiment).save(failOnError: true)
+                log.debug("New edge with id ${edge.id} has been created.")
             }
         }
 
         experiment.userCount = map.size()
         experiment.enabled = true
-        if (experiment.save(flush: true)) {
-            shuffleTails(experiment)
-        }
-
+        experiment.save(flush: true)
         return experiment
     }
 
-    private def shuffleTails(Experiment experiment) {
-        for (int userNbr = 1; userNbr <= experiment.userCount; userNbr++) {
-            def story = UserStory.findByAliasAndExperiment(userNbr, experiment)?.story
-            def text_order = Tail.findAllByStory(story).text_order
-            Collections.shuffle(text_order)
-            int item = 0
-            for (int roundNbr = 0; roundNbr < experiment.roundCount; roundNbr++) {
-                for (int numberOfTail = 0; numberOfTail < experiment.initialNbrOfTiles; numberOfTail++) {
-                    def experimentTask = ExperimentTask.createForExperiment(Tail.findByStoryAndText_order(story, text_order.get(item)), userNbr, roundNbr, experiment)
-                    if (++item >= text_order.size()) {
-                        Collections.shuffle(text_order)
-                        item = 0
-                    }
-                    if (experimentTask.save(flush: true)) {
-                        log.debug("New experimentTask with id ${experimentTask.id} has been created for experiment ${experiment.id}.")
-                    } else {
-                        log.error("ExperimentTask creation attempt failed")
-                        log.error(experimentTask?.errors?.dump())
-                    }
-                }
-            }
-        }
-    }
 
     def cloneExperiment(Session session) {
         Session sessionClone = session.clone()
@@ -192,14 +139,10 @@ class ExperimentService {
                 break
             case ExpType.SESSION.toString():
                 source = Session.get(id)
-                source?.trainings?.each { training ->
-                    deleteTrainingTasks(training)
-                }
-                deleteSimulationTasks(source?.simulations?.getAt(0))
                 deleteExperimentTasks(source?.experiments?.getAt(0))
                 deleteUserStories(source?.experiments?.getAt(0))
 
-                deleteRooms(source)
+
                 break
         }
         if (source) {
@@ -211,10 +154,6 @@ class ExperimentService {
         }
     }
 
-    private def deleteRooms(def source) {
-        def rooms = Room.findAllBySession(source)
-        rooms.each { room -> room.delete() }
-    }
 
     private def deleteTrainingTasks(source) {
         def tts = TrainingTask.findAllByTraining(source)
@@ -238,137 +177,135 @@ class ExperimentService {
     }
 
     private def deleteUserStories(source) {
-        def us = UserStory.findAllByExperiment(source)
+        def us = ExperimentInitialUserStory.findAllByExperiment(source)
         us.each { it.delete() }
     }
 
-    def startExperiment(Room room) {
-        def session = room.session
-        def experiment = session.experiments.getAt(0)
-        def stories = experiment.stories
-        def userRooms = UserRoom.findAllByRoom(room)
-        def roundCount = experiment.roundCount
-        def nbrTiles = experiment.initialNbrOfTiles
 
-        for (UserRoom userRoom : userRooms) {
-            def story = UserStory.findByAliasAndStoryInList(userRoom.userAlias, stories as List).story
-            def tails = shuffleTails(story)
-            Round.withNewTransaction { status ->
-                try {
-                    if (tails.size() > nbrTiles) {
-                        for (int i = 1; i <= roundCount; i++) {
-                            def tailsList = []
-                            for (int j = 0; j < nbrTiles; j++) {
-                                tailsList.add(tails.get(j).id)
-                            }
-                            def round = new Round(roundNbr: i, user: user, story: story, tails: tailsList)
-                            if (round.save(flush: true)) {
-                                log.debug("New round has been created with id " + round.id)
-                            } else {
-                                log.debug("There was problem with round creation.")
-                                log.error(round?.errors?.dump())
-                                return null
-                            }
-                        }
-                    }
-                } catch (Exception exp) {
-                    status.setRollbackOnly()
-                }
+    private def getUserTilesForCurrentRound(String alias, Session s) {
+        int round = getExperimentStatus(s).round
+        if (round) {
+            log.debug("Trying to get tiles for ${alias} and session ${s} in round ${round}")
+            def story = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it.round }
+            if (story) {
+                return story.currentTails
             }
+        }
+        ExperimentInitialUserStory.findByAlias(alias).initialTiles
+
+
+    }
+
+
+    def getUserStateModel(Session expSession) {
+        //TODO handle the possibility that not all users have submitted
+        def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
+
+        int i = 1
+        UserSession.findAllBySession(expSession).sort { it.userAlias }.collectEntries {
+            [(myAlias == it.userAlias ? 0 : i++), getUserTilesForCurrentRound(it.userAlias, expSession)]
         }
     }
 
-    Training getNextTraining(Session session, int number = -1) {
-        Training training
-        def trainingLst = Training.findAllBySession(session)
-        if (number == -1) {
-            training = trainingLst.getAt(0)
-        } else if (session.trainings.size() >= number) {
-            training = trainingLst.getAt(number)
-        }
 
-        return training
+    private def scheduleWaitingCheck(Session session) {
+
+        waitingTimer[session.id] = new Timer()
+        waitingTimer[session.id].scheduleAtFixedRate({
+            log.debug("Checking waiters...")
+            Session s
+            Session.withNewSession {
+                s = Session.get(session.id)
+                int count = UserSession.countBySessionAndState(s, "WAITING")
+                if (count == s.experiment.userCount) {
+                    log.debug("Ready to go!")
+                    ((Timer) waitingTimer[s.id]).cancel()
+                    waitingTimer.remove(s.id)
+                    sessionService.assignAliasesAndMakeActive(s)
+                    advanceRound(s)
+                }
+            }
+        } as TimerTask, 0l, 3000l)
     }
 
-    def experiment(Session expSession, def roundNumber, def tempStory) {
-        def experiment = expSession.experiments.getAt(0)
-        def userList = [:]
-        def currentUser = springSecurityService.currentUser as User
-        def userRoom = UserRoom.findByUserAndRoom(currentUser, Room.findBySession(expSession))
-        def alias = userRoom.userAlias
-        def story = UserStory.findByExperimentAndAlias(experiment, alias)?.story
-        def rightStory = Tail.findAllByStory(story)
-        def rightTextOrder = rightStory.text_order
-        def user = springSecurityService.currentUser as User
-        def userStats = UserStatistic.findBySessionAndUserAndRoom(expSession, user, Room.findBySession(expSession))
-        if (roundNumber) {
-            List<Tail> tailList = []
-            if (tempStory) {
-                tempStory.each {
-                    tailList.add(Tail.findById(it))
-                }
-            }
 
-            if (roundNumber < experiment.roundCount) {
-                def targets = Edge.findAllBySourceAndExperiment("n" + (alias - 1), experiment).target
-                targets.eachWithIndex { String target, int index ->
-                    def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
-                    userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
-                }
+    private def scheduleRoundFinished(Session session) {
+        new Timer().schedule({
+            experimentsRunning[session.id].status = Status.PAUSING
+            scheduleRoundAdvance(session)
+        } as TimerTask, 1000 * session.experiment.roundTime as long)
+    }
 
-                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, alias, roundNumber).tail
-                userList.put(0, [roundNbr: roundNumber, tts: tts])
-                def score = score(rightTextOrder, tailList.text_order)
-                userStats.experimentRoundScore.add(score)
-                userStats.save(flush: true)
-                println "--------------------"
-                println score
-                println "--------------------"
+    private def scheduleRoundAdvance(Session session) {
+        Timer t = new Timer()
+        t.schedule({
+            advanceRound(session)
+        } as TimerTask, 5000l)
+    }
 
-                return [roundNbr: roundNumber, experiment: experiment, userList: userList, tempStory: tailList]
-            } else {
-                def flash = WebUtils.retrieveGrailsWebRequest().flashScope
-                flash."${alias}-${experiment.id}" = tailList.text_order
-                userStats.textOrder = tailList.text_order
-//TODO: Deadlock found when trying to get lock; try restarting transaction. Stacktrace follows:
-                userStats.save(flush: true)
-                return [experiment: 'finishExperiment', sesId: expSession.id] as JSON
-            }
+
+    def kickoffSession(Session session) {
+        log.debug("Trying to kick off session")
+        if (session.state == Session.State.PENDING) {
+            log.debug("Should be kicking it off")
+            scheduleWaitingCheck(session)
         } else {
-            roundNumber = 0
-            def targets = Edge.findAllBySourceAndExperiment("n" + (alias - 1), experiment).target
-            targets.eachWithIndex { String target, int index ->
-                def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, (Integer.parseInt(target.split("[^0-9]+")[1]) + 1), roundNumber).tail
-                userList.put((index + 1), [roundNbr: roundNumber, tts: tts])
-            }
-
-            def tts = ExperimentTask.findAllByExperimentAndUser_nbrAndRound_nbr(experiment, alias, roundNumber).tail
-            userList.put(0, [roundNbr: roundNumber, tts: tts])
-            return [roundNbr: roundNumber, experiment: experiment, userList: userList]
+            log.debug("${session.state}")
         }
     }
 
-    private GrailsHttpSession getCurrentSession() {
-        def webUtils = WebUtils.retrieveGrailsWebRequest()
-        return webUtils.getSession()
+    /**
+     * Begins the process of a
+     * @param session
+     * @return
+     */
+    def advanceRound(Session session) {
+        log.debug("Advance round for ${session.id}")
+        Experiment experiment = session.experiment
+        int nextRound = experimentsRunning.containsKey(session.id) ? experimentsRunning[session.id].round + 1 : 0
+
+        if (nextRound < experiment.roundCount) {
+            experimentsRunning[session.id] = [round: nextRound, start: System.currentTimeMillis(), status: Status.RUNNING]
+            scheduleRoundFinished(session)
+        } else {
+            experimentsRunning.remove(session.id)
+            Session.withSession {
+                def s = Session.get(session.id)
+                s.state = Session.State.FINISHED
+                s.save(flush: true)
+            }
+        }
+
+
     }
 
-    public static Float score(List<Integer> truth, List<Integer> sample) {
+    def getExperimentStatus(Session session) {
+        log.debug(experimentsRunning as String)
+
+        experimentsRunning[session.id]
+    }
+
+    public static Float scoreOld(List truth, List sample) {
         log.debug("Checking truth:" + truth + " against sample:" + sample);
-        Map<Integer, Integer> tmap = new HashMap<Integer, Integer>();
+        Map<Object, Integer> tmap = new HashMap<Object, Integer>();
         int i = 0;
-        for (Integer t : truth) {
+        for (def t : truth) {
             tmap.put(t, i++);
         }
 
+        println tmap
+
+
         if (sample) {
             tmap.keySet().retainAll(sample);
-            int last = -1;
+            def last = -1;
             int accountedFor = 0;
-            for (Integer s : sample) {
+            for (def s : sample) {
                 if (last > -1) {
+                    log.debug("Checking ${s}: ${tmap.get(last)} < ${tmap.get(s)}}")
                     if (tmap.get(last) < tmap.get(s)) {
                         accountedFor++;
+                        println "$accountedFor"
                     }
                 }
                 last = s;
@@ -378,17 +315,30 @@ class ExperimentService {
             DecimalFormat df = new DecimalFormat("####0.00");
             return Float.parseFloat(df.format(accountedFor / (float) (truth.size() - 1)));
         } else {
-            return -1;
+            return 0.0;
         }
     }
 
-    private List<Tail> shuffleTails(Story story) {
-        def tails = Tail.findAllByStory(story)
-
-        if (tails) {
-            Collections.shuffle(tails)
+    public static Float score(List truth, List sample) {
+        log.debug("Checking truth:" + truth + " against sample:" + sample);
+        if (sample && sample.size()>1) {
+            def c2 = { (it.size() * (it.size() - 1)) / 2f }
+            def tmap = [:]
+            truth.eachWithIndex { Object entry, int i -> tmap[entry] = i }
+            println tmap
+            int bad = 0
+            for (int i in (0..<sample.size())) {
+                for (int j in ((1 + i)..<sample.size())) {
+                    if (tmap[sample[i]] > tmap[sample[j]]) bad++
+                }
+            }
+            def result =  (1 - (bad / c2(sample))) * (sample.size() / truth.size())
+            DecimalFormat df = new DecimalFormat("####0.00");
+            return Float.parseFloat(df.format(result))
+        } else {
+            0.0f
         }
 
-        return tails
     }
+
 }

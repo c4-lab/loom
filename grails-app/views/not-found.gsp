@@ -1,21 +1,32 @@
 <g:applyLayout name="main">
-    <div class="err-container">
-        <div class="text-center">
-            <div class="err-status">
-                <h1>404</h1>
-            </div>
+    <div class="wrapper">
+        <div class="content-wrapper container">
+            <div class="row">
+                <div class="col-sm-1"></div>
 
-            <div class="err-message">
-                <h2>Page not found</h2>
-            </div>
+                <div class="col-sm-10">
 
-            <div class="err-body">
-                <g:link controller="home" class="btn btn-lg btn-goback">
-                    <span class="glyphicon glyphicon-home"></span>
-                    <span class="space"></span>
-                    Go Back to Home Page
-                </g:link>
+                    <section class="content">
+                        <div class="err-container">
+
+                            <div class="text-center err-message">
+                                <h2>Page unavailable?</h2>
+                            </div>
+
+                            <div class="err-body">
+                                In order to access this site you <b>must</b> use the unique url that was provided to you by the task requester.
+                            If you feel you have reached this page in error, please email <a
+                                    href="mailto:jintrone@msu.edu">jintrone@msu.edu</a>.
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <div class="col-sm-1"></div>
+                </div>
             </div>
         </div>
+
     </div>
 </g:applyLayout>

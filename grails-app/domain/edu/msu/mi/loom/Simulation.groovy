@@ -11,7 +11,7 @@ class Simulation {
     int userCount
 
     static hasMany = [stories: Story]
-    static belongsTo = [session: Session]
+    static belongsTo = [trainingSet: TrainingSet]
 
     static constraints = {
         name blank: false

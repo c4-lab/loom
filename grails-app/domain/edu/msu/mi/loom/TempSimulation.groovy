@@ -5,6 +5,7 @@ class TempSimulation {
     User user
     List currentTails
 
+
     static hasMany = [currentTails: Integer]
 
     static constraints = {

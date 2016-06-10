@@ -13,9 +13,13 @@ import java.time.ZoneOffset
 class SimulationService {
     def springSecurityService
     def statService
+    def experimentService
 
-    def simulation(Session session, def roundNumber, def tempStory) {
-        def simulation = session.simulations.getAt(0)
+
+    def simulation(TrainingSet ts, def roundNumber, def tempStory) {
+        log.debug("Now in simulation with $tempStory")
+        //TODO handle multiple simulations
+        def simulation = ts.simulations.getAt(0)
         def userCount = simulation.userCount
         def roundTime = simulation.roundTime
         LocalDateTime endDate
@@ -32,22 +36,23 @@ class SimulationService {
                 def tailList = []
                 if (tempStory) {
                     tempStory.each {
-                        tailList.add(Tail.findByText_orderAndStory(it, simulation.stories.getAt(0)))
+                        tailList.add(Tile.findByText_orderAndStory(it, simulation.stories.getAt(0)))
                     }
                 }
-                endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
 
-                return [roundNbr: roundNumber, simulation: simulation, userList: userList, tempStory: tailList]
+
+                return [roundNbr: roundNumber, trainingSet:ts.id, simulation: simulation, userList: userList, tempStory: tailList]
             } else {
-                Story story = Story.findBySimulation(simulation)
-                def rightStory = Tail.findAllByStory(story)
-                def rightTextOrder = rightStory.text_order
-                def intList = []
-                for (String s : tempStory)
-                    intList.add(Integer.valueOf(s));
-                float simulationScore = simulationScore(rightTextOrder, intList)
-                statService.setSimulationScore(session, simulationScore, Room.findBySession(session))
-                return [experiment: 'experiment_ready', sesId: session.id, simulationScore: simulationScore] as JSON
+//                Story story = Story.findBySimulation(simulation)
+//                def rightStory = Tile.findAllByStory(story)
+//                def rightTextOrder = rightStory.text_order
+//                def intList = []
+//                for (String s : tempStory)
+//                    intList.add(Integer.valueOf(s));
+//                float simulationScore = simulationScore(rightTextOrder, intList)
+                //TODO FIXME
+                //statService.setSimulationScore(session, simulationScore, Room.findBySession(session))
+                return [experiment: 'experiment_ready'] as JSON
             }
         } else {
             roundNumber = 0
@@ -55,7 +60,7 @@ class SimulationService {
                 def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tail
                 userList.put(i, [roundNbr: roundNumber, tts: tts])
             }
-            endDate = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(roundTime)
+
             return [roundNbr: roundNumber, simulation: simulation, userList: userList]
         }
     }
@@ -88,19 +93,19 @@ class SimulationService {
         }
     }
 
-    def createSimulation(def json, Session session) {
+    def createSimulation(def json, TrainingSet trainingSet) {
         def story
-        Tail tail
+        Tile tail
         Simulation simulation = new Simulation(name: 'Simulation', roundTime: json.timeperround,
-                roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), session: session)
+                roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), trainingSet: trainingSet)
 
         if (simulation.save(flush: true)) {
-            session.addToSimulations(simulation)
-            log.debug("New simulation with id ${simulation.id} has been created for session ${session.name}.")
+            trainingSet.addToSimulations(simulation)
+            log.debug("New simulation with id ${simulation.id} has been created for session ${trainingSet.name}.")
             story = new Story(title: "Story").save(flush: true)
             simulation.addToStories(story)
             for (int i = 0; i < json.solution.size(); i++) {
-                tail = new Tail(text: json.solution.get(i), text_order: i)
+                tail = new Tile(text: json.solution.get(i), text_order: i)
                 story.addToTails(tail).save(flush: true)
                 log.debug("New task with id ${tail.id} has been created.")
             }
@@ -119,7 +124,7 @@ class SimulationService {
                     }
 
                     for (int m = 0; m < userJSONArray.size(); m++) {
-                        def simulationTask = SimulationTask.createSimulationTask(Tail.findByStoryAndText_order(story, userJSONArray.get(m)), j == 0 ? k : (k + 1), j, simulation)
+                        def simulationTask = SimulationTask.createSimulationTask(Tile.findByStoryAndText_order(story, userJSONArray.get(m)), j == 0 ? k : (k + 1), j, simulation)
                         if (simulationTask.save(flush: true)) {
                             log.debug("New simulationTask with id ${simulationTask.id} has been created for simulation ${simulation.id}.")
                         } else {
@@ -134,5 +139,27 @@ class SimulationService {
             log.error(simulation?.errors?.dump())
             return null;
         }
+    }
+
+    def addRoundScore(List<Integer> integers, Simulation simulation) {
+        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(springSecurityService.currentUser,simulation.trainingSet)
+        def correct = simulation.stories.first().tails.text_order.sort()
+
+
+        SimulationScore ss = (uts.simulationsCompleted)?uts.simulationsCompleted.first():null
+        if (!ss) {
+            ss = new SimulationScore(simulation:simulation)
+            uts.addToSimulationsCompleted(ss)
+            uts.save(flush:true)
+        }
+
+        ss.addToScores(ExperimentService.score(correct,integers))
+        ss.save(flush:true)
+
+        if (ss.scores.size() == simulation.roundCount) {
+            uts.simulationScore = ss.scores.sum()/ss.scores.size()
+            uts.save()
+        }
+
     }
 }

@@ -1,3 +1,10 @@
+
+
+#dvDest, #dvSource {
+    font-size: 12px;
+}
+
+
 ul {
     list-style-type: none;
     margin: 0;
@@ -6,11 +13,12 @@ ul {
 }
 
 #dvDest li {
+    font-size: 12px;
     margin: 5px;
     padding: 5px;
     display: inline-block;
     cursor: move;
-    color: #ffffff !important;
+    color: #111 !important;
     /*width: 243px;*/
 }
 
@@ -29,6 +37,7 @@ ul {
 }
 
 .dvSource li {
+    font-size: 12px;
     margin: 5px;
     padding: 5px;
     display: inline-block;
@@ -36,15 +45,18 @@ ul {
 }
 
 #dvSource li {
+
     margin: 5px;
     padding: 5px;
     display: inline-block;
     cursor: move;
 }
 
-.purple {
-    background-color: #80617e !important;
-    color: #ffffff !important;
+
+
+.purple, .tile-available {
+    background-color: #B9D7FF !important;
+    color: #111 !important;
 }
 
 .purple a::after {
@@ -52,12 +64,20 @@ ul {
 }
 
 .blue {
-    background-color: #afebff !important;
+    background-color: #aeaaaf !important;
 }
 
 .ui-state-highlight {
-    margin: 0 !important;
-    margin-top: 5px !important;
-    padding-top: 15px !important;
-    width: 50px;
+    margin-bottom: -12px !important;
 }
+
+#neighbors li {
+    font-size: 12px;
+}
+
+/*.ui-state-highlight {*/
+    /*margin: 0 !important;*/
+    /*margin-top: 5px !important;*/
+    /*padding-top: 15px !important;*/
+    /*width: 50px;*/
+/*}*/

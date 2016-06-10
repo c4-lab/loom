@@ -11,25 +11,14 @@ class CommonTagLib {
         def completePercent = attrs.userCount * 100 / attrs.userMaxCount
 
         out << '<div class="progress progress-sm active">'
-        out << "<div class='progress-bar progress-bar-success progress-bar-striped' role='progressbar' aria-valuenow='${completePercent}' " +
+        out << "<div class='progress-bar progress-bar-striped progress-bar-light-blue' role='progressbar' aria-valuenow='${completePercent}' " +
                 "aria-valuemin='0' aria-valuemax='100' style='width: ${completePercent}%'>"
         out << "<span class='sr-only'>${completePercent}% Complete</span>"
         out << '</div></div>'
-        out << "<p>Number of users connected: ${attrs.userCount}</p>"
+        out << "<p>Number of users connected: <span class='prog-bar-count'>${attrs.userCount}</span></p>"
     }
 
-    def checkCurrentUserAndRoomConnection = { attrs ->
-        def currentUser = springSecurityService.currentUser as User
-        def room = Room.get(attrs.room)
-        if (room) {
-            def userRoom = UserRoom.countByRoomAndUser(room, currentUser)
-            if (userRoom > 0) {
-                return true
-            }
-        }
 
-        return false
-    }
 
     def checkForCurrentUser = { attrs ->
         def currentUser = springSecurityService.currentUser as User

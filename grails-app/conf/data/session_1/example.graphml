@@ -7,10 +7,11 @@
           <default>Story1</default>
   </key>
   <graph id="G" edgedefault="undirected">
-    <node id="n0">
-        <data key="story">Story2</data>
-    </node>
+    <node id="n0"/>
     <node id="n1"/>
+    <node id="n2"/>
     <edge source="n0" target="n1"/>
+    <edge source="n1" target="n2"/>
+    <edge source="n0" target="n2"/>
   </graph>
 </graphml>

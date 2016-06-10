@@ -21,8 +21,8 @@ environments {
             url = "jdbc:mysql://localhost/loom"
             driverClassName = "com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
-            username = "root"
-            password = "1"
+            username = "loom"
+            password = "loom"
         }
     }
     test {
