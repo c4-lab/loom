@@ -7,19 +7,13 @@
           <default>Story1</default>
   </key>
   <graph id="G" edgedefault="undirected">
-    <node id="n0">
-        <data key="story">Story2</data>
-    </node>
+    <node id="n0"/>
     <node id="n1"/>
     <node id="n2"/>
-    <node id="n3">
-        <data key="story">Story2</data>
-    </node>
+    <node id="n3"/>
     <node id="n4"/>
     <node id="n5"/>
-    <node id="n6">
-        <data key="story">Story2</data>
-    </node>
+    <node id="n6"/>
     <node id="n7"/>
     <node id="n8"/>
     <node id="n9"/>

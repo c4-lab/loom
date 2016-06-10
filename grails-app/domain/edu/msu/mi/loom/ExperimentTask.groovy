@@ -2,7 +2,7 @@ package edu.msu.mi.loom
 
 class ExperimentTask {
     Experiment experiment
-    Tail tail
+    Tile tail
     int user_nbr
     int round_nbr
 
@@ -15,7 +15,7 @@ class ExperimentTask {
         version false
     }
 
-    static ExperimentTask createForExperiment(Tail tail, int user_nbr = 0, int round_nbr = 0, Experiment experiment, boolean flush = true) {
+    static ExperimentTask createForExperiment(Tile tail, int user_nbr = 0, int round_nbr = 0, Experiment experiment, boolean flush = true) {
         def instance = new ExperimentTask(tail: tail, user_nbr: user_nbr, round_nbr: round_nbr, experiment: experiment)
         instance.save(flush: flush, insert: true)
         instance

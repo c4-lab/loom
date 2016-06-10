@@ -40,24 +40,25 @@
 <div class="wrapper">
 
     <header class="main-header">
-        <g:link class="logo" controller="home">
-            <!-- mini logo for sidebar mini 50x50 pixels -->
-            <span class="logo-mini"><b>Loom</b></span>
-            <!-- logo for regular state and mobile devices -->
-            <span class="logo-lg"><asset:image src="LOOM.png" alt="Loom"/></span>
-        </g:link>
         <nav class="navbar navbar-static-top" role="navigation">
-            <div class="navbar-custom-menu">
-                <ul class="nav navbar-nav">
-                    <sec:ifLoggedIn>
-                        <li>
-                            <g:link controller="logout">
-                                <span class="hidden-xs">Logout</span>
-                            </g:link>
-                        </li>
-                    </sec:ifLoggedIn>
-                </ul>
-            </div>
+
+                <asset:image src="loom-icon.png" alt="Loom" height="95" class="center-block"/>
+                <sec:ifAllGranted roles="ROLE_ADMIN">
+
+                        <p class="text-center"><g:link controller="logout">Logout</g:link></p>
+
+                </sec:ifAllGranted>
+
+                %{--<div class="navbar-custom-menu">--}%
+                    %{--<ul class="nav navbar-nav">--}%
+                        %{--<sec:ifLoggedIn>--}%
+                            %{--<li>--}%
+
+                            %{--</li>--}%
+                        %{--</sec:ifLoggedIn>--}%
+                    %{--</ul>--}%
+                %{--</div>--}%
+
         </nav>
     </header>
 </div>

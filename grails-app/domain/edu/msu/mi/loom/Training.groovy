@@ -8,7 +8,7 @@ class Training {
     Date dateCreated
 
     static hasMany = [stories: Story]
-    static belongsTo = [session: Session]
+    static belongsTo = [trainingSet: TrainingSet]
 
     static constraints = {
         name blank: false

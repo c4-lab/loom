@@ -3,7 +3,7 @@ package edu.msu.mi.loom
 class Story {
     String title
 
-    static hasMany = [tails: Tail]
+    static hasMany = [tails: Tile]
     static belongsTo = [experiment: Experiment, simulation: Simulation, training: Training]
 
     static constraints = {
@@ -19,10 +19,14 @@ class Story {
 
         copy.title = this.title
 
-        for (Tail tail : tails) {
+        for (Tile tail : tails) {
             copy.addToTails(tail)
         }
 
         return copy
+    }
+
+    public String getText() {
+        tails?tails.sort{it.text_order}.text.join(" "):"--none--"
     }
 }

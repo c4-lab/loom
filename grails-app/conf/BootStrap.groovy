@@ -2,6 +2,8 @@ import edu.msu.mi.loom.Role
 import edu.msu.mi.loom.Roles
 import edu.msu.mi.loom.User
 import edu.msu.mi.loom.UserRole
+import edu.msu.mi.loom.UserTrainingSet
+import edu.msu.mi.loom.TrainingSet
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONElement
 
@@ -9,21 +11,29 @@ class BootStrap {
     def experimentService
     def grailsApplication
     def graphParserService
-    def roomService
+    def sessionService
+    def trainingSetService
+    def mturkService
 
     def init = { servletContext ->
         environments {
             development {
                 createInitialRecords()
-                createTestUsers()
-                def session = experimentService.createSession(parseJSONToText())
-                final File file = new File("grails-app/conf/data/session_2/example.graphml")
+
+                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"A training set");
+                mturkService.createQualification(trainingset)
+                def experiment = experimentService.createExperiment(parseJSONToText().experiment)
+                final File file = new File("grails-app/conf/data/session_1/example.graphml")
                 InputStream inputStream = new FileInputStream(file)
                 HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(inputStream)
 
-                experimentService.completeExperiment(nodeStoryMap, session.experiments.getAt(0).id)
+                experimentService.setExperimentNetwork(nodeStoryMap, experiment.id)
 
-                roomService.createRoom(session)
+                def session = experimentService.createSession(experiment,trainingset)
+                sessionService.launchSession(session)
+                createTestUsers(trainingset)
+
+
             }
         }
     }
@@ -35,7 +45,7 @@ class BootStrap {
         def creatorRole = Role.findWhere(authority: Roles.ROLE_CREATOR.name) ?: new Role(authority: Roles.ROLE_CREATOR.name).save(failOnError: true)
         def userRole = Role.findWhere(authority: Roles.ROLE_USER.name) ?: new Role(authority: Roles.ROLE_USER.name).save(failOnError: true)
 
-        def admin = User.findWhere(username: 'admin') ?: new User(username: 'admin', password: '1').save(failOnError: true)
+        def admin = User.findWhere(username: 'admin') ?: new User(username: 'admin', password: 'lji123').save(failOnError: true)
 
 
         if (!admin.authorities.contains(adminRole)) {
@@ -47,16 +57,26 @@ class BootStrap {
         }
     }
 
-    private void createTestUsers() {
+    private void createTestUsers(TrainingSet ts) {
         (1..11).each { n ->
             def user = new User(username: "user-${n}", password: "pass").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)
+            if (n!=1) UserTrainingSet.create(user,ts,true,true)
+
         }
     }
 
+    private JSONElement parseTrainingSessionToText() {
+        def filePath = "data/session_2/trainingset.json"
+        def text = grailsApplication.getParentContext().getResource("classpath:$filePath").getInputStream().getText()
+        def json = JSON.parse(text)
+
+        return json
+    }
+
     private JSONElement parseJSONToText() {
-        def filePath = "data/session_2/experiment.json"
+        def filePath = "data/session_1/experiment.json"
         def text = grailsApplication.getParentContext().getResource("classpath:$filePath").getInputStream().getText()
         def json = JSON.parse(text)
 

@@ -58,29 +58,7 @@ class UserService {
         }
     }
 
-    def deleteUser(User user) {
-        def role = UserRole.findByUser(user).role
-        if (role?.authority == 'ROLE_USER') {
-            UserRole.remove(user, role)
-            def rounds = Round.findAllByUser(user)
-            rounds.each {
-                it.delete()
-            }
 
-            def tempExperiments = TempExperiment.findAllByUser(user)
-            tempExperiments.each {
-                it.delete()
-            }
-
-            def tempSimulations = TempSimulation.findAllByUser(user)
-            tempSimulations.each {
-                it.delete()
-            }
-
-            user.delete(flush: true)
-            log.debug("User has been deleted")
-        }
-    }
 
     private String makeRandomPassword() {
         return "${System.currentTimeMillis()}"

@@ -32,18 +32,18 @@
                                 <p class="text-muted text-center">Super user</p>
 
                                 <ul class="list-group list-group-unbordered">
+                                    %{--<li class="list-group-item">--}%
+                                        %{--<b>Trainings</b> <a class="pull-right">${trainingsCount}</a>--}%
+                                    %{--</li>--}%
+                                    %{--<li class="list-group-item">--}%
+                                        %{--<b>Simulations</b> <a class="pull-right">${simulationsCount}</a>--}%
+                                    %{--</li>--}%
                                     <li class="list-group-item">
-                                        <b>Trainings</b> <a class="pull-right">${trainingsCount}</a>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <b>Simulations</b> <a class="pull-right">${simulationsCount}</a>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <b>Experimetns</b> <a class="pull-right">${experimentsCount}</a>
+                                        <b>Experiments</b> <a class="pull-right">${experimentsCount}</a>
                                     </li>
                                 </ul>
 
-                                <g:if test="${session.experiments.getAt(0).enabled}">
+                                <g:if test="${session.experiment.enabled}">
                                     <a href="javascript:void(0);" id="clone-session"
                                        class="btn btn-primary btn-block"><b>Clone the session</b></a>
                                     <a href="javascript:void(0);" id="publish-anon-session"
@@ -65,78 +65,78 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="activity">
-                                    <g:each in="${experiments}" var="experiment">
+
                                         <div class="post">
                                             <div class="user-block">
                                                 <span class='username'>
-                                                    <a href="#">${experiment.name}</a>
+                                                    <a href="#">${session.experiment.name}</a>
                                                     <g:link controller="admin" action="deleteExperiment"
                                                             class='pull-right btn-box-tool'
-                                                            params="[experimentId: experiment.id, type: ExpType.EXPERIMENT]">
+                                                            params="[experimentId: session.experiment.id, type: ExpType.EXPERIMENT]">
                                                         <i class='fa fa-times'></i>
                                                     </g:link>
                                                 </span>
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
-                                                        date="${experiment.dateCreated}"/></span>
+                                                        date="${session.experiment.dateCreated}"/></span>
                                             </div>
 
                                             <p>
-                                                <g:each in="${experiment.stories[0]?.tails}" var="tail">
+                                                <g:each in="${(session.experiment.story.tails).sort { it.text_order}}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>
                                         </div>
-                                    </g:each>
 
-                                    <g:each in="${trainings}" var="training">
-                                        <div class="post">
-                                            <div class="user-block">
-                                                <span class='username'>
-                                                    <a href="#">${training.name}</a>
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='pull-right btn-box-tool'
-                                                            params="[experimentId: training.id, type: ExpType.TRAINING]">
-                                                        <i class='fa fa-times'></i>
-                                                    </g:link>
-                                                </span>
-                                                <span class='description'>Created - <g:formatDate
-                                                        format="yyyy/MM/dd HH:mm"
-                                                        date="${training.dateCreated}"/></span>
-                                            </div>
 
-                                            <p>
-                                                <g:each in="${training.stories[0]?.tails}" var="tail">
-                                                    ${tail.text}
-                                                </g:each>
-                                            </p>
+                                    %{--<g:each in="${trainings}" var="training">--}%
+                                        %{--<div class="post">--}%
+                                            %{--<div class="user-block">--}%
+                                                %{--<span class='username'>--}%
+                                                    %{--<a href="#">${training.name}</a>--}%
+                                                    %{--<g:link controller="admin" action="deleteExperiment"--}%
+                                                            %{--class='pull-right btn-box-tool'--}%
+                                                            %{--params="[experimentId: training.id, type: ExpType.TRAINING]">--}%
+                                                        %{--<i class='fa fa-times'></i>--}%
+                                                    %{--</g:link>--}%
+                                                %{--</span>--}%
+                                                %{--<span class='description'>Created - <g:formatDate--}%
+                                                        %{--format="yyyy/MM/dd HH:mm"--}%
+                                                        %{--date="${training.dateCreated}"/></span>--}%
+                                            %{--</div>--}%
 
-                                        </div>
-                                    </g:each>
+                                            %{--<p>--}%
+                                                %{--<g:each in="${training.stories[0]?.tails}" var="tail">--}%
+                                                    %{--${tail.text}--}%
+                                                %{--</g:each>--}%
+                                            %{--</p>--}%
 
-                                    <g:each in="${simulations}" var="simulation">
-                                        <div class="post">
-                                            <div class="user-block">
-                                                <span class='username'>
-                                                    <a href="#">${simulation.name}</a>
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='pull-right btn-box-tool'
-                                                            params="[experimentId: simulation.id, type: ExpType.SIMULATION]">
-                                                        <i class='fa fa-times'></i>
-                                                    </g:link>
-                                                </span>
-                                                <span class='description'>Created - <g:formatDate
-                                                        format="yyyy/MM/dd HH:mm"
-                                                        date="${simulation.dateCreated}"/></span>
-                                            </div>
+                                        %{--</div>--}%
+                                    %{--</g:each>--}%
 
-                                            <p>
-                                                <g:each in="${simulation.stories[0]?.tails}" var="tail">
-                                                    ${tail.text}
-                                                </g:each>
-                                            </p>
-                                        </div>
-                                    </g:each>
+                                    %{--<g:each in="${simulations}" var="simulation">--}%
+                                        %{--<div class="post">--}%
+                                            %{--<div class="user-block">--}%
+                                                %{--<span class='username'>--}%
+                                                    %{--<a href="#">${simulation.name}</a>--}%
+                                                    %{--<g:link controller="admin" action="deleteExperiment"--}%
+                                                            %{--class='pull-right btn-box-tool'--}%
+                                                            %{--params="[experimentId: simulation.id, type: ExpType.SIMULATION]">--}%
+                                                        %{--<i class='fa fa-times'></i>--}%
+                                                    %{--</g:link>--}%
+                                                %{--</span>--}%
+                                                %{--<span class='description'>Created - <g:formatDate--}%
+                                                        %{--format="yyyy/MM/dd HH:mm"--}%
+                                                        %{--date="${simulation.dateCreated}"/></span>--}%
+                                            %{--</div>--}%
+
+                                            %{--<p>--}%
+                                                %{--<g:each in="${simulation.stories[0]?.tails}" var="tail">--}%
+                                                    %{--${tail.text}--}%
+                                                %{--</g:each>--}%
+                                            %{--</p>--}%
+                                        %{--</div>--}%
+                                    %{--</g:each>--}%
                                 </div>
                             </div>
                         </div>

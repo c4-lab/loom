@@ -1,9 +1,9 @@
 .skin-blue .main-header .navbar {
-    background-color: #3c8dbc
+    /*background-color: #d7cec1*/
 }
 
 .skin-blue .main-header .navbar .nav > li > a {
-    color: #fff
+    color: #111
 }
 
 .skin-blue .main-header .navbar .nav > li > a:hover, .skin-blue .main-header .navbar .nav > li > a:active, .skin-blue .main-header .navbar .nav > li > a:focus, .skin-blue .main-header .navbar .nav .open > a, .skin-blue .main-header .navbar .nav .open > a:hover, .skin-blue .main-header .navbar .nav .open > a:focus, .skin-blue .main-header .navbar .nav > .active > a {
@@ -12,7 +12,7 @@
 }
 
 .skin-blue .main-header .navbar .sidebar-toggle {
-    color: #fff
+    color: #111
 }
 
 .skin-blue .main-header .navbar .sidebar-toggle:hover {
@@ -43,7 +43,7 @@
 }
 
 .skin-blue .main-header .logo {
-    background-color: #367fa9;
+    /*background-color: #d7cec1;*/
     color: #fff;
     border-bottom: 0 solid transparent
 }
@@ -61,7 +61,7 @@
 }
 
 .skin-blue .wrapper, .skin-blue .main-sidebar, .skin-blue .left-side {
-    background-color: #222d32
+    /*background-color: #d7cec1*/
 }
 
 .skin-blue .user-panel > .info, .skin-blue .user-panel > .info > a {

@@ -57,6 +57,44 @@ grails.project.dependency.resolution = {
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         compile 'net.sf.opencsv:opencsv:2.3'
+
+        //dependencies for mturk
+        compile group: 'org.apache.axis', name: 'axis', version: '1.4'
+        compile group: 'org.apache.axis', name: 'axis-jaxrpc', version: '1.4'
+        compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.1.2'
+        compile group: 'org.apache.velocity', name: 'velocity', version: '1.5', ext: 'pom'
+        compile group: 'velocity-tools', name: 'velocity-tools', version: '1.4'
+        compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+        compile group: 'commons-logging', name: 'commons-logging', version: '1.0.4'
+        compile group: 'commons-lang', name: 'commons-lang', version: '2.3'
+        compile group: 'commons-digester', name: 'commons-digester', version: '1.8'
+        compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.2.2'
+        compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+        compile group: 'commons-pool', name: 'commons-pool', version: '1.3'
+        compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.7.0'
+        compile group: 'commons-discovery', name: 'commons-discovery', version: '0.2'
+
+        compile group: 'log4j', name: 'log4j', version: '1.2.15', {
+            excludes  group:'com.sun.jmx', module: 'jmxri'
+            excludes  group:'com.sun.jdmk', module: 'jmxtools'
+            excludes group:'javax.jms', module: 'jms'
+        }
+
+        compile group: 'wsdl4j', name: 'wsdl4j', version: '1.5.1'
+        compile group: 'org.codehaus.woodstox', name: 'wstx-asl', version: '3.2.3'
+
+
+
+
+
+
+
+
+
+
+
+
+        //compile fileTree(dir: 'lib', include: '**/*.jar')
     }
 
     plugins {

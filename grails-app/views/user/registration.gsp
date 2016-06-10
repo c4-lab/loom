@@ -10,6 +10,7 @@
             </g:eachError>
 
             <g:form controller='user' action="registration" method='POST' autocomplete='off'>
+                <input type="hidden" name="original" value="original"/>
                 <div class="form-group has-feedback">
                     <input type="text" name='username' value="${user?.username}" class="form-control"
                            placeholder="Username"/>

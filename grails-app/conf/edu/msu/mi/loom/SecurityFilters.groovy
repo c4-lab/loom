@@ -1,12 +1,21 @@
 package edu.msu.mi.loom
 
+import org.springframework.security.core.context.SecurityContextHolder
+
 class SecurityFilters {
-    def roomService
+    def sessionService
 
     def filters = {
         all(controller: 'logout', action: 'index') {
-            after = { Map model ->
-                roomService.leaveAllRooms()
+            before = { Map model ->
+                sessionService.leaveAllSessions()
+
+            }
+
+            after = {Map model ->
+                println "Clearing context"
+                SecurityContextHolder.clearContext()
+
             }
         }
     }
