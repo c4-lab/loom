@@ -35,7 +35,7 @@ environments {
         dataSource {
             url = "jdbc:mysql://localhost/loom"
             driverClassName = "com.mysql.jdbc.Driver"
-            dbCreate = "update"
+            dbCreate = "create"
             username = "loom"
             password = "loom"
         }

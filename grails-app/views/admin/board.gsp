@@ -187,10 +187,7 @@
             <g:form enctype="multipart/form-data" name="upload-form" controller="admin" action="uploadExperiment">
                 <div class="modal-body">
 
-                    <div class="form-group">
-                        <label for="trainingSet">TrainingSet</label>
-                        <g:select  name="trainingSet" noSelection="['null':'Select one...']" from="${TrainingSet.list()}" optionKey="id" optionValue="name" id="trainingSet"/>
-                    </div>
+
                     <div class="form-group">
                         <label for="inputFile">File input</label>
                         <input type="file" id="inputFile" name="inputFile">

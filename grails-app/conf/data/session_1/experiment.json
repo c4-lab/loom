@@ -1,25 +1,38 @@
 {
   "experiment": {
-    "numberofrounds": 3,
-    "timeperround": 5,
-    "initialnumberoftiles": 4,
+    "numberofrounds": 12,
+    "timeperround": 90,
+    "initialnumberoftiles": 3,
     "stories": [
       {
         "data": [
-          "It was dark in the hut.",
-          "A warm, rich, thick darkness,",
-          "lit only by the glow from the fire",
-          "which burnt in the middle of the room.",
-          "Later, the fire would be built up",
-          "so that flames would lick the round black cauldron",
-          "and heat the stew for the evening meal,",
-          "but for now turf had been laid on the logs.",
-          "The fire would stay hot and alive,",
-          "but would not need to be fed.",
-          "Morg knew that fires were as ravenous",
-          "as the wolves she heard howling in the woods at night."
+          "Long, long ago an old man",
+          "had a young mistress,",
+          "though he kept the affair secret.",
+          "He let her pull out",
+          "all his white hair,",
+          "so that he might not look so old",
+          "His wife noticed",
+          "that he had less white hair",
+          "and guessed",
+          "that he must be keeping a mistress",
+          "So she abused him roundly",
+          "for deceiving her",
+          "Her husband feigned ignorance",
+          "and protested, \"Certainly not!",
+          "I would never do a thing like that.\"",
+          "Then to prove his innocence",
+          "he let his wife pull out",
+          "his black hair.",
+          "In her jealousy",
+          "she pulled it all out",
+          "so that he might no longer",
+          "be attractive ",
+          "to his mistress.",
+          "And so the old man",
+          "became completely bald."
         ],
-        "title": "Story1"
+        "title": "The Old Man"
       }
     ]
   }
