@@ -28,6 +28,8 @@ class TrainingSetService {
                     simulationService.createSimulation(json.training.simulation, trainingSet)
                 }
 
+                mturkService.createQualification(trainingSet)
+
 //
                 return trainingSet
             } else {

@@ -35,6 +35,12 @@ class BootStrap {
 
 
             }
+
+            production {
+              TrainingSet.each {
+                  mturkService.createQualification(it)
+              }
+            }
         }
     }
     def destroy = {
