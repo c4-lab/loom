@@ -59,7 +59,7 @@ class AdminController {
             def text = fileService.readFile(file as MultipartFile)
             def json = jsonParserService.parseToJSON(text)
             if (json) {
-                def experiment = experimentService.createExperiment(json,params.trainingSet)
+                def experiment = experimentService.createExperiment(json.experiment)
                 if (experiment.id) {
                     return redirect(action: 'completeExperimentCreation', params: [experiment: experiment.id, initNbrOfTiles: experiment.initialNbrOfTiles])
                 }
