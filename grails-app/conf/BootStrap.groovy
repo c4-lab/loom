@@ -37,7 +37,7 @@ class BootStrap {
             }
 
             production {
-              TrainingSet.each {
+              TrainingSet.list().each {
                   mturkService.createQualification(it)
               }
             }
