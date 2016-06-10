@@ -86,7 +86,7 @@
                                                         params="[sessionId: session.id, type: ExpType.SESSION]">
                                                     Delete
                                                 </g:link> <br/>
-                                                <g:link controller="admin" action="restartExperiment"
+                                                <g:link controller="admin" action="restartSession"
                                                         class='btn btn-primary btn-block'
                                                         params="[sessionId: session.id, type: ExpType.SESSION]">
                                                     Restart

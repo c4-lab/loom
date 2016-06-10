@@ -102,6 +102,14 @@ class AdminController {
         }
     }
 
+    def restartSession() {
+        def session = Session.get(params.sessionId)
+        if (session.state == Session.State.PENDING) {
+            experimentService.kickoffSession(session)
+        }
+        redirect(action: 'board')
+    }
+
     def deleteExperiment() {
         def id = params.experimentId
         def type = params.type

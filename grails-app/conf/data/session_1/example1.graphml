@@ -17,7 +17,6 @@
     <node id="n7"/>
     <node id="n8"/>                                              Admin
     <node id="n9"/>
-    <node id="n10"/>
     <edge source="n0" target="n1"/>
     <edge source="n0" target="n2"/>
     <edge source="n1" target="n2"/>
