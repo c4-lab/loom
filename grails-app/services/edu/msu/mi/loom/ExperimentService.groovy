@@ -183,6 +183,9 @@ class ExperimentService {
 
 
     private def getUserTilesForCurrentRound(String alias, Session s) {
+        if (!alias) {
+            return []
+        }
         int round = getExperimentStatus(s).round
         if (round) {
             log.debug("Trying to get tiles for ${alias} and session ${s} in round ${round}")
@@ -202,7 +205,7 @@ class ExperimentService {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
 
         int i = 1
-        UserSession.findAllBySession(expSession).sort { it.userAlias }.collectEntries {
+        UserSession.findAllBySessionAndUserAliasIsNotNull(expSession).sort { it.userAlias }.collectEntries {
             [(myAlias == it.userAlias ? 0 : i++), getUserTilesForCurrentRound(it.userAlias, expSession)]
         }
     }
