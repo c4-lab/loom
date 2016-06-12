@@ -8,6 +8,7 @@ class UserSession {
     Session session
     String userAlias
     String completionCode
+    Date started
     String state = "WAITING"
 
 
@@ -34,9 +35,12 @@ class UserSession {
         state=="COMPLETED"
     }
 
-    def beforeInsert = {
+    def beforeValidate = {
         if (!completionCode) {
             completionCode = randomStringGenerator.generateLowercase(12)
+        }
+        if (!started) {
+            started = new Date()
         }
     }
 }

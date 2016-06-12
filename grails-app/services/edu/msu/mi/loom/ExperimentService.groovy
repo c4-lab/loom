@@ -18,11 +18,19 @@ class ExperimentService {
     def springSecurityService
     def experimentsRunning = [:]
     def waitingTimer = [:]
+    def randomStringGenerator
 
 
     def createSession(Experiment experiment, TrainingSet trainingSet, String type = "mturk") {
         Session.withNewTransaction { status ->
             def session = new Session(name: 'Session_' + (Session.count() + 1), experiment: experiment, trainingSet: trainingSet, type: type)
+            //adding these here because they don't seem to be called from BootStrap
+            session.doneCode =  randomStringGenerator.generateLowercase(12)
+            session.fullCode =  randomStringGenerator.generateLowercase(12)
+            session.waitingCode = randomStringGenerator.generateLowercase(12)
+
+
+
 
 
             if (session.save(flush: true)) {
@@ -194,7 +202,7 @@ class ExperimentService {
                 return story.currentTails
             }
         }
-        ExperimentInitialUserStory.findByAlias(alias).initialTiles
+        ExperimentInitialUserStory.findByAliasAndExperiment(alias,s.experiment).initialTiles
 
 
     }

@@ -55,7 +55,7 @@
 
                     <p>
                         Please contact the requester, Joshua Introne, via email at <a
-                            href="mailto:jintrone@msu.edu">jintronee@msu.edu</a> if you have any questions or concerns.
+                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> if you have any questions or concerns.
                     </p>
 
                 </div>

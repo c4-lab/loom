@@ -15,12 +15,17 @@ class Session {
 
     }
 
+    def randomStringGenerator
+
     String name
     String type
     Date dateCreated
     TrainingSet trainingSet
     Experiment experiment
     State state
+    String fullCode
+    String doneCode
+    String waitingCode
 
 
     static constraints = {
@@ -37,6 +42,20 @@ class Session {
         copy.experiment = experiment
 
         return copy
+    }
+
+    def beforeInsert = {
+        println("Executing before insert...")
+        if (!fullCode) {
+            fullCode = randomStringGenerator.generateLowercase(12)
+        }
+        if (!doneCode) {
+            doneCode = randomStringGenerator.generateLowercase(12)
+        }
+        if (!waitingCode) {
+            waitingCode = randomStringGenerator.generateLowercase(12)
+        }
+
     }
 
 

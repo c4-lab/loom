@@ -9,6 +9,8 @@ class UrlMappings {
 
         "500"(view: '/error')
         "/not-found"(view: '/not-found')
+        "/is-done" (view: '/is-done')
+        "/is-full" (view: '/is-full')
 
         "/"(view: '/not-found')
         "/admin"(controller: 'login', action: 'auth')

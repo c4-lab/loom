@@ -7,6 +7,14 @@
                 <div class="col-sm-10">
 
                     <section class="content">
+                        <g:if test="${flash.message}">
+                            <p>
+                                ${flash.message}
+                            </p>
+
+
+                        </g:if>
+                        <g:else>
                         <div class="err-container">
 
                             <div class="text-center err-message">
@@ -20,6 +28,7 @@
                             </div>
 
                         </div>
+                        </g:else>
 
                     </section>
 

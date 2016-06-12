@@ -55,7 +55,7 @@ class SessionController {
                 int round = state.round
 
                 if (!userSession?.userAlias) {
-                    return redirect(controller:"logout",action:"index")
+                    return redirect(controller:"logout",action:"index",params:[reason:"full",session:session.id])
                 }
 
                 if (!userSession.isActive()) {
@@ -63,7 +63,7 @@ class SessionController {
                     userSession.save(flush: true)
                 }
 
-                boolean userSubmitted = UserRoundStory.countByUserAliasAndRound(userSession.userAlias, round) > 0
+                boolean userSubmitted = UserRoundStory.countByUserAliasAndRoundAndSession(userSession.userAlias, round,userSession.session) > 0
 
                 if (state.status == ExperimentService.Status.PAUSING || userSubmitted) {
                     return render("WAITING")
@@ -91,7 +91,11 @@ class SessionController {
                 return render(status: BAD_REQUEST)
             }
         } else if (session.state == Session.State.FINISHED) {
-            return render(["finishExperiment", [session: session.id]] as JSON)
+            if (params.internal) {
+                return render(["finishExperiment", [session: session.id]] as JSON)
+            } else {
+                return redirect(controller:"logout",action:"index",params:[reason:"done",session:session.id])
+            }
 
         }
         render(status: BAD_REQUEST)
@@ -111,6 +115,21 @@ class SessionController {
         }
 
         render(status: BAD_REQUEST)
+    }
+
+    def stopWaiting() {
+        log.debug("In stop waiting")
+        Session s = Session.get(params.session)
+        User u = springSecurityService.currentUser as User
+        UserSession us = UserSession.findBySessionAndUser(s,u)
+        log.debug("Started at : "+us.started.time)
+        log.debug("Current is :"+System.currentTimeMillis())
+        int totalMinutes = (System.currentTimeMillis() - us.started.time) / (60*1000)
+        println("Total is ${totalMinutes}")
+        render(view:"stop_waiting",model:[time:totalMinutes,user:u, session:s])
+
+
+
     }
 
     def submitExperiment() {
