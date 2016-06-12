@@ -39,9 +39,11 @@ class LogoutController {
        // session.currentUser = springSecurityService.currentUser
 
 
-        // TODO put any pre-logout code here
-        //redirect uri: SpringSecurityUtils.securityConfig.logout.filterProcessesUrl // '/j_spring_security_logout'
-        redirectStrategy.sendRedirect request, response, SpringSecurityUtils.securityConfig.logout.filterProcessesUrl // '/logoff'
+
+        String url = SpringSecurityUtils.securityConfig.logout.filterProcessesUrl+"?reason=${params.reason?:""}&session=${params.session?:""}"
+        redirectStrategy.sendRedirect request, response, url
+
+ // '/logoff'
 
         //TODO why is this critical???  Without this, the user session does not seem to be fully invalided
         request.logout()

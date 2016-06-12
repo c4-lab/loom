@@ -7,7 +7,7 @@
                     <div class="col-md-1"></div>
 
                     <div class="col-md-10">
-                        <g:hiddenField name="sessionId" value="${session.id}"/>
+                        <g:hiddenField id="sessionId" name="sessionId" value="${session.id}"/>
                     </div>
 
                     <div class="col-md-1"></div>
@@ -29,7 +29,7 @@
                             <div class="box-body">
                                 <loom:progressBar userCount="${edu.msu.mi.loom.UserSession.countBySessionAndState(session,"WAITING")}"
                                                   userMaxCount="${session.experiment.userCount}"/>
-
+                                <a href="javascript:void(0);" id="stop-waiting" class="btn btn-block btn-success">Stop waiting</a>
 
                             </div>
                         </div>
