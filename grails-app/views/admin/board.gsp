@@ -63,48 +63,54 @@
                             <div class="tab-content">
                                 <div class="active tab-pane" id="sessions">
                                     <g:each in="${sessions}" var="session">
-                                        <div class="post row">
-                                            <div class="user-block col-xs-10">
-                                                <span class='username'>
-                                                    <g:link controller="admin" action="view"
-                                                            params="[session: session.id]">${session.name}</g:link>
+                                        <div class="post">
+                                            <div class="row">
+                                                <div class="user-block col-xs-12">
+                                                    <span class='username'>
+                                                        <g:link controller="admin" action="view"
+                                                                params="[session: session.id]">${session.name}</g:link>
 
-                                                </span>
-                                                <span class='description'>Created - <g:formatDate
-                                                        format="yyyy/MM/dd HH:mm"
-                                                        date="${session.dateCreated}"/></span>
-                                                <span class='description'>
-                                                    Experiment: ${session.experiment.name}(${session.experiment.id}),
-                                                    Training: ${session.trainingSet.name}(${session.trainingSet.id}),
-                                                    Thread: ${sessionState[session.id]?"Up":"Down"}
-                                                    Status: <b>${session.state?:"INACTIVE"}</b>
-                                                </span>
+                                                    </span>
+                                                    <span class='description'>Created - <g:formatDate
+                                                            format="yyyy/MM/dd HH:mm"
+                                                            date="${session.dateCreated}"/></span>
+                                                    <span class='description'>
+                                                        Experiment: ${session.experiment.name}(${session.experiment.id}),
+                                                        Training: ${session.trainingSet.name}(${session.trainingSet.id}),
+                                                        Thread: ${sessionState[session.id] ? "Up" : "Down"}
+                                                        Status: <b>${session.state ?: "INACTIVE"}</b>
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="col-xs-2">
-                                                <g:link controller="admin" action="deleteExperiment"
-                                                        class='btn btn-primary btn-block'
-                                                        params="[sessionId: session.id, type: ExpType.SESSION]">
-                                                    Delete
-                                                </g:link> <br/>
-                                                <g:link controller="admin" action="restartSession"
-                                                        class='btn btn-primary btn-block'
-                                                        params="[sessionId: session.id, type: ExpType.SESSION]">
-                                                    Restart
-                                                </g:link> <br/>
-                                                <g:link controller="admin" action="launchExperiment"
-                                                        class='btn btn-primary btn-block'
-                                                        params="[sessionId: session.id, type: ExpType.SESSION]">
-                                                    Launch
-                                                </g:link> <br/>
-                                                <g:link controller="admin" action="stopExperiment"
-                                                        class='btn btn-primary btn-block'
-                                                        params="[sessionId: session.id, type: ExpType.SESSION]">
-                                                    Stop
-                                                </g:link> <br/>
+
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <g:link controller="admin" action="deleteExperiment"
+                                                            class='btn btn-primary'
+                                                            params="[sessionId: session.id, type: ExpType.SESSION]">
+                                                        Delete
+                                                    </g:link>
+                                                    <g:link controller="admin" action="restartSession"
+                                                            class='btn btn-primary'
+                                                            params="[sessionId: session.id, type: ExpType.SESSION]">
+                                                        Restart
+                                                    </g:link>
+                                                    <g:link controller="admin" action="launchExperiment"
+                                                            class='btn btn-primary'
+                                                            params="[sessionId: session.id, type: ExpType.SESSION]">
+                                                        Launch
+                                                    </g:link>
+                                                    <g:link controller="admin" action="stopExperiment"
+                                                            class='btn btn-primary'
+                                                            params="[sessionId: session.id, type: ExpType.SESSION]">
+                                                        Stop
+                                                    </g:link>
+                                                </div>
                                             </div>
                                         </div>
                                     </g:each>
                                 </div>
+
                                 <div class="tab-pane" id="experiments">
                                     <g:each in="${experiments}" var="experiment">
                                         <div class="post row">
@@ -117,16 +123,22 @@
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
                                                         date="${experiment.dateCreated}"/>, Rounds: ${experiment.roundCount}, Users: ${experiment.userCount}</span><br/>
-                                                <span class='description'>${experiment.story.tails.sort{it.text_order}.text.join(" ")}</span>
+                                                <span class='description'>${experiment.story.tails.sort {
+                                                    it.text_order
+                                                }.text.join(" ")}</span>
                                             </div>
+
                                             <div class="user-block col-xs-2">
 
                                                 <a href="javascript:void(0);"
-                                                   class="launch-experiment btn btn-primary btn-block"><span style="display:none">${experiment.id}</span><b>Launch</b></a> <br/>
+                                                   class="launch-experiment btn btn-primary btn-block"><span
+                                                        style="display:none">${experiment.id}</span><b>Launch</b>
+                                                </a> <br/>
                                             </div>
                                         </div>
                                     </g:each>
                                 </div>
+
                                 <div class="tab-pane" id="trainings">
                                     <g:each in="${trainings}" var="training">
                                         <div class="post">
@@ -141,11 +153,11 @@
                                                     </g:link>
                                                 </span>
                                                 <g:each in="${training.trainings}" var="t">
-                                                   <span class='description'>
-                                                       <b>Training: ${t.name} (${t.id})</b></br>
-                                                       ${t.stories.first().getText()}
+                                                    <span class='description'>
+                                                        <b>Training: ${t.name} (${t.id})</b></br>
+                                                    ${t.stories.first().getText()}
 
-                                                   </span>
+                                                    </span>
                                                 </g:each>
                                                 <g:each in="${training.simulations}" var="s">
                                                     <span class='description'>
@@ -154,7 +166,6 @@
 
                                                     </span>
                                                 </g:each>
-
 
                                             </div>
 
@@ -169,8 +180,8 @@
                     </div>
                 </div>
 
-    </section>
-    </div>
+            </section>
+        </div>
 
         <div class="control-sidebar-bg"></div>
     </div>
@@ -187,14 +198,12 @@
             <g:form enctype="multipart/form-data" name="upload-form" controller="admin" action="uploadExperiment">
                 <div class="modal-body">
 
-
                     <div class="form-group">
                         <label for="inputFile">File input</label>
                         <input type="file" id="inputFile" name="inputFile">
 
                         <p class="help-block">Select experiment file (*.json).</p>
                     </div>
-
 
                 </div>
 
@@ -223,7 +232,7 @@
                         <label for="trainingSetSelect">TrainingSet</label>
                         <g:select name="trainingSet" id="trainingSetSelect"
                                   from="${trainings}" optionKey="id"
-                                  optionValue="name" noSelection="${['null':'Select One...']}"/>
+                                  optionValue="name" noSelection="${['null': 'Select One...']}"/>
                     </div>
 
                 </div>
@@ -253,15 +262,15 @@
 
                     <div class="form-group">
                         <label for="trainingSetName">TrainingSet</label>
-                        <g:textField  name="name" id="trainingSetName" placeholder="Training Set Name"/>
+                        <g:textField name="name" id="trainingSetName" placeholder="Training Set Name"/>
                     </div>
+
                     <div class="form-group">
                         <label for="inputFile">File input</label>
                         <input type="file" id="trainingInputFile" name="inputFile">
 
                         <p class="help-block">Select experiment file (*.json).</p>
                     </div>
-
 
                 </div>
 

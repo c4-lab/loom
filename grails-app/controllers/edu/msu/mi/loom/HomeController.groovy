@@ -19,6 +19,7 @@ class HomeController {
 
 
     def index() {
+        log.debug("In home/index")
         User u = User.findByUsername(params.workerId)
         def active = UserSession.findByUser(u)?.room
         if (session?.state) {

@@ -128,6 +128,8 @@ grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/home'
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
         '/index.gsp'     : ['permitAll'],
         '/not-found': ['permitAll'],
+        '/is-full': ['permitAll'],
+        '/is-done': ['permitAll'],
         '/assets/**'     : ['permitAll'],
         '/**/js/**'      : ['permitAll'],
         '/**/css/**'     : ['permitAll'],

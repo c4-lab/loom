@@ -7,6 +7,11 @@ $(document).ready(function () {
         $("#training-set-file-upload-modal").modal('show');
     });
 
+    $("#stop-waiting").click(function() {
+       shouldLogout = false;
+        window.location="/loom/session/stopWaiting?session="+$("#sessionId").val();
+    });
+
     $("#clone-session").click(function () {
         $.ajax({
             url: "/loom/admin/cloneSession",
