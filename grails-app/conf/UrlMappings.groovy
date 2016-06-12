@@ -8,6 +8,9 @@ class UrlMappings {
         }
 
         "500"(view: '/error')
+        "404"(view: '/not-found')
+        "403"(view: '/not-found')
+        "401"(view: '/not-found')
         "/not-found"(view: '/not-found')
         "/is-done" (view: '/is-done')
         "/is-full" (view: '/is-full')
