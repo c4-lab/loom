@@ -228,7 +228,7 @@ class ExperimentService {
             Session.withNewSession {
                 s = Session.get(session.id)
                 int count = UserSession.countBySessionAndState(s, "WAITING")
-                if (count == s.experiment.userCount) {
+                if (count >= s.experiment.userCount) {
                     log.debug("Ready to go!")
                     ((Timer) waitingTimer[s.id]).cancel()
                     waitingTimer.remove(s.id)
