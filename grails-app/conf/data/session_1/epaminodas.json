@@ -1,7 +1,7 @@
 {
   "experiment": {
-    "numberofrounds": 3,
-    "timeperround": 30,
+    "numberofrounds": 12,
+    "timeperround": 90,
     "initialnumberoftiles": 4,
     "stories": [
       {
@@ -29,7 +29,7 @@
           "and that he should have put the butter in a leaf",
           "so that it would have gotten home safe and sound."
         ],
-        "title": "The Old Man"
+        "title": "Epaminondas"
       }
     ]
   }
