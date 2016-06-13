@@ -1,0 +1,38 @@
+{
+  "experiment": {
+    "numberofrounds": 12,
+    "timeperround": 90,
+    "initialnumberoftiles": 4,
+    "stories": [
+      {
+        "data": [
+          "once upon a time",
+          "an old man lived with his wife.",
+          "one day,",
+          "after he had held a service in memory of his ancestors,",
+          "one of their neighbours sent them a present of some food.",
+          "he sent them cooked rice and vegetables,",
+          "but only one cake.",
+          "they were unwilling to divide it",
+          "and so they agreed that the first to speak should forfeit the cake.",
+          "so they left it on the table,",
+          "and sat gazing at it in silence.",
+          "just then a thief broke into the house,",
+          "and when he saw the old man and his wife sitting there in silence,",
+          "he concluded that they must be blind and deaf.",
+          "so he calmly helped himself to everything he could find,",
+          "and then began a violent assault on the old woman.",
+          "but her husband just sat and watched in silence.",
+          "at last his wife could stand it no longer.",
+          "she shouted at him,",
+          "\"you heartless old man!",
+          "you sit there quietly while this fellow beats me!\"",
+          "then the old man said,",
+          "\"the cake is mine,\"",
+          "and coolly popped it into his mouth."
+        ],
+        "title": "Man and Wife"
+      }
+    ]
+  }
+}
