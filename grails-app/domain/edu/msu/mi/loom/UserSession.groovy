@@ -9,12 +9,14 @@ class UserSession {
     String userAlias
     String completionCode
     Date started
+    Date stoppedWaiting
     String state = "WAITING"
 
 
     static constraints = {
         userAlias nullable: true
         completionCode nullable: true
+        stoppedWaiting nullable: true
         state nullable: true
     }
 
