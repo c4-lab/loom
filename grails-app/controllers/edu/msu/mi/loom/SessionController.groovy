@@ -47,6 +47,8 @@ class SessionController {
         Session s = Session.get(params.session)
         User u = springSecurityService.currentUser as User
         UserSession us = UserSession.findBySessionAndUser(s,u)
+        us.stoppedWaiting = new Date()
+        us.save(flush:true)
 
         int totalMinutes = (System.currentTimeMillis() - us.started.time) / (60*1000)
 
