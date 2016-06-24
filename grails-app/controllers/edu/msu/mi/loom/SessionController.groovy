@@ -15,90 +15,99 @@ class SessionController {
 
     def experimentService
     def springSecurityService
-    def statService
     def sessionService
 
 
+
+
+
+    def startWaiting() {
+        User user = springSecurityService.currentUser as User
+        Session session = Session.get(params.session)
+        UserSession us = UserSession.findByUserAndSession(user, session)
+        if (!us) {
+            //the session hasn't started yet
+            log.debug("Attempt to register user $user with ${session.id}")
+            us = new UserSession(user: user, session: session)
+            if (!us.save(flush: true)) {
+                log.debug(us.errors as String)
+            }
+        } else {
+            if (us.state != "WAITING") {
+                us.state = "WAITING"
+                us.save(flush:true)
+            }
+        }
+
+        return render(view: 'waiting_room', model: [session: session, username: user.username])
+    }
+
+    def stopWaiting() {
+        log.debug("In stop waiting")
+        Session s = Session.get(params.session)
+        User u = springSecurityService.currentUser as User
+        UserSession us = UserSession.findBySessionAndUser(s,u)
+
+        int totalMinutes = (System.currentTimeMillis() - us.started.time) / (60*1000)
+
+        render(view:"stop_waiting",model:[time:totalMinutes,user:u, session:s])
+    }
+
+
+
+
+    //Just neighbors!
+    def experimentContent() {
+        def sessionId = params.session
+        Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
+        def model =  experimentService.getNeighborModel(session)
+
+        return render(template: 'experiment_content', model: model)
+    }
+
     def experiment() {
+
         def sessionId = params.session
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
         User user = springSecurityService.currentUser as User
-        log.debug("Got user $user")
-        if (!sessionService.checkSessionAvailability(user,session)) {
-            return redirect(controller:"logout",action:"index")
-        } else if (session.state == Session.State.PENDING) {
 
-            UserSession us = UserSession.findByUserAndSession(user, session)
-            if (!us) {
-                //the session hasn't started yet
-                log.debug("Attempt to register user $user with ${session.id}")
-                us = new UserSession(user: user, session: session)
-                if (!us.save(flush: true)) {
-                    log.debug(us.errors as String)
-                }
-            } else if (!us.isWaiting()) {
-                us.state = "WAITING"
-                if (!us.save(flush: true)) {
-                    log.debug(us.errors as String)
-                }
+        //SessionAvailability availability = sessionService.checkSessionAvailability(user, session)
+        if (session.state == Session.State.PENDING) {
+            if (sessionService.hasTraining(user, session)) {
+                return redirect(action: "startWaiting", params: [session:session.id])
+            } else {
+                log.debug("User ${user.username} lacks training")
+                return redirect(controller: "logout", action: "index", params: [reason: "training", sessionId: session.id])
             }
-
-            return render(view: 'waiting_room', model: [session: session, username:user.username])
 
         } else if (session.state == Session.State.ACTIVE) {
-            if (experimentService.getExperimentStatus(session)) {
-
-                def state = experimentService.getExperimentStatus(session)
-
-                //TODO allow a new user to join if one is missing
-                UserSession userSession = UserSession.findByUserAndSession(user, session)
-                int round = state.round
-
-                if (!userSession?.userAlias) {
-                    return redirect(controller:"logout",action:"index",params:[reason:"full",session:session.id])
-                }
-
-                if (!userSession.isActive()) {
-                    userSession.state = "ACTIVE"
-                    userSession.save(flush: true)
-                }
-
-                boolean userSubmitted = UserRoundStory.countByUserAliasAndRoundAndSession(userSession.userAlias, round,userSession.session) > 0
-
-                if (state.status == ExperimentService.Status.PAUSING || userSubmitted) {
-                    return render("WAITING")
-
-                } else if (state.status == ExperimentService.Status.RUNNING) {
-                    def model = [userList: experimentService.getUserStateModel(session), round: round, session: session]
-
-                    if (params.internal) {
-                        return render(template: 'experiment_content', model: model)
-                    } else {
-                        //this is the current round according to our internal clock
-                        long timeRemaining = Math.max(0, (session.experiment.roundTime - (System.currentTimeMillis() - state.start as long) / 1000) as Integer)
-
-                        //user is possibly coming back to the site after being away
-                        //place the user back into the game at the right point
-
-                        model.timeRemaining = timeRemaining
-                        log.debug("Return model ${model.timeRemaining}")
-                        return render(view: 'experiment', model: model)
-                    }
-                }
-
-            } else {
-                //shouldn't ever get here
-                return render(status: BAD_REQUEST)
+            if (sessionService.userInSession(user, session)) {
+                def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
+                return render(view: 'experiment', model: model)
             }
         } else if (session.state == Session.State.FINISHED) {
-            if (params.internal) {
-                return render(["finishExperiment", [session: session.id]] as JSON)
-            } else {
-                return redirect(controller:"logout",action:"index",params:[reason:"done",session:session.id])
-            }
-
+            redirect(action: 'finished', params: [session: session.id])
+        } else {
+            render(status: BAD_REQUEST)
         }
-        render(status: BAD_REQUEST)
+    }
+
+    def checkExperimentRoundState() {
+        Session s = Session.get(params.sessionId)
+        if (s.state == Session.State.FINISHED) {
+            render("finishExperiment")
+        } else {
+            ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
+            if (status.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
+
+                render("pausing")
+            } else {
+
+                redirect(action:"experimentContent",params:[session:params.sessionId])
+            }
+        }
+
+
     }
 
     def checkExperimentReadyState() {
@@ -117,20 +126,7 @@ class SessionController {
         render(status: BAD_REQUEST)
     }
 
-    def stopWaiting() {
-        log.debug("In stop waiting")
-        Session s = Session.get(params.session)
-        User u = springSecurityService.currentUser as User
-        UserSession us = UserSession.findBySessionAndUser(s,u)
-        log.debug("Started at : "+us.started.time)
-        log.debug("Current is :"+System.currentTimeMillis())
-        int totalMinutes = (System.currentTimeMillis() - us.started.time) / (60*1000)
-        println("Total is ${totalMinutes}")
-        render(view:"stop_waiting",model:[time:totalMinutes,user:u, session:s])
 
-
-
-    }
 
     def submitExperiment() {
 
@@ -143,7 +139,7 @@ class SessionController {
             def user = springSecurityService.currentUser as User
             List submittedTails = userTails ? userTails.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
             sessionService.saveUserStory(session, roundNumber, submittedTails, user)
-            redirect(action: 'experiment', params: [session: session.id, internal: true])
+            render(status:OK)
 
         } else {
             render(status: BAD_REQUEST)

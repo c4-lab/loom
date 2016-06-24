@@ -48,6 +48,11 @@ class UrlMappings {
             action = "experiment"
         }
 
+        "/session/checkExperimentRoundState/$sessionId" {
+            controller = "session"
+            action = "checkExperimentRoundState"
+        }
+
         "/session/finishExperiment/$session" {
             controller = "session"
             action = "finishExperiment"

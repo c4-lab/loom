@@ -56,7 +56,7 @@
                             <ul class="dvSource g_list" id="sort1">
                                 <g:each in="${tts}" var="tt">
                                     <li class="draggable ui-state-default tile-available"
-                                        drag-id="${tt.id}">${tt.text}</li>
+                                        drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
                                 </g:each>
                             </ul>
                         </div>
@@ -78,7 +78,7 @@
                                         <g:each in="${tailsList}" var="tail">
                                             <li class="draggable ui-state-default ui-draggable ui-draggable-handle purple"
                                                 drag-id="${tail.id}">
-                                                <span>${tail.text}</span>
+                                                <span class="tile-text">${tail.text}</span>
                                             </li>
                                         </g:each>
                                     </g:if>
