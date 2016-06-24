@@ -14,6 +14,7 @@ class BootStrap {
     def sessionService
     def trainingSetService
     def mturkService
+    def adminService
 
     def init = { servletContext ->
         environments {
@@ -22,14 +23,14 @@ class BootStrap {
 
                 def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"A training set");
                 mturkService.createQualification(trainingset)
-                def experiment = experimentService.createExperiment(parseJSONToText().experiment)
+                def experiment = adminService.createExperiment(parseJSONToText().experiment)
                 final File file = new File("grails-app/conf/data/session_1/example.graphml")
                 InputStream inputStream = new FileInputStream(file)
                 HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(inputStream)
 
-                experimentService.setExperimentNetwork(nodeStoryMap, experiment.id)
+                adminService.setExperimentNetwork(nodeStoryMap, experiment.id)
 
-                def session = experimentService.createSession(experiment,trainingset)
+                def session = adminService.createSession(experiment,trainingset)
                 sessionService.launchSession(session)
                 createTestUsers(trainingset)
 

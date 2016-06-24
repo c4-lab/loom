@@ -1,8 +1,8 @@
 {
   "experiment": {
-    "numberofrounds": 3,
-    "timeperround": 10,
-    "initialnumberoftiles": 4,
+    "numberofrounds": 5,
+    "timeperround": 30,
+    "initialnumberoftiles": 6,
     "stories": [
       {
         "data": [

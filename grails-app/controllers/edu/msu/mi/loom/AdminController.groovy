@@ -22,6 +22,7 @@ class AdminController {
     def exportService
     def trainingSetService
     def sessionService
+    def adminService
 
     static allowedMethods = [
             board           : 'GET',
@@ -48,7 +49,7 @@ class AdminController {
     def launchExperiment() {
         Experiment exp = Experiment.get(params.experimentId)
         TrainingSet ts = TrainingSet.get(params.trainingSet)
-        def session = experimentService.createSession(exp,ts)
+        def session = adminService.createSession(exp,ts)
         sessionService.launchSession(session)
         redirect(action: 'board')
     }
@@ -59,7 +60,7 @@ class AdminController {
             def text = fileService.readFile(file as MultipartFile)
             def json = jsonParserService.parseToJSON(text)
             if (json) {
-                def experiment = experimentService.createExperiment(json.experiment)
+                def experiment = adminService.createExperiment(json.experiment)
                 if (experiment.id) {
                     return redirect(action: 'completeExperimentCreation', params: [experiment: experiment.id, initNbrOfTiles: experiment.initialNbrOfTiles])
                 }
@@ -91,7 +92,7 @@ class AdminController {
             def file = request.getFile('graphmlFile').inputStream
             HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(file)
 
-            def experiment = experimentService.setExperimentNetwork(nodeStoryMap, params.experimentId)
+            def experiment = adminService.setExperimentNetwork(nodeStoryMap, params.experimentId)
             if (experiment.enabled) {
                 log.debug("Experiment with id ${experiment.id} is enabled.")
             } else {
@@ -115,7 +116,7 @@ class AdminController {
         def type = params.type
 
         if (params.experimentId && params.type) {
-            experimentService.deleteExperiment(id, type)
+            adminService.deleteExperiment(id, type)
         }
 
         redirect(action: 'board')
@@ -174,7 +175,7 @@ class AdminController {
             def session = Session.get(sessionId)
 
             if (session) {
-                def clone = experimentService.cloneExperiment(session)
+                def clone = adminService.cloneExperiment(session)
 
                 if (clone.id) {
                     render(status: OK, text: [session: clone] as JSON)
