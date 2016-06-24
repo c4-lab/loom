@@ -59,9 +59,14 @@ class SessionService {
 
     def saveUserStory(Session session, int roundNumber, List<Tile> tiles, User user) {
         new UserRoundStory(time: new Date(), session: session, round: roundNumber, currentTails: tiles, userAlias: lookupUserAlias(session, user)).save(flush: true)
+        experimentService.userSubmitted(user,session, roundNumber)
     }
 
-    def checkSessionAvailability(User u, Session s) {
+    def userInSession(User u, Session s) {
+        UserSession.findByUserAndSession(u,s)
+    }
+
+    def hasTraining(User u, Session s) {
         u && s && UserTrainingSet.countByUserAndTrainingSetAndComplete(u,s.trainingSet,true)
     }
 }

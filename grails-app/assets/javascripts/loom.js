@@ -90,12 +90,13 @@ function initExperiment() {
     if ($("#experiment-content-wrapper").length > 0) {
         initDragNDrop();
         initTiles();
-        removeTile();
-        resetExperiment();
-        submitExperiment();
+       //resetExperiment();
+        //submitExperiment();
         localStorage.setItem('remainingTime', 'null');
         clearInterval(roundInterval);
+        initRound();
         initExperimentTimer();
+        blockIfPaused();
 
     }
 }
@@ -104,7 +105,8 @@ function initTraining() {
     if ($("#training-content-wrapper").length > 0) {
         initTiles();
         initDragNDrop();
-        removeTile();
+        initMyDragNDrop();
+        //removeTile();
         resetTraining();
         submitTraining();
         updateTrainingScore();
@@ -115,9 +117,10 @@ function initTraining() {
 function initSimulation() {
     if ($("#simulationMainContainer").length > 0) {
         initDragNDrop();
+        initMyDragNDrop();
         initTiles();
         resetSimulation();
-        removeTile();
+        //removeTile();
         submitSimulation();
         localStorage.setItem('remainingTime', 'null');
         clearInterval(roundInterval);
@@ -140,7 +143,18 @@ function initExperimentTimer() {
     startExperimentTimer(duration, display);
 }
 
-function initTiles() {
+function initRound() {
+    var round = Number($("#roundNumber").val())+1;
+    $("#roundNumberTarget").text(""+round)
+}
+
+function blockIfPaused() {
+    if ($("#paused").val()=="true") {
+       $("#neighborsStories").block("<h1>Waiting for neighbors...</h1>")
+    }
+}
+
+function initTilesOld() {
     console.log("Init tiles...");
     $("#dvSourceContainer").find(".tile-available").each(function () {
         var sourceTileId = $(this).attr('drag-id');
@@ -149,7 +163,7 @@ function initTiles() {
             if ($(this).attr('drag-id') == sourceTileId) {
                 $("#dvSourceContainer").find("[drag-id='" + sourceTileId + "']").removeClass('tile-available').addClass('blue');
             }
-            addRemoveBtn(sourceTileId);
+
         });
     });
     //$("#dvDest").find("li.purple").each(function() {
@@ -158,29 +172,59 @@ function initTiles() {
 
 }
 
+function initTiles() {
+    $("#sort2").find(".purple").each(function () {
+        var destTileId = $(this).attr('drag-id');
+        var matched = $("#dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        if (matched.length > 0) {
+            matched.each(function () {
+                $(this).removeClass('tile-available').addClass('blue');
+            });
+            addRemoveBtn($(this));
+        } else {
+            removeRemoveBtn($(this));
+        }
+    });
+}
+
 function markAsDropped(source) {
     $(".dvSource").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
     $("#sort2").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
 }
 
-function addRemoveBtn(source) {
-    var elem = $("#sort2").find("[drag-id='" + source + "']");
-    elem.text('');
-    var elem2 = $(".dvSource").find("[drag-id='" + source + "']").first();
-    elem.append("<span>" + elem2.text() + "</span>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a>");
+function addRemoveBtn(elt) {
+    if (!($(elt).find("a").length)) {
+        elt.append("<span class='removeTile'>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a></span>");
+        removeTileEvent(elt);
+    }
+}
+
+function removeRemoveBtn(elt) {
+    $(elt).find("span.removeTile").remove();
+}
+
+function removeTile(elt) {
+    var toremove = $(elt).closest("li");
+    toremove.remove();
+    console.log(toremove.attr('id'));
+    var elem = $(".dvSource").find("[drag-id='" + toremove.attr('drag-id') + "']");
+    elem.removeClass('blue');
+    elem.addClass('tile-available');
 
 }
 
-function removeTile() {
-    $("#sort2").find("li a").click(function (e) {
-        $(this).parent().remove();
-        console.log($(this).parent().attr('id'));
-        var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
-        //elem.css("backgroundColor", "#e6e6e6");
-        elem.removeClass('blue');
-        elem.addClass('tile-available');
+function removeTileEvent(elt) {
+    $(elt).find("a").click(function (e) {
+        var toremove = $(this).closest("li");
+        removeTile(toremove);
         updateTrainingScore();
+        //toremove.remove();
+        //console.log(toremove.attr('id'));
+        //var elem = $(".dvSource").find("[drag-id='" + toremove.attr('drag-id') + "']");
+        //elem.removeClass('blue');
+        //elem.addClass('tile-available');
+        //updateTrainingScore();
     });
 }
 
@@ -199,11 +243,12 @@ function initDragNDrop() {
         stop: function (event,ui) {
             console.log($(event.target).attr("drag-id"));
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
-                markAsDropped($(event.target).attr("drag-id"));
-                addRemoveBtn($(event.target).attr("drag-id"));
-                removeTile();
+                var source = $(event.target).attr("drag-id");
+                markAsDropped(source);
+                addRemoveBtn($("#sort2").find("[drag-id='" + source + "']"));
+                //removeTile();
                 console.log('receive');
-                var elems = $("#dvDest").find('ul li span');
+                var elems = $("#dvDest").find('ul li span.tile-text');
                 var text_all = elems.map(function () {
                     return $(this).text();
                 }).get().join(";");
@@ -216,6 +261,11 @@ function initDragNDrop() {
         }
     });
 
+
+   // $(".dvSource, #sort2").disableSelection();
+}
+
+function initMyDragNDrop() {
     $("#sort2").sortable({
         opacity: 0.5,
         cursor: "crosshair",
@@ -236,7 +286,6 @@ function initDragNDrop() {
             updateTrainingScore();
         }
     });
-   // $(".dvSource, #sort2").disableSelection();
 }
 
 function updateTrainingScore() {
@@ -265,12 +314,13 @@ function updateTrainingScore() {
 
 function resetTraining() {
     $("#reset-training").click(function () {
-        $("#sort2").find("li a").each(function () {
-            $(this).parent().remove();
-            console.log($(this).parent().attr('id'));
-            var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
-
-            elem.removeClass('blue').addClass('tile-available');
+        $("#sort2").find("li").each(function () {
+            removeTile($(this));
+            //$(this).parent().remove();
+            //console.log($(this).parent().attr('id'));
+            //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+            //
+            //elem.removeClass('blue').addClass('tile-available');
         });
         $("#training-score").text("0.0")
     });
@@ -341,23 +391,22 @@ function startPingingForNextRound() {
     var session = $("#session").val();
     pingTimer = setInterval(function() {
         $.ajax({
-            url: "/loom/session/s/"+session,
+            url: "/loom/session/checkExperimentRoundState/"+session,
             type: 'GET',
-            timeout: 999,
-            data: {
-                internal:true
-            }
+            timeout: 999
         }).success(function (data) {
-            if (data.indexOf("finishExperiment") >=0) {
+            if (data=="finishExperiment") {
                 shouldLogout = false;
                 clearInterval(pingTimer);
                 console.log("/loom/experiment/finishExperiment/" + session);
                 window.location = "/loom/session/finishExperiment/" + session;
 
-            } else if (data!="WAITING") {
+            } else if (data!="pausing") {
                 console.log("Processing round data");
                 clearInterval(pingTimer);
                 processRoundData(data)
+            } else {
+                console.log(data)
             }
         }).error(function (data) {
             //check if something is going on here
@@ -519,25 +568,22 @@ function submitExperiment() {
 
 function processRoundData(data) {
     setTimeout(function () {
-        $("#experiment-content-wrapper").html(data);
+        $("#neighborsStories").html(data);
         initExperiment();
-        $.unblockUI()
     }, 1000);
 }
 
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
+    console.log("ROUND: "+$("#roundNumber").val());
     clearInterval(roundInterval);
     var elems = $("#dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
 
-    $.blockUI({
-        message: '<h1>Waiting for other participants...</h1>'
-
-    });
     var session =  $("#session").val();
+    $("#neighborsStories").block({message:"<em>Refreshing neighbors...</em>"});
     $.ajax({
         url: "/loom/session/submitExperiment",
         type: 'POST',
@@ -548,14 +594,13 @@ function submitExperimentAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        if (data.indexOf("WAITING") >=0) {
-          startPingingForNextRound()
-        } else if (data.indexOf("finishExperiment") >= 0) {
+       if (data.indexOf("finishExperiment") >= 0) {
             shouldLogout = false;
             console.log("/loom/experiment/finishExperiment/" + session);
             window.location = "/loom/session/finishExperiment/" + session;
         } else {
-            processRoundData(data);
+            //processRoundData(data);
+            startPingingForNextRound();
 
         }
     }).error(function () {
@@ -567,7 +612,7 @@ function submitExperimentAjax() {
 }
 
 function resetExperiment() {
-    $("#reset-experiment").click(function () {
-        $("#dvDest").find('ul li').remove();
-    });
+    //$("#reset-experiment").click(function () {
+    //    $("#dvDest").find('ul li').remove();
+    //});
 }
