@@ -214,6 +214,9 @@ function removeTile(elt) {
 
 }
 
+
+
+
 function removeTileEvent(elt) {
     $(elt).find("a").click(function (e) {
         var toremove = $(this).closest("li");
@@ -248,11 +251,12 @@ function initDragNDrop() {
                 addRemoveBtn($("#sort2").find("[drag-id='" + source + "']"));
                 //removeTile();
                 console.log('receive');
-                var elems = $("#dvDest").find('ul li span.tile-text');
-                var text_all = elems.map(function () {
-                    return $(this).text();
-                }).get().join(";");
-                $("#tails").val(text_all);
+                //updateTrainingScore();
+                //var elems = $("#dvDest").find('ul li span.tile-text');
+                //var text_all = elems.map(function () {
+                //    return $(this).text();
+                //}).get().join(";");
+                //$("#tails").val(text_all);
             }
 
            // console.log($("#trainingForm .ui-draggable").map(function() {return $(this).attr("drag-id")}).get().join(";"))
@@ -278,11 +282,7 @@ function initMyDragNDrop() {
             $(event.target).find('li').css("white-space", "nowrap");
         },
         stop: function (event,ui) {
-            var elems = $("#dvDest").find('ul li span');
-            var text_all = elems.map(function () {
-                return $(this).text();
-            }).get().join(";");
-            $("#tails").val(text_all);
+
             updateTrainingScore();
         }
     });
@@ -290,6 +290,11 @@ function initMyDragNDrop() {
 
 function updateTrainingScore() {
     if ($("#training-name").length > 0) {
+        var elems = $("#dvDest").find('ul li span.tile-text');
+        var text_all = elems.map(function () {
+            return $(this).text();
+        }).get().join(";");
+        $("#tails").val(text_all);
         $.ajax({
             url: "/loom/training/getTrainingScore",
             type: 'POST',
@@ -322,7 +327,8 @@ function resetTraining() {
             //
             //elem.removeClass('blue').addClass('tile-available');
         });
-        $("#training-score").text("0.0")
+        updateTrainingScore();
+        //$("#training-score").text("0.0")
     });
 
 }
