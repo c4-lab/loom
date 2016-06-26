@@ -8,7 +8,7 @@
 
                     <section class="content">
                         <p class="text-center">
-                            Sorry, this session is full! Please look for more LOOM HITs in the future.
+                            Sorry, this session is full! Note, this can happen even if you made it into the waiting room. Please look for more LOOM HITs in the future.
                         </p>
                         <g:if test="${params.code}">
                             <p class="text-center"> Please enter the following code into your HIT to receive credit for trying!</p>
