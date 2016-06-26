@@ -83,12 +83,20 @@ class SessionController {
             }
 
         } else if (session.state == Session.State.ACTIVE) {
-            if (sessionService.userInSession(user, session)) {
+            if (sessionService.userInSessionRun(user, session)) {
                 def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
                 return render(view: 'experiment', model: model)
+            } else {
+                return redirect(controller: "logout", action: "index", params: [reason: "full", sessionId: session.id])
             }
         } else if (session.state == Session.State.FINISHED) {
-            redirect(action: 'finished', params: [session: session.id])
+            if (sessionService.userInSessionRun(user, session)) {
+                redirect(action: 'finished', params: [session: session.id])
+            } else {
+                return redirect(controller: "logout", action: "index", params: [reason: "done", sessionId: session.id])
+            }
+
+
         } else {
             render(status: BAD_REQUEST)
         }

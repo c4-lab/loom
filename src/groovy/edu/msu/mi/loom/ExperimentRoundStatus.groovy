@@ -59,5 +59,9 @@ class ExperimentRoundStatus {
         currentStatus = Status.PAUSING
     }
 
+    public String toString() {
+        "Status: Round ${round}, Status ${currentStatus} ${currentStatus==Status.PAUSING?", ${submitted.size()} of $userCount submitted":""}"
+    }
+
 
 }

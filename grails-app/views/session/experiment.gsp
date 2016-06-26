@@ -24,8 +24,8 @@
                             <div class="box-header with-border">
                                 <div class="row">
                                     <div class="col-xs-10">
-                                        <h3 class="box-title">Round <span
-                                                id="roundNumberTarget">...</span> of ${loomSession.experiment.roundCount}
+                                        <h3 class="box-title">Round <span id="roundNumberTarget">...</span>
+                                            of ${loomSession.experiment.roundCount}
                                         </h3>
                                     </div>
 
