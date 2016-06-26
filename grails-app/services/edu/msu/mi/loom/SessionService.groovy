@@ -31,7 +31,7 @@ class SessionService {
     def assignAliasesAndMakeActive(Session session) {
         List<String> aliases = session.experiment.initialStories.collect {it.alias}
         Collections.shuffle(aliases)
-        List<UserSession> sessions = UserSession.findAllBySessionAndState(session,"WAITING")
+        List<UserSession> sessions = UserSession.findAllBySessionAndState(session,"WAITING").sort{it.started}
 
         aliases.each {
             UserSession s = sessions.pop()
@@ -62,8 +62,8 @@ class SessionService {
         experimentService.userSubmitted(user,session, roundNumber)
     }
 
-    def userInSession(User u, Session s) {
-        UserSession.findByUserAndSession(u,s)
+    def userInSessionRun(User u, Session s) {
+        UserSession.findByUserAndSessionAndUserAliasIsNotNull(u,s)
     }
 
     def hasTraining(User u, Session s) {
