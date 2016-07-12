@@ -40,7 +40,7 @@ class LogoutController {
 
 
 
-        String url = SpringSecurityUtils.securityConfig.logout.filterProcessesUrl+"?reason=${params.reason?:""}&session=${params.session?:""}"
+        String url = SpringSecurityUtils.securityConfig.logout.filterProcessesUrl+"?reason=${params.reason?:""}&session=${params.sessionId?:""}"
         redirectStrategy.sendRedirect request, response, url
 
  // '/logoff'
