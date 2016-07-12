@@ -91,7 +91,8 @@ class SessionController {
             }
         } else if (session.state == Session.State.FINISHED) {
             if (sessionService.userInSessionRun(user, session)) {
-                redirect(action: 'finished', params: [session: session.id])
+                log.debug("User finished...")
+                redirect(action: 'finishExperiment', params: [session: session.id])
             } else {
                 return redirect(controller: "logout", action: "index", params: [reason: "done", sessionId: session.id])
             }
