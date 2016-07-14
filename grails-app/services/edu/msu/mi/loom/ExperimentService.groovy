@@ -147,9 +147,8 @@ class ExperimentService {
         ExperimentRoundStatus status = getExperimentStatus(session)
         //only register the submission if it is for the current round
         if (!status) {
-           log.debug("User ${user.id} submitting for session ${session.id}:${session.state} and status not found")
-        }
-        if (status.round == round) {
+           log.debug("User ${user.id} submitting for session ${session.id}:${session.state} and status not found; ignoring")
+        } else if (status.round == round) {
             status.submitted << user.id
         }
     }
