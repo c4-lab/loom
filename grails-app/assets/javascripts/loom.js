@@ -600,10 +600,13 @@ function submitExperimentAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-       if (data.indexOf("finishExperiment") >= 0) {
+
+        //This never happens
+        if (data.indexOf("finishExperiment") >= 0) {
             shouldLogout = false;
             console.log("/loom/experiment/finishExperiment/" + session);
             window.location = "/loom/session/finishExperiment/" + session;
+
         } else {
             //processRoundData(data);
             startPingingForNextRound();
