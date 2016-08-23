@@ -24,7 +24,8 @@ class ExperimentService {
         }
         int round = getExperimentStatus(s).round
         if (round) {
-            log.debug("Trying to get tiles for ${alias} and session ${s} in round ${round}")
+            //log.debug("Trying to get tiles for ${alias} and session ${s} in round ${round}")
+            //TODO This needs optimization
             def story = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it.round }
             if (story) {
                 return story.currentTails
@@ -150,23 +151,25 @@ class ExperimentService {
            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} and status not found; ignoring")
         } else if (status.round == round) {
             status.submitted << user.id
+            //log.debug("(${user.id}) Submitted: ${experimentsRunning[session.id]}")
+        } else {
+            log.debug("Submitted wrong round!")
         }
     }
 
     def getExperimentStatus(Session session) {
-        log.debug(experimentsRunning as String)
+        //log.debug(experimentsRunning as String)
         experimentsRunning[session.id]
     }
 
 
 
     public static Float score(List truth, List sample) {
-        log.debug("Checking truth:" + truth + " against sample:" + sample);
         if (sample && sample.size()>1) {
             def c2 = { (it.size() * (it.size() - 1)) / 2f }
             def tmap = [:]
             truth.eachWithIndex { Object entry, int i -> tmap[entry] = i }
-            println tmap
+
             int bad = 0
             for (int i in (0..<sample.size())) {
                 for (int j in ((1 + i)..<sample.size())) {

@@ -104,7 +104,7 @@ grails.project.dependency.resolution = {
         // plugins for the compile step
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.8'
-        compile ":asset-pipeline:2.1.5"
+        compile ":asset-pipeline:2.9.1"
         compile ":spring-security-core:2.0-RC4"
         compile ":build-test-data:2.4.0"
         compile ":mail:1.0.7"

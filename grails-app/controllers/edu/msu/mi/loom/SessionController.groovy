@@ -109,7 +109,7 @@ class SessionController {
             render("finishExperiment")
         } else {
             ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
-            if (status.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
+            if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
 
                 render("pausing")
             } else {
@@ -123,9 +123,10 @@ class SessionController {
 
     def checkExperimentReadyState() {
         def session = Session.get(params.session)
+        def user = springSecurityService.currentUser as User
         if (session) {
             if (session.state == Session.State.PENDING) {
-                log.debug("Still waiting")
+                log.debug("${user.username} Still waiting")
                 return render(["experiment_ready": false, count: UserSession.countBySessionAndState(session, "WAITING")] as JSON)
 
             } else {
@@ -149,6 +150,7 @@ class SessionController {
             Session session = Session.get(sessionId)
             def user = springSecurityService.currentUser as User
             List submittedTails = userTails ? userTails.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
+            log.debug("${user.username} submitted round ${roundNumber}")
             sessionService.saveUserStory(session, roundNumber, submittedTails, user)
             render(status:OK)
 

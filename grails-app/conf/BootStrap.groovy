@@ -24,7 +24,7 @@ class BootStrap {
                 def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"A training set");
                 mturkService.createQualification(trainingset)
                 def experiment = adminService.createExperiment(parseJSONToText().experiment)
-                final File file = new File("grails-app/conf/data/session_1/example.graphml")
+                final File file = new File("grails-app/conf/data/session_1/example1.graphml")
                 InputStream inputStream = new FileInputStream(file)
                 HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(inputStream)
 
@@ -69,7 +69,7 @@ class BootStrap {
             def user = new User(username: "user-${n}", password: "pass").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)
-            if (n!=1) UserTrainingSet.create(user,ts,true,true)
+            UserTrainingSet.create(user,ts,true,true)
 
         }
     }
