@@ -1,7 +1,7 @@
 /*!
  * jQuery blockUI plugin
  * Version 2.70.0-2014.11.23
- * Requires jQuery v1.7 or later
+ * needs jQuery v1.7 or later
  *
  * Examples at: http://malsup.com/jquery/block/
  * Copyright (c) 2007-2013 M. Alsup
@@ -120,7 +120,7 @@
             message: '<h1>Please wait...</h1>',
 
             title: null,		// title string; only used when theme == true
-            draggable: true,	// only used when theme == true (requires jquery-ui.js to be loaded)
+            draggable: true,	// only used when theme == true (needs jquery-ui.js to be loaded)
 
             theme: false, // set to true to use with jQuery UI themes
 
