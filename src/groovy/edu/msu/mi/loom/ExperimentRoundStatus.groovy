@@ -1,8 +1,11 @@
 package edu.msu.mi.loom
 
+import groovy.util.logging.Log4j
+
 /**
  * Created by josh on 6/19/16.
  */
+@Log4j
 class ExperimentRoundStatus {
 
     static final enum Status {
@@ -32,6 +35,7 @@ class ExperimentRoundStatus {
     public Status checkPauseStatus() {
         if (currentStatus == Status.PAUSING &&
                 (submitted.size() == userCount || (System.currentTimeMillis() - pauseStart) >= pauseLength)) {
+            log.debug("Advancing round with ${submitted.size()}")
             currentStatus = Status.ACTIVE
             submitted.clear()
             round++

@@ -399,7 +399,7 @@ function startPingingForNextRound() {
         $.ajax({
             url: "/loom/session/checkExperimentRoundState/"+session,
             type: 'GET',
-            timeout: 999
+            timeout: 3000
         }).success(function (data) {
             if (data=="finishExperiment") {
                 shouldLogout = false;
