@@ -65,7 +65,7 @@ class BootStrap {
     }
 
     private void createTestUsers(TrainingSet ts) {
-        (1..11).each { n ->
+        (1..101).each { n ->
             def user = new User(username: "user-${n}", password: "pass").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)

@@ -105,10 +105,11 @@ class SessionController {
 
     def checkExperimentRoundState() {
         Session s = Session.get(params.sessionId)
-        if (s.state == Session.State.FINISHED) {
+        ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
+        if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
             render("finishExperiment")
         } else {
-            ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
+
             if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
 
                 render("pausing")
@@ -150,7 +151,7 @@ class SessionController {
             Session session = Session.get(sessionId)
             def user = springSecurityService.currentUser as User
             List submittedTails = userTails ? userTails.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
-            log.debug("${user.username} submitted round ${roundNumber}")
+            log.debug("${user.username} submittƒed round ${roundNumber}")
             sessionService.saveUserStory(session, roundNumber, submittedTails, user)
             render(status:OK)
 

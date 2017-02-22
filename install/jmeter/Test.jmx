@@ -17,7 +17,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">10</stringProp>
+        <stringProp name="ThreadGroup.num_threads">100</stringProp>
         <stringProp name="ThreadGroup.ramp_time">20</stringProp>
         <longProp name="ThreadGroup.start_time">1469136328000</longProp>
         <longProp name="ThreadGroup.end_time">1469136328000</longProp>
@@ -64,8 +64,8 @@
               <stringProp name="Argument.value"></stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
-            <elementProp name="roundNumber" elementType="Argument">
-              <stringProp name="Argument.name">roundNumber</stringProp>
+            <elementProp name="currentRound" elementType="Argument">
+              <stringProp name="Argument.name">currentRound</stringProp>
               <stringProp name="Argument.value">0</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
@@ -249,7 +249,7 @@ vars.put(&quot;submissionString&quot;,result)</stringProp>
                 </elementProp>
                 <elementProp name="roundNumber" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">${roundNumber}</stringProp>
+                  <stringProp name="Argument.value">${currentRound}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                   <boolProp name="HTTPArgument.use_equals">true</boolProp>
                   <stringProp name="Argument.name">roundNumber</stringProp>
@@ -279,6 +279,11 @@ vars.put(&quot;submissionString&quot;,result)</stringProp>
               <stringProp name="cacheKey">faf4ef80-da3b-4194-9f1d-40b41f3e6289</stringProp>
               <stringProp name="script">Long.parseLong(vars.get(&quot;remainingTime&quot;))</stringProp>
             </JSR223Timer>
+            <hashTree/>
+            <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
+              <stringProp name="ConstantTimer.delay">0</stringProp>
+              <stringProp name="RandomTimer.range">1000.0</stringProp>
+            </UniformRandomTimer>
             <hashTree/>
             <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
               <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -326,7 +331,7 @@ vars.put(&quot;PAUSING&quot;,&quot;true&quot;)
             <hashTree/>
           </hashTree>
           <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Submission Loop" enabled="true">
-            <stringProp name="WhileController.condition">${PAUSING}</stringProp>
+            <stringProp name="WhileController.condition">${__javaScript(!${FINISHED} &amp;&amp; ${PAUSING})}</stringProp>
           </WhileController>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
@@ -368,7 +373,7 @@ if (result == &quot;finishExperiment&quot;) {
 	vars.putObject(&quot;PAUSING&quot;,&quot;false&quot;)
 	def round = Integer.parseInt((result=~/name=&quot;roundNumber&quot;\s+value=&quot;(\d+)&quot;/)[0][1])
 	def ms = Integer.parseInt((result=~/name=&quot;experimentDuration&quot;\s+value=&quot;(\d+)&quot;/)[0][1])	
-	vars.putObject(&quot;currentRound&quot;,round)
+	vars.putObject(&quot;currentRound&quot;,String.valueOf(round))
 	vars.putObject(&quot;remainingTime&quot;,String.valueOf(ms*1000))
 	log.info(&quot;Done pause -&gt; Round advance:&quot;+String.valueOf(vars.getObject(&quot;currentRound&quot;)))
 	
@@ -376,9 +381,10 @@ if (result == &quot;finishExperiment&quot;) {
 </stringProp>
               </JSR223PostProcessor>
               <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
-                <stringProp name="ConstantTimer.delay">1000</stringProp>
-              </ConstantTimer>
+              <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Uniform Random Timer" enabled="true">
+                <stringProp name="ConstantTimer.delay">1000.0</stringProp>
+                <stringProp name="RandomTimer.range">1000.0</stringProp>
+              </UniformRandomTimer>
               <hashTree/>
               <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
                 <boolProp name="ResultCollector.error_logging">false</boolProp>
