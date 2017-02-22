@@ -9,7 +9,7 @@ import groovy.util.logging.Log4j
 class ExperimentRoundStatus {
 
     static final enum Status {
-        ACTIVE, PAUSING
+        ACTIVE, PAUSING, FINISHED
     }
 
 
@@ -17,7 +17,7 @@ class ExperimentRoundStatus {
     final int roundCount
     final int pauseLength
     int round = 0
-    Set submitted = [] as Set
+    final Set submitted = [] as Set
     Date roundStart
     long pauseStart
     Status currentStatus = Status.ACTIVE
@@ -36,10 +36,16 @@ class ExperimentRoundStatus {
         if (currentStatus == Status.PAUSING &&
                 (submitted.size() == userCount || (System.currentTimeMillis() - pauseStart) >= pauseLength)) {
             log.debug("Advancing round with ${submitted.size()}")
-            currentStatus = Status.ACTIVE
-            submitted.clear()
             round++
-            this.roundStart = new Date()
+            if (isFinished()) {
+                currentStatus = Status.FINISHED
+            } else {
+                currentStatus = Status.ACTIVE
+                submitted.clear()
+                this.roundStart = new Date()
+            }
+
+
         }
         currentStatus
 
@@ -52,6 +58,10 @@ class ExperimentRoundStatus {
 //        }
 //        currentStatus
 
+    }
+
+    public submitUser(userId) {
+        synchronized (submitted){submitted<<userId}
     }
 
     public boolean isFinished() {
