@@ -24,9 +24,7 @@ class BootStrap {
                 def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"A training set");
                 mturkService.createQualification(trainingset)
                 def experiment = adminService.createExperiment(parseJSONToText().experiment)
-                final File file = new File("data/session_1/example1.graphml")
-                InputStream inputStream = new FileInputStream(file)
-                HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(inputStream)
+                HashMap<String, List<String>> nodeStoryMap = parseNodeStoryMap("session_1/example1.graphml")
 
                 adminService.setExperimentNetwork(nodeStoryMap, experiment.id)
 
@@ -72,6 +70,13 @@ class BootStrap {
             UserTrainingSet.create(user,ts,true,true)
 
         }
+    }
+
+    private HashMap<String, List<String>> parseNodeStoryMap(String name) {
+        def filePath = "data/${name}"
+        def inputStream = grailsApplication.getParentContext().getResource("classpath:$filePath").getInputStream()
+        return graphParserService.parseGraph(inputStream)
+
     }
 
     private JSONElement parseTrainingSessionToText() {
