@@ -133,7 +133,7 @@ class ExperimentService {
             experimentsRunning[session.id] = new ExperimentRoundStatus(session.experiment.userCount,session.experiment.roundCount)
         }
         if (experimentsRunning[session.id].isFinished()) {
-            experimentsRunning.remove(session.id)
+            //experimentsRunning.remove(session.id)
             Session.withSession {
                 def s = Session.get(session.id)
                 s.state = Session.State.FINISHED
@@ -147,11 +147,12 @@ class ExperimentService {
     def userSubmitted(User user,Session session,int round) {
         ExperimentRoundStatus status = getExperimentStatus(session)
         //only register the submission if it is for the current round
-        if (!status) {
-           log.debug("User ${user.id} submitting for session ${session.id}:${session.state} and status not found; ignoring")
+        if (!status || status.isFinished()) {
+           log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
         } else if (status.round == round) {
-            status.submitted << user.id
-            //log.debug("(${user.id}) Submitted: ${experimentsRunning[session.id]}")
+            status.submitUser(user.id)
+            log.debug("(${user.id}) Submitted ${round}")
+
         } else {
             log.debug("Submitted wrong round!")
         }
