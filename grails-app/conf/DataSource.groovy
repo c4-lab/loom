@@ -18,11 +18,11 @@ hibernate {
 environments {
     development {
         dataSource {
-            url = "jdbc:mysql://localhost/loom"
-            driverClassName = "com.mysql.jdbc.Driver"
+            url = "jdbc:mysql://localhost:3306/loom"
+            driverClassName = "com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
-            username = "loom"
-            password = "loom"
+            username = "your user name"
+            password = "your password"
         }
     }
     test {
