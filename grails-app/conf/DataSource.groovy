@@ -18,11 +18,13 @@ hibernate {
 environments {
     development {
         dataSource {
+            //logSql = true
+            dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/loom"
-            driverClassName = "com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
+            driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
-            username = "your user name"
-            password = "your password"
+            username = "loom"
+            password = "loom"
         }
     }
     test {

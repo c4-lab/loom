@@ -75,7 +75,7 @@
                                                             format="yyyy/MM/dd HH:mm"
                                                             date="${session.dateCreated}"/></span>
                                                     <span class='description'>
-                                                        Experiment: ${session.experiment.name}(${session.experiment.id}),
+                                                        Experiment: ${session.exp.name}(${session.exp.id}),
                                                         Training: ${session.trainingSet.name}(${session.trainingSet.id}),
                                                         Thread: ${sessionState[session.id] ? "Up" : "Down"}
                                                         Status: <b>${session.state ?: "INACTIVE"}</b>

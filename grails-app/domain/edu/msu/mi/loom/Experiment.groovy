@@ -15,11 +15,13 @@ class Experiment {
     int initialNbrOfTiles
     Story story
     boolean enabled = false
+    String exp
 
     static hasMany = [edges: Edge, sessions:Session, initialStories:ExperimentInitialUserStory]
 
     static constraints = {
         nodes nullable:true
+        exp nullable:true
         name blank: false
         roundCount min: 1
         roundTime min: 1

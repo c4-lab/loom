@@ -3,8 +3,6 @@ package edu.msu.mi.loom
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 
-import java.text.Normalizer
-
 @Slf4j
 @ToString(includeNames = true)
 class Session {
@@ -21,7 +19,7 @@ class Session {
     String type
     Date dateCreated
     TrainingSet trainingSet
-    Experiment experiment
+    Experiment exp
     State state
     String fullCode
     String doneCode
@@ -39,7 +37,7 @@ class Session {
         def count = count()
         copy.name = "Session ${count + 1}"
         copy.trainingSet = trainingSet
-        copy.experiment = experiment
+        copy.exp = exp
 
         return copy
     }

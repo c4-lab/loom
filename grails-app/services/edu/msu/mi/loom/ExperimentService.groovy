@@ -31,7 +31,7 @@ class ExperimentService {
                 return story.currentTails
             }
         }
-        ExperimentInitialUserStory.findByAliasAndExperiment(alias,s.experiment).initialTiles
+        ExperimentInitialUserStory.findByAliasAndExperiment(alias,s.exp).initialTiles
 
 
     }
@@ -52,14 +52,14 @@ class ExperimentService {
 
 
         [neighborState: getNeighborsState(s), round: status.round,
-         timeRemaining: Math.max(0f,s.experiment.roundTime - (System.currentTimeMillis() - status.roundStart.time)/1000) as Integer,
+         timeRemaining: Math.max(0f,s.exp.roundTime - (System.currentTimeMillis() - status.roundStart.time)/1000) as Integer,
          loomSession: s, paused: shouldPause]
     }
 
     def getNeighborsState(Session expSession) {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
-        Set<String> aliases = (Edge.findAllByExperimentAndTarget(expSession.experiment,myAlias).source +
-                Edge.findAllByExperimentAndSourceAndIsDirected(expSession.experiment,myAlias,false).target) as Set
+        Set<String> aliases = (Edge.findAllByExperimentAndTarget(expSession.exp,myAlias).source +
+                Edge.findAllByExperimentAndSourceAndIsDirected(expSession.exp,myAlias,false).target) as Set
 
         int i = 1
         aliases.sort().collectEntries {
@@ -80,7 +80,7 @@ class ExperimentService {
             Session.withNewSession {
                 s = Session.get(session.id)
                 int count = UserSession.countBySessionAndState(s, "WAITING")
-                if (count >= s.experiment.userCount) {
+                if (count >= s.exp.userCount) {
                     log.debug("Ready to go!")
                     ((Timer) waitingTimer[s.id]).cancel()
                     waitingTimer.remove(s.id)
@@ -96,7 +96,7 @@ class ExperimentService {
         new Timer().schedule({
             experimentsRunning[session.id].pause()
             scheduleRoundAdvance(session)
-        } as TimerTask, 1000 * session.experiment.roundTime as long)
+        } as TimerTask, 1000 * session.exp.roundTime as long)
     }
 
     private def scheduleRoundAdvance(Session session) {
@@ -130,7 +130,7 @@ class ExperimentService {
     def advanceRound(Session session) {
         log.debug("Advance round for ${session.id}")
         if (!experimentsRunning.containsKey(session.id)) {
-            experimentsRunning[session.id] = new ExperimentRoundStatus(session.experiment.userCount,session.experiment.roundCount)
+            experimentsRunning[session.id] = new ExperimentRoundStatus(session.exp.userCount,session.exp.roundCount)
         }
         if (experimentsRunning[session.id].isFinished()) {
             //experimentsRunning.remove(session.id)

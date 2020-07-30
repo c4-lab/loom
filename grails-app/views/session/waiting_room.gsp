@@ -28,7 +28,7 @@
 
                             <div class="box-body">
                                 <loom:progressBar userCount="${edu.msu.mi.loom.UserSession.countBySessionAndState(session,"WAITING")}"
-                                                  userMaxCount="${session.experiment.userCount}"/>
+                                                  userMaxCount="${session.exp.userCount}"/>
                                 <a href="javascript:void(0);" id="stop-waiting" class="btn btn-block btn-success">Stop waiting</a>
 
                             </div>
@@ -61,7 +61,7 @@
                         shouldLogout = false;
                         window.location = "/loom/session/s/" + session+"?workerId=${username}";
                     } else {
-                        updateProgressBar(data.count, ${session.experiment.userCount})
+                        updateProgressBar(data.count, ${session.exp.userCount})
                     }
                 }).error(function () {
                     window.location = "/loom/"
