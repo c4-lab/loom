@@ -1,7 +1,6 @@
 package edu.msu.mi.loom
 
 import grails.transaction.Transactional
-import org.springframework.security.core.context.SecurityContextHolder
 
 @Transactional
 class SessionService {
@@ -29,7 +28,7 @@ class SessionService {
     }
 
     def assignAliasesAndMakeActive(Session session) {
-        List<String> aliases = session.experiment.initialStories.collect {it.alias}
+        List<String> aliases = session.exp.initialStories.collect {it.alias}
         Collections.shuffle(aliases)
         List<UserSession> sessions = UserSession.findAllBySessionAndState(session,"WAITING").sort{it.started}
 
