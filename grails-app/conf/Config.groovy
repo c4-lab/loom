@@ -105,7 +105,14 @@ log4j.main = {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
 
-    debug 'edu.msu.mi.loom'
+    root {
+        debug() //by default, root log level is error. Now, we changed it to debug level,
+        //stdout(console) is default appender for root.
+    }
+
+    //debug 'org.hibernate.SQL'
+
+    //debug 'edu.msu.mi.loom'
 
     error 'org.codehaus.groovy.grails.web.servlet',        // controllers
             'org.codehaus.groovy.grails.web.pages',          // GSP

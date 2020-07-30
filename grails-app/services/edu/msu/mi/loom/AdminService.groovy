@@ -10,7 +10,7 @@ class AdminService {
 
     def createSession(Experiment experiment, TrainingSet trainingSet, String type = "mturk") {
         Session.withNewTransaction { status ->
-            def session = new Session(name: 'Session_' + (Session.count() + 1), experiment: experiment, trainingSet: trainingSet, type: type)
+            def session = new Session(name: 'Session_' + (Session.count() + 1), exp: experiment, trainingSet: trainingSet, type: type)
             //adding these here because they don't seem to be called from BootStrap
             session.doneCode =  randomStringGenerator.generateLowercase(12)
             session.fullCode =  randomStringGenerator.generateLowercase(12)
@@ -19,7 +19,7 @@ class AdminService {
 
 
 
-
+            log.debug("About to save session...")
             if (session.save(flush: true)) {
                 log.debug("New expSession with id ${session.id} has been created.")
                 return session

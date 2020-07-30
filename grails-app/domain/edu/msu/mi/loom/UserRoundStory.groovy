@@ -21,7 +21,7 @@ class UserRoundStory {
         if (!currentTails) {
             score = 0
         } else {
-            List<Long> correct =(session.experiment.story.tails as List).sort {it.text_order}.collect {it.id}
+            List<Long> correct =(session.exp.story.tails as List).sort {it.text_order}.collect {it.id}
             List<Long> mine = currentTails.collect {it.id}
             score = experimentService.score(correct,mine)
         }

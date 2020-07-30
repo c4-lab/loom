@@ -43,7 +43,7 @@
                                     </li>
                                 </ul>
 
-                                <g:if test="${session.experiment.enabled}">
+                                <g:if test="${session.exp.enabled}">
                                     <a href="javascript:void(0);" id="clone-session"
                                        class="btn btn-primary btn-block"><b>Clone the session</b></a>
                                     <a href="javascript:void(0);" id="publish-anon-session"
@@ -69,20 +69,20 @@
                                         <div class="post">
                                             <div class="user-block">
                                                 <span class='username'>
-                                                    <a href="#">${session.experiment.name}</a>
+                                                    <a href="#">${session.exp.name}</a>
                                                     <g:link controller="admin" action="deleteExperiment"
                                                             class='pull-right btn-box-tool'
-                                                            params="[experimentId: session.experiment.id, type: ExpType.EXPERIMENT]">
+                                                            params="[experimentId: session.exp.id, type: ExpType.EXPERIMENT]">
                                                         <i class='fa fa-times'></i>
                                                     </g:link>
                                                 </span>
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
-                                                        date="${session.experiment.dateCreated}"/></span>
+                                                        date="${session.exp.dateCreated}"/></span>
                                             </div>
 
                                             <p>
-                                                <g:each in="${(session.experiment.story.tails).sort { it.text_order}}" var="tail">
+                                                <g:each in="${(session.exp.story.tails).sort { it.text_order}}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>
