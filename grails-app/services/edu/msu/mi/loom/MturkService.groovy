@@ -463,8 +463,6 @@ class MturkService {
         setClient(getSandboxClient())
 
         def HITIds = session.getHITId()
-        println("sfasdfadfasdaaa")
-        println(HITIds)
         List delete_HITIds = new ArrayList<>()
         for(String HITId: HITIds){
             GetHITResult hitresult = getHit(HITId)
@@ -475,8 +473,8 @@ class MturkService {
                 req.setHITId(HITId)
                 req.setExpireAt(new Date())
 //                try {
-                    client.updateExpirationForHIT(req)
-                    deleteHit(HITId)
+                client.updateExpirationForHIT(req)
+                deleteHit(HITId)
                 delete_HITIds.add(HITId)
 //
 
@@ -491,8 +489,11 @@ class MturkService {
 
         }
         for(String HITId: delete_HITIds){
-            session.HITId.remove(HITId)
-            session.save(flush: true)
+            if (session.HITId.contains(HITId)){
+                session.HITId.remove(HITId)
+                session.save(flush: true)
+            }
+
         }
 
 //        session.HITId = new ArrayList<>()

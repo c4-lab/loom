@@ -102,11 +102,8 @@
                                                     <span class='description session-span'>Status: ${session.state ?: "INACTIVE"}
 
                                                     </span>
-                                                    <span class='description current-round'>Current round: ${sessionState[session.id][4]}
-                                                        <span class='description completed' style="display:none">payment status: ${sessionState[session.id][5]}
-
-
-                                                    </span>
+                                                    <span class='description current-round'>Current round: ${sessionState[session.id][4]}</span>
+                                                    <span class='description payment-status' hidden>Payment status: ${sessionState[session.id][5]}</span>
 
                                                     <span class='description set-timer'></span>
 

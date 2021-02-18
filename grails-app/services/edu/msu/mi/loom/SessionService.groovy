@@ -31,8 +31,7 @@ class SessionService {
     def reachMaximumUser(Session session){
         int count = UserSession.countBySession(session)
         if (count == session.exp.max_node){
-            session.state = Session.State.ACTIVE
-            session.save(flush: true)
+            return true
 
         }
     }

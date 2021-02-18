@@ -45,7 +45,8 @@ class AdminController {
             Long startPending = null
             Long startActive = null
             String completed = null
-            String payment_status = null
+            def payment_status = null
+            def hits = null
             def round = 0
             if (it.state == Session.State.PENDING) {
                 active = experimentService.waitingTimer[it.id]
@@ -59,8 +60,8 @@ class AdminController {
                 startActive = it.startActive
 
 
-            }else if (it.state == Session.State.FINISHED){
-                payment_status = mturkService.check_payable(it)
+            }else if (it.state == Session.State.CANCEL || it.state == Session.State.FINISHED){
+                 (hits,payment_status) = mturkService.check_payable(it)
             }
             [(it.id):[active,count,startPending,startActive, round, payment_status]]
         }
@@ -91,6 +92,8 @@ class AdminController {
             }
 
             def (payable_hit, payment_status) = mturkService.check_payable(session)
+            println("payayayayya")
+            println(payment_status)
             def result = [ 'payment_status':payment_status,'startPending': session.startPending, 'startActive': session.startActive, 'count':count,'sessionState':session.state.toString(),'round':round]
 
             render result as JSON
@@ -337,6 +340,7 @@ class AdminController {
                     experimentService.kickoffSession(session)
                     session = Session.get(params.sessionId)
                     if(session.state == Session.State.ACTIVE){
+                        mturkService.updateExpirationForHit(session)
                         result = ['status': "start"]
                     }else{
                         result = ['status': "fail"]
