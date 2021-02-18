@@ -1,0 +1,72 @@
+{
+  "experiment": {
+    "numberofrounds": 4,
+    "timeperround": 270,
+    "initialnumberoftiles": 3,
+    "stories": [
+      {
+        "data": [
+          "once there was a little boy",
+          "who lived in a hot country.",
+          "one day his mother told him",
+          "to take some cake to his grandmother.",
+          "She warned him",
+          "to hold it carefully",
+          "so it wouldn\u2019t break into crumbs.",
+          "the little boy put the cake in a leaf under his arm",
+          "and carried it to his grandmother\u2019s.",
+          "when he got there",
+          "the cake had crumbled into tiny pieces.",
+          "his grandmother told him",
+          "he was a silly boy",
+          "and that he should have carried the cake on top of his head",
+          "so it wouldn\u2019t break.",
+          "then she gave him a pat of butter",
+          "to take back to his mother\u2019s house.",
+          "the little boy wanted to be very careful with the butter",
+          "so he put it on top of his head",
+          "and carried it home.",
+          "the sun was shining hard",
+          "and when he got home",
+          "the butter had all melted.",
+          "his mother told him that",
+          "he was a silly boy",
+          "and that he should have put the butter in a leaf",
+          "so that it would have gotten home safe and sound."
+        ],
+        "title": "Story1"
+      },
+      {
+        "data": [
+          "once there was a little girl",
+          "who lived in a cold country.",
+          "one day her mother told her",
+          "to take some milk in a glass jar to her grandfather.",
+          "She warned him",
+          "to keep it warm",
+          "so it wouldn't freeze.",
+          "the little boy put the milk",
+          "and carried it to his grandfather's.",
+          "when she got there",
+          "the glass had cracked.",
+          "her grandfather told her",
+          "she was a silly girl",
+          "and that he should have carried the cake under her arm",
+          "so it wouldn't freeze.",
+          "then he gave her an ice cream cone",
+          "to take back to her mother's house.",
+          "the little girl wanted to be very careful with the ice cream",
+          "so she put it in her shirt",
+          "and carried it home.",
+          "and when she got home",
+          "the ice cream had all melted.",
+          "her mother told her that",
+          "she was a silly girl",
+          "and that he should have put the ice cream on her head",
+          "so that it would have stayed nice and cold."
+        ],
+        "title": "Story2"
+      }
+    ]
+  }
+}
