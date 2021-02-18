@@ -1,0 +1,83 @@
+
+
+#dvDest, #dvSource {
+    font-size: 12px;
+}
+
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+#dvDest li {
+    font-size: 12px;
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    cursor: move;
+    color: #111 !important;
+    /*width: 243px;*/
+}
+
+#dvDest li a::after {
+    position: absolute !important;
+    line-height: 22px !important;
+    font-size: 18px !important;
+    text-align: right !important;
+    padding-right: 8px !important;
+    margin-left: 8px !important;
+    content: "×";
+    width: 20px !important;
+    height: 100% !important;
+    right: 0 !important;
+    color: beige !important;
+}
+
+.dvSource li {
+    font-size: 12px;
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    cursor: move;
+}
+
+#dvSource li {
+
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    cursor: move;
+}
+
+
+
+.purple, .tile-available {
+    background-color: #B9D7FF !important;
+    color: #111 !important;
+}
+
+.purple a::after {
+    color: #ffffff !important;
+}
+
+.blue {
+    background-color: #aeaaaf !important;
+}
+
+.ui-state-highlight {
+    margin-bottom: -12px !important;
+}
+
+#neighbors li {
+    font-size: 12px;
+}
+
+/*.ui-state-highlight {*/
+    /*margin: 0 !important;*/
+    /*margin-top: 5px !important;*/
+    /*padding-top: 15px !important;*/
+    /*width: 50px;*/
+/*}*/
