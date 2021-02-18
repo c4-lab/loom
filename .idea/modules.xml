@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/loom.iml" filepath="$PROJECT_DIR$/.idea/loom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/loom-grailsPlugins.iml" filepath="$PROJECT_DIR$/.idea/loom-grailsPlugins.iml" />
+    </modules>
+  </component>
+</project>

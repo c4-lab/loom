@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c2c7a11e-695a-49d3-862e-d43bf4132243" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
+  <component name="GrailsSDKManager">
+    <option name="grailsSDKs">
+      <map>
+        <entry key="$PROJECT_DIR$" value="C:\grails\grails-2.5.3" />
+        <entry key="D:\java_workspace\loom" value="C:\grails\grails-2.5.3" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectId" id="1n1wewWj8FObWgHJImhcc6ucXAy" />
+  <component name="ProjectViewState">
+    <option name="flattenModules" value="true" />
+    <option name="flattenPackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+    <option name="showVisibilityIcons" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="redshift&#10;mariadb" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/grails-app/conf" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\java_workspace\loom\grails-app\conf" />
+      <recent name="D:\java_workspace\loom\lib" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Grails: loom" type="GrailsRunConfigurationType" factoryName="Grails">
+      <setting name="vmparams" value="" />
+      <setting name="cmdLine" value="run-app" />
+      <setting name="passParentEnv" value="true" />
+      <setting name="grailsApplicationRoot" value="$PROJECT_DIR$" />
+      <setting name="launchBrowser" value="true" />
+      <setting name="launchBrowserUrl" value="" />
+      <setting name="depsClasspath" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c2c7a11e-695a-49d3-862e-d43bf4132243" name="Default Changelist" comment="" />
+      <created>1610571006965</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1610571006965</updated>
+      <workItem from="1610571009289" duration="27674000" />
+      <workItem from="1610667150324" duration="11389000" />
+      <workItem from="1610687292386" duration="155000" />
+      <workItem from="1610687459235" duration="98000" />
+      <workItem from="1610687566861" duration="11949000" />
+      <workItem from="1610753979122" duration="19399000" />
+      <workItem from="1611111039715" duration="1188000" />
+      <workItem from="1611168196206" duration="2971000" />
+      <workItem from="1611274914521" duration="17330000" />
+      <workItem from="1611348370915" duration="13852000" />
+      <workItem from="1611440207303" duration="24640000" />
+      <workItem from="1611523934942" duration="24719000" />
+      <workItem from="1611728118578" duration="2008000" />
+      <workItem from="1611772939739" duration="4964000" />
+      <workItem from="1612046787400" duration="151000" />
+      <workItem from="1612134455464" duration="38000" />
+      <workItem from="1612145252076" duration="1095000" />
+      <workItem from="1612406501845" duration="1645000" />
+      <workItem from="1613425336466" duration="27800000" />
+      <workItem from="1613539123679" duration="19439000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/ExperimentService.groovy</url>
+          <line>132</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="grailsSettings">
+    <option name="map">
+      <map>
+        <entry key="loom">
+          <value>
+            <GrailsSettings>
+              <option name="buildConfigCrc" value="-1306746269" />
+              <option name="pluginDependenciesCrc" value="-1867056703" />
+              <option name="properties">
+                <map>
+                  <entry key="grails.global.plugins.dir" value="C:\Users\Jinfen Li\.grails\2.5.3\global-plugins" />
+                  <entry key="grails.project.fork.run" value="true" />
+                  <entry key="grails.project.fork.test" value="true" />
+                  <entry key="grails.project.plugins.dir" value="target\work\plugins" />
+                  <entry key="grails.project.work.dir" value="target\work" />
+                  <entry key="grails.work.dir" value="C:\Users\Jinfen Li\.grails\2.5.3" />
+                </map>
+              </option>
+            </GrailsSettings>
+          </value>
+        </entry>
+        <entry key="loom-grailsPlugins">
+          <value>
+            <GrailsSettings />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

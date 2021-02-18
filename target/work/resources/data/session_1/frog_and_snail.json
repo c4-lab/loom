@@ -1,0 +1,35 @@
+{
+  "experiment": {
+    "numberofrounds": 12,
+    "timeperround": 90,
+    "initialnumberoftiles": 3,
+    "stories": [
+      {
+        "data": [
+          "a frog entered into a wager with a snail",
+          "as to which of them would be the first to reach the city.",
+          "the frog of course believed that he would win the wager",
+          "because he could travel so much faster than the snail.",
+          "as they started out",
+          "the frog made fun of the snail, saying",
+          "\"dont crawl along so",
+          "instead hop like i do",
+          "otherwise you will never win the wager.\"",
+          "then away he hopped.",
+          "however, arriving at the city,",
+          "he found that the gate was closed,",
+          "and thus he had to wait until the next morning",
+          "when the gate would be opened.",
+          "in the meantime",
+          "the snail crawled steadily onward,",
+          "and she too finally arrived at the city.",
+          "of course she also found the gate closed,",
+          "but for her that was no obstacle.",
+          "she simply crawled over it,",
+          "and thus won the wager."
+        ],
+        "title": "Frog and snail"
+      }
+    ]
+  }
+}
