@@ -189,7 +189,6 @@ $(document).ready(function () {
                 },
             dataType:"json",
             success: function (data){
-                alert(data.status);
                 if(data.status==="no_payable"){
                     alert("No payable assignment!");
                 }
@@ -440,6 +439,7 @@ $(document).ready(function () {
         var status = $(".session-span",this);
         var completed = $(".completed",this);
         var pay_btn = $(".pay-session", this.parentNode);
+        var pay_status = $(".payment-status",this);
         // alert(pay_btn.text());
         setInterval(function (){
 
@@ -485,13 +485,17 @@ $(document).ready(function () {
                         pay_btn.hide();
 
 
+
                         currentRound.text("Current round: "+data.round)
                     }
                     else if(data.sessionState === "CANCEL" || data.sessionState === "FINISHED"){
                         status.text("Status: "+data.sessionState);
-                        completed.text("payment status: "+data.payment_status);
+                        // completed.text("payment status: "+data.payment_status);
                         // alert(pay_btn.style);
                         pay_btn.show();
+                        pay_status.text("Payment status: "+data.payment_status);
+                        pay_status.show();
+
                         // alert("sdfs");
                     }
 

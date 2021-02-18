@@ -9,7 +9,7 @@ import groovy.util.*;
 
 public class UserSession
   extends java.lang.Object  implements
-    groovy.lang.GroovyObject {
+    java.io.Serializable,    groovy.lang.GroovyObject {
 ;
 public  groovy.lang.MetaClass getMetaClass() { return (groovy.lang.MetaClass)null;}
 public  void setMetaClass(groovy.lang.MetaClass mc) { }
@@ -34,6 +34,8 @@ public  java.lang.String getState() { return (java.lang.String)null;}
 public  void setState(java.lang.String value) { }
 public  int getWait_time() { return (int)0;}
 public  void setWait_time(int value) { }
+public static  java.lang.Object getMapping() { return null;}
+public static  void setMapping(java.lang.Object value) { }
 public static  java.lang.Object getConstraints() { return null;}
 public static  void setConstraints(java.lang.Object value) { }
 public  java.lang.Object getBeforeValidate() { return null;}

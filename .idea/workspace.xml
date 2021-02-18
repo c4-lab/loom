@@ -5,80 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2c7a11e-695a-49d3-862e-d43bf4132243" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/ExperimentSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/HomeControllerSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/MturkServiceSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/RoleSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/SessionServiceSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/SessionSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/SimulationScoreSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/SimulationSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/TrainingControllerSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/TrainingSetServiceSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/TrainingSetSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/TrainingSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/UniqueHashSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/UserSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/UserTrainingSetSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/file/UniqueHashServiceSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/unit/edu/msu/mi/loom/utils/ConstraintUnitSpec.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wrapper/grails-wrapper-runtime-2.5.0.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wrapper/springloaded-1.2.3.RELEASE.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.slcache/.index" beforeDir="false" afterPath="$PROJECT_DIR$/.slcache/.index" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/assets/javascripts/loom.js" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/assets/javascripts/loom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/conf/BootStrap.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/BootStrap.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/conf/BuildConfig.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/BuildConfig.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/conf/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/Config.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/conf/DataSource.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/DataSource.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/conf/UrlMappings.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/UrlMappings.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/conf/global.mturk.properties" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/conf/global.mturk.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/AdminController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/AdminController.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/HomeController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/HomeController.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/LoginController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/LoginController.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/LogoutController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/LogoutController.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/SessionController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/SessionController.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/TrainingController.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/controllers/edu/msu/mi/loom/TrainingController.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/Experiment.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/Experiment.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/Session.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/Session.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/TrainingSet.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/TrainingSet.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/UserSession.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/UserSession.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/UserTrainingSet.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/domain/edu/msu/mi/loom/UserTrainingSet.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/i18n/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/i18n/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/AdminService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/AdminService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/ExperimentService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/ExperimentService.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/MturkService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/MturkService.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/SessionService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/SessionService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/SimulationService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/SimulationService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/TrainingSetService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/services/edu/msu/mi/loom/TrainingSetService.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grails-app/views/admin/board.gsp" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/views/admin/board.gsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/views/login/admin_auth.gsp" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/views/login/admin_auth.gsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/views/session/experiment.gsp" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/views/session/experiment.gsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/views/session/waiting_room.gsp" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/views/session/waiting_room.gsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grails-app/views/user/registration.gsp" beforeDir="false" afterPath="$PROJECT_DIR$/grails-app/views/user/registration.gsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grailsw" beforeDir="false" afterPath="$PROJECT_DIR$/grailsw" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grailsw.bat" beforeDir="false" afterPath="$PROJECT_DIR$/grailsw.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install/jmeter/common.csv" beforeDir="false" afterPath="$PROJECT_DIR$/install/jmeter/common.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure5$_closure8.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure5$_closure8.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure5.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure5.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure6$_closure9.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure6$_closure9.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure6.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3$_closure6.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DataSource$_run_closure3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/AdminController$_board_closure1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/AdminController$_board_closure1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/AdminController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/AdminController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/Experiment.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/Experiment.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/HomeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/HomeController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/LoginController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/LoginController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/LogoutController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/LogoutController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/MturkService$__tt__pay_HIT_closure22.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/MturkService$__tt__pay_HIT_closure22.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/MturkService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/MturkService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/Session.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/Session.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController$_finishExperiment_closure2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController$_finishExperiment_closure2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController$_submitExperiment_closure1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController$_submitExperiment_closure1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure10.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure10.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure11.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure11.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure12.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__assignAliasesAndMakeActive_closure12.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__leaveAllSessions_closure13$_closure14.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__leaveAllSessions_closure13$_closure14.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__leaveAllSessions_closure13.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService$__tt__leaveAllSessions_closure13.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/SessionService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/TrainingController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/TrainingController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/TrainingSet.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/TrainingSet.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession$__clinit__closure2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession$__clinit__closure2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession$_closure1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession$_closure1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserSession.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserTrainingSet.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/edu/msu/mi/loom/UserTrainingSet.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/stacktrace.log" beforeDir="false" afterPath="$PROJECT_DIR$/target/stacktrace.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web-app/WEB-INF/applicationContext.xml" beforeDir="false" afterPath="$PROJECT_DIR$/web-app/WEB-INF/applicationContext.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wrapper/grails-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/wrapper/grails-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/work/stubs/edu/msu/mi/loom/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/target/work/stubs/edu/msu/mi/loom/UserSession.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,17 +94,6 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Grails: loom" type="GrailsRunConfigurationType" factoryName="Grails">
       <setting name="vmparams" value="" />
       <setting name="cmdLine" value="run-app" />
@@ -180,7 +136,7 @@
       <workItem from="1612406501845" duration="1645000" />
       <workItem from="1613425336466" duration="27800000" />
       <workItem from="1613539123679" duration="19439000" />
-      <workItem from="1613609472403" duration="3833000" />
+      <workItem from="1613609472403" duration="21466000" />
     </task>
     <servers />
   </component>

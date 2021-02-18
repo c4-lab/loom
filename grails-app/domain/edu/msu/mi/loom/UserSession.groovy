@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-class UserSession {
+class UserSession implements Serializable{
 
     def randomStringGenerator
 
@@ -13,6 +13,9 @@ class UserSession {
     String state = "WAITING"
     int wait_time
 
+    static mapping = {
+        id composite: ['user', 'session']
+    }
 
     static constraints = {
         userAlias nullable: true

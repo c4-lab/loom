@@ -42,10 +42,10 @@ class SessionController {
                 log.debug(us.errors as String)
             }
         }
-        sessionService.reachMaximumUser(session)
-        us = UserSession.findByUserAndSession(user, session)
-        session = Session.get(params.session)
-        if(session.state == Session.State.ACTIVE) {
+//        sessionService.reachMaximumUser(session)
+//        us = UserSession.findByUserAndSession(user, session)
+//        session = Session.get(params.session)
+        if(sessionService.reachMaximumUser(session)) {
             int count = UserSession.countBySession(session)
             HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(session.exp, count)
             if (nodeStoryMap){
@@ -118,13 +118,13 @@ class SessionController {
 //            sessionService.reachMaximumUser(session)
             if (session.state == Session.State.PENDING) {
                 if (sessionService.hasTraining(user, session)) {
-                    List userSession = UserSession.findAllByUser(user)
-
-                    for(us in userSession){
-                        if(us.sessionId!=session.id && Session.get(us.sessionId).trainingSetId==traingsetId){
-                            flash.message = "users cannot participate in multiple sessions with the same training set"
-                        }
-                    }
+//                    List userSession = UserSession.findByUserAndSession(user, session)
+//
+//                    for(us in userSession){
+//                        if(us.sessionId!=session.id && Session.get(us.sessionId).trainingSetId==traingsetId){
+//                            flash.message = "users cannot participate in multiple sessions with the same training set"
+//                        }
+//                    }
                     return redirect(action: "startWaiting", params: [session:session.id])
                 } else {
                     log.debug("User ${user.username} lacks training")
@@ -132,15 +132,8 @@ class SessionController {
                 }
 
             } else if (session.state == Session.State.ACTIVE) {
-//                mturkService.deleteHit(session)
-//                int count = UserSession.countBySession(session)
-//                HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(session.exp, count)
-//                if (nodeStoryMap){
-//
-//                        adminService.setExperimentNetwork(nodeStoryMap, session.exp.id as int)
-//                }
-//                println("asdfsffsdfd")
-//                println(experimentService.getNeighborModel(session))
+
+
                 if (sessionService.userInSessionRun(user, session)) {
 
                     def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
@@ -205,7 +198,6 @@ class SessionController {
             }
         }
 
-
     }
 
     def checkExperimentReadyState() {
@@ -250,7 +242,6 @@ class SessionController {
         def session = Session.get(params.session)
         UserSession us = UserSession.findByUserAndSession(springSecurityService.currentUser as User, session)
         List scores = UserRoundStory.findAllBySessionAndUserAlias(session,us.userAlias).sort {it.round}.score
-//        mturkService.sendExperimentFinishedBonus(params.assignmentId, scores.max(), params.session)
 
 
         if (us.isActive()) {

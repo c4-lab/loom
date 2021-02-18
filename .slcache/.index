@@ -5433,3 +5433,7 @@ n:1489:java_io_File$delete$8
 n:670:org/codehaus/groovy/runtime/dgm$368
 n:1820:grails/util/BuildSettings$getBaseDir$4
 n:1408:java_io_File$getCanonicalPath$9
+n:1909:org/slf4j/LoggerFactory$getLogger
+n:1391:java_util_Map$keySet$9
+n:1399:java_util_Map$values$10
+n:1769:java_lang_Class$getName
