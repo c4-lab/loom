@@ -4,6 +4,7 @@
             <div class="login-box">
                 <div class="login-box-body">
                     <p class="login-box-msg">Sign in to start your session</p>
+
                     <form action='${postUrl}' method='POST' id='loginForm' autocomplete='off'>
                         <div class="form-group has-feedback">
                             <input type="text" name='j_username' class="form-control" placeholder="Username">
