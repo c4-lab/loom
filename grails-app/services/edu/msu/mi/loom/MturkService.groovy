@@ -17,8 +17,8 @@ class MturkService {
     String SANDBOX_ENDPOINT = "mturk-requester-sandbox.us-east-1.amazonaws.com";
     String PROD_ENDPOINT = "https://mturk-requester.us-east-1.amazonaws.com";
     String SIGNING_REGION = "us-east-1";
-    String AWS_ACCESS_KEY = "AKIAI5LT4LJEDYL3S5TQ";
-    String AWS_SECRET_KEY = "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";
+    String AWS_ACCESS_KEY = "";
+    String AWS_SECRET_KEY = "";
     def AmazonMTurk client;
 
     def getProductionClient() {
