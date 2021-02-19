@@ -19,6 +19,7 @@ class MturkService {
     String SIGNING_REGION = "us-east-1";
     String AWS_ACCESS_KEY = "";
     String AWS_SECRET_KEY = "";
+    //test
     def AmazonMTurk client;
 
     def getProductionClient() {
