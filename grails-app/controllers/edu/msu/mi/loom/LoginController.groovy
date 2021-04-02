@@ -59,64 +59,49 @@ class LoginController {
      * Show the login page.
      */
     def auth() {
+
         println "Authenticating..."
-
-//        def config = SpringSecurityUtils.securityConfig
-//        String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-//        println(postUrl)
-//        def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
-//
-//        println(orig)
-//        if (orig?.parameters?.workerId && orig?.parameters?.pass){
-//            println("whyyyyysdf")
-//            println(orig.parameters)
-//        }
-//        return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
-
-        def original = orig?.requestURL
-        def username = null
-        def password = null
-
-        if (orig?.parameters?.workerId && orig?.parameters?.pass) {
-            username = orig.parameters.workerId[0]
-            password = orig.parameters.pass[0]
-//            password = springSecurityService?.passwordEncoder ? springSecurityService.encodePassword(password as String) : password
-
-            User u = User.findByUsernameAndPassword(username as String,password as String)
-            if(u){
-                springSecurityService.reauthenticate(u.username)
-            }
-//            springSecurityService.user(username as String,password as String)
-
-//            User u = User.findByUsername(username)
-//            if (u) {
-//                springSecurityService.reauthenticate(u.username,password)
-//            } else {
-//                u = userService.createUser(username)
-//                if (u?.id) {
-//                    springSecurityService.reauthenticate(u.username,password)
-//                }
-//            }
-        }
-        if (request.forwardURI.contains('admin') | request.forwardURI.contains('/')) {
+        println(request.requestURI)
+        if(request.forwardURI.contains('admin') ){
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-//            def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
-            println(postUrl)
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
-
         }
-        if (springSecurityService.isLoggedIn()) {
-            if (original) {
-                if (username) {
-                    log.debug("Redirecting with parameters")
-                    return redirect(url: "$original?workerid=$username")
-                } else {
+        if(orig?.parameters?.workerId){
+            String workerId = orig.parameters.workerId[0]
+            String assignmentId = null
+            if(orig?.parameters?.assignmentId){
+                assignmentId = orig.parameters?.assignmentId[0]
+            }
 
-                    return redirect(url: "$original")
+            User u = User.findByTurkerId(workerId)
+            if (u) {
+                springSecurityService.reauthenticate(u.username)
+            } else {
+                u = userService.createUserByWorkerId(workerId)
+                if (u?.id) {
+                    springSecurityService.reauthenticate(u.username)
                 }
             }
+            if (springSecurityService.isLoggedIn()) {
+                def original = orig?.requestURL
+                if (original) {
+                    if (workerId) {
+                        log.debug("Redirecting with parameters")
+                        return redirect(url: "$original?assignmentId=$assignmentId&workerId=$workerId")
+                    } else {
+                        return redirect(url: "$original")
+                    }
+                }
+            }
+
+        }
+        else if (request.forwardURI.contains('/')) {
+            def config = SpringSecurityUtils.securityConfig
+            String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
+            return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
+
         }
 
 

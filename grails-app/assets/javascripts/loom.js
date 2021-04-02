@@ -149,6 +149,7 @@ $(document).ready(function () {
             data:
                 {
                     sessionId: sessionId,
+                    auto: false
 
                 },
             dataType:"json",
@@ -176,9 +177,13 @@ $(document).ready(function () {
 
     $("#sessions").on('click', '.pay-session', function (){
         var sessionId = $(".sessionId",this.parentNode).text();
-        var setTimer = $(".set-timer",this.parentNode.parentNode.parentNode);
-        var status = $(".session-span",this.parentNode.parentNode.parentNode);
-        var startTime = Date.now();
+        var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
+        var pay_btn = $(".pay-session", this.parentNode);
+        var pay_i = $(".pay-i", this.parentNode);
+        pay_btn.addClass("buttonload");
+        pay_btn.attr("disabled",true)
+        pay_i.addClass("fa fa-spinner fa-spin");
+
         $.ajax({
             url: "/loom/admin/paySession",
             type: 'POST',
@@ -189,14 +194,58 @@ $(document).ready(function () {
                 },
             dataType:"json",
             success: function (data){
+                payment_status.text("Payment status: "+data.payment_status);
+                pay_btn.removeClass("buttonload");
+                pay_btn.attr("disabled",false)
+                pay_i.removeClass("fa fa-spinner fa-spin");
                 if(data.status==="no_payable"){
                     alert("No payable assignment!");
                 }
-                if(data.status==="success"){
+                // if(data.status==="success"){
+                //
+                //
+                //     window.location = "/loom/admin/board/";
+                // }
 
 
-                    window.location = "/loom/admin/board/";
+            }
+        });
+    });
+
+    $("#sessions").on('click', '.check-payble', function (){
+        var sessionId = $(".sessionId",this.parentNode).text();
+        var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
+
+        var check_btn = $(".check-payble", this.parentNode);
+        var check_i = $(".check-payable-i", this.parentNode);
+        check_btn.addClass("buttonload");
+        check_btn.attr("disabled",true)
+        check_i.addClass("fa fa-spinner fa-spin");
+
+        $.ajax({
+            url: "/loom/admin/checkPayble",
+            type: 'POST',
+            data:
+                {
+                    sessionId: sessionId,
+
+                },
+            dataType:"json",
+            success: function (data){
+                payment_status.text("Payment status: "+data.payment_status);
+                check_btn.removeClass("buttonload");
+                check_btn.attr("disabled",false)
+                check_i.removeClass("fa fa-spinner fa-spin");
+                if(data.check_greyed){
+                    alert("No payable assignment!");
+                    // check_btn.attr("disabled",true);
                 }
+                if(data.pay_greyed){
+                    // pay_btn.attr("disabled",true);
+                }
+                // if(data.status==="success"){
+                //     window.location = "/loom/admin/board/";
+                // }
 
 
             }
@@ -221,6 +270,7 @@ $(document).ready(function () {
         var reading;
         var vaccine_min;
         var vaccine_max;
+        var uiflag = $('input:radio[name="UIflag"]:checked').val();
         var isQualifier =  $('input:radio[name="qualifier"]:checked').val();
         var accepting = $("#accepting").val();
         var completion = $("#completion").val();
@@ -263,7 +313,7 @@ $(document).ready(function () {
 
         if (name==='' || storySet==='null' || trainingSet==='null' || network_type==null || (prob==='' && network_type==='Newman_Watts')
         || isQualifier==null || (vaccine_min && vaccine_max==null) || (vaccine_max && vaccine_min==null)
-        || accepting==='' || completion==='' || waiting==='' || score===''){
+        || accepting==='' || completion==='' || waiting==='' || score==='' || uiflag==null){
             alert("please complete the required fields");
             $("#experiment-file-upload-modal").modal('show');
         }
@@ -297,6 +347,7 @@ $(document).ready(function () {
                         reading:reading,
                         vaccine_min:vaccine_min,
                         vaccine_max:vaccine_max,
+                        uiflag:uiflag,
                         isQualifier:isQualifier,
                         accepting:accepting,
                         completion:completion,
@@ -428,6 +479,7 @@ $(document).ready(function () {
     initSimulation();
     initExperiment();
 
+
     var ss = $('.session-row');
 
     ss.each(function (){
@@ -436,10 +488,12 @@ $(document).ready(function () {
         var setTimer = $(".set-timer",this);
         var currentRound = $(".current-round",this);
         var count = $(".count",this);
+        var connected = $(".connected",this);
         var status = $(".session-span",this);
-        var completed = $(".completed",this);
+        // var completed = $(".completed",this);
         var pay_btn = $(".pay-session", this.parentNode);
-        var pay_status = $(".payment-status",this);
+        // var check_payable_btn = $(".check-payable", this.parentNode);
+        // var pay_status = $(".payment-status",this);
         // alert(pay_btn.text());
         setInterval(function (){
 
@@ -456,7 +510,8 @@ $(document).ready(function () {
                 dataType:"json",
                 success: function (data){
                     var current = Date.now();
-
+                    count.text("User sessions: "+data.connected);
+                    connected.text("Connected users: "+data.count)
                     if(data.sessionState === "PENDING"){
                         clearInterval(timeInterval);
                         setTimer.text( "Pending Time: "+Math.floor((current-data.startPending)/1000/60)+" minutes");
@@ -464,10 +519,11 @@ $(document).ready(function () {
 
                         status.text("Status: "+data.sessionState);
 
-                        count.text("Connected users: "+data.count);
 
 
-                        pay_btn.hide();
+
+                        // pay_btn.hide();
+                        // check_payable_btn.hide();
                         currentRound.text("Current round: "+data.round)
 
                         // timeInterval = setTimeer(data, setTimer, "Pending",status,count,currentRound);
@@ -481,8 +537,9 @@ $(document).ready(function () {
 
                         status.text("Status: "+data.sessionState);
 
-                        count.text("Connected users: "+data.count);
+                        // count.text("Connected users: "+data.count);
                         pay_btn.hide();
+                        check_payable_btn.hide();
 
 
 
@@ -492,9 +549,15 @@ $(document).ready(function () {
                         status.text("Status: "+data.sessionState);
                         // completed.text("payment status: "+data.payment_status);
                         // alert(pay_btn.style);
-                        pay_btn.show();
-                        pay_status.text("Payment status: "+data.payment_status);
-                        pay_status.show();
+                        // if(data.greyed !== "pay"){
+                        //     pay_btn.show();
+                        // }
+                        // if(data.greyed !== "check"){
+                        //     check_payable_btn.show();
+                        // }
+                        //
+                        // pay_status.text("Payment status: "+data.payment_status);
+                        // pay_status.show();
 
                         // alert("sdfs");
                     }
@@ -502,13 +565,15 @@ $(document).ready(function () {
                 }
             });
 
-        },2000);
+        },6000);
 
 
     });
 
 
 });
+
+
 
 function create_train(){
     var name = $("#trainingSetName").val();
@@ -530,7 +595,7 @@ function create_train(){
             data:
                 {
                     name: name,
-                    // inputFile:inputFile,
+                    inputFile:inputFile,
                     performance:performance.checked,
                     performance_score:performance_score,
                     reading:reading,
@@ -623,17 +688,39 @@ function chooseExperimentQualifier(tag){
 }
 
 
-function chooseTrainingQualifier(tag){
-
+function chooseTrainingQualifier(){
     var s1 = document.getElementById('perform');
-    var s2 = document.getElementById('traing_perform');
+    var s2 = document.getElementById('read');
+    var s3 = document.getElementById('survey');
+    var s4 = document.getElementById('traing_perform');
+    var s5 = document.getElementById('traing_reading');
+    var s6 = document.getElementById('traing_survey');
 
     if(s1.checked){
-        s2.style.display = '';
-
+        s4.style.display = '';
     }else{
-        s2.style.display = 'none';
+        s4.style.display = 'none';
     }
+    if(s2.checked){
+        s5.style.display = '';
+    }else{
+        s5.style.display = 'none';
+    }
+    if(s3.checked){
+        s6.style.display = '';
+    }else{
+        s6.style.display = 'none';
+    }
+
+    // var s1 = document.getElementById('perform');
+    // var s2 = document.getElementById('traing_perform');
+    //
+    // if(s1.checked){
+    //     s2.style.display = '';
+    //
+    // }else{
+    //     s2.style.display = 'none';
+    // }
 
 }
 
@@ -674,7 +761,6 @@ function initTraining() {
         initTiles();
         initDragNDrop();
         initMyDragNDrop();
-        //removeTile();
         resetTraining();
         submitTraining();
         updateTrainingScore();
@@ -688,7 +774,6 @@ function initSimulation() {
         initMyDragNDrop();
         initTiles();
         resetSimulation();
-        //removeTile();
         submitSimulation();
         localStorage.setItem('remainingTime', 'null');
         clearInterval(roundInterval);
@@ -724,17 +809,17 @@ function blockIfPaused() {
 
 function initTilesOld() {
     console.log("Init tiles...");
-    $("#dvSourceContainer").find(".tile-available").each(function () {
+    $(".dvSourceContainer").find(".tile-available").each(function () {
         var sourceTileId = $(this).attr('drag-id');
         console.log("Found "+sourceTileId);
         $("#sort2").find(".purple").each(function () {
             if ($(this).attr('drag-id') == sourceTileId) {
-                $("#dvSourceContainer").find("[drag-id='" + sourceTileId + "']").removeClass('tile-available').addClass('blue');
+                $(".dvSourceContainer").find("[drag-id='" + sourceTileId + "']").removeClass('tile-available').addClass('blue');
             }
 
         });
     });
-    //$("#dvDest").find("li.purple").each(function() {
+    //$(".dvDest").find("li.purple").each(function() {
     //    addRemoveBtn($(this).attr("drag-id"))
     //})
 
@@ -743,7 +828,7 @@ function initTilesOld() {
 function initTiles() {
     $("#sort2").find(".purple").each(function () {
         var destTileId = $(this).attr('drag-id');
-        var matched = $("#dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
         if (matched.length > 0) {
             matched.each(function () {
                 $(this).removeClass('tile-available').addClass('blue');
@@ -753,12 +838,26 @@ function initTiles() {
             removeRemoveBtn($(this));
         }
     });
+    $("#sort3").find(".purple").each(function () {
+        var destTileId = $(this).attr('drag-id');
+        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        if (matched.length > 0) {
+            matched.each(function () {
+                $(this).remove();
+            });
+            // addRemoveBtn($(this));
+        } else {
+            removeRemoveBtn($(this));
+        }
+    });
 }
 
 function markAsDropped(source) {
-    $(".dvSource").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
+    $(".originalstory").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
     $("#sort2").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
+    $("#sort3").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
+    $("#sort3").find("[drag-id='" + source + "']").removeAttr("style");
 }
 
 function addRemoveBtn(elt) {
@@ -774,11 +873,20 @@ function removeRemoveBtn(elt) {
 
 function removeTile(elt) {
     var toremove = $(elt).closest("li");
-    toremove.remove();
     console.log(toremove.attr('id'));
+    toremove.remove();
+
     var elem = $(".dvSource").find("[drag-id='" + toremove.attr('drag-id') + "']");
     elem.removeClass('blue');
     elem.addClass('tile-available');
+
+    // var elem2 = $(".tab-pane").filter(".active").find($("ul"));
+    var elem2 = $(".tab-pane").filter("[id='" + toremove.attr('nei-id') + "']").find($("ul"));
+    var t1 = toremove.text().toString();
+    t1 = t1.replace('X','')
+    var t = "<li class=\"ui-state-default tile-available purple\" drag-id=\""+toremove.attr('drag-id')+"\" nei-id=\""+toremove.attr('nei-id')+"\">"+t1+"</li>"
+    elem2.append(t);
+
 
 }
 
@@ -800,7 +908,7 @@ function removeTileEvent(elt) {
 }
 
 function initDragNDrop() {
-    $(".dvSource").find("li").draggable({
+    $(".originalstory").find("li").draggable({
         helper: "clone",
         opacity: 0.5,
         cursor: "crosshair",
@@ -820,7 +928,7 @@ function initDragNDrop() {
                 //removeTile();
                 console.log('receive');
                 //updateTrainingScore();
-                //var elems = $("#dvDest").find('ul li span.tile-text');
+                //var elems = $(".dvDest").find('ul li span.tile-text');
                 //var text_all = elems.map(function () {
                 //    return $(this).text();
                 //}).get().join(";");
@@ -831,8 +939,38 @@ function initDragNDrop() {
 
 
         }
-    });
 
+    });
+    var byClass = function (id) {
+        return document.getElementsByClassName(id);
+    };
+    var sort1Col = byClass("sort1");
+    for (let item of sort1Col) {
+        new Sortable(item, {
+            group: 'shared', // set both lists to same group
+            animation: 150,
+            onEnd: function (/**Event*/evt) {
+                // updateTrainingScore();
+                if ($("#sort3").find("[drag-id='" + $(evt.item).attr("drag-id") + "']").length > 0) {
+                    var source = $(evt.item).attr("drag-id");
+                    markAsDropped(source);
+                    addRemoveBtn($("#sort3").find("[drag-id='" + source + "']"));
+                    console.log('receive');
+                }
+            },
+        });
+    }
+
+    if($("#sort3").length>0){
+        new Sortable(sort3, {
+            group: 'shared', // set both lists to same group
+            animation: 150,
+            // onEnd: function (/**Event*/evt) {
+            //     console.log($(evt.target).attr("drag-id"));
+            //
+            // },
+        });
+    }
 
    // $(".dvSource, #sort2").disableSelection();
 }
@@ -850,19 +988,21 @@ function initMyDragNDrop() {
             $(event.target).find('li').css("white-space", "nowrap");
         },
         stop: function (event,ui) {
-
             updateTrainingScore();
         }
     });
+
 }
 
 function updateTrainingScore() {
     if ($("#training-name").length > 0) {
-        var elems = $("#dvDest").find('ul li span.tile-text');
+        var elems = $(".dvSourceContainer").find('ul li span.tile-text');
         var text_all = elems.map(function () {
             return $(this).text();
         }).get().join(";");
+
         $("#tails").val(text_all);
+
         $.ajax({
             url: "/loom/training/getTrainingScore",
             type: 'POST',
@@ -885,16 +1025,31 @@ function updateTrainingScore() {
 
 }
 
-function resetTraining() {
-    $("#reset-training").click(function () {
-        $("#sort2").find("li").each(function () {
-            removeTile($(this));
-            //$(this).parent().remove();
-            //console.log($(this).parent().attr('id'));
-            //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
-            //
-            //elem.removeClass('blue').addClass('tile-available');
-        });
+function resetTraining(uiflag) {
+    $(".reset-training").click(function () {
+        // if(uiflag===1){
+            $("#sort2").find("li").each(function () {
+                removeTile($(this));
+                //$(this).parent().remove();
+                //console.log($(this).parent().attr('id'));
+                //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+                //
+                //elem.removeClass('blue').addClass('tile-available');
+            });
+        // }else if(uiflag===0){
+        //     var initial = [];
+        //     $('#sort1').each(function(index, anchor) {
+        //         initial.push(anchor.innerHTML);
+        //     });
+        //     $('#sort1').each(function(index, anchor) {
+        //         anchor.innerHTML = initial[index];
+        //     });
+        //     var toremove = $("#sort3").find("li");
+        //     toremove.remove();
+        //
+        // }
+
+
         updateTrainingScore();
         //$("#training-score").text("0.0")
     });
@@ -902,8 +1057,8 @@ function resetTraining() {
 }
 
 function submitTraining() {
-    //$("#submit-training").click(function () {
-    //    var elems = $("#dvDest").find('ul li span');
+    // $("#submit-training").click(function () {
+    //    var elems = $(".dvDest").find('ul li span');
     //    var text_all = elems.map(function () {
     //        return $(this).text();
     //    }).get().join(";");
@@ -935,12 +1090,12 @@ function submitTraining() {
     //        }
     //    }).error(function () {
     //        setTimeout(function () {
-    //            $("#dvDest").css('border', 'solid 1px red');
+    //            $(".dvDest").css('border', 'solid 1px red');
     //            $("#warning-alert").addClass('show');
     //            $("#warning-alert").removeClass('hide');
     //        }, 1000);
     //    });
-    //});
+    // });
 }
 
 var after;
@@ -1083,15 +1238,17 @@ function submitSimulationAjax() {
     //    //});
     //}
     clearInterval(roundInterval);
-    var elems = $("#dvDest").find('ul li');
+    var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
+
     console.log(text_all);
     $.blockUI({
         message: '<h1>Waiting for other participants...</h1>',
         timeout: 1000
     });
+
     $.ajax({
         url: "/loom/training/submitSimulation",
         type: 'POST',
@@ -1099,6 +1256,7 @@ function submitSimulationAjax() {
             tails: text_all,
             simulation: $("#simulation").val(),
             roundNumber: $("#roundNumber").text()
+
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
@@ -1122,7 +1280,7 @@ function submitSimulationAjax() {
             }, 1000);
         }
     }).error(function () {
-        $("#dvDest").css('border', 'solid 1px red');
+        $(".dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');
     });
@@ -1130,7 +1288,7 @@ function submitSimulationAjax() {
 
 function resetSimulation() {
     $("#reset-simulation").click(function () {
-        $("#dvDest").find('ul li').remove();
+        $(".dvDest").find('ul li').remove();
     });
 }
 
@@ -1151,11 +1309,10 @@ function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
     console.log("ROUND: "+$("#roundNumber").val());
     clearInterval(roundInterval);
-    var elems = $("#dvDest").find('ul li');
+    var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
-
     var session =  $("#session").val();
     $("#neighborsStories").block({message:"<em>Refreshing neighbors...</em>"});
     $.ajax({
@@ -1168,21 +1325,21 @@ function submitExperimentAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-
-        //This never happens
-        if (data.indexOf("finishExperiment") >= 0) {
-            shouldLogout = false;
-            console.log("/loom/experiment/finishExperiment/" + session);
-            window.location = "/loom/session/finishExperiment/" + session;
-
-        } else {
-            //processRoundData(data);
-            startPingingForNextRound();
-
-        }
+        startPingingForNextRound();
+        // //This never happens
+        // if (data.indexOf("finishExperiment") >= 0) {
+        //     shouldLogout = false;
+        //     console.log("/loom/experiment/finishExperiment/" + session);
+        //     window.location = "/loom/session/finishExperiment/" + session;
+        //
+        // } else {
+        //     //processRoundData(data);
+        //     startPingingForNextRound();
+        //
+        // }
     }).error(function () {
         $.unblockUI();
-        $("#dvDest").css('border', 'solid 1px red');
+        $(".dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');
     });
@@ -1190,7 +1347,7 @@ function submitExperimentAjax() {
 
 function resetExperiment() {
     //$("#reset-experiment").click(function () {
-    //    $("#dvDest").find('ul li').remove();
+    //    $(".dvDest").find('ul li').remove();
     //});
 }
 

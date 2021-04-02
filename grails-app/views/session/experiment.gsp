@@ -40,7 +40,7 @@
                                     <g:render template="experiment_content"
                                               model="[neighborState: neighborState, round: round,
                                                       timeRemaining: timeRemaining,
-                                                      loomSession  : loomSession, paused: paused]"/>
+                                                      loomSession  : loomSession, paused: paused, uiflag:uiflag]"/>
                                 </div>
 
                                 <p>Your story:</p>
@@ -50,20 +50,31 @@
                                 <div class="row">
                                     <div class="col-xs-1"></div>
 
-                                    <div class="col-xs-10 table-bordered ui-widget-content" id="dvDest">
-                                        <ul style="min-height: 200px !important;" id="sort2" class="g_list">
-                                            <g:each in="${myState}" var="tt">
+                                    <div class="col-xs-10 table-bordered ui-widget-content dvDest" >
+                                        <g:if test="${uiflag == 1}">
+                                            <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">
+                                                <g:each in="${myState}" var="tt">
 
-                                                <li class="ui-state-default purple"
-                                                    drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
+                                                    <li class="ui-state-default purple"
+                                                        drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
+                                                </g:each>
+                                            %{--<g:else>--}%
+                                            %{--<li class="placeholder">Add tails here</li>--}%
+                                            %{--</g:else>--}%
+                                            </ul>
+                                        </g:if>
+                                        <g:else>
+                                            <ul style="min-height: 200px !important;" id="sort3" class="g_list">
+                                                <g:each in="${myState}" var="tt">
 
-                                            </g:each>
+                                                    <li class="ui-state-default purple"
+                                                        drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
 
+                                                </g:each>
 
-                                        %{--<g:else>--}%
-                                        %{--<li class="placeholder">Add tails here</li>--}%
-                                        %{--</g:else>--}%
-                                        </ul>
+                                            </ul>
+                                        </g:else>
+
                                     </div>
 
                                     <div class="col-xs-1"></div>
@@ -77,10 +88,12 @@
 
                     <div class="col-xs-1"></div>
                 </div>
+
             </section>
         </div>
     </div>
     <script type="text/javascript">
+
         jQuery(document).ready(function () {
             shouldLogout = true;
             window.onbeforeunload = logout;
@@ -89,4 +102,6 @@
 
         });
     </script>
+
+
 </g:applyLayout>

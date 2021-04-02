@@ -12,22 +12,43 @@ class ExperimentService {
 
     def sessionService
     def springSecurityService
+    def mturkService
     Map<Object,ExperimentRoundStatus> experimentsRunning = [:]
     def waitingTimer = [:]
 
 
 
 
-    private def getUserTilesForCurrentRound(String alias, Session s) {
+    private def getUserTilesForCurrentRound(String alias, Session s, int neiSize) {
         if (!alias) {
             return []
         }
 
         def round = getExperimentStatus(s)?.round
+        if(round==1){
+            println()
+        }
         if (round) {
+            def userMaxRound = UserRoundStory.findAllBySession(s).max { it.round }.round
+            def currentUserRound = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it?.round }?.round
+
+            // if its neighbor has not submitted, check its neighbor's neighbor, which should exclude itself, if that exists,
+            if (currentUserRound && currentUserRound!=userMaxRound && neiSize == 1) {
+                def myAlias = sessionService.lookupUserAlias(s, springSecurityService.currentUser as User)
+                Set<String> aliases = (Edge.findAllByExperimentAndTarget(s.exp,alias).source +
+                        Edge.findAllByExperimentAndSourceAndIsDirected(s.exp,alias,false).target) as Set
+                if(aliases){
+                    aliases.remove(myAlias)
+                    int i = 1
+                    aliases.sort().collectEntries {
+                        [(i++), getUserTilesForCurrentRound(it as String,s, aliases.size())]
+                    }
+                }
+
+            }
             //log.debug("Trying to get tiles for ${alias} and session ${s} in round ${round}")
             //TODO This needs optimization
-            def story = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it.round }
+            def story = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it?.round }
             if (story) {
                 return story.currentTails
             }
@@ -40,9 +61,11 @@ class ExperimentService {
 
     def getMyState(Session expSession) {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
-        getUserTilesForCurrentRound(myAlias, expSession)
-    }
+        println("mystateresrsarfs")
+        println(getUserTilesForCurrentRound(myAlias, expSession, myAlias.size()))
+        getUserTilesForCurrentRound(myAlias, expSession, myAlias.size())
 
+    }
 
 
     def getNeighborModel(Session s) {
@@ -63,9 +86,12 @@ class ExperimentService {
                 Edge.findAllByExperimentAndSourceAndIsDirected(expSession.exp,myAlias,false).target) as Set
 
         int i = 1
+
         aliases.sort().collectEntries {
-            [(i++), getUserTilesForCurrentRound(it,expSession)]
+
+            [(i++), getUserTilesForCurrentRound(it as String,expSession, aliases.size())]
         }
+
 
     }
 
@@ -104,12 +130,14 @@ class ExperimentService {
         Timer t = new Timer()
         t.scheduleAtFixedRate({
             ExperimentRoundStatus status = experimentsRunning[session.id]
-            if (status.checkPauseStatus() == ExperimentRoundStatus.Status.ACTIVE) {
+            if (status.checkPauseStatus() == ExperimentRoundStatus.Status.ACTIVE || status.checkPauseStatus() == ExperimentRoundStatus.Status.FINISHED) {
                 t.cancel()
                 advanceRound(session)
+
             }
 
         } as TimerTask, 1000l, 1000l)
+
     }
 
 
@@ -135,7 +163,7 @@ class ExperimentService {
             experimentsRunning[session.id] = new ExperimentRoundStatus(session.exp.max_node,session.exp.roundCount)
         }
         if (experimentsRunning[session.id].isFinished()) {
-            //experimentsRunning.remove(session.id)
+
             Session.withSession {
                 def s = Session.get(session.id)
                 s.state = Session.State.FINISHED
@@ -153,6 +181,9 @@ class ExperimentService {
            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
         } else if (status.round == round) {
             status.submitUser(user.id)
+            if(round==1){
+                mturkService.assignQualification(user.turkerId, Story.constructQualificationString(session.exp.story),1)
+            }
             log.debug("(${user.id}) Submitted ${round}")
 
         } else {

@@ -42,6 +42,22 @@ class UserService {
         }
     }
 
+    def createUserByWorkerId(String workerId) {
+        def password = makeRandomPassword();
+        def username = "user-"+User.count().toString()
+        def user = new User(username: username, password: password, turkerId: workerId)
+
+        if (user.save(flush: true)) {
+            log.info("Created user with id ${user.id}")
+            addDefaultRole(user)
+            return user
+        } else {
+            log.error("User creation attempt failed")
+            log.error(user?.errors?.dump())
+            return null;
+        }
+    }
+
     def createUserWithRandomUsername() {
         def username = makeRandomUsername()
         def password = makeRandomPassword()

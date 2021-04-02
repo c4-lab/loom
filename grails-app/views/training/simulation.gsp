@@ -2,7 +2,7 @@
     <div class="wrapper" id="simulationMainContainer">
         <div id="simulation-content-wrapper">
             <g:render template="simulation_content"
-                      model="[userList: userList, simulation: simulation, roundNbr: roundNbr]"/>
+                      model="[userList: userList, simulation: simulation, roundNbr: roundNbr, uiflag:uiflag]"/>
         </div>
     </div>
 
@@ -12,20 +12,26 @@
                 <div class="row">
                     <div class="col-md-12">
 
-                    <div class="col-md-2">Final score</div>
+                        <div class="col-md-2">Final score</div>
 
-                    <div class="col-md-8">
-                        %{--<g:render template="alert_finish" model="[score: score]"/>--}%
-                        <span id="scorePanel"></span>
-                    </div>
+                        <div class="col-md-8">
+                            %{--<g:render template="alert_finish" model="[score: score]"/>--}%
+                            <span id="scorePanel"></span>
+                        </div>
 
-                    <div class="col-md-2">
+                        <div class="col-md-2">
 
-                        <g:form controller="training" action="trainingComplete">
+                            <g:form controller="training" action="trainingComplete">
 
-                            <g:hiddenField name="roundNumber"/>
-                            <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
-                        </g:form>
+                                <g:hiddenField name="roundNumber"/>
+                                <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
+                            </g:form>
+    %{--                        <g:form controller="training" action="reading">--}%
+
+    %{--                            <g:hiddenField name="roundNumber"/>--}%
+    %{--                            <g:submitButton name="continue" class="btn btn-success" value="Continue"/>--}%
+    %{--                        </g:form>--}%
+                        </div>
                     </div>
                 </div>
             </section>

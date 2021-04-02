@@ -6,3 +6,4 @@ target/
 .slcache
 .slcache-old
 lib/third-party
+*.DS_Store

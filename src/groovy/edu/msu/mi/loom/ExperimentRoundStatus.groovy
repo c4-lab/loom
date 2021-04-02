@@ -37,6 +37,7 @@ class ExperimentRoundStatus {
                 (submitted.size() == userCount || (System.currentTimeMillis() - pauseStart) >= pauseLength)) {
             log.debug("Advancing round with ${submitted.size()}")
             round++
+
             if (isFinished()) {
                 currentStatus = Status.FINISHED
             } else {

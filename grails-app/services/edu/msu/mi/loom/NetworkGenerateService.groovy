@@ -258,31 +258,9 @@ class NetworkGenerateService {
                 }
 
 
-
-
-
-
-//                String node_list = nodeStoryMap.get(rng.nextInt(nodeStoryMap.size()));
-//                nodeStoryMap.eachWithIndex{key, value, t ->
-//
-//
-//                    println "$i $key: $value"}
-//                if(node_list.size()-1 < max_degree){
-//                    paramList.add()
-//                }
-//                nodeStoryMap.put(i.toString(), paramList)
-//                if (!target.containsEdge(v, u)) {
-//                    target.addEdge(v, u);
-//                    ++added;
-//                    newEndpoints.add(v);
-//                    if (i > 1) {
-//                        newEndpoints.add(u);
-//                    }
-//                }
             }
             nodeStoryMap.put("n"+i.toString(), paramList)
 
-//            nodes.addAll(newEndpoints);
         }
 
 

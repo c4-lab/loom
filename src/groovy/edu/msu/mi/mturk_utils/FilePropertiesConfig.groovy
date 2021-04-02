@@ -20,10 +20,14 @@ public class FilePropertiesConfig extends ClientConfig{
     public final static String RETRY_ATTEMPTS = "retry_attempts";
     public final static String RETRY_DELAY_MILLIS = "retry_delay_millis";
     public final static String RETRIABLE_ERRORS = "retriable_errors";
-
+    public final static String SANDBOX_ENDPOINT = "sandbox_endpoint";
+    public final static String SIGNING_ENDPOINT = "signing_region";
     public final static String NOT_CONFIGURED_PREFIX = "[insert";
     public final static String NOT_CONFIGURED_POSTFIX = "]";
     public final static String SANDBOX = "sandbox";
+
+    private String sandboxEndpoint = null;
+    private String signingEndpoint = null;
 
     private static Logger log = Logger.getLogger(FilePropertiesConfig.class);
 
@@ -48,8 +52,25 @@ public class FilePropertiesConfig extends ClientConfig{
 
 
 
+    public void setAccessKeyId(String accessKeyId) {
+        this.accessKeyId = accessKeyId;
+    }
 
+    public void setSandboxEndpoint(String sandboxEndpoint) {
+        this.sandboxEndpoint = sandboxEndpoint;
+    }
 
+    public void setSigningEndpoint(String signingEndpoint) {
+        this.signingEndpoint = signingEndpoint;
+    }
+
+    public String getSandboxEndpoint() {
+        return this.sandboxEndpoint;
+    }
+
+    public String getSigningEndpoint() {
+        return this.signingEndpoint;
+    }
 
     public FilePropertiesConfig(String propertiesFilename) throws IOException {
         this(new FileInputStream(propertiesFilename));
@@ -60,32 +81,36 @@ public class FilePropertiesConfig extends ClientConfig{
         super();
 
 
-        Properties props = new java.util.Properties();
+        Properties props = new Properties();
         props.load(stream);
 
-        if (getTrimmedProperty(SANDBOX,props,"true").equals("false")) {
-            setServiceURL(PRODUCTION_SERVICE_URL)
-        }
+//        if (getTrimmedProperty(SANDBOX,props,"true").equals("false")) {
+//            setServiceURL(PRODUCTION_SERVICE_URL)
+//        }
 
         setAccessKeyId(getTrimmedProperty(ACCESS_KEY_ID, props,  getAccessKeyId()));
         setSecretAccessKey(getTrimmedProperty(SECRET_ACCESS_KEY, props, getSecretAccessKey()));
-        setServiceURL(getTrimmedProperty(SERVICE_URL, props,  getServiceURL()));
+        setSandboxEndpoint(getTrimmedProperty(SANDBOX_ENDPOINT, props,  getAccessKeyId()))
+        setSigningEndpoint(getTrimmedProperty(SIGNING_ENDPOINT, props,  getSigningEndpoint()))
 
-        // optional settings
-        setLogLevel(getTrimmedProperty(LOG_LEVEL, props, null));
-        String retryAttemptsProp = getTrimmedProperty(RETRY_ATTEMPTS, props, null);
-        setRetryAttempts(retryAttemptsProp != null ? Integer.parseInt(retryAttemptsProp) : 3);
 
-        String retryDelayProp = getTrimmedProperty(RETRY_DELAY_MILLIS, props,null);
-        setRetryDelayMillis(retryDelayProp != null ? Long.parseLong(retryDelayProp) : 500);
-
-        String errorsProp = getTrimmedProperty(RETRIABLE_ERRORS, props,null);
-        String[] errors = errorsProp != null ? errorsProp.split(",") : new String[0];
-        Set<String> retriableErrors = new HashSet<String>();
-        for (String error : errors) {
-            retriableErrors.add(error.trim());
-        }
-        setRetriableErrors(retriableErrors);
+//        setServiceURL(getTrimmedProperty(SERVICE_URL, props,  getServiceURL()));
+//
+//        // optional settings
+//        setLogLevel(getTrimmedProperty(LOG_LEVEL, props, null));
+//        String retryAttemptsProp = getTrimmedProperty(RETRY_ATTEMPTS, props, null);
+//        setRetryAttempts(retryAttemptsProp != null ? Integer.parseInt(retryAttemptsProp) : 3);
+//
+//        String retryDelayProp = getTrimmedProperty(RETRY_DELAY_MILLIS, props,null);
+//        setRetryDelayMillis(retryDelayProp != null ? Long.parseLong(retryDelayProp) : 500);
+//
+//        String errorsProp = getTrimmedProperty(RETRIABLE_ERRORS, props,null);
+//        String[] errors = errorsProp != null ? errorsProp.split(",") : new String[0];
+//        Set<String> retriableErrors = new HashSet<String>();
+//        for (String error : errors) {
+//            retriableErrors.add(error.trim());
+//        }
+//        setRetriableErrors(retriableErrors);
 
     }
 }

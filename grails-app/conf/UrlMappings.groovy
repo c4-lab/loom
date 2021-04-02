@@ -41,11 +41,7 @@ class UrlMappings {
             action = "score"
         }
 
-//        "/session/s/$session?workerId=$workerId&pass=$pass" {
-//            println("sfdsdfdddfsffdfdfdfdfdsdfasfd")
-//            controller = "session"
-//            action = "stopWaiting"
-//        }
+
 
         "/session/s/$session" {
             controller = "session"
