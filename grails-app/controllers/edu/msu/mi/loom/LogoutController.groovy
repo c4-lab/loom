@@ -23,7 +23,7 @@ import org.springframework.security.web.RedirectStrategy
 @Secured('permitAll')
 class LogoutController {
     def springSecurityService
-    RedirectStrategy redirectStrategy
+//    RedirectStrategy redirectStrategy
 
     /**
      * Index action. Redirects to the Spring security logout uri.
@@ -40,15 +40,16 @@ class LogoutController {
 
 
 
-        String url = SpringSecurityUtils.securityConfig.logout.filterProcessesUrl+"?reason=${params.reason?:""}&session=${params.sessionId?:""}"
+//        String url = SpringSecurityUtils.securityConfig.logout.filterProcessesUrl+"?reason=${params.reason?:""}&session=${params.sessionId?:""}"
 
-        redirectStrategy.sendRedirect request, response, "/"
+//        redirectStrategy.sendRedirect request, response, "/"
 
  // '/logoff'
 
         //TODO why is this critical???  Without this, the user session does not seem to be fully invalided
         request.logout()
-        response.flushBuffer()
+//        response.flushBuffer()
+        return render(view: 'reason', model:[reason: params.reason])
 
     }
 }

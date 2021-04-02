@@ -19,7 +19,6 @@ class SessionService {
 
             }
 
-        experimentService.kickoffSession(s)
 
     }
 
@@ -38,7 +37,7 @@ class SessionService {
 
 
     def assignAliasesAndMakeActive(Session session) {
-        List<String> aliases = session.exp.initialStories.collect {it.alias}.take(2)
+        List<String> aliases = session.exp.initialStories.collect {it.alias}
         Collections.shuffle(aliases)
         List<UserSession> sessions = UserSession.findAllBySession(session).sort{it.started}
         aliases.each {

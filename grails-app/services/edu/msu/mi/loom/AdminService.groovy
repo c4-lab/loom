@@ -19,11 +19,8 @@ class AdminService {
             session.doneCode =  randomStringGenerator.generateLowercase(12)
             session.fullCode =  randomStringGenerator.generateLowercase(12)
             session.waitingCode = randomStringGenerator.generateLowercase(12)
-
-
-
-
             log.debug("About to save session...")
+
             if (session.save(flush: true)) {
                 log.debug("New expSession with id ${session.id} has been created.")
                 return session
@@ -45,58 +42,17 @@ class AdminService {
     def createExperiment(String name,Story story,int min_node,int max_nodes,int min_degree,int max_degree,
                          int initialNbrOfTiles,Experiment.Network_type network_type,int rounds,int duration,
                          def qualifier,TrainingSet training_set, int m, def probability,
-                         def accepting,def completion,def waiting,def score) {
+                         def accepting,def completion,def waiting,def score, int uiflag) {
         def tail
 
         Experiment experiment
 
         Experiment.withSession { status ->
-//            def tr = json.stories.first()
-//            story = new Story(title: tr.title).save(flush: true)
-//
-//            for (int i = 0; i < tr.data.size(); i++) {
-//                tail = new Tile(text: tr.data.get(i), text_order: i)
-//                story.addToTails(tail).save(flush: true)
-//                log.debug("New tail with id ${tail.id} has been created.")
-//            }
-
-//            def source, ets
-//            switch (network_type) {
-//                case Experiment.Network_type.RingGraph.toString():
-//                    source = Training.get(id)
-//                    deleteTrainingTasks(source)
-//                    break;
-//                case Experiment.Network_type.WattsStrogatz.toString():
-//                    source = Simulation.get(id)
-//                    deleteSimulationTasks(source)
-//                    break
-//                case Experiment.Network_type.BarabasiAlbert.toString():
-//                    source = Experiment.get(id)
-//                    deleteExperimentTasks(source)
-//                    deleteUserStories(source)
-//                    break
-//                case ExpType.SESSION.toString():
-//                    source = Session.get(id)
-//                    deleteExperimentTasks(source?.exp)
-//                    deleteUserStories(source?.exp)
-//                    deleteUserRoundStories(source)
-//                    deleteUserSeesion(source)
-//
-//
-//                    break
-//            }
-//            if (network_type == Experiment.Network_type.RingGraph){
-//                networkGenerateService.generateGraph(min_node, max_node,m, probability)
-//            } else if (network_type == Experiment.Network_type.WattsStrogatz){
-//                networkGenerateService.generateGraph(min_node, max_node,m, probability)
-//            } else if (n)
-//            def network = networkGenerateService.generateGraph(min_node, max_node, m, probability)
-
 
             experiment = new Experiment(name: name, story: story, network_type:network_type, qualifier:qualifier,training_set:training_set,
                     roundTime: duration, roundCount: rounds, initialNbrOfTiles: initialNbrOfTiles, max_node: max_nodes, min_node:min_node
             ,m:m, probability: probability,min_degree:min_degree,max_degree:max_degree, accepting:accepting, completion:completion,
-                    waiting:waiting, score:score)
+                    waiting:waiting, score:score, uiflag:uiflag)
 
             if (experiment.save(flush: true)) {
 

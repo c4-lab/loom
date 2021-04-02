@@ -20,6 +20,8 @@ class SimulationService {
         log.debug("Now in simulation with $tempStory")
         //TODO handle multiple simulations
         def simulation = ts.simulations.getAt(0)
+        println("simuuusdf")
+        println(simulation)
         def userCount = simulation.userCount
         def roundTime = simulation.roundTime
         LocalDateTime endDate
@@ -100,10 +102,12 @@ class SimulationService {
                 roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), trainingSet: trainingSet)
 
         if (simulation.save(flush: true)) {
+            mturkService.createQualification(simulation,"loom simulation")
             trainingSet.addToSimulations(simulation)
             log.debug("New simulation with id ${simulation.id} has been created for session ${trainingSet.name}.")
-            story = new Story(title: "Story").save(flush: true)
-//            mturkService.createQualification(story, "loom story")
+            def storyId = Story.count() + 1
+            story = new Story(title: "Story "+storyId.toString()).save(flush: true)
+            mturkService.createQualification(story, "loom story")
             simulation.addToStories(story)
             for (int i = 0; i < json.solution.size(); i++) {
                 tail = new Tile(text: json.solution.get(i), text_order: i)
@@ -145,7 +149,6 @@ class SimulationService {
     def addRoundScore(List<Integer> integers, Simulation simulation) {
         UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(springSecurityService.currentUser,simulation.trainingSet)
         def correct = simulation.stories.first().tails.text_order.sort()
-
 
         SimulationScore ss = (uts.simulationsCompleted)?uts.simulationsCompleted.first():null
         if (!ss) {

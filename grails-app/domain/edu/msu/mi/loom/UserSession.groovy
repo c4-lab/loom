@@ -12,6 +12,7 @@ class UserSession implements Serializable{
     Date stoppedWaiting
     String state = "WAITING"
     int wait_time
+    String assignmentId
 
     static mapping = {
         id composite: ['user', 'session']
@@ -24,6 +25,7 @@ class UserSession implements Serializable{
         state nullable: true
         started nullable: true
         wait_time nullable: true
+        assignmentId nullable: true
     }
 
 

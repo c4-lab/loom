@@ -8,7 +8,7 @@
 <div class="wrapper">
     <div id="training-content-wrapper">
         <g:render template="content"
-                  model="[training: training, tts: tts, tailsList: tailsList, rawTails: rawTails, roomUrl: roomUrl]"/>
+                  model="[training: training, tts: tts, tailsList: tailsList, rawTails: rawTails, roomUrl: roomUrl, uiflag: uiflag]"/>
     </div>
 </div>
 </body>

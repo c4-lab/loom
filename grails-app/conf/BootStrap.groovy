@@ -10,36 +10,33 @@ class BootStrap {
     def trainingSetService
     def mturkService
     def adminService
-    def graphGenerateService
     def init = { servletContext ->
         environments {
             development {
 
-//                graphGenerateService.generateGraph()
-
                 createInitialRecords()
 
-                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"A training set","", 2,0.1);
-
-                mturkService.createQualification("loomnumHits", 'number of Hits')
-                mturkService.createQualification("loomperformances", 'performance score')
+                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","-;-;-", 2,0.1,1);
+                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey", 0,0.1,0);
                 mturkService.createQualification("loomreadings", 'reading score')
-                mturkService.createQualification("loomvaccines", 'vaccine score')
-//                mturkService.createQualification(trainingset)
-//                def experiment = adminService.createExperiment("exp1", Story.get(1),)
+                mturkService.createQualification("loomsurveys", 'survey score')
 
-//                createExperiment(String name, Story story,int min_node,int max_nodes,int min_degree,int max_degree,
-//                        int initialNbrOfTiles, Experiment.Network_type network_type,int rounds,int duration,
-//                def qualifier,TrainingSet training_set, int m, def probability,
-//                def accepting,def completion,def waiting,def score)
-//                HashMap<String, List<String>> nodeStoryMap = parseNodeStoryMap("session_1/example1.graphml")
-//
-//                adminService.setExperimentNetwork(nodeStoryMap, experiment.id)
-//
-//                def session = adminService.createSession(experiment,trainingset)
-//
-//
-//                sessionService.launchSession(session.id)
+
+                adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
+                        2,Experiment.Network_type.Lattice,3,10,
+                "",TrainingSet.get(1), 2, 0,
+                0.1,0.1,0.1,0.1,1)
+
+                adminService.createExperiment("Experiment 2",Story.get(1),2,2,1,1,
+                        2,Experiment.Network_type.Lattice,3,10,
+                        "",TrainingSet.get(1), 2, 0,
+                        0.1,0.1,0.1,0.1,0)
+
+                def session1 = adminService.createSession(Experiment.get(1),trainingset)
+                sessionService.launchSession(session1.id)
+                def session2 = adminService.createSession(Experiment.get(2),trainingset)
+                sessionService.launchSession(session2.id)
+
                 createTestUsers(trainingset)
 
 
@@ -47,15 +44,17 @@ class BootStrap {
 
             production {
                 TrainingSet.list().each {
-                    mturkService.createQualification(it, 'loom training qualification')
+                    mturkService.createQualification(it as TrainingSet, 'loom training')
                 }
+                mturkService.createQualification("loomreadings", 'reading score')
+                mturkService.createQualification("loomsurveys", 'survey score')
             }
         }
     }
     def destroy = {
     }
 
-    private void createInitialRecords() {
+    private static void createInitialRecords() {
         def adminRole = Role.findWhere(authority: Roles.ROLE_ADMIN.name) ?: new Role(authority: Roles.ROLE_ADMIN.name).save(failOnError: true)
         def creatorRole = Role.findWhere(authority: Roles.ROLE_CREATOR.name) ?: new Role(authority: Roles.ROLE_CREATOR.name).save(failOnError: true)
         def userRole = Role.findWhere(authority: Roles.ROLE_USER.name) ?: new Role(authority: Roles.ROLE_USER.name).save(failOnError: true)
@@ -73,15 +72,29 @@ class BootStrap {
     }
 
     private void createTestUsers(TrainingSet ts) {
-        mturkService.assignQualification("A39D6U8W1FJEJ3")
+//        mturkService.assignQualification("A3FTY9DQKKJ002","3CNIZ8EIUVQZYD8YHMEU9ANVZY73BK",500)
+        mturkService.assignQualification("A3FTY9DQKKJ002","loomsimulations1",1)
+        mturkService.assignQualification("A3FTY9DQKKJ002","loomreadings",1)
+        mturkService.assignQualification("A3FTY9DQKKJ002","loomsurveys",1)
+
         (1..10).each { n ->
-            def user = new User(username: "user-${n}", password: "pass", turkerId: "A39D6U8W1FJEJ3").save(failOnError: true)
+//            def user = new User(username: "user-${n}", password: "pass", turkerId: "A39D6U8W1FJEJ3").save(failOnError: true)
+            def user = new User(username: "user-${n}", password: "pass", turkerId: "A3FTY9DQKKJ002").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)
             UserTrainingSet.create(user,ts,true,true)
 
 
         }
+        def user = new User(username: "user-${11}", password: "pass", turkerId: "A2YZSRSEBX1FDU").save(failOnError: true)
+        def role = Role.findByAuthority(Roles.ROLE_USER.name)
+        UserRole.create(user, role, true)
+        UserTrainingSet.create(user,ts,true,true)
+
+        // create users without training
+        user = new User(username: "user-${12}", password: "pass").save(failOnError: true)
+        role = Role.findByAuthority(Roles.ROLE_USER.name)
+        UserRole.create(user, role, true)
     }
 
     private HashMap<String, List<String>> parseNodeStoryMap(String name) {
@@ -92,7 +105,7 @@ class BootStrap {
     }
 
     private JSONElement parseTrainingSessionToText() {
-        def filePath = "data/session_2/trainingset.json"
+        def filePath = "data/session_2/trainingset2.json"
         def text = grailsApplication.getParentContext().getResource("classpath:$filePath").getInputStream().getText()
         def json = JSON.parse(text)
 

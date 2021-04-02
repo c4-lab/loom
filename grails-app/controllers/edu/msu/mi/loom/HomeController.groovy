@@ -33,8 +33,7 @@ class HomeController {
 
 //        def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
 //        def original = orig?.requestURL
-        println("usersdf")
-        println(userSessions)
+
 //        if(params.session)
         if (userSessions) {
             UserSession userSession = userSessions.first()

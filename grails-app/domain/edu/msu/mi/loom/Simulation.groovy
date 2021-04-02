@@ -23,6 +23,10 @@ class Simulation {
     static mapping = {
     }
 
+    static String constructQualificationString(Simulation s) {
+        "loomsimulations${s.id}"
+    }
+
     public Simulation clone() {
         Simulation copy = new Simulation()
 

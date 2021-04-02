@@ -1,6 +1,6 @@
 package edu.msu.mi.loom.process;
 
-import edu.msu.mi.loom.file.IRandomStringGenerator;
+import edu.msu.mi.loom.process.IRandomStringGenerator;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Component;
 

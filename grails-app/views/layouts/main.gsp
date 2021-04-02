@@ -16,6 +16,9 @@
     <asset:stylesheet src="bootstrap.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
     <asset:stylesheet src="application.css"/>
     <asset:stylesheet src="blue.css"/>
     <asset:stylesheet src="_all-skins.min.css"/>
@@ -23,15 +26,22 @@
     <asset:stylesheet src="dragndrop.css"/>
     <asset:stylesheet src="jquery-ui.css"/>
     <asset:stylesheet src="bootstrap.vertical-tabs.css"/>
+%{--    <asset:stylesheet src="clippings-html5-sortable.min.css"/>--}%
 
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <asset:javascript src="jquery-1.11.3.js"/>
     <asset:javascript src="jquery-ui.js"/>
     <asset:javascript src="bootstrap.min.js"/>
     <asset:javascript src="jquery.blockUI.js"/>
+%{--    <asset:javascript src="clippings-html5-sortable.min.js"/>--}%
     <asset:javascript src="application.js"/>
+%{--    <asset:javascript src="sortable.complete.esm.js"/>--}%
+%{--    <asset:javascript src="sortable.core.esm.js"/>--}%
+    <asset:javascript src="Sortable.js"/>
     <asset:javascript src="loom.js"/>
     <g:layoutHead/>
 </head>

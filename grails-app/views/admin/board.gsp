@@ -96,19 +96,21 @@
 
 
                                                     </span>
-                                                    <span class='description count'>Connected users: <b>${sessionState[session.id][1]}</b>
-
-                                                    </span>
-                                                    <span class='description session-span'>Status: ${session.state ?: "INACTIVE"}
-
-                                                    </span>
+                                                    <span class='description connected'>Connected users: <b>${sessionState[session.id][6]}</b></span>
+                                                    <span class='description session-span'>Status: ${session.state ?: "INACTIVE"}</span>
                                                     <span class='description current-round'>Current round: ${sessionState[session.id][4]}</span>
                                                     <span class='description payment-status' hidden>Payment status: ${sessionState[session.id][5]}</span>
-
+                                                    <span class='description count'>User sessions: <b>${sessionState[session.id][1]}</b></span>
                                                     <span class='description set-timer'></span>
 
 
+
                                                 </div>
+
+
+%{--                                                <div class="loader" id="checking-payable"></div>--}%
+%{--                                                <div class="loader" id="paying"></div>--}%
+
                                             </div>
 
                                             <div class="row">
@@ -123,8 +125,19 @@
                                                         <button class='btn btn-primary session-action'  data-text-swap="Start Listening" data-text-original="Cancel"
                                                         >Cancel</button>
                                                         <button class='btn btn-primary start-session'>Launch</button>
-                                                        <button class='btn btn-primary pay-session' hidden>Pay</button>
+%{--                                                        <g:if test="${sessionState[session.id][6]}">--}%
+%{--                                                            <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>--}%
+%{--                                                        </g:if>--}%
+%{--                                                        <g:else>--}%
+                                                            <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>
+%{--                                                        </g:else>--}%
 
+%{--                                                        <g:if test="${sessionState[session.id][7]}">--}%
+%{--                                                            <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>--}%
+%{--                                                        </g:if>--}%
+%{--                                                        <g:else>--}%
+                                                            <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>
+%{--                                                        </g:else>--}%
 
                                                         <span class="sessionId" style="display:none">${session.id}</span>
                                                         <span class="startPending" style="display:none">${sessionState[session.id][2]}</span>
@@ -152,6 +165,8 @@
                                                 <span class='description'>${experiment.story.tails.sort {
                                                     it.text_order
                                                 }.text.join(" ")}</span>
+
+                                                <span class='description'>${experiment.uiflag?"paragraph":"list"}</span>
 
                                             </div>
                                             <div class="user-block clo-xs-2">
@@ -193,6 +208,9 @@
                                                     </span>
                                                 </g:each>
 
+                                                <span class='description'>
+                                                    <b>Qualifier: ${training.qualifier}</b></br>
+                                                </span>
                                             </div>
 
 
@@ -290,12 +308,18 @@
 %{--                        <input type="text" style="color:black;" name="qualifier">--}%
 
                     </div>
-
+                    <div>
+                        <label>Interface flag: </label>
+                        <label><input type="radio" name="UIflag" value="0" />draggable lists</label>
+                        <label><input type="radio" name="UIflag" value="1"/>paragraphs</label>
+                    </div>
+                    <p></p>
                     <div>
                         <label>Qualifier string: </label>
                         <label><input type="radio" onclick="chooseExperimentQualifier('no')" name="qualifier" value="no" />ignore</label>
                         <label><input type="radio" onclick="chooseExperimentQualifier('yes')" name="qualifier" value="yes"/>setting</label>
                     </div>
+                    <p></p>
                     <div id="qualify" style="display:none">
                         <label >Performance >=</label>
                         <select  style="display:none" >
@@ -311,11 +335,7 @@
 
                         <input type="number"  name='vaccine_score_min' id='vaccine_score_min' min="1" max="15" value="1" style="color:black;"/>
                         <input type="number" name='vaccine_score_max' id='vaccine_score_max' min="1" max="15" value="1" style="color:black;"/>
-%{--                        <select name="vaccine" id="exp_vaccine" style="color:black;">--}%
-%{--                            <option value="anti">anti</option>--}%
-%{--                            <option value="pro">pro</option>--}%
 
-%{--                        </select>--}%
 
                     </div>
 
@@ -358,13 +378,11 @@
                         <label>edges per node: </label>
                         <input type="number" min="2" max="100" name='M' id='BA_M'  value="2" style="color:black;">
                         <p></p>
-%{--                        <label>P (optional): </label>--}%
-%{--                        <input type="number" step="0.1" name='prob' id='BA_prob' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>--}%
 
 
                     </div>
-                    <p style="block-size: auto">Payment</p>
-                    <div class="form-group">
+                    <p></p>
+                    <label>Payment</label>
 
                         <label for="name">accepting the HIT:</label>
                         <input type="number" step="0.1" name='accepting' id='accepting' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
@@ -379,7 +397,7 @@
                         <input type="number" step="0.1" name='score' id='score' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
                         <p></p>
 
-                    </div>
+
                 </div>
 
 
@@ -410,43 +428,61 @@
 
                     <div class="form-group">
                         <label for="trainingSetName">TrainingSet</label>
-                        <g:textField name="name" id="trainingSetName" placeholder="Training Set Name" required="true"/>
+                        <g:textField name="name" id="trainingSetName" placeholder="Training Set Name" required=""/>
 
                     </div>
-
+                    <div>
+                        <label>Interface flag: </label>
+                        <label><input type="radio" name="UIflag" value="0" />draggable lists</label>
+                        <label><input type="radio" name="UIflag" value="1"/>paragraphs</label>
+                    </div>
                     <label>number of HITs: </label>
                     <input type="number"  name='hit_num' id='hit_num' min="0" max="100" value="0" style="color:black;" required>
                     <p></p>
                     <label for="name">payment:</label>
                     <input type="number" step="0.1" name='training_payment' id='training_payment' oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
                     <p></p>
-                    <div class="form-group">
                         <label >File input</label>
                         <input type="file" id="trainingInputFile" name="inputFile" required>
 
-                        <p class="help-block">Select experiment file (*.json).</p>
+                        <p class="help-block">Select trainingset file (*.json).</p>
 
-                        <label>check performance: </label>
-                        <g:checkBox name="perform" value="${false}" onclick="chooseTrainingQualifier('perform')"/>
-                        <div id="traing_perform" style="display:none">
-                            <label >Performance >=</label>
+                        <label>check simulation: </label>
+                        <g:checkBox name="simulation" value="${false}" />
+%{--                        <div id="traing_perform" style="display:none">--}%
+%{--                            <label >Simulation Score >=</label>--}%
 
-                            <select  style="display:none" >
-                                <option><input type="number"  name='performance' id='traing_performance' min="0" max="5" value="0" style="color:black;" required></option>
-                            </select>
+%{--                            <select  style="display:none" >--}%
+%{--                                <option><input type="number"  name='performance' id='simulation_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
+%{--                            </select>--}%
 
-                        </div>
+%{--                        </div>--}%
                         <p></p>
 
-                        <label>check reading performance: </label>
-                        <g:checkBox name="read" value="${false}" />
+                        <label>check reading: </label>
+                        <g:checkBox name="read" value="${false}"/>
+%{--                        <div id="traing_reading" style="display:none">--}%
+%{--                            <label >Reading score >=</label>--}%
+
+%{--                            <select  style="display:none" >--}%
+%{--                                <option><input type="number"  name='reading' id='reading_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
+%{--                            </select>--}%
+
+%{--                        </div>--}%
                         <p></p>
-                        <label>check vaccine: </label>
-                        <g:checkBox name="vaccine" value="${false}" />
+                        <label>check survey: </label>
+                        <g:checkBox name="survey" id="survey" value="${false}"/>
+%{--                        <div id="traing_survey" style="display:none">--}%
+%{--                            <label >Survey score >=</label>--}%
+
+%{--                            <select  style="display:none" >--}%
+%{--                                <option><input type="number"  name='survey' id='survey_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
+%{--                            </select>--}%
+
+%{--                        </div>--}%
 
                     </div>
 
-                </div>
 
 
                 <div class="modal-footer">

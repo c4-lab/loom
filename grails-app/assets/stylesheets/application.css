@@ -31,12 +31,24 @@ body {
     overflow-y: auto;
 }
 
+.buttonload {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 10px 10px; /* Some padding */
+    font-size: 13px /* Set a font size */
+}
 /* Layout */
 .wrapper {
     min-height: 100%;
     position: static;
     overflow: hidden;
 }
+
+
+/*#sort1 { list-style-type: none; margin: 0; padding: 0; width: 60%; }*/
+/*#sort1 li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }*/
+/*#sort1 li span { position: absolute; margin-left: -1.3em; }*/
 
 .wrapper:before,
 .wrapper:after {

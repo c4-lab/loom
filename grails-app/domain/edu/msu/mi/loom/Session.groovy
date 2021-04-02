@@ -26,6 +26,8 @@ class Session {
     String waitingCode
     Long startPending
     Long startActive
+    int paid = 0
+    int total = 0
 
     List<String> HITId = new ArrayList<>()
 
@@ -37,7 +39,6 @@ class Session {
         state nullable: true
         startPending nullable: true
         startActive nullable: true
-
 
 
     }

@@ -37,33 +37,33 @@ class AdminController {
     def board() {
 
         def sessionStates = Session.list().collectEntries {
-            int count = UserSession.countBySession(it)
+            int count = UserSession.countBySession(it as Session)
 //            List listening_time = UserSession.findAllBySession(it).sort {UserSession.started}
 //            print(listening_time)
 
             boolean active = false
             Long startPending = null
             Long startActive = null
-            String completed = null
-            def payment_status = null
-            def hits = null
+
             def round = 0
+            def check_greyed = true
+            def pay_greyed = true
             if (it.state == Session.State.PENDING) {
                 active = experimentService.waitingTimer[it.id]
                 startPending = it.startPending
 
-
             } else if (it.state == Session.State.ACTIVE) {
                 round = experimentService.getExperimentStatus(it)?.round
                 active = experimentService.experimentsRunning.containsKey(it.id)
-//                activeTime = new Date().getTime()
                 startActive = it.startActive
 
 
-            }else if (it.state == Session.State.CANCEL || it.state == Session.State.FINISHED){
-                 (hits,payment_status) = mturkService.check_payable(it)
             }
-            [(it.id):[active,count,startPending,startActive, round, payment_status]]
+
+            def paid = it.paid
+            def total = it.total
+            def connected_users = UserSession.countBySessionAndStateInList(it as Session, ['WAITING', 'ACTIVE'])
+            [(it.id):[active,count,startPending,startActive, round, paid.toString()+"/"+total.toString(), connected_users]]
         }
 
         render(view: 'board', model: [sessions: Session.list(), sessionState: sessionStates, experiments: Experiment.list(), trainings: TrainingSet.list(), stories: Story.list()])
@@ -90,11 +90,10 @@ class AdminController {
             if(!round){
                 round = 0
             }
+            def connected_users = UserSession.countBySessionAndStateInList(session, ['WAITING','ACTIVE'])
 
-            def (payable_hit, payment_status) = mturkService.check_payable(session)
-            println("payayayayya")
-            println(payment_status)
-            def result = [ 'payment_status':payment_status,'startPending': session.startPending, 'startActive': session.startActive, 'count':count,'sessionState':session.state.toString(),'round':round]
+
+            def result = ['startPending': session.startPending, 'startActive': session.startActive, 'connected':connected_users,'count':count,'sessionState':session.state.toString(),'round':round]
 
             render result as JSON
         }
@@ -141,6 +140,7 @@ class AdminController {
             def network_type = params.network_type
             def rounds = params.rounds
             def duration = params.duration
+            def uiflag = params.uiflag
             def qualifier = ''
             def training_set = TrainingSet.get(params.trainingSet)
             def m = params.m
@@ -156,123 +156,75 @@ class AdminController {
             def score = params.score
             if (network_type == 'Lattice'){
                 network_type = Experiment.Network_type.Lattice
-//            min_degree = min_degree[0]
-//            max_degree = 0
-//            m = 0
-//            prob = 0
+
             }else if (network_type == 'Newman_Watts'){
                 network_type = Experiment.Network_type.Newman_Watts
-//            min_degree = min_degree[1]
-//            max_degree = max_degree[0]
-//            m = 0
-//            prob = prob[0]
+
             }else if(network_type == 'Barabassi_Albert'){
                 network_type = Experiment.Network_type.Barabassi_Albert
-//            min_degree = min_degree[2]
-//            max_degree = max_degree[1]
-//            prob = prob[1]
+
             }
             if (isQualifier == 'yes'){
+
                 qualifier = "Hitnum>500;ApprovalRate>98;Local=US;"+"!Story"+story.id+";Performance>="+performance+";"+"Reading>="+reading+";"+ vaccine_min+"<=vaccine<="+vaccine_max+";"
             }
 
             def experiment = adminService.createExperiment(name,story,min_nodes as int,max_nodes as int, min_degree as int, max_degree as int,initialNbrOfTiles as int,
-                    network_type,rounds as int,duration as int,qualifier,training_set, m as int, prob, accepting,completion,waiting,score)
+                    network_type,rounds as int,duration as int,qualifier,training_set, m as int, prob, accepting,completion,waiting,score, uiflag as int)
             if (experiment) {
                 def result = [ 'message': "success"]
-//
                 render result as JSON
 
-//                HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(experiment)
-//
-//                if (nodeStoryMap){
-//                    println(nodeStoryMap)
-//                    adminService.setExperimentNetwork(nodeStoryMap, experiment.id as int)
-////                def url = createLink(controller: 'admin', action: 'board')
-////                render(contentType: 'text/html', text: "<script>window.location.href='$url'</script>")
-//
-//                } else{
-//                    def result = [ 'message': "error"]
-////
-//                    render result as JSON
-//                }
-//            def file = request.getFile('graphmlFile').inputStream
-//            HashMap<String, List<String>> nodeStoryMap = graphParserService.parseGraph(file)
-                // [n0:[Story1, n2], n1:[Story1, n2], n2:[Story1, n0, n1, n3], n3:[Story1, n2, n5, n4], n4:[Story1, n3, n6], n5:[Story1, n7], n6:[Story1, n4, n5, n8], n7:[Story1, n5, n8], n8:[Story1, n6, n7, n9, n10], n9:[Story1, n8], n10:[Story1, n8]]
 
-
-//                return redirect(action: 'board')
-//                return redirect(action: 'completeExperimentCreation', params: [experiment: experiment.id])
-//                render(view: 'board')
-
-//            return redirect(action: 'completeExperimentCreation', params: [experiment: experiment.id, initNbrOfTiles: experiment.initialNbrOfTiles])
             }else{
                 def result = [ 'message': "exp_error"]
 
                 render result as JSON
             }
 
-
-
-
         }
 
     }
 
     def uploadTrainingSet() {
-        def file = request.getFile('inputFile')
+        def file = params.inputFile
         def qualifiers_list = []
         def hit_num = params.hit_num
         def name = TrainingSet.findByName(params.name)
         def training_payment = params.training_payment
+        def uiflag = params.UIflag
+
         if (name){
 
-//            def result = [ 'message': "duplicate"]
-//            render result as JSON
             flash.error = "name already exists, please use another name."
 
         }else{
-            if ('perform' in params){
-                def performance_score = params.performance
-                qualifiers_list.add("peform>="+performance_score as String)
+            if ('simulation' in params){
+                qualifiers_list.add("simulation")
             }else{
-                qualifiers_list.add('')
+                qualifiers_list.add('-')
             }
             if ('read' in params){
                 qualifiers_list.add("read")
             }else{
-                qualifiers_list.add('')
+                qualifiers_list.add('-')
             }
-            if ('vaccine' in params){
-                qualifiers_list.add("vaccine")
+            if ('survey' in params){
+                qualifiers_list.add("survey")
             }else{
-                qualifiers_list.add('')
+                qualifiers_list.add('-')
             }
             def text = fileService.readFile(file as MultipartFile)
             def json = jsonParserService.parseToJSON(text)
 
             if (json) {
 
-                trainingSetService.createTrainingSet(json,params.name, qualifiers_list.join(';'), hit_num as int, training_payment)
+                trainingSetService.createTrainingSet(json,params.name, qualifiers_list.join(';'), hit_num as int, training_payment, uiflag as int)
 
             }
-//            def result = [ 'message': "success"]
-////
-//            render result as JSON
 
         }
-//        if (file) {
-//            def text = fileService.readFile(file as MultipartFile)
-//            def json = jsonParserService.parseToJSON(text)
-//            println("trainisnidfsd")
-//            println(params)
-//            println(json)
-//            if (json) {
-//
-//                trainingSetService.createTrainingSet(json,params.name)
-//
-//            }
-//        }
+
 
         redirect(action: 'board')
     }
@@ -291,7 +243,7 @@ class AdminController {
             if (story){
                 mturkService.createQualification(story, "loom story")
                 def result = [ 'message': "success"]
-//
+
                 render result as JSON
             }else{
                 def result = [ 'message': "error"]
@@ -329,12 +281,15 @@ class AdminController {
     def startSession() {
 
         def session = Session.get(params.sessionId)
+        boolean auto = params.auto
         List userSession = UserSession.findAllBySessionAndStateInList(session, ["ACTIVE", "WAITING"])
         def result = ['status': null]
         if(session.state == Session.State.CANCEL){
             result = ['status': "cancel"]
 //            render(text:"cancel")
         }else{
+
+
             if (userSession.size() >= session.exp.min_node) {
                 if (session.state == Session.State.PENDING) {
                     experimentService.kickoffSession(session)
@@ -360,7 +315,6 @@ class AdminController {
 
         def session = Session.get(params.sessionId)
         mturkService.updateExpirationForHit(session)
-//        mturkService.updateExpirationForHit(session)
         if (session.state == Session.State.PENDING || session.state == Session.State.ACTIVE) {
             session.startPending = null
             session.startActive = null
@@ -388,22 +342,40 @@ class AdminController {
         def result = [ 'startPending': session.startPending, 'startActive': session.startActive, 'count':count,'sessionState':session.state.toString(),'round':round]
 
         render result as JSON
-//        redirect(action: 'board')
     }
 
     def paySession(){
         def session = Session.get(params.sessionId)
-        def (payableHIT, b) = mturkService.check_payable(session)
-        if (payableHIT.size()){
+        def (payableHIT, paid, total, count) = mturkService.check_payable(session)
+        if (payableHIT){
             mturkService.pay_HIT(session)
-            def result = ['status': "success"]
+            def result = ['status': "success","payment_status":total.toString()+"/"+total.toString()]
             render result as JSON
         }else{
-            def result = ['status': "no_payable"]
+            def result = ['status': "no_payable","payment_status":total.toString()+"/"+total.toString()]
             render result as JSON
         }
 
 
+    }
+
+    def checkPayble(){
+        def check_greyed = false
+        def pay_greyed = false
+        def session = Session.get(params.sessionId)
+        def (payableHIT, paid, total, session_count) = mturkService.check_payable(session)
+//        def (payableHIT, paid, total, session_count) = ["","0","0","0"]
+        if(total == session_count || total == paid){
+            check_greyed = true
+        }
+        if(paid == total && total!=0){
+            pay_greyed = true
+        }
+        def result = ['payment_status': paid.toString()+"/"+total.toString(),
+                      'check_greyed':check_greyed, 'pay_greyed':pay_greyed]
+        println("checdfasdfsdf")
+        println(result)
+        render result as JSON
     }
 
 
@@ -426,15 +398,6 @@ class AdminController {
         if (sessionId) {
             def session = Session.get(sessionId)
             if (session) {
-
-
-
-
- //               def simulationsCount = Simulation.countBySession(session)
-
-
-//                def trainings = Training.findAllBySession(session)
-//                def simulations = Simulation.findAllBySession(session)
 
                 render(view: 'session', model: [ session : session])
             } else {

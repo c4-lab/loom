@@ -41,7 +41,11 @@
                     </table>
 
                     <div class="center-block">
-                        <g:form controller="training" action="trainingComplete">
+%{--                        <g:form controller="training" action="trainingComplete">--}%
+%{--                            <g:hiddenField name="trainingSetId" value="${trainingId}"/>--}%
+%{--                            <g:submitButton name="continue" class="btn btn-success" value="Continue"/>--}%
+%{--                        </g:form>--}%
+                        <g:form controller="training" action="${action}">
                             <g:hiddenField name="trainingSetId" value="${trainingId}"/>
                             <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
                         </g:form>
