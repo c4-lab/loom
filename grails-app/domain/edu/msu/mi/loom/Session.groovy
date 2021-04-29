@@ -31,7 +31,9 @@ class Session {
 
     List<String> HITId = new ArrayList<>()
 
-    static hasMany = [HITId: String]
+    List<String> HITTypeId = new ArrayList<>()
+
+    static hasMany = [HITId: String, HITTypeId: String]
 
     static constraints = {
         name blank: false

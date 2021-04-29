@@ -73,7 +73,7 @@ class TrainingController {
                     }
                 }
                 flash.error = true
-                render(view: 'training', model: [tts: tts, training: training, tailsList: userTiles, rawTails: userTails, uiflag: params.uiflag as int])
+                render(view: 'training', model: [tts: tts, training: training, tailsList: userTiles, rawTails: userTails, uiflag: params.uiflag as int, assignmentId: params.assignmentId])
                 return
             }
         }
@@ -90,13 +90,13 @@ class TrainingController {
         def tempStory = params.tempStory
         def user = springSecurityService.currentUser as User
         def uiflag = params.uiflag
-        println "usdfsdfdfdf"
-        println(uiflag)
+        def assignmentId = params.assignmentId
+
         println "Round $roundNumber - $tempStory"
         if (trainingSetId) {
             def trainingSet = TrainingSet.get(trainingSetId)
             if (UserTrainingSet.findByTrainingSetAndUser(trainingSet,user)?.complete) {
-                return redirect(action:"trainingComplete", params: [trainingId: trainingSetId])
+                return redirect(action:"trainingComplete", params: [trainingSetId: trainingSetId])
             }
             if (trainingSet) {
                 def simModel = simulationService.simulation(trainingSet, roundNumber, tempStory)
@@ -112,7 +112,7 @@ class TrainingController {
                     log.debug("Should render sim content with $simModel")
                     return render(template: 'simulation_content', model: simModel+[uiflag:uiflag as int])
                 } else {
-                    return render(view: 'simulation', model: simModel+[uiflag:uiflag as int])
+                    return render(view: 'simulation', model: simModel+[uiflag:uiflag as int, assignmentId: assignmentId])
                 }
             }
         }
@@ -135,7 +135,7 @@ class TrainingController {
             simulationService.addRoundScore(tailsList, simulation)
 
             def tempSimulation = new TempSimulation(simulation: simulation, currentTails: tailsList, user: springSecurityService.currentUser as User).save(flush: true)
-            redirect(action: 'simulation', params: [trainingSet: simulation?.trainingSet?.id, roundNumber: roundNumber+1, tempStory: tempSimulation?.currentTails,uiflag:simulation?.trainingSet?.uiflag])
+            redirect(action: 'simulation', params: [trainingSet: simulation?.trainingSet?.id, roundNumber: roundNumber+1, tempStory: tempSimulation?.currentTails,uiflag:simulation?.trainingSet?.uiflag,assignmentId: params.assignmentId])
             return
         }
 
@@ -149,15 +149,17 @@ class TrainingController {
         def scores = UserTrainingSet.findByUserAndTrainingSet(user,training).simulationsCompleted.first().scores
         def qualifier = training.qualifier
         def action = "trainingComplete"
-
-//        mturkService.assignQualification(user.turkerId,Simulation.constructQualificationString(simulation), scores.last())
-        render(view:"trainingScore",model:[scores:scores,trainingId:training.id, action:action])
+        if(params.assignmentId){
+            println("assinginignignig")
+            mturkService.assignQualification(user.turkerId,Simulation.constructQualificationString(simulation), scores.last())
+        }
+        render(view:"trainingScore",model:[scores:scores,trainingId:training.id, action:action, assignmentId: params.assignmentId])
     }
 
     def reading(){
         def trainingSetId = params.trainingSetId
         ArrayList<Reading> readingTasks = TrainingSet.get(params.trainingSetId).readings.sort{it.id} as ArrayList<Reading>
-        render(view:"reading", model:[trainingSetId:trainingSetId, readingTasks:readingTasks])
+        render(view:"reading", model:[trainingSetId:trainingSetId, readingTasks:readingTasks, assignmentId: params.assignmentId])
     }
 
 
@@ -178,13 +180,17 @@ class TrainingController {
             }
         }
         trainingSetService.changeTrainingState(user,null,null,trainingSet.readings.first(),null,null,correct/total as Float)
-        redirect(action: 'training', params: [trainingId: trainingSetId, begin:true])
+        if(params.assignmentId){
+            println("assinginignignig")
+            mturkService.assignQualification(user.turkerId, "loomreadings",correct/total as Float)
+        }
+        redirect(action: 'training', params: [trainingId: trainingSetId, begin:true, assignmentId: params.assignmentId])
     }
 
     def survey(){
         def trainingSetId = params.trainingSetId
         List<Survey> surveyTask = TrainingSet.get(params.trainingSetId).surveys.sort{it.id} as ArrayList<Survey>
-        render(view:"survey", model: [trainingSetId:trainingSetId, surveyTask:surveyTask])
+        render(view:"survey", model: [trainingSetId:trainingSetId, surveyTask:surveyTask, assignmentId: params.assignmentId])
     }
 
     def surveyComplete(){
@@ -200,8 +206,11 @@ class TrainingController {
         }
 
         trainingSetService.changeTrainingState(user,null,null,null,trainingSet.surveys.first(), null,scores as Float)
-
-        redirect(action: 'training', params: [trainingId: trainingSetId, begin:true])
+        if(params.assignmentId){
+            println("assinginignignig")
+            mturkService.assignQualification(user.turkerId, "loomsurveys",scores as Float)
+        }
+        redirect(action: 'training', params: [trainingId: trainingSetId, begin:true, assignmentId: params.assignmentId])
 
     }
 
@@ -230,8 +239,7 @@ class TrainingController {
             return null;
         }
 
-        trainingSetService.changeTrainingState(user,null,null,null,null,trainingSet.id)
-        redirect(action: 'training', params: [trainingId: trainingSet.id, begin:true])
+        redirect(action: 'training', params: [trainingId: trainingSet.id, begin:true, assignmentId: params.assignmentId])
     }
 
     def getTrainingScore() {
@@ -259,6 +267,7 @@ class TrainingController {
         render(String.valueOf(result))
     }
 
+
     def training() {
         def trainingSetId = params.trainingId as Long
         def user = springSecurityService.currentUser as User
@@ -266,7 +275,14 @@ class TrainingController {
 
             def trainingSet = TrainingSet.get(trainingSetId)
             def qualifier = trainingSet.qualifier
+            def assignmentId = params.assignmentId
             UserTrainingSet uts = UserTrainingSet.findByTrainingSetAndUser(trainingSet,user)
+            if(!uts){
+                uts = new UserTrainingSet(user: user, trainingSet: trainingSet, trainingStartTime: new Date(), isDemographicsComplete: true, assignmentId: assignmentId)
+                uts.save(flush: true)
+            }else if(assignmentId && uts.assignmentId && uts.assignmentId != assignmentId as String){
+                return render(view: 'duplicate_uts')
+            }
             def seqNumber = params.seqNumber?Integer.parseInt(params.seqNumber):null
             def training
             if (uts?.complete) {
@@ -275,38 +291,39 @@ class TrainingController {
 
             if(!Demographics.findByUser(user)){
 
-                return render(view: 'demographics', model: [trainingSetId: trainingSet.id])
+                return render(view: 'demographics', model: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
             }
-//            if(!uts){
             if(qualifier.contains("read") && !uts?.readingScore){
-                redirect(action: 'reading', params: [trainingSetId: trainingSet.id])
+                return redirect(action: 'reading', params: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
             } else if(qualifier.contains("survey") && !uts?.surveyScore){
-                redirect(action: 'survey', params: [trainingSetId: trainingSet.id])
+                return redirect(action: 'survey', params: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
             } else if (params.begin) {
-                return render(view:"intro",model: [trainingId:trainingSetId])
+                return render(view:"intro",model: [trainingId:trainingSetId, assignmentId:assignmentId])
             }
 //            }
+            if(qualifier.contains("simulation")){
+                if (seqNumber!=null)
+                    training = trainingSet.trainings[seqNumber]
+                else {
+                    training = trainingSetService.getNextTraining(user, trainingSet)
+                    log.debug("Got training $training")
+                }
 
-            if (seqNumber!=null)
-                training = trainingSet.trainings[seqNumber]
-            else {
-                training = trainingSetService.getNextTraining(user, trainingSet)
-                log.debug("Got training $training")
+                if (training) {
+                    def tts = TrainingTask.findAllByTraining(training).tail
+                    log.debug("Render training")
+                    render(view: 'training', model: [tts: tts, training: training, uiflag: trainingSet.uiflag as int, assignmentId:assignmentId])
+                    return
+                }
+    //            else if(!mturkService.hasQualification(user.turkerId, Simulation.constructQualificationString(trainingSet.simulations.first()))){
+                else if (!uts?.simulationScore){
+                        return redirect(action: 'simulation', params: [trainingSet: trainingSet.id, roundNumber: 0, uiflag: trainingSet.uiflag as int, assignmentId:assignmentId])
+                    }
+            }else{
+                return redirect(action: 'trainingComplete', params: [trainingSetId: trainingSetId])
             }
 
-            if (training) {
-                println("traanifnsidnfsd")
-                def tts = TrainingTask.findAllByTraining(training).tail
-                log.debug("Render training")
-                render(view: 'training', model: [tts: tts, training: training, uiflag: trainingSet.uiflag as int])
-                return
-            }
-//            else if(!mturkService.hasQualification(user.turkerId, Simulation.constructQualificationString(trainingSet.simulations.first()))){
-            else{
-                redirect(action: 'simulation', params: [trainingSet: trainingSet.id, roundNumber: 0, uiflag: trainingSet.uiflag as int])
-            }
-
-            return
+//            return
 
         }
 

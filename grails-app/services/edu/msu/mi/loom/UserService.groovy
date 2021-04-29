@@ -42,10 +42,13 @@ class UserService {
         }
     }
 
-    def createUserByWorkerId(String workerId) {
+    def createUserByWorkerId(String workerId, boolean isTurker = false) {
         def password = makeRandomPassword();
         def username = "user-"+User.count().toString()
-        def user = new User(username: username, password: password, turkerId: workerId)
+        def user = new User(username: username, password: password)
+        if(isTurker){
+            user = new User(username: username, password: password, turkerId: workerId)
+        }
 
         if (user.save(flush: true)) {
             log.info("Created user with id ${user.id}")

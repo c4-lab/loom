@@ -16,11 +16,10 @@ class BootStrap {
 
                 createInitialRecords()
 
-                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","-;-;-", 2,0.1,1);
-                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey", 0,0.1,0);
+                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","simulation;-;-",0.1,1);
+                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
                 mturkService.createQualification("loomreadings", 'reading score')
                 mturkService.createQualification("loomsurveys", 'survey score')
-
 
                 adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
                         2,Experiment.Network_type.Lattice,3,10,
@@ -82,14 +81,12 @@ class BootStrap {
             def user = new User(username: "user-${n}", password: "pass", turkerId: "A3FTY9DQKKJ002").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)
-            UserTrainingSet.create(user,ts,true,true)
-
-
+//            UserTrainingSet.create(user,ts,true,true)
         }
         def user = new User(username: "user-${11}", password: "pass", turkerId: "A2YZSRSEBX1FDU").save(failOnError: true)
         def role = Role.findByAuthority(Roles.ROLE_USER.name)
         UserRole.create(user, role, true)
-        UserTrainingSet.create(user,ts,true,true)
+//        UserTrainingSet.create(user,ts,true,true)
 
         // create users without training
         user = new User(username: "user-${12}", password: "pass").save(failOnError: true)

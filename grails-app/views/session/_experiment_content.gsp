@@ -27,18 +27,18 @@
 
             <div class="tab-pane ${n.key != 1 ?: "active"}" id="neighbour${n.key}">
             <g:if test="${uiflag == 1}">
-                <ul class="dvSource originalstory">
+                <ul class="dvSource originalstory g_list">
                     <g:each in="${n.value}" var="tt">
                         <li class="ui-state-default tile-available "
-                            drag-id="${tt.id}">${tt.text}</li>
+                            drag-id="${tt.id}"><span>${tt.text}</span></li>
                     </g:each>
                 </ul>
             </g:if>
             <g:else>
-                <ul class="sort1">
+                <ul class="sort1 originalstory_list g_list">
                     <g:each in="${n.value}" var="tt">
                         <li class="ui-state-default tile-available"
-                            drag-id="${tt.id}">${tt.text}</li>
+                            drag-id="${tt.id}"><span>${tt.text}</span></li>
                     </g:each>
                 </ul>
             </g:else>

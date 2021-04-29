@@ -10,6 +10,7 @@ class Tile {
         text blank: false
         text_order min: 0
         story nullable: true
+        text maxSize:100000, minSize: 1
     }
 
     public Tile clone() {

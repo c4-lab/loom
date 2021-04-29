@@ -57,6 +57,7 @@
 
                                                     <li class="ui-state-default purple"
                                                         drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
+                                                    <p></p>
                                                 </g:each>
                                             %{--<g:else>--}%
                                             %{--<li class="placeholder">Add tails here</li>--}%

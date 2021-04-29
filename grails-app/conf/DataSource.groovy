@@ -20,7 +20,7 @@ environments {
         dataSource {
             //logSql = true
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
-            url = "jdbc:mysql://localhost:3306/loom"
+            url = "jdbc:mysql://localhost:3307/loom"
             driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
             username = "root"

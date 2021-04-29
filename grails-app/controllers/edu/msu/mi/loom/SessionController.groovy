@@ -41,9 +41,6 @@ class SessionController {
                 log.debug(us.errors as String)
             }
         } else if(us && us.assignmentId != assignmentId){
-            println("asdffdfdfs")
-            println(us.assignmentId)
-            println(assignmentId)
             return render(view: 'duplicate_us')
         }
 //        sessionService.reachMaximumUser(session)
@@ -51,7 +48,7 @@ class SessionController {
 //        session = Session.get(params.session)
         if(sessionService.reachMaximumUser(session)) {
             int count = UserSession.countBySession(session)
-            if(! ExperimentInitialUserStory.findByExperiment(session.exp)){
+            if(!ExperimentInitialUserStory.findByExperiment(session.exp)){
                 HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(session.exp, count)
                 if (nodeStoryMap){
 
@@ -116,8 +113,6 @@ class SessionController {
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
         User user = springSecurityService.currentUser as User
         String assignmentId = params.assignmentId
-        println("adsfsdfsdfasasd")
-        println(assignmentId)
 
         if(user && session){
 

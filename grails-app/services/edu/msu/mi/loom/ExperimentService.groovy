@@ -181,9 +181,9 @@ class ExperimentService {
            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
         } else if (status.round == round) {
             status.submitUser(user.id)
-            if(round==1){
-                mturkService.assignQualification(user.turkerId, Story.constructQualificationString(session.exp.story),1)
-            }
+//            if(round==1){
+//                mturkService.assignQualification(user.turkerId, Story.constructQualificationString(session.exp.story),1)
+//            }
             log.debug("(${user.id}) Submitted ${round}")
 
         } else {

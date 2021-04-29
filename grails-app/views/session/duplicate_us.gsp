@@ -20,9 +20,6 @@
 %{--                            </g:else>--}%
                         </p>
 
-                        <h1 class="text-center">
-                            ${session.waitingCode}
-                        </h1>
 
                     </div>
                     <div class="col-md-1"></div>
@@ -33,13 +30,13 @@
         </div>
     </div>
 
-    <script type="text/javascript">
+%{--    <script type="text/javascript">--}%
 
 
 
-        jQuery(document).ready(function () {
-            shouldLogout = true;
-            logout();
-        });
-    </script>
+%{--        jQuery(document).ready(function () {--}%
+%{--            shouldLogout = true;--}%
+%{--            logout();--}%
+%{--        });--}%
+%{--    </script>--}%
 </g:applyLayout>

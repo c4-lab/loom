@@ -38,6 +38,7 @@
 
 
                             <g:hiddenField name="trainingSetId" value="${trainingSetId}"/>
+                            <g:hiddenField name="assignmentId" value="${assignmentId}"/>
                             <g:submitButton name="submit" class="btn btn-success" value="Submit"/>
                         </g:form>
 

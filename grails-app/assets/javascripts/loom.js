@@ -3,12 +3,21 @@ $(document).ready(function () {
         $("#experiment-file-upload-modal").modal('show');
     });
 
+    $("#create-users").click(function () {
+        $("#create-users-modal").modal('show');
+    });
+
     $("#network_type").click(function () {
         var network_type=$("#select option:selected").val();
         alert(network_type);
     });
 
-
+    $(".launch_training").click(function () {
+        var trainingId = $(this).find('span').text();
+        // alert($("#launch_training").find('span').text());
+        $("#launch-training-modal").modal('show');
+        $("#trainingID").text(trainingId);
+    });
 
 
     $("#create-trainingset").click(function () {
@@ -223,7 +232,7 @@ $(document).ready(function () {
         check_i.addClass("fa fa-spinner fa-spin");
 
         $.ajax({
-            url: "/loom/admin/checkPayble",
+            url: "/loom/admin/checkSessionPayble",
             type: 'POST',
             data:
                 {
@@ -570,9 +579,320 @@ $(document).ready(function () {
 
     });
 
+    // var trainings = $('.training-row');
+
+    // trainings.each(function (){
+    //     var timeInterval;
+    //     var sessionId = $(".sessionId",this.parentNode).text();
+    //     var setTimer = $(".set-timer",this);
+    //     var currentRound = $(".current-round",this);
+    //     var count = $(".count",this);
+    //     var connected = $(".connected",this);
+    //     var status = $(".session-span",this);
+    //     // var completed = $(".completed",this);
+    //     var pay_btn = $(".pay-session", this.parentNode);
+    //     // var check_payable_btn = $(".check-payable", this.parentNode);
+    //     // var pay_status = $(".payment-status",this);
+    //     // alert(pay_btn.text());
+    //     setInterval(function (){
+    //
+    //
+    //         $.ajax({
+    //
+    //             url: "/loom/admin/refresh",
+    //             type: 'POST',
+    //             data:
+    //                 {
+    //                     sessionId: sessionId,
+    //
+    //                 },
+    //             dataType:"json",
+    //             success: function (data){
+    //                 var current = Date.now();
+    //                 count.text("User sessions: "+data.connected);
+    //                 connected.text("Connected users: "+data.count)
+    //                 if(data.sessionState === "PENDING"){
+    //                     clearInterval(timeInterval);
+    //                     setTimer.text( "Pending Time: "+Math.floor((current-data.startPending)/1000/60)+" minutes");
+    //                     // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
+    //
+    //                     status.text("Status: "+data.sessionState);
+    //
+    //
+    //
+    //
+    //                     // pay_btn.hide();
+    //                     // check_payable_btn.hide();
+    //                     currentRound.text("Current round: "+data.round)
+    //
+    //                     // timeInterval = setTimeer(data, setTimer, "Pending",status,count,currentRound);
+    //
+    //                 }
+    //                 else if(data.sessionState === "ACTIVE"){
+    //
+    //                     clearInterval(timeInterval);
+    //                     setTimer.text( "Active Time: "+Math.floor((current-data.startActive)/1000/60)+" minutes");
+    //                     // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
+    //
+    //                     status.text("Status: "+data.sessionState);
+    //
+    //                     // count.text("Connected users: "+data.count);
+    //                     pay_btn.hide();
+    //                     check_payable_btn.hide();
+    //
+    //
+    //
+    //                     currentRound.text("Current round: "+data.round)
+    //                 }
+    //                 else if(data.sessionState === "CANCEL" || data.sessionState === "FINISHED"){
+    //                     status.text("Status: "+data.sessionState);
+    //                     // completed.text("payment status: "+data.payment_status);
+    //                     // alert(pay_btn.style);
+    //                     // if(data.greyed !== "pay"){
+    //                     //     pay_btn.show();
+    //                     // }
+    //                     // if(data.greyed !== "check"){
+    //                     //     check_payable_btn.show();
+    //                     // }
+    //                     //
+    //                     // pay_status.text("Payment status: "+data.payment_status);
+    //                     // pay_status.show();
+    //
+    //                     // alert("sdfs");
+    //                 }
+    //
+    //             }
+    //         });
+    //
+    //     },6000);
+    //
+    //
+    // });
+
+    $("#launch_training_hits").on('click', function (){
+        var trainingID = $("#trainingID").text();
+        var num_hits = $("#num_training_hits").val();
+
+
+
+        $.ajax({
+            url: "/loom/admin/launchTraining",
+            type: 'POST',
+            data:
+                {
+                    trainingId: trainingID,
+                    num_hits:num_hits,
+
+                },
+            // dataType:"json",
+            success: function (data){
+                $("#launch-training-modal").modal('hide');
+                // $("#launch-training").hide();
+                // if(data.message==="duplicate"){
+                //     alert("title already exists!");
+                // }
+                // if(data.message==="error"){
+                //
+                //     alert("fail to create!");
+                // }
+                // if( data.message==="success"){
+                //     window.location = "/loom/admin/board/";
+                //
+                // }
+
+
+            }
+        });
+    });
+
+    $("#trainings").on('click', '.pay-training', function (){
+        var trainingsetId = $(".launch_training",this.parentNode).find('span').text();
+        var payment_status = $(".training-payment-status",this.parentNode.parentNode);
+        var pay_btn = $(".pay-training", this.parentNode);
+        var pay_i = $(".pay-training-i", this.parentNode);
+        pay_btn.addClass("buttonload");
+        pay_btn.attr("disabled",true)
+        pay_i.addClass("fa fa-spinner fa-spin");
+
+        $.ajax({
+            url: "/loom/admin/payTrainingHIT",
+            type: 'POST',
+            data:
+                {
+                    trainingsetId: trainingsetId,
+
+                },
+            dataType:"json",
+            success: function (data){
+                payment_status.text("Payment status: "+data.payment_status);
+                pay_btn.removeClass("buttonload");
+                pay_btn.attr("disabled",false)
+                pay_i.removeClass("fa fa-spinner fa-spin");
+                if(data.status==="no_payable"){
+                    alert("No payable assignment!");
+                }
+                // if(data.status==="success"){
+                //
+                //
+                //     window.location = "/loom/admin/board/";
+                // }
+
+
+            }
+        });
+    });
+
+    $("#trainings").on('click', '.check-training_payble', function (){
+        var trainingsetId = $(".launch_training",this.parentNode).find('span').text();
+        var payment_status = $(".training-payment-status",this.parentNode.parentNode);
+
+        var check_btn = $(".check-training_payble", this.parentNode);
+        var check_i = $(".check-training-payable-i", this.parentNode);
+        check_btn.addClass("buttonload");
+        check_btn.attr("disabled",true)
+        check_i.addClass("fa fa-spinner fa-spin");
+
+        $.ajax({
+            url: "/loom/admin/checkTrainingsetPayble",
+            type: 'POST',
+            data:
+                {
+                    trainingsetId: trainingsetId,
+
+                },
+            dataType:"json",
+            success: function (data){
+                payment_status.text("Payment status: "+data.payment_status);
+                check_btn.removeClass("buttonload");
+                check_btn.attr("disabled",false)
+                check_i.removeClass("fa fa-spinner fa-spin");
+                if(data.check_greyed){
+                    alert("No payable assignment!");
+                    // check_btn.attr("disabled",true);
+                }
+
+
+
+            }
+        });
+    });
+
+
+    // $("#create-default").on('click', function (){
+    //     $("#username").val("default-user");
+    // });
+    //
+    // $("#submit-users").on('click', function (){
+    //     var username = $("#username").val();
+    //     if(!username){
+    //         alert("please provide a username")
+    //     }
+    //     $.ajax({
+    //         url: "/loom/admin/createUser",
+    //         type: 'POST',
+    //         data:
+    //             {
+    //                 username: username,
+    //
+    //             },
+    //         dataType:"json",
+    //         success: function (data){
+    //
+    //             if(data.status==="duplicate_username"){
+    //                 alert("username already exists!");
+    //             }else{
+    //
+    //                 $("#create-users-modal").modal('hide');
+    //                 alert("successfully create "+data.username);
+    //             }
+    //
+    //         }
+    //     });
+    // });
+
+
+
+    $("#create-username").on('click', function (){
+        var tr = "<tr style=\"background-color: #23272b\"><td><input type=\"text\" name=\"username\" id=\"username\" value='default-user'></td>" +
+            "<td><button  type=\"button\" class=\"btn btn-primary remove-username\">Remove</button></tr>"
+        $("#create-user-table").append(tr);
+    });
+
+    $("#create-user-table").on('click', '.remove-username', function (){
+        $(this).parents("tr").remove();
+    });
+
+    $("#submit-users").on('click', function (){
+        var usernames = [];
+
+        $("table#create-user-table tr").each(function (i, v) {
+
+            usernames.push($(this).children('td').eq(0).find('input').val());
+
+
+            // usernames[i] = ;
+            // {
+            //     userSettings[i][ii] = $(this).text();
+
+            // });
+        })
+
+        // var username = $("#username").val();
+            if(usernames.length === 0){
+                alert("please provide a username")
+            }else{
+                $.ajax({
+                    url: "/loom/admin/createUser",
+                    type: 'POST',
+                    // contentType: "application/json;",
+                    // data: JSON.stringify({ 'list': usernames }),
+                    data:
+                        {
+                            usernames: usernames,
+
+                        },
+                    dataType:"json",
+                    success: function (data){
+                        // alert(data.username);
+                        // var list = eval('([' + data.username + '])');
+                        // alert(list[0]);
+                        // for(var i=0;i<list.length;i++){
+                        //     var name=list[i];
+                        //     alert(name);
+                        // }
+                        var usernames = data.username
+                        // alert(usernames[1]);
+                        if(data.status==="duplicate"){
+                            // alert(usernames);
+                            $("table#create-user-table tr").each(function (i, v) {
+                                // userSettings[i] = [];
+                                if(i>=1){
+
+                                    if(usernames[i-1] === 1){
+                                        alert("found duplicated or existent ones highlighted in red!");
+                                        $(this).children('td').eq(0).find('input').css("color","red");
+                                    }
+                                }
+
+                                // usernames[i-1] = $(this).children('td').eq(0).find('input').val();
+                                // {
+                                //     userSettings[i][ii] = $(this).text();
+
+                                // });
+                            })
+                        }else{
+
+                            $("#create-users-modal").modal('hide');
+                            alert("successfully create "+usernames);
+                        }
+
+                    }
+                });
+            }
+
+        });
 
 });
-
 
 
 function create_train(){
@@ -745,8 +1065,7 @@ function initExperiment() {
     if ($("#experiment-content-wrapper").length > 0) {
         initDragNDrop();
         initTiles();
-       //resetExperiment();
-        //submitExperiment();
+
         localStorage.setItem('remainingTime', 'null');
         clearInterval(roundInterval);
         initRound();
@@ -843,9 +1162,10 @@ function initTiles() {
         var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
         if (matched.length > 0) {
             matched.each(function () {
-                $(this).remove();
+                // $(this).remove();
+                $(this).removeClass('tile-available').addClass('blue');
             });
-            // addRemoveBtn($(this));
+            addRemoveBtn($(this));
         } else {
             removeRemoveBtn($(this));
         }
@@ -856,13 +1176,24 @@ function markAsDropped(source) {
     $(".originalstory").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
     $("#sort2").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
+    $(".originalstory_list").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue').addClass('static');
     $("#sort3").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort3").find("[drag-id='" + source + "']").removeAttr("style");
 }
 
 function addRemoveBtn(elt) {
     if (!($(elt).find("a").length)) {
-        elt.append("<span class='removeTile'>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a></span>");
+        // console.log($(elt).text());
+        // var t = $(elt).text();
+        // $(elt).text("");
+        // console.log($(elt).text());
+        // elt.append("<span class='removeTile close'><button className=\"close\">\n" +
+        //     "            X\n" +
+        //     "        </button></span>");
+
+        elt.append("<span class='removeTile' >&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' style=\"color:red\"><b>X</b></a></span>");
+        // elt.append(t)
+        // elt.append("<span class='removeTile'>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a></span>");
         removeTileEvent(elt);
     }
 }
@@ -873,20 +1204,13 @@ function removeRemoveBtn(elt) {
 
 function removeTile(elt) {
     var toremove = $(elt).closest("li");
-    console.log(toremove.attr('id'));
+    console.log(toremove.attr('drag-id'));
     toremove.remove();
 
-    var elem = $(".dvSource").find("[drag-id='" + toremove.attr('drag-id') + "']");
+    var elem = $(".g_list").find("[drag-id='" + toremove.attr('drag-id') + "']");
     elem.removeClass('blue');
+    elem.removeClass('static');
     elem.addClass('tile-available');
-
-    // var elem2 = $(".tab-pane").filter(".active").find($("ul"));
-    var elem2 = $(".tab-pane").filter("[id='" + toremove.attr('nei-id') + "']").find($("ul"));
-    var t1 = toremove.text().toString();
-    t1 = t1.replace('X','')
-    var t = "<li class=\"ui-state-default tile-available purple\" drag-id=\""+toremove.attr('drag-id')+"\" nei-id=\""+toremove.attr('nei-id')+"\">"+t1+"</li>"
-    elem2.append(t);
-
 
 }
 
@@ -917,7 +1241,7 @@ function initDragNDrop() {
         cancel: ".blue",
         placeholder: "ui-state-highlight",
         start: function (event,ui) {
-            $('.ui-draggable-dragging').css("white-space", "nowrap");
+            // $('.ui-draggable-dragging').css("white-space", "nowrap");
         },
         stop: function (event,ui) {
             console.log($(event.target).attr("drag-id"));
@@ -947,7 +1271,12 @@ function initDragNDrop() {
     var sort1Col = byClass("sort1");
     for (let item of sort1Col) {
         new Sortable(item, {
-            group: 'shared', // set both lists to same group
+            filter: ".static",
+            group: {
+                name: 'shared',
+                pull: 'clone',
+                put: false // Do not allow items to be put into this list
+            },
             animation: 150,
             onEnd: function (/**Event*/evt) {
                 // updateTrainingScore();
@@ -955,9 +1284,14 @@ function initDragNDrop() {
                     var source = $(evt.item).attr("drag-id");
                     markAsDropped(source);
                     addRemoveBtn($("#sort3").find("[drag-id='" + source + "']"));
-                    console.log('receive');
+                    if ($("#training-name").length > 0) {
+                        updateTrainingScore();
+
+                    }
                 }
             },
+
+            sort: false,
         });
     }
 
@@ -969,10 +1303,16 @@ function initDragNDrop() {
             //     console.log($(evt.target).attr("drag-id"));
             //
             // },
+            onUpdate: function (/**Event*/evt) {
+                if ($("#training-name").length > 0) {
+                    updateTrainingScore();
+
+                }
+            },
         });
     }
 
-   // $(".dvSource, #sort2").disableSelection();
+
 }
 
 function initMyDragNDrop() {
@@ -985,7 +1325,7 @@ function initMyDragNDrop() {
         start: function (event,ui) {
             ui.placeholder.height(ui.item.height());
             ui.placeholder.width(ui.item.width());
-            $(event.target).find('li').css("white-space", "nowrap");
+            // $(event.target).find('li').css("white-space", "nowrap");
         },
         stop: function (event,ui) {
             updateTrainingScore();
@@ -1002,6 +1342,7 @@ function updateTrainingScore() {
         }).get().join(";");
 
         $("#tails").val(text_all);
+
 
         $.ajax({
             url: "/loom/training/getTrainingScore",
@@ -1025,7 +1366,7 @@ function updateTrainingScore() {
 
 }
 
-function resetTraining(uiflag) {
+function resetTraining() {
     $(".reset-training").click(function () {
         // if(uiflag===1){
             $("#sort2").find("li").each(function () {
@@ -1036,6 +1377,14 @@ function resetTraining(uiflag) {
                 //
                 //elem.removeClass('blue').addClass('tile-available');
             });
+        $("#sort3").find("li").each(function () {
+            removeTile($(this));
+            //$(this).parent().remove();
+            //console.log($(this).parent().attr('id'));
+            //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+            //
+            //elem.removeClass('blue').addClass('tile-available');
+        });
         // }else if(uiflag===0){
         //     var initial = [];
         //     $('#sort1').each(function(index, anchor) {

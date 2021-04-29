@@ -206,6 +206,7 @@ class MturkService {
 
         int max_HIT_num = exp.max_node
         List<String> hits = new ArrayList<>()
+        List<String> hitTypes = new ArrayList<>()
         (1..max_HIT_num).each {
             CreateHITRequest request = new CreateHITRequest();
             request.setMaxAssignments(1);
@@ -224,9 +225,11 @@ class MturkService {
             println("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
             log.debug("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
             hits.add(result.getHIT().getHITId())
+            hitTypes.add(result.getHIT().getHITTypeId())
 
         }
         session.HITId = hits
+        session.HITTypeId = hitTypes
         session.save()
 
     }
@@ -247,55 +250,56 @@ class MturkService {
 
     }
 
-    def createTrainingHIT(TrainingSet trainingSet) throws IOException {
+    def createTrainingHIT(TrainingSet trainingSet, int num_hits) throws IOException {
 
-        setClient(getSandboxClient());
-        // QualificationRequirement: Locale IN (US, CA)
-        String qualifier = trainingSet.qualifier
-        String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')))
-        questionSample = questionSample.replace("goToThisLink","http://localhost:8080/loom/training/t/"+trainingSet.id.toString())
-        QualificationRequirement localeRequirement = new QualificationRequirement();
-        localeRequirement.setQualificationTypeId("00000000000000000071");
-        localeRequirement.setComparator(Comparator.In);
-        List<Locale> localeValues = new ArrayList<>();
-        localeValues.add(new Locale().withCountry("US"));
-        localeRequirement.setLocaleValues(localeValues);
-        Collection<QualificationRequirement> qualificationRequirements = new ArrayList<>()
-        qualificationRequirements.add(localeRequirement)
+        if(num_hits>0){
+            setClient(getSandboxClient());
+            // QualificationRequirement: Locale IN (US, CA)
+            String qualifier = trainingSet.qualifier
+            String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')))
+            questionSample = questionSample.replace("goToThisLink","http://localhost:8080/loom/training/t/"+trainingSet.id.toString())
+            QualificationRequirement localeRequirement = new QualificationRequirement();
+            localeRequirement.setQualificationTypeId("00000000000000000071");
+            localeRequirement.setComparator(Comparator.In);
+            List<Locale> localeValues = new ArrayList<>();
+            localeValues.add(new Locale().withCountry("US"));
+            localeRequirement.setLocaleValues(localeValues);
+            Collection<QualificationRequirement> qualificationRequirements = new ArrayList<>()
+            qualificationRequirements.add(localeRequirement)
 
-        if (qualifier){
-            QualificationRequirement trainingRequirement = new QualificationRequirement();
-            trainingRequirement.setQualificationTypeId(searchQualificationTypeId(TrainingSet.constructQualificationString(trainingSet)))
-            trainingRequirement.setComparator(Comparator.DoesNotExist)
-            qualificationRequirements.add(trainingRequirement)
+            if (qualifier){
+                QualificationRequirement trainingRequirement = new QualificationRequirement();
+                trainingRequirement.setQualificationTypeId(searchQualificationTypeId(TrainingSet.constructQualificationString(trainingSet)))
+                trainingRequirement.setComparator(Comparator.DoesNotExist)
+                qualificationRequirements.add(trainingRequirement)
 
-        }
-
-
-        int HIT_num = trainingSet.HIT_num
-        (1..HIT_num).each {
-            CreateHITRequest request = new CreateHITRequest();
-            request.setMaxAssignments(1);
-            request.setLifetimeInSeconds(60L);
-            request.setAssignmentDurationInSeconds(600L);
-            // 3 days
-            request.setAutoApprovalDelayInSeconds(259200)
-            // Reward is a USD dollar amount - USD$0.20 in the example below
-            request.setReward(trainingSet.training_payment as String);
-            request.setTitle("Loom Training HIT_"+trainingSet.id.toString()+"_"+it.toString());
-            request.setKeywords("question, answer, research");
-            request.setDescription("Answer a simple question");
-            request.setQuestion(questionSample);
-            if(qualifier){
-                request.setQualificationRequirements(qualificationRequirements);
             }
+            (1..num_hits).each {
+                CreateHITRequest request = new CreateHITRequest();
+                request.setMaxAssignments(1);
+                request.setLifetimeInSeconds(60L);
+                request.setAssignmentDurationInSeconds(600L);
+                // 3 days
+                request.setAutoApprovalDelayInSeconds(259200)
+                // Reward is a USD dollar amount - USD$0.20 in the example below
+                request.setReward(trainingSet.training_payment as String);
+                request.setTitle("Loom Training HIT_"+trainingSet.id.toString()+"_"+it.toString());
+                request.setKeywords("question, answer, research");
+                request.setDescription("Answer a simple question");
+                request.setQuestion(questionSample);
+                if(qualifier){
+                    request.setQualificationRequirements(qualificationRequirements);
+                }
 
-            def result = client.createHIT(request);
-            println("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
-            log.debug("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
-            trainingSet.HITId.add(result.getHIT().getHITId())
-            trainingSet.save(flush: true)
+                def result = client.createHIT(request);
+                println("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
+                log.debug("https://workersandbox.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId())
+                trainingSet.HITId.add(result.getHIT().getHITId())
+                trainingSet.HITTypeId.add( result.getHIT().getHITTypeId())
+                trainingSet.save(flush: true)
+            }
         }
+
 
     }
 
@@ -408,7 +412,7 @@ class MturkService {
     }
 
 
-    def check_payable(Session session){
+    def check_session_payable(Session session){
         setClient(getSandboxClient())
         int count = UserSession.countBySession(session)
         def HITIds = session.getHITId()
@@ -439,13 +443,41 @@ class MturkService {
         session.paid = total-payable
         session.total = total
         session.save(flush: true)
-//        if(total){
+
             return [payableHIT, total-payable, total, count]
-//        }
+    }
 
-//        }
-//        return [null, null]
+    def check_trainingset_payable(TrainingSet trainingSet){
+        setClient(getSandboxClient())
+        def HITIds = trainingSet.getHITId()
+        int total = 0
+        int payable = 0
+        List payableHIT = new ArrayList()
+        for(String HITId: HITIds){
 
+            String assignmentId = listAssighmentsForHIT(HITId)
+            if(assignmentId){
+                GetAssignmentRequest req = new GetAssignmentRequest()
+                req.setAssignmentId(assignmentId)
+                GetAssignmentResult result = client.getAssignment(req)
+                String status = result.getAssignment().getAssignmentStatus()
+                if (status == "Submitted"){
+                    payable += 1
+                    payableHIT.add(HITId)
+
+                }
+                if (status == "Submitted" || status == "Approved"){
+                    total += 1
+
+                }
+            }
+
+        }
+        trainingSet.paid = total-payable
+        trainingSet.total = total
+        trainingSet.save(flush: true)
+
+        return [payableHIT, total-payable, total]
     }
 
     def listBonus(String HITId){
@@ -456,10 +488,9 @@ class MturkService {
         return result.getBonusPayments()
     }
 
-    def pay_HIT(Session session){
+    def pay_session_HIT(Session session){
         setClient(getSandboxClient())
-        def (payableHIT, paid, total, count) = check_payable(session)
-//        def HITIds = session.getHITId()
+        def (payableHIT, paid, total, count) = check_session_payable(session)
         for(String HITId: payableHIT){
             String assignmentId = listAssighmentsForHIT(HITId)
             GetAssignmentRequest req = new GetAssignmentRequest()
@@ -486,6 +517,23 @@ class MturkService {
             }
 
 
+        }
+    }
+
+    def pay_trainingset_HIT(TrainingSet trainingSet){
+        setClient(getSandboxClient())
+        def (payableHIT, paid, total) = check_trainingset_payable(trainingSet)
+        for(String HITId: payableHIT){
+            String assignmentId = listAssighmentsForHIT(HITId)
+            GetAssignmentRequest req = new GetAssignmentRequest()
+            req.setAssignmentId(assignmentId)
+            GetAssignmentResult result = client.getAssignment(req)
+            String state = result.getAssignment().getAssignmentStatus()
+            if (state == "Submitted"){
+                ApproveAssignmentRequest areq = new ApproveAssignmentRequest()
+                areq.setAssignmentId(assignmentId)
+                client.approveAssignment(areq)
+            }
         }
     }
 

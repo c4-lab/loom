@@ -53,6 +53,9 @@
                                 <a href="javascript:void(0);" id="create-stories"
                                    class="btn btn-primary btn-block"><b>Create a story set</b></a>
 
+                                <a href="javascript:void(0);" id="create-users"
+                                   class="btn btn-primary btn-block"><b>Create users</b></a>
+
                                 <g:link controller="admin" action="exportCSV" id="export-csv"
                                         class="btn btn-primary btn-block"><b>Export CSV</b></g:link>
                             </div><!-- /.box-body -->
@@ -64,9 +67,12 @@
                         <div class="nav-tabs-custom">
                             <ul class="nav nav-tabs">
                                 <li class="active"><a href="#sessions" data-toggle="tab">Sessions</a></li>
+                                <li><a href="#session-hit" data-toggle="tab">Sessions-HIT</a></li>
                                 <li><a href="#experiments" data-toggle="tab">Experiments</a></li>
                                 <li><a href="#trainings" data-toggle="tab">Trainings</a></li>
+                                <li><a href="#training-hit" data-toggle="tab">Trainings-HIT</a></li>
                                 <li><a href="#stories" data-toggle="tab">Stories</a></li>
+                                <li><a href="#users" data-toggle="tab">Users</a></li>
 
                             </ul>
 
@@ -102,7 +108,9 @@
                                                     <span class='description payment-status' hidden>Payment status: ${sessionState[session.id][5]}</span>
                                                     <span class='description count'>User sessions: <b>${sessionState[session.id][1]}</b></span>
                                                     <span class='description set-timer'></span>
-
+                                                    <span class='description'>
+                                                        <b>URL: http://localhost:8080/loom/session/s/${session.id}?workerId=?</b></br>
+                                                    </span>
 
 
                                                 </div>
@@ -129,14 +137,8 @@
 %{--                                                            <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>--}%
 %{--                                                        </g:if>--}%
 %{--                                                        <g:else>--}%
-                                                            <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>
-%{--                                                        </g:else>--}%
-
-%{--                                                        <g:if test="${sessionState[session.id][7]}">--}%
-%{--                                                            <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>--}%
-%{--                                                        </g:if>--}%
-%{--                                                        <g:else>--}%
-                                                            <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>
+                                                        <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>
+                                                        <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>
 %{--                                                        </g:else>--}%
 
                                                         <span class="sessionId" style="display:none">${session.id}</span>
@@ -145,6 +147,33 @@
 
                                                 </div>
                                             </div>
+                                        </div>
+                                    </g:each>
+                                </div>
+
+                                <div class="tab-pane" id="session-hit">
+
+                                    <g:each in="${sessions}" var="session" >
+                                        <div class="post">
+                                            <div class="row">
+                                                <div class="user-block ">
+                                                    <span >
+                                                        <g:link controller="admin" action="view"
+                                                                params="[session: session.id]">${session.name}</g:link>
+
+                                                    </span>
+
+
+
+                                                    <g:each in="${session.HITTypeId}" var="hit">
+                                                        <span class='description hits'>https://workersandbox.mturk.com/mturk/preview?groupId=${hit}</span>
+                                                    </g:each>
+                                                </div>
+
+
+                                            </div>
+
+
                                         </div>
                                     </g:each>
                                 </div>
@@ -183,44 +212,82 @@
                                 <div class="tab-pane" id="trainings">
                                     <g:each in="${trainings}" var="training">
                                         <div class="post">
-                                            <div class="user-block">
-                                                <span class='username'>
-                                                    <g:link controller="admin" action="view"
-                                                            params="[training: training.id]">${training.name}</g:link>
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='pull-right btn-box-tool'
-                                                            params="[trainingId: training.id, type: ExpType.TRAINING]">
-                                                        <i class='fa fa-times'></i>
-                                                    </g:link>
-                                                </span>
-                                                <g:each in="${training.trainings}" var="t">
-                                                    <span class='description'>
-                                                        <b>Training: ${t.name} (${t.id})</b></br>
-                                                    ${t.stories.first().getText()}
-
+                                            <div class="row training-row">
+                                                <div class="user-block">
+                                                    <span class='username'>
+                                                        <g:link controller="admin" action="view"
+                                                                params="[training: training.id]">${training.name}</g:link>
+                                                        <g:link controller="admin" action="deleteExperiment"
+                                                                class='pull-right btn-box-tool'
+                                                                params="[trainingId: training.id, type: ExpType.TRAINING]">
+                                                            <i class='fa fa-times'></i>
+                                                        </g:link>
                                                     </span>
-                                                </g:each>
-                                                <g:each in="${training.simulations}" var="s">
+                                                    <g:each in="${training.trainings}" var="t">
+                                                        <span class='description'>
+                                                            <b>Training: ${t.name} (${t.id})</b></br>
+                                                        ${t.stories.first().getText()}
+
+                                                        </span>
+                                                    </g:each>
+                                                    <g:each in="${training.simulations}" var="s">
+                                                        <span class='description'>
+                                                            <b>Simulation: ${s.name} (${s.id})</b></br>
+                                                        ${s.stories.first().getText()}
+
+                                                        </span>
+                                                    </g:each>
+
                                                     <span class='description'>
-                                                        <b>Simulation: ${s.name} (${s.id})</b></br>
-                                                    ${s.stories.first().getText()}
-
+                                                        <b>Qualifier: ${training.qualifier}</b></br>
                                                     </span>
-                                                </g:each>
 
-                                                <span class='description'>
-                                                    <b>Qualifier: ${training.qualifier}</b></br>
-                                                </span>
+                                                    <span class='description'>
+                                                        <b>URL: http://localhost:8080/loom/training/t/${training.id}?workerId=?</b></br>
+                                                    </span>
+
+                                                    <span class='description training-payment-status' hidden><b>Payment status: ${training.paid}/${training.total}</b></span>
+                                                </div>
+
+
+                                                <ul class="list-inline">
+                                                </ul>
+    %{--                                            <g:link controller="admin" action="launchTraining" params="[trainingId: training.id]">--}%
+                                                <g:if test="${training.qualifier!="-;-;-"}">
+                                                    <button type="button" class="btn btn-primary launch_training">Launch Training HITs<span hidden>${training.id}</span></button>
+                                                    <button class='btn btn-primary check-training_payble'><i class="check-training-payable-i"></i>Check Payable</button>
+                                                    <button class='btn btn-primary pay-training'><i class="pay-training-i"></i>Pay</button>
+                                                %{--                                            </g:link>--}%
+                                                </g:if>
+                                            </div>
+                                        </div>
+
+                                    </g:each>
+                                </div>
+
+                                <div class="tab-pane" id="training-hit">
+
+                                    <g:each in="${trainings}" var="training" >
+                                        <div class="post">
+                                            <div class="row">
+                                                <div class="user-block ">
+                                                    <span >
+                                                        <g:link controller="admin" action="view"
+                                                                params="[training: training.id]">${training.name}</g:link>
+                                                    </span>
+
+
+
+                                                    <g:each in="${training.HITTypeId}" var="hit">
+                                                        <span class='description hits'>https://workersandbox.mturk.com/mturk/preview?groupId=${hit}</span>
+                                                    </g:each>
+                                                </div>
+
+
                                             </div>
 
 
-                                            <ul class="list-inline">
-                                            </ul>
-                                            <g:link controller="admin" action="launchTraining" params="[trainingId: training.id]">
-                                                <button type="button" class="btn btn-primary">Launch Training</button>
-                                            </g:link>
                                         </div>
-
                                     </g:each>
                                 </div>
 
@@ -238,6 +305,28 @@
                                                     ${tails.text}
                                                 </g:each>
                                                 </span>
+
+                                            </div>
+
+
+                                            <ul class="list-inline">
+                                            </ul>
+                                        </div>
+                                    </g:each>
+                                </div>
+
+                                <div class="tab-pane" id="users">
+                                    <g:each in="${users}" var="user">
+                                        <div class="post">
+                                            <div class="user-block">
+%{--                                                <g:if test="${user.username}!="admin">--}%
+                                                    <span class='username'>
+                                                        Username: ${user.username}
+
+                                                    </span>
+                                                    <span class='description'>
+                                                        Created Date: ${user.dateCreated}
+                                                    </span>
 
                                             </div>
 
@@ -436,8 +525,8 @@
                         <label><input type="radio" name="UIflag" value="0" />draggable lists</label>
                         <label><input type="radio" name="UIflag" value="1"/>paragraphs</label>
                     </div>
-                    <label>number of HITs: </label>
-                    <input type="number"  name='hit_num' id='hit_num' min="0" max="100" value="0" style="color:black;" required>
+%{--                    <label>number of HITs: </label>--}%
+%{--                    <input type="number"  name='hit_num' id='hit_num' min="0" max="100" value="0" style="color:black;" required>--}%
                     <p></p>
                     <label for="name">payment:</label>
                     <input type="number" step="0.1" name='training_payment' id='training_payment' oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
@@ -526,3 +615,71 @@
         </div>
     </div>
 </div>
+
+<div class="modal modal-info" style="padding-top: 140px" id="launch-training-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Launch Traning</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <span hidden id="trainingID"></span>
+                <label>Number of HITs: </label>
+                <input type="number"  name='num_training_hits' id='num_training_hits' min="0" max="100" value="0" style="color:black;" required>
+                <p></p>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="launch_training_hits">Lanch HITs</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-info" style="padding-top: 140px" id="create-users-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Create Users</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="text-center">
+
+                <table class="table table-striped table-bordered grid" border="1"  id="create-user-table">
+
+                    <th style="text-align:center; background-color: #23272b">Username</th>
+                    <th style="text-align:center; background-color: #23272b">Action</th>
+
+                    <tbody style="background-color: #23272b">
+
+                    </tbody>
+                </table>
+%{--                <label>Username: </label>--}%
+%{--                <input type="text" name="username" id="username" style="color: black"><button  type="button" class="btn btn-primary" id="create-default">user default</button>--}%
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+
+                <button  type="button" class="btn btn-primary" id="create-username">Add a username</button>
+                <button type="submit" class="btn btn-primary" id='submit-users'>Submit</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+

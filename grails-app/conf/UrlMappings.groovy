@@ -29,8 +29,6 @@ class UrlMappings {
             action = "completeExperimentCreation"
         }
 
-
-
         "/training/t/$trainingId/$seqNumber?" {
             controller = "training"
             action = "training"
@@ -40,8 +38,6 @@ class UrlMappings {
             controller = "training"
             action = "score"
         }
-
-
 
         "/session/s/$session" {
             controller = "session"
