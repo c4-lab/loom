@@ -29,7 +29,7 @@ class UrlMappings {
             action = "completeExperimentCreation"
         }
 
-        "/training/t/$trainingId/$seqNumber?" {
+        "/training/t/$trainingSetId/$seqNumber?" {
             controller = "training"
             action = "training"
         }

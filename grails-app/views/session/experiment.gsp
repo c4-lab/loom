@@ -9,6 +9,7 @@
                         <g:render template="/shared/alert-templates"/>
                         <h1 id="experiment-name">${loomSession.name}</h1>
                         <g:hiddenField id="session" name="session" value="${loomSession.id}"/>
+
                     </div>
 
                     <div class="col-xs-1"></div>

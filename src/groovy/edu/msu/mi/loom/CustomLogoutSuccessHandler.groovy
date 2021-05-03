@@ -29,7 +29,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler{
                 e = null;
             }
         }
-        println(httpServletRequest.parameterMap)
+
         String reason = httpServletRequest.getParameter("reason")
         String target = "not-found"
         String code = null

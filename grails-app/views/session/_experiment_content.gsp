@@ -2,6 +2,7 @@
 <g:hiddenField name="experimentDuration"
                value="${timeRemaining}"/>
 <g:hiddenField id="paused" name="paused" value="${paused}"/>
+
 <div class="row">
     <div class="col-xs-1"></div>
 

@@ -18,6 +18,8 @@
         <section class="content">
             <div class="row">
                 <div class="col-md-12">
+
+                <g:if test="${assignmentId!="null"}">
                     <p>
                         Congratulations, you have completed your training and will shortly be granted a qualification allowing you to participate in Loom games. Your confirmation code is:
                     </p>
@@ -40,6 +42,15 @@
                         Please contact the requester, Joshua Introne, via email at <a
                             href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> if you have any questions or concerns.
                     </p>
+
+                </g:if>
+                <g:else>
+                    <p>
+                        Congratulations, you have completed your training. Please contact Joshua Introne, via email at <a
+                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> for available sessions.
+                    </p>
+                </g:else>
+
 
                 </div>
             </div>

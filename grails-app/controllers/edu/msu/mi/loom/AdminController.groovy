@@ -132,8 +132,6 @@ class AdminController {
 
         TrainingSet ts = TrainingSet.get(params.trainingId)
         int num_hits = params.num_hits as int
-        println("numasdfsdfsd")
-        println(params.num_hits)
         mturkService.createTrainingHIT(ts, num_hits)
         redirect(action: 'board')
     }
@@ -270,29 +268,6 @@ class AdminController {
 
     }
 
-//    def completeExperimentCreation() {
-////        if (request.method == 'GET') {
-////            def sessionCount = Session.count()
-////            render(view: 'complete', model: [sessionCount: sessionCount, experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
-////        } else {
-//        Experiment experiment = Experiment.get(params.experiment)
-//
-//            HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(experiment)
-//
-//            // [n0:[Story1, n2], n1:[Story1, n2], n2:[Story1, n0, n1, n3], n3:[Story1, n2, n5, n4], n4:[Story1, n3, n6], n5:[Story1, n7], n6:[Story1, n4, n5, n8], n7:[Story1, n5, n8], n8:[Story1, n6, n7, n9, n10], n9:[Story1, n8], n10:[Story1, n8]]
-//            println(nodeStoryMap)
-//            println(params.experiment as int)
-//            adminService.setExperimentNetwork(nodeStoryMap, params.experiment as int)
-////            if (experiment.enabled) {
-////                log.debug("Experiment with id ${experiment.id} is enabled.")
-////            } else {
-////                log.warn("Something went wrong, experiment with id ${experiment.id} cannot be enabled.")
-////            }
-//
-//            redirect(action: 'board')
-//
-////        }
-//    }
 
     def startSession() {
 
@@ -537,15 +512,12 @@ class AdminController {
     }
 
     def createUser() {
-        println("iuserad")
-        def usernames = params["usernames[]"] as List
 
-        println(params)
-        println(usernames)
+        def usernames = params["usernames[]"] as List
         def final_usernames = []
         def duplicate_usernames = []
         def status = "success"
-//        if usernames
+
         for(String username: usernames){
             if(username){
                 if (username == "default-user"){
@@ -596,8 +568,7 @@ class AdminController {
             }
 
         }
-        println("finallaldf")
-        println(final_usernames)
+
 
         def result = ['status': status, "username":final_usernames]
         render result as JSON
@@ -605,11 +576,7 @@ class AdminController {
     }
 
 //    def createUser() {
-//        println("iuserad")
 //        def usernames = params["usernames[]"] as List
-//
-//        println(params)
-//        println(usernames)
 //        def final_usernames = []
 //        def duplicate_usernames = []
 //        for(String username: usernames){

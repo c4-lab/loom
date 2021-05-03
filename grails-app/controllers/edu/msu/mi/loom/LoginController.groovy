@@ -62,7 +62,6 @@ class LoginController {
 
         println "Authenticating..."
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
-        println(request.requestURI)
         if(request.forwardURI.contains('admin') ){
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
@@ -72,7 +71,7 @@ class LoginController {
             String workerId = orig.parameters.workerId[0]
             String assignmentId = null
             User u = User.findByUsername(workerId)
-            if(orig?.parameters?.assignmentId){
+            if(orig.parameters.assignmentId && orig.parameters.assignmentId[0]!="null"){
                 assignmentId = orig.parameters?.assignmentId[0]
                 u = User.findByTurkerId(workerId)
             }
@@ -82,6 +81,7 @@ class LoginController {
             } else {
                 if(assignmentId){
                     u = userService.createUserByWorkerId(workerId, true)
+
                 }else{
                     u = userService.createUserByWorkerId(workerId)
                 }

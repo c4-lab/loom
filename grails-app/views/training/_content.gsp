@@ -17,7 +17,7 @@
 
         <div class="col-sm-7">
             <h1 class="text-left" id="training-name">${training.name}</h1>
-            <g:hiddenField name="training" id="training-id" value="${training.id}"/>
+            <g:hiddenField name="training" id="training" value="${training.id}"/>
         </div>
 
         <div class="col-sm-4">
@@ -89,7 +89,7 @@
                                 <div class="col-sm-1"></div>
                                 <g:hiddenField name="tails" value="${rawTails}"/>
                                 <g:hiddenField name="uiflag" value="${uiflag}"/>
-                                <g:hiddenField name="training" value="${training.id}"/>
+                                <g:hiddenField name="trainingSetId" value="${training.id}"/>
 
                                 <g:hiddenField name="assignmentId" value="${assignmentId}"/>
 
@@ -155,7 +155,7 @@
                                 <div class="col-sm-1"></div>
                                 <g:hiddenField name="uiflag" value="${uiflag}"/>
                                 <g:hiddenField name="tails" value="${rawTails}"/>
-                                <g:hiddenField name="training" value="${training.id}"/>
+                                <g:hiddenField name="trainingSetId" value="${training.id}"/>
                                 <g:hiddenField name="assignmentId" value="${assignmentId}"/>
 
                             </div>

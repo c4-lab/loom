@@ -46,7 +46,8 @@
 %{--                            <g:submitButton name="continue" class="btn btn-success" value="Continue"/>--}%
 %{--                        </g:form>--}%
                         <g:form controller="training" action="${action}">
-                            <g:hiddenField name="trainingSetId" value="${trainingId}"/>
+                            <g:hiddenField name="trainingSetId" value="${trainingSetId}"/>
+                            <g:hiddenField name="assignmentId" value="${assignmentId}"/>
                             <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
                         </g:form>
                     </div>

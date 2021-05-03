@@ -25,6 +25,7 @@
 
                                 <g:hiddenField name="roundNumber"/>
                                 <g:hiddenField name="assignmentId" value="${assignmentId}"/>
+                                <g:hiddenField name="trainingSetId" value="${trainingSetId}"/>
                                 <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
                             </g:form>
     %{--                        <g:form controller="training" action="reading">--}%

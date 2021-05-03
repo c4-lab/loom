@@ -25,9 +25,7 @@ class ExperimentService {
         }
 
         def round = getExperimentStatus(s)?.round
-        if(round==1){
-            println()
-        }
+
         if (round) {
             def userMaxRound = UserRoundStory.findAllBySession(s).max { it.round }.round
             def currentUserRound = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it?.round }?.round
@@ -61,8 +59,6 @@ class ExperimentService {
 
     def getMyState(Session expSession) {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
-        println("mystateresrsarfs")
-        println(getUserTilesForCurrentRound(myAlias, expSession, myAlias.size()))
         getUserTilesForCurrentRound(myAlias, expSession, myAlias.size())
 
     }

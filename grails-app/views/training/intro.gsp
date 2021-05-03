@@ -68,7 +68,7 @@
                     </p>
 
                     <p class="lead text-center">
-                        <em><a href="${trainingId}?assignmentId=${assignmentId}">Continue</a></em>
+                        <em><a href="${trainingSetId}?assignmentId=${assignmentId}">Continue</a></em>
                     </p>
 %{--                    <g:form controller="training" action="training">--}%
 %{--                        <g:hiddenField name="assignmentId" value="${assignmentId}"/>--}%

@@ -20,8 +20,6 @@ class SimulationService {
         log.debug("Now in simulation with $tempStory")
         //TODO handle multiple simulations
         def simulation = ts.simulations.getAt(0)
-        println("simuuusdf")
-        println(simulation)
         def userCount = simulation.userCount
         def roundTime = simulation.roundTime
         LocalDateTime endDate

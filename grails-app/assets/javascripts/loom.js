@@ -1351,7 +1351,7 @@ function updateTrainingScore() {
                 userTiles: $("#trainingForm .ui-draggable").map(function () {
                     return $(this).attr("drag-id")
                 }).get().join(";"),
-                training: $("#training").val()
+                trainingSetId: $("#training").val()
             },
             timeout: 999
         }).success(function (data) {
@@ -1604,14 +1604,17 @@ function submitSimulationAjax() {
         data: {
             tails: text_all,
             simulation: $("#simulation").val(),
-            roundNumber: $("#roundNumber").text()
+            roundNumber: $("#roundNumber").text(),
+            assignmentId: $("#assignmentId").val()
+
 
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
         if (data.indexOf("experiment_ready") >= 0) {
             confirmSimNav = false;
-            window.location ="/loom/training/score/"+$("#simulation").val();
+            var params = $.parseJSON(data);
+            window.location ="/loom/training/score/"+$("#simulation").val()+"?assignmentId="+params.assignmentId;
             //
             //var simulationScore = JSON.parse(data).simulationScore;
             //var roundNumber = 0;
