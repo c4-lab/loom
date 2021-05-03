@@ -9,6 +9,7 @@
                         <g:render template="/shared/alert-templates"/>
                         <h1 id="experiment-name">${loomSession.name}</h1>
                         <g:hiddenField id="session" name="session" value="${loomSession.id}"/>
+
                     </div>
 
                     <div class="col-xs-1"></div>
@@ -57,6 +58,7 @@
 
                                                     <li class="ui-state-default purple"
                                                         drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
+                                                    <p></p>
                                                 </g:each>
                                             %{--<g:else>--}%
                                             %{--<li class="placeholder">Add tails here</li>--}%

@@ -45,7 +45,57 @@ body {
     overflow: hidden;
 }
 
+li {
+    /*border: solid 1px ;*/
+    /*border-color: red green blue pink;*/
+    border-bottom: 0;
+    margin: 0.5em 0;
+}
 
+li:after {
+    content: ' ';
+    display: block;
+    height: 1px;
+    /*border-bottom:solid 1px red;*/
+    width: 100%;
+}
+/*ul {*/
+/*    list-style-type: none;*/
+/*    padding: 0;*/
+/*    margin: 0;*/
+/*}*/
+
+/*!* Style the list items *!*/
+/*ul li {*/
+/*    border: 1px solid #ddd;*/
+/*    margin-top: -1px; !* Prevent double borders *!*/
+/*    background-color: #f6f6f6;*/
+/*    padding: 12px;*/
+/*    text-decoration: none;*/
+/*    font-size: 18px;*/
+/*    color: black;*/
+/*    display: block;*/
+/*    position: relative;*/
+/*}*/
+
+/*!* Add a light grey background color on hover *!*/
+/*ul li:hover {*/
+/*    background-color: #eee;*/
+/*}*/
+
+.close {
+
+    cursor: pointer;
+    position: absolute;
+    /*top: 50%;*/
+    right: 5%;
+    background: #bbb;
+    /*padding: 20px 5px;*/
+    /*transform: translate(0%, -50%);*/
+
+}
+
+.close:hover {background: #bbb;}
 /*#sort1 { list-style-type: none; margin: 0; padding: 0; width: 60%; }*/
 /*#sort1 li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }*/
 /*#sort1 li span { position: absolute; margin-left: -1.3em; }*/
@@ -5005,7 +5055,7 @@ table.text-center th {
 }
 
 .modal-body input[type=text] {
-    color: #000 !important;
+    color: #000 ;
 }
 
 .bg-gray {

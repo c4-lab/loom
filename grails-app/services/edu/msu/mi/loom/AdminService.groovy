@@ -58,23 +58,6 @@ class AdminService {
 
                 log.debug("New experiment with id ${experiment.id} has been created.")
                 return experiment
-//                HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(experiment)
-//
-//                if (nodeStoryMap){
-//                    println(nodeStoryMap)
-//                    setExperimentNetwork(nodeStoryMap, experiment.id as int)
-//                    log.debug("New network of experiment with id ${experiment.id} has been created.")
-//
-//
-//
-//
-//
-//                }else{
-//                    log.debug("New network of experiment with id ${experiment.id} attempt failed.")
-//                    return null;
-//                }
-
-
             } else {
                 log.error("Experiment creation attempt failed")
                 log.error(experiment?.errors?.dump())

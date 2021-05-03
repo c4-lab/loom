@@ -12,10 +12,10 @@ class TrainingSetService {
     def simulationService
     def mturkService
 
-    def createTrainingSet(def json, def name, def qualifier, def HIT_num, def training_payment, def uiflag) {
+    def createTrainingSet(def json, def name, def qualifier, def training_payment, def uiflag) {
         Session.withNewTransaction { status ->
 
-            def trainingSet = new TrainingSet(name: name, qualifier: qualifier, HIT_num: HIT_num, training_payment:training_payment, uiflag: uiflag)
+            def trainingSet = new TrainingSet(name: name, qualifier: qualifier, training_payment:training_payment, uiflag: uiflag)
 
             if (trainingSet.save(flush: true)) {
                 trainingSet.save(flush: true)
@@ -169,12 +169,12 @@ class TrainingSetService {
         UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(u, ts)
 
 
-        if (!uts) {
-
-            uts = new UserTrainingSet(user: u, trainingSet: ts, trainingStartTime: new Date(), isDemographicsComplete: true)
-            uts.save(flush: true)
-
-        }
+//        if (!uts) {
+//
+//            uts = new UserTrainingSet(user: u, trainingSet: ts, trainingStartTime: new Date(), isDemographicsComplete: true)
+//            uts.save(flush: true)
+//
+//        }
 
         if (reading){
             uts.addToReadingCompleted(reading)

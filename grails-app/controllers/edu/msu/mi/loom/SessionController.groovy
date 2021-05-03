@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
 
 @Slf4j
-@Secured("ROLE_USER")
+@Secured(["ROLE_USER","ROLE_MTURKER"])
 //@Secured('permitAll')
 class SessionController {
     static allowedMethods = [
@@ -41,17 +41,12 @@ class SessionController {
                 log.debug(us.errors as String)
             }
         } else if(us && us.assignmentId != assignmentId){
-            println("asdffdfdfs")
-            println(us.assignmentId)
-            println(assignmentId)
             return render(view: 'duplicate_us')
         }
-//        sessionService.reachMaximumUser(session)
-//        us = UserSession.findByUserAndSession(user, session)
-//        session = Session.get(params.session)
+
         if(sessionService.reachMaximumUser(session)) {
             int count = UserSession.countBySession(session)
-            if(! ExperimentInitialUserStory.findByExperiment(session.exp)){
+            if(!ExperimentInitialUserStory.findByExperiment(session.exp)){
                 HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(session.exp, count)
                 if (nodeStoryMap){
 
@@ -61,11 +56,10 @@ class SessionController {
 
 
             experimentService.kickoffSession(session)
-            if (sessionService.userInSessionRun(user, session)) {
-
-                def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
-                return render(view: 'experiment', model: model+[uiflag: session.exp.uiflag as int])
-            }
+//            if (sessionService.userInSessionRun(user, session)) {
+//                def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
+//                return render(view: 'experiment', model: model+[uiflag: session.exp.uiflag as int, assignmentId: assignmentId])
+//            }
 //            else {
 //                return redirect(controller: "logout", action: "index", params: [reason: "session be gone", sessionId: session.id])
 //            }
@@ -97,9 +91,6 @@ class SessionController {
 
     }
 
-
-
-
     //Just neighbors!
     def experimentContent() {
         def sessionId = params.session
@@ -115,9 +106,6 @@ class SessionController {
         def sessionId = params.session
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
         User user = springSecurityService.currentUser as User
-        String assignmentId = params.assignmentId
-        println("adsfsdfsdfasasd")
-        println(assignmentId)
 
         if(user && session){
 
@@ -125,19 +113,15 @@ class SessionController {
             if (session.state == Session.State.PENDING) {
                 if (sessionService.hasTraining(user, session)) {
 
-                    return redirect(action: "startWaiting", params: [session:session.id, assignmentId:assignmentId])
+                    return redirect(action: "startWaiting", params: [session:session.id])
                 } else {
                     log.debug("User ${user.username} lacks training")
                     return redirect(controller: "logout", action: "index", params: [reason: "you are not trained", sessionId: session.id])
                 }
 
             } else if (session.state == Session.State.ACTIVE) {
-//                if (UserSession.findBySession(session).state == "COMPLETE"){
-//                    return redirect(controller: "logout", action: "index", params: [reason: "You already finished the session", sessionId: session.id])
-//                }
+
                 if (sessionService.userInSessionRun(user, session)) {
-                    println("mystasteaetrest")
-                    println(experimentService.getMyState(session))
                     def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
                     return render(view: 'experiment', model: model+[uiflag: session.exp.uiflag as int])
                 } else {
@@ -148,7 +132,12 @@ class SessionController {
             } else if (session.state == Session.State.FINISHED) {
                 if (sessionService.userInSessionRun(user, session)) {
                     log.debug("User finished...")
-                    redirect(action: 'finishExperiment', params: [session: session.id])
+                    boolean isTurker = false
+                    def role = UserRole.findByUser(springSecurityService.currentUser as User).role.authority
+                    if(role==Roles.ROLE_MTURKER.name){
+                        isTurker = true
+                    }
+                    redirect(action: 'finishExperiment', params: [session: session.id, isTurker:isTurker])
                 } else {
                     return redirect(controller: "logout", action: "index", params: [reason: "The session is done", sessionId: session.id])
                 }
@@ -242,9 +231,12 @@ class SessionController {
 
     def finishExperiment() {
         def session = Session.get(params.session)
-//        session.state = Session.State.FINISHED
-//        session.save(flush: true)
 
+        boolean isTurker = false
+        def role = UserRole.findByUser(springSecurityService.currentUser as User).role.authority
+        if(role==Roles.ROLE_MTURKER.name){
+            isTurker = true
+        }
         UserSession us = UserSession.findByUserAndSession(springSecurityService.currentUser as User, session)
         List scores = UserRoundStory.findAllBySessionAndUserAlias(session,us.userAlias).sort {it.round}.score
 
@@ -255,7 +247,7 @@ class SessionController {
         }
 
         if (session) {
-            render(view: 'finish', model: [scores: scores, completionCode: us.completionCode])
+            render(view: 'finish', model: [scores: scores, completionCode: us.completionCode, isTurker:isTurker])
             return
         }
 

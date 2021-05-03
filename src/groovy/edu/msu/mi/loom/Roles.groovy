@@ -7,7 +7,8 @@ package edu.msu.mi.loom
 enum Roles {
     ROLE_ADMIN('ROLE_ADMIN'),
     ROLE_USER('ROLE_USER'),
-    ROLE_CREATOR('ROLE_CREATOR');
+    ROLE_CREATOR('ROLE_CREATOR'),
+    ROLE_MTURKER('ROLE_MTURKER');
 
     String name
 

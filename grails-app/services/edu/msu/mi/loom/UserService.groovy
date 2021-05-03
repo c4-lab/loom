@@ -42,16 +42,22 @@ class UserService {
         }
     }
 
-    def createUserByWorkerId(String workerId) {
+    def createUserByWorkerId(String workerId, boolean isTurker = false) {
         def password = makeRandomPassword();
         def username = "user-"+User.count().toString()
-        def user = new User(username: username, password: password, turkerId: workerId)
+        def user = new User(username: username, password: password)
+        if(isTurker){
+            user = new User(username: username, password: password, turkerId: workerId)
+        }
 
-        if (user.save(flush: true)) {
+        if (user.save(flush: true) && !isTurker) {
             log.info("Created user with id ${user.id}")
             addDefaultRole(user)
             return user
-        } else {
+        } else if(user.save(flush: true) && isTurker){
+            addMturkerRole(user)
+            return user
+        }else{
             log.error("User creation attempt failed")
             log.error(user?.errors?.dump())
             return null;
@@ -86,6 +92,11 @@ class UserService {
 
     private void addDefaultRole(User user) {
         def role = Role.findByAuthority(Roles.ROLE_USER.name)
+        UserRole.create(user, role, true)
+    }
+
+    private void addMturkerRole(User user) {
+        def role = Role.findByAuthority(Roles.ROLE_MTURKER.name)
         UserRole.create(user, role, true)
     }
 }

@@ -25,9 +25,7 @@ class ExperimentService {
         }
 
         def round = getExperimentStatus(s)?.round
-        if(round==1){
-            println()
-        }
+
         if (round) {
             def userMaxRound = UserRoundStory.findAllBySession(s).max { it.round }.round
             def currentUserRound = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it?.round }?.round
@@ -61,8 +59,6 @@ class ExperimentService {
 
     def getMyState(Session expSession) {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
-        println("mystateresrsarfs")
-        println(getUserTilesForCurrentRound(myAlias, expSession, myAlias.size()))
         getUserTilesForCurrentRound(myAlias, expSession, myAlias.size())
 
     }
@@ -181,9 +177,9 @@ class ExperimentService {
            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
         } else if (status.round == round) {
             status.submitUser(user.id)
-            if(round==1){
-                mturkService.assignQualification(user.turkerId, Story.constructQualificationString(session.exp.story),1)
-            }
+//            if(round==1){
+//                mturkService.assignQualification(user.turkerId, Story.constructQualificationString(session.exp.story),1)
+//            }
             log.debug("(${user.id}) Submitted ${round}")
 
         } else {

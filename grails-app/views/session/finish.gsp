@@ -9,25 +9,44 @@
 <div class="wrapper">
     <div class="content-wrapper container">
         <section class="content">
-            <div class="row">
-                <div class="col-md-2"></div>
 
-                <div class="col-md-8">
-                    <p>
-                        Thanks for playing the Story Loom! Hope you had fun and that you come back and try it again.
-                        Please enter your confirmation code into the HIT on the Mturk site to receive credit!!!
-                    </p>
+            <g:if test="${isTurker}">
+                <div class="row">
+                    <div class="col-md-2"></div>
 
-                    <h1 class="text-center">
-                        ${completionCode}
-                    </h1>
+                    <div class="col-md-8">
+                        <p>
+                            Thanks for playing the Story Loom! Hope you had fun and that you come back and try it again.
+                            Please enter your confirmation code into the HIT on the Mturk site to receive credit!!!
+                        </p>
 
-                    <p>
+                        <h1 class="text-center">
+                            ${completionCode}
+                        </h1>
 
+
+                    </div>
+
+                    <div class="col-md-2"></div>
                 </div>
 
-                <div class="col-md-2"></div>
-            </div>
+            </g:if>
+            <g:else>
+                <div class="row">
+                    <div class="col-md-2"></div>
+
+                    <div class="col-md-8">
+                        <p>
+                            Thanks for playing the Story Loom!
+                        </p>
+
+
+                    </div>
+
+                    <div class="col-md-2"></div>
+                </div>
+            </g:else>
+
 
             <div class="row">
                 <div class="col-md-2"></div>

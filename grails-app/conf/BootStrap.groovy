@@ -16,19 +16,18 @@ class BootStrap {
 
                 createInitialRecords()
 
-                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","-;-;-", 2,0.1,1);
-                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey", 0,0.1,0);
+                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","simulation;-;-",0.1,1);
+                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
                 mturkService.createQualification("loomreadings", 'reading score')
                 mturkService.createQualification("loomsurveys", 'survey score')
 
-
                 adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
-                        2,Experiment.Network_type.Lattice,3,10,
+                        2,Experiment.Network_type.Lattice,3,1,
                 "",TrainingSet.get(1), 2, 0,
                 0.1,0.1,0.1,0.1,1)
 
                 adminService.createExperiment("Experiment 2",Story.get(1),2,2,1,1,
-                        2,Experiment.Network_type.Lattice,3,10,
+                        2,Experiment.Network_type.Lattice,3,1,
                         "",TrainingSet.get(1), 2, 0,
                         0.1,0.1,0.1,0.1,0)
 
@@ -43,6 +42,7 @@ class BootStrap {
             }
 
             production {
+                createInitialRecords()
                 TrainingSet.list().each {
                     mturkService.createQualification(it as TrainingSet, 'loom training')
                 }
@@ -58,6 +58,7 @@ class BootStrap {
         def adminRole = Role.findWhere(authority: Roles.ROLE_ADMIN.name) ?: new Role(authority: Roles.ROLE_ADMIN.name).save(failOnError: true)
         def creatorRole = Role.findWhere(authority: Roles.ROLE_CREATOR.name) ?: new Role(authority: Roles.ROLE_CREATOR.name).save(failOnError: true)
         def userRole = Role.findWhere(authority: Roles.ROLE_USER.name) ?: new Role(authority: Roles.ROLE_USER.name).save(failOnError: true)
+        def mturkerRole = Role.findWhere(authority: Roles.ROLE_MTURKER.name) ?: new Role(authority: Roles.ROLE_MTURKER.name).save(failOnError: true)
 
         def admin = User.findWhere(username: 'admin') ?: new User(username: 'admin', password: 'lji123').save(failOnError: true)
 
@@ -69,6 +70,14 @@ class BootStrap {
         if (!admin.authorities.contains(creatorRole)) {
             UserRole.create(admin, creatorRole)
         }
+
+//        if (!admin.authorities.contains(userRole)) {
+//            UserRole.create(admin, userRole)
+//        }
+//
+//        if (!admin.authorities.contains(mturkerRole)) {
+//            UserRole.create(admin, mturkerRole)
+//        }
     }
 
     private void createTestUsers(TrainingSet ts) {
@@ -78,23 +87,28 @@ class BootStrap {
         mturkService.assignQualification("A3FTY9DQKKJ002","loomsurveys",1)
 
         (1..10).each { n ->
-//            def user = new User(username: "user-${n}", password: "pass", turkerId: "A39D6U8W1FJEJ3").save(failOnError: true)
-            def user = new User(username: "user-${n}", password: "pass", turkerId: "A3FTY9DQKKJ002").save(failOnError: true)
+//            "A3FTY9DQKKJ002"
+            def user = new User(username: "user-${n}", password: "pass").save(failOnError: true)
+//            def user = new User(username: "user-${n}", password: "pass").save(failOnError: true)
             def role = Role.findByAuthority(Roles.ROLE_USER.name)
             UserRole.create(user, role, true)
             UserTrainingSet.create(user,ts,true,true)
-
-
         }
-        def user = new User(username: "user-${11}", password: "pass", turkerId: "A2YZSRSEBX1FDU").save(failOnError: true)
-        def role = Role.findByAuthority(Roles.ROLE_USER.name)
+        def user = new User(username: "user-${11}", password: "pass", turkerId:"A3FTY9DQKKJ002").save(failOnError: true)
+        def role = Role.findByAuthority(Roles.ROLE_MTURKER.name)
+        UserRole.create(user, role, true)
+        UserTrainingSet.create(user,ts,true,true)
+
+        user = new User(username: "user-${12}", password: "pass", turkerId: "A39D6U8W1FJEJ3").save(failOnError: true)
+        role = Role.findByAuthority(Roles.ROLE_MTURKER.name)
         UserRole.create(user, role, true)
         UserTrainingSet.create(user,ts,true,true)
 
         // create users without training
-        user = new User(username: "user-${12}", password: "pass").save(failOnError: true)
+        user = new User(username: "user-${13}", password: "pass").save(failOnError: true)
         role = Role.findByAuthority(Roles.ROLE_USER.name)
         UserRole.create(user, role, true)
+        UserTrainingSet.create(user,ts,true,true)
     }
 
     private HashMap<String, List<String>> parseNodeStoryMap(String name) {

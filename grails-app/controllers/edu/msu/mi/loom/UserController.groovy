@@ -4,7 +4,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 
 @Slf4j
-@Secured(['ROLE_USER'])
+@Secured(['ROLE_USER','ROLE_MTURKER'])
 class UserController {
     def userService
     def springSecurityService
@@ -27,7 +27,7 @@ class UserController {
 
             if (model.user?.id) {
                 springSecurityService.reauthenticate(username, password)
-                println original
+
                 if (original) {
                     redirect(url:"$original")
                 } else {

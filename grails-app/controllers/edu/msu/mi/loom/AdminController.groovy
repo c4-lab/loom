@@ -65,8 +65,9 @@ class AdminController {
             def connected_users = UserSession.countBySessionAndStateInList(it as Session, ['WAITING', 'ACTIVE'])
             [(it.id):[active,count,startPending,startActive, round, paid.toString()+"/"+total.toString(), connected_users]]
         }
+        def users = User.findAllByTurkerIdIsNullAndUsernameNotEqual("admin", [sort: 'dateCreated', order: 'desc'])
 
-        render(view: 'board', model: [sessions: Session.list(), sessionState: sessionStates, experiments: Experiment.list(), trainings: TrainingSet.list(), stories: Story.list()])
+        render(view: 'board', model: [sessions: Session.list(), sessionState: sessionStates, experiments: Experiment.list(), trainings: TrainingSet.list(), stories: Story.list(), users: users])
     }
 
     def refresh() {
@@ -105,20 +106,33 @@ class AdminController {
 
     def launchExperiment() {
 
-        Experiment exp = Experiment.get(params.experimentId)
+        List<Session> sessionList = Session.findAll()
+        boolean  flag = true
+        for(Session s: sessionList){
+            if(s.state != Session.State.FINISHED){
+                flash.error = "Cannot create two sessions without finishing them first!"
+                flag = false
 
-        TrainingSet ts = exp.training_set
-        def session = adminService.createSession(exp,ts)
+            }
+        }
+        if(flag){
+            Experiment exp = Experiment.get(params.experimentId)
 
-        sessionService.launchSession(session.id)
-        mturkService.createExperimentHIT(exp, session.id as String)
+            TrainingSet ts = exp.training_set
+            def session = adminService.createSession(exp,ts)
+
+            sessionService.launchSession(session.id)
+            mturkService.createExperimentHIT(exp, session.id as String)
+        }
+
         redirect(action: 'board')
     }
 
     def launchTraining() {
 
         TrainingSet ts = TrainingSet.get(params.trainingId)
-        mturkService.createTrainingHIT(ts)
+        int num_hits = params.num_hits as int
+        mturkService.createTrainingHIT(ts, num_hits)
         redirect(action: 'board')
     }
 
@@ -189,7 +203,7 @@ class AdminController {
     def uploadTrainingSet() {
         def file = params.inputFile
         def qualifiers_list = []
-        def hit_num = params.hit_num
+//        def hit_num = params.hit_num
         def name = TrainingSet.findByName(params.name)
         def training_payment = params.training_payment
         def uiflag = params.UIflag
@@ -219,7 +233,7 @@ class AdminController {
 
             if (json) {
 
-                trainingSetService.createTrainingSet(json,params.name, qualifiers_list.join(';'), hit_num as int, training_payment, uiflag as int)
+                trainingSetService.createTrainingSet(json,params.name, qualifiers_list.join(';'), training_payment, uiflag as int)
 
             }
 
@@ -254,29 +268,6 @@ class AdminController {
 
     }
 
-//    def completeExperimentCreation() {
-////        if (request.method == 'GET') {
-////            def sessionCount = Session.count()
-////            render(view: 'complete', model: [sessionCount: sessionCount, experiment: params.experiment, initNbrOfTiles: params.initNbrOfTiles])
-////        } else {
-//        Experiment experiment = Experiment.get(params.experiment)
-//
-//            HashMap<String, List<String>> nodeStoryMap = networkGenerateService.generateGraph(experiment)
-//
-//            // [n0:[Story1, n2], n1:[Story1, n2], n2:[Story1, n0, n1, n3], n3:[Story1, n2, n5, n4], n4:[Story1, n3, n6], n5:[Story1, n7], n6:[Story1, n4, n5, n8], n7:[Story1, n5, n8], n8:[Story1, n6, n7, n9, n10], n9:[Story1, n8], n10:[Story1, n8]]
-//            println(nodeStoryMap)
-//            println(params.experiment as int)
-//            adminService.setExperimentNetwork(nodeStoryMap, params.experiment as int)
-////            if (experiment.enabled) {
-////                log.debug("Experiment with id ${experiment.id} is enabled.")
-////            } else {
-////                log.warn("Something went wrong, experiment with id ${experiment.id} cannot be enabled.")
-////            }
-//
-//            redirect(action: 'board')
-//
-////        }
-//    }
 
     def startSession() {
 
@@ -346,9 +337,9 @@ class AdminController {
 
     def paySession(){
         def session = Session.get(params.sessionId)
-        def (payableHIT, paid, total, count) = mturkService.check_payable(session)
+        def (payableHIT, paid, total, count) = mturkService.check_session_payable(session)
         if (payableHIT){
-            mturkService.pay_HIT(session)
+            mturkService.pay_session_HIT(session)
             def result = ['status': "success","payment_status":total.toString()+"/"+total.toString()]
             render result as JSON
         }else{
@@ -359,12 +350,11 @@ class AdminController {
 
     }
 
-    def checkPayble(){
+    def checkSessionPayble(){
         def check_greyed = false
         def pay_greyed = false
         def session = Session.get(params.sessionId)
-        def (payableHIT, paid, total, session_count) = mturkService.check_payable(session)
-//        def (payableHIT, paid, total, session_count) = ["","0","0","0"]
+        def (payableHIT, paid, total, session_count) = mturkService.check_session_payable(session)
         if(total == session_count || total == paid){
             check_greyed = true
         }
@@ -373,11 +363,40 @@ class AdminController {
         }
         def result = ['payment_status': paid.toString()+"/"+total.toString(),
                       'check_greyed':check_greyed, 'pay_greyed':pay_greyed]
-        println("checdfasdfsdf")
-        println(result)
+
         render result as JSON
     }
 
+    def checkTrainingsetPayble(){
+        def check_greyed = false
+        def pay_greyed = false
+        def trainingset = TrainingSet.get(params.trainingsetId)
+        def (payableHIT, paid, total) = mturkService.check_trainingset_payable(trainingset)
+        if(total == paid){
+            check_greyed = true
+        }
+
+        def result = ['payment_status': paid.toString()+"/"+total.toString(),
+                      'check_greyed':check_greyed]
+
+        render result as JSON
+    }
+
+
+    def payTrainingHIT(){
+        def trainingsetHIT = TrainingSet.get(params.trainingsetId)
+        def (payableHIT, paid, total) = mturkService.check_trainingset_payable(trainingsetHIT)
+        if (payableHIT){
+            mturkService.pay_trainingset_HIT(trainingsetHIT)
+            def result = ['status': "success","payment_status":total.toString()+"/"+total.toString()]
+            render result as JSON
+        }else{
+            def result = ['status': "no_payable","payment_status":total.toString()+"/"+total.toString()]
+            render result as JSON
+        }
+
+
+    }
 
     def deleteExperiment() {
         def id = params.sessionId
@@ -491,4 +510,112 @@ class AdminController {
         def user = springSecurityService.currentUser as User
         userService.deleteUser(user)
     }
+
+    def createUser() {
+
+        def usernames = params["usernames[]"] as List
+        def final_usernames = []
+        def duplicate_usernames = []
+        def status = "success"
+
+        for(String username: usernames){
+            if(username){
+                if (username == "default-user"){
+                    List<User> users = User.findAll()
+                    username = "user-" + (users.last().id + 1).toString()
+                    duplicate_usernames.add(0)
+                }else{
+
+                    if (User.findByUsername(username) || usernames.count(username)>1){
+                        duplicate_usernames.add(1)
+
+
+//                    def result = ['status': "duplicate_username"]
+//                    render result as JSON
+//                    return
+                    }else{
+                        duplicate_usernames.add(0)
+                    }
+                }
+            }
+
+
+
+//            final_usernames.add(username)
+        }
+        if (duplicate_usernames.contains(1)){
+
+            final_usernames = duplicate_usernames
+            status = "duplicate"
+
+        }else{
+            for(String username: usernames){
+                if(username){
+                    def user
+                    if(username != "default-user"){
+                        user = new User(username: username, password: "pass").save(failOnError: true)
+                    }else{
+                        user = new User(username: "user-"+User.findAll().last().id.toString(), password: "pass").save(failOnError: true)
+                    }
+
+                    def role = Role.findByAuthority(Roles.ROLE_USER.name)
+                    UserRole.create(user, role, true)
+                    final_usernames.add(user.username)
+
+                }
+
+
+            }
+
+        }
+
+
+        def result = ['status': status, "username":final_usernames]
+        render result as JSON
+
+    }
+
+//    def createUser() {
+//        def usernames = params["usernames[]"] as List
+//        def final_usernames = []
+//        def duplicate_usernames = []
+//        for(String username: usernames){
+//            if (username == "default-user"){
+//                List<User> users = User.findAll()
+//                username = "user-" + (users.last().id + 1).toString()
+//                duplicate_usernames.add(0)
+//            }else{
+//
+//                if (User.findByUsername(username)){
+//                    duplicate_usernames.add(1)
+//
+////                    def result = ['status': "duplicate_username"]
+////                    render result as JSON
+////                    return
+//                }else{
+//                    duplicate_usernames.add(0)
+//                }
+//            }
+//            final_usernames.add(username)
+//        }
+//        if (username == "default-user"){
+//            List<User> users = User.findAll()
+//            username = "user-" + (users.last().id + 1).toString()
+//        }else{
+//
+//            if (User.findByUsername(username)){
+//                def result = ['status': "duplicate_username"]
+//                render result as JSON
+//                return
+//            }
+//        }
+//        def user = new User(username: username, password: "pass").save(failOnError: true)
+//        def role = Role.findByAuthority(Roles.ROLE_USER.name)
+//        UserRole.create(user, role, true)
+//        def result = ['status': "success", "username":username]
+//        render result as JSON
+//
+//    }
+
+
 }
