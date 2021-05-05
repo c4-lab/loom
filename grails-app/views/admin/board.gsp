@@ -115,10 +115,6 @@
 
                                                 </div>
 
-
-%{--                                                <div class="loader" id="checking-payable"></div>--}%
-%{--                                                <div class="loader" id="paying"></div>--}%
-
                                             </div>
 
                                             <div class="row">
@@ -133,14 +129,8 @@
                                                         <button class='btn btn-primary session-action'  data-text-swap="Start Listening" data-text-original="Cancel"
                                                         >Cancel</button>
                                                         <button class='btn btn-primary start-session'>Launch</button>
-%{--                                                        <g:if test="${sessionState[session.id][6]}">--}%
-%{--                                                            <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>--}%
-%{--                                                        </g:if>--}%
-%{--                                                        <g:else>--}%
                                                         <button class='btn btn-primary check-payble'><i class="check-payable-i"></i>Check Payable</button>
                                                         <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay</button>
-%{--                                                        </g:else>--}%
-
                                                         <span class="sessionId" style="display:none">${session.id}</span>
                                                         <span class="startPending" style="display:none">${sessionState[session.id][2]}</span>
                                                         <span class="startActive" style="display:none">${sessionState[session.id][3]}</span>
@@ -162,8 +152,6 @@
                                                                 params="[session: session.id]">${session.name}</g:link>
 
                                                     </span>
-
-
 
                                                     <g:each in="${session.HITTypeId}" var="hit">
                                                         <span class='description hits'>https://workersandbox.mturk.com/mturk/preview?groupId=${hit}</span>

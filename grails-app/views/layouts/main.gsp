@@ -37,10 +37,7 @@
     <asset:javascript src="jquery-ui.js"/>
     <asset:javascript src="bootstrap.min.js"/>
     <asset:javascript src="jquery.blockUI.js"/>
-%{--    <asset:javascript src="clippings-html5-sortable.min.js"/>--}%
     <asset:javascript src="application.js"/>
-%{--    <asset:javascript src="sortable.complete.esm.js"/>--}%
-%{--    <asset:javascript src="sortable.core.esm.js"/>--}%
     <asset:javascript src="Sortable.js"/>
     <asset:javascript src="loom.js"/>
     <g:layoutHead/>
