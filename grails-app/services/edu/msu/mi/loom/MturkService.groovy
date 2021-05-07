@@ -35,7 +35,7 @@ class MturkService {
         String AWS_ACCESS_KEY = props.getProperty("access_key")
         String AWS_SECRET_KEY = props.getProperty("secret_key")
         String SANDBOX_ENDPOINT = props.getProperty("sandbox_endpoint")
-        String SIGNING_REGION = props.getProperty("signing_endpoint")
+        String SIGNING_REGION = props.getProperty("signing_region")
         boolean sandbox = props.getProperty("sandbox")
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
         AmazonMTurkClientBuilder builder = AmazonMTurkClientBuilder.standard()
