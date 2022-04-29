@@ -412,7 +412,7 @@ class AdminController {
 
 
     def view() {
-
+        log.info("Got params ${params}")
         def sessionId = Integer.parseInt(params.session)
         if (sessionId) {
             def session = Session.get(sessionId)

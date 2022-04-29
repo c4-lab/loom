@@ -43,14 +43,14 @@
                                     </li>
                                 </ul>
 
-                                <g:if test="${session.exp.enabled}">
+%{--                                <g:if test="${session.exp.enabled}">--}%
                                     <a href="javascript:void(0);" id="clone-session"
                                        class="btn btn-primary btn-block"><b>Clone the session</b></a>
                                     <a href="javascript:void(0);" id="publish-anon-session"
                                        class="btn btn-block btn-success"><b>Publish anonymously</b></a>
                                     <a href="javascript:void(0);" id="publish-by-email"
                                        class="btn btn-block btn-success"><b>Publish by email</b></a>
-                                </g:if>
+%{--                                </g:if>--}%
                             </div>
                         </div>
 

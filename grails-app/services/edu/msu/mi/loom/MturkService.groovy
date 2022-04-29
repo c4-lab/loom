@@ -33,6 +33,7 @@ class MturkService {
         Properties props = new Properties()
         props.load(stream);
         String AWS_ACCESS_KEY = props.getProperty("access_key")
+        log.debug("Got access key ${AWS_ACCESS_KEY}")
         String AWS_SECRET_KEY = props.getProperty("secret_key")
         String SANDBOX_ENDPOINT = props.getProperty("sandbox_endpoint")
         String SIGNING_REGION = props.getProperty("signing_region")
@@ -76,7 +77,7 @@ class MturkService {
         try {
             def s = searchQualificationTypeId(qualificationName)
             if(s && s.size()>0){
-                println("Qualification already exists")
+                log.warn("Qualification ${qualificationName} already exists: ${s}")
 
             }else{
                 CreateQualificationTypeRequest createQualificationTypeRequest = new CreateQualificationTypeRequest();
@@ -84,7 +85,9 @@ class MturkService {
                 createQualificationTypeRequest.setQualificationTypeStatus("Active");
                 createQualificationTypeRequest.setDescription(description);
                 createQualificationTypeRequest.setKeywords("loom,training,game");
-                client.createQualificationType(createQualificationTypeRequest);
+                log.debug("Creating qualifiction ${createQualificationTypeRequest}")
+                def r = client.createQualificationType(createQualificationTypeRequest);
+                log.debug("Qual result is ${r}")
             }
         }catch (Exception e) {
             e.printStackTrace()
@@ -97,7 +100,9 @@ class MturkService {
         value = Math.floor(value).toInteger()
         setClient(getSandboxClient())
         AssociateQualificationWithWorkerRequest aq = new AssociateQualificationWithWorkerRequest();
-        aq.setQualificationTypeId(searchQualificationTypeId(qualification));
+        def q = searchQualificationTypeId(qualification)
+        log.debug("Attempt to assign ${q} to ${workerId}")
+        aq.setQualificationTypeId(q);
         aq.setWorkerId(workerId);
         aq.setIntegerValue(value)
         client.associateQualificationWithWorker(aq);
@@ -119,10 +124,12 @@ class MturkService {
         setClient(getSandboxClient());
         ListQualificationTypesRequest lqtr = new ListQualificationTypesRequest();
         lqtr.setMustBeRequestable(true);
+        lqtr.setMustBeOwnedByCaller(true)
         lqtr.setQuery(qualificationType);
         ListQualificationTypesResult result = client.listQualificationTypes(lqtr);
         List<QualificationType> s = result.getQualificationTypes();
         if (s.size()>0){
+            log.debug("Found ${qualificationType} -> ${s}")
             return s.get(s.size()-1).getQualificationTypeId()
         }
         return null

@@ -23,8 +23,8 @@ environments {
             url = "jdbc:mysql://localhost:3306/loom"
             driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
-            username = "root"
-            password = "root"
+            username = "loom"
+            password = "loom"
         }
     }
     test {
