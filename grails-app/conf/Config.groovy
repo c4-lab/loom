@@ -95,6 +95,13 @@ environments {
     }
 }
 
+grails.assets.minifyJs = false
+grails.assets.minifyOptions = [
+        languageMode: 'ES6',
+        targetLanguage: 'ES6', //Can go from ES6 to ES5 for those bleeding edgers
+        optimizationLevel: 'SIMPLE' //Or ADVANCED or WHITESPACE_ONLY
+]
+
 // log4j configuration
 log4j.main = {
     // Example of changing the log pattern for the default console appender:
