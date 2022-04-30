@@ -1269,7 +1269,10 @@ function initDragNDrop() {
         return document.getElementsByClassName(id);
     };
     var sort1Col = byClass("sort1");
-    for (let item of sort1Col) {
+    //trying to fix ES5 violation here
+    //for (var item of sort1Col) {
+    for (var i = 0;i<sort1Col.length;i++) {
+        var item = sort1Col[i];
         new Sortable(item, {
             filter: ".static",
             group: {
