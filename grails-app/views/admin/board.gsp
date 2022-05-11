@@ -462,16 +462,16 @@
                     <label>Payment</label>
 
                         <label for="name">accepting the HIT:</label>
-                        <input type="number" step="0.1" name='accepting' id='accepting' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
+                        <input type="number" step="0.1" name='accepting' id='accepting' value="0.1" oninput="if(value.length>4)value=value.slice(0,4);if(value<=0)value=0" style="color:black;"/>
                         <p></p>
                         <label for="name">completion:</label>
-                        <input type="number" step="0.1" name='completion' id='completion' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
+                        <input type="number" step="0.1" name='completion' id='completion' value="0.1" oninput="if(value.length>4)value=value.slice(0,4);if(value<=0)value=0" style="color:black;"/>
                         <p></p>
                         <label for="name">waiting:</label>
-                        <input type="number" step="0.1" name='waiting' id='waiting' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
+                        <input type="number" step="0.1" name='waiting' id='waiting' value="0.1" oninput="if(value.length>4)value=value.slice(0,4);if(value<=0)value=0" style="color:black;"/>
                         <p></p>
                         <label for="name">score:</label>
-                        <input type="number" step="0.1" name='score' id='score' value="0.1" oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
+                        <input type="number" step="0.1" name='score' id='score' value="0.1" oninput="if(value.length>4)value=value.slice(0,4);if(value<=0)value=0" style="color:black;"/>
                         <p></p>
 
 
@@ -517,7 +517,7 @@
 %{--                    <input type="number"  name='hit_num' id='hit_num' min="0" max="100" value="0" style="color:black;" required>--}%
                     <p></p>
                     <label for="name">payment:</label>
-                    <input type="number" step="0.1" name='training_payment' id='training_payment' oninput="if(value>1)value=1;if(value.length>4)value=value.slice(0,4);if(value<=0)value=0.1" style="color:black;"/>
+                    <input type="number" step="0.1" name='training_payment' id='training_payment' oninput="if(value.length>4)value=value.slice(0,4);if(value<=0)value=0" style="color:black;"/>
                     <p></p>
                         <label >File input</label>
                         <input type="file" id="trainingInputFile" name="inputFile" required>
@@ -600,6 +600,8 @@
                 <button type="submit" class="btn btn-primary" id='create-story'>Create</button>
             </div>
 
+
+
         </div>
     </div>
 </div>
@@ -614,8 +616,8 @@
                 <h4 class="modal-title">Launch Traning</h4>
             </div>
 
-            <div class="modal-body">
-
+    <div class="modal-body">
+            <!-- TODO: Need a real training id in here -->
                 <span hidden id="trainingID"></span>
                 <label>Number of HITs: </label>
                 <input type="number"  name='num_training_hits' id='num_training_hits' min="0" max="100" value="0" style="color:black;" required>
@@ -630,6 +632,7 @@
 
         </div>
     </div>
+
 </div>
 
 <div class="modal modal-info" style="padding-top: 140px" id="create-users-modal">
@@ -665,6 +668,7 @@
                 <button  type="button" class="btn btn-primary" id="create-username">Add a username</button>
                 <button type="submit" class="btn btn-primary" id='submit-users'>Submit</button>
             </div>
+
 
         </div>
     </div>

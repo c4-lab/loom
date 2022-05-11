@@ -33,7 +33,7 @@
       }
     ],
     "simulation": {
-      "timeperround": 10,
+      "timeperround": 20,
       "solution": [
         "one night two frogs found themselves in a dairy.",
         "hopping and jumping around as frogs do ",

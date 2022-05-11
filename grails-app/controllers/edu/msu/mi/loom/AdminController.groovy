@@ -246,16 +246,18 @@ class AdminController {
 
     def uploadStorySet(){
         def title = params.title
-        def tails = params.tails
+
         def story = Story.findByTitle(title)
         if (story){
             def result = [ 'message': "duplicate"]
             render result as JSON
 
         }else{
-            story = adminService.createStory(title, tails)
+            String story_text = params.tails
+
+            story = adminService.createStory(title, story_text)
             if (story){
-                mturkService.createQualification(story, "loom story")
+                mturkService.createQualification(story, "loom story ["+title+"]")
                 def result = [ 'message': "success"]
 
                 render result as JSON

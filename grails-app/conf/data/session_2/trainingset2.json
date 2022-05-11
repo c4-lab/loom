@@ -17,7 +17,7 @@
       }
     ],
     "simulation": {
-      "timeperround": 1,
+      "timeperround": 20,
       "solution": [
         "one night two frogs found themselves in a dairy.",
         "hopping and jumping around as frogs do ",
@@ -37,7 +37,7 @@
         "the cream had been stirred so much",
         "that it became a solid lump of butter.",
         "on this the frog could scramble and rest.",
-        "and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety.and from it he could easily jump out of the pail into safety."
+        "and from it he could easily jump out of the pail into safety."
       ],
       "sequence": [
         {
