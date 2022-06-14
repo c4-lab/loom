@@ -299,9 +299,9 @@ class TrainingController {
 
                 return render(view: 'demographics', model: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
             }
-            if(qualifier.contains("read") && !uts?.readingScore){
+            if(qualifier.contains("read") && uts?.readingScore < 0){
                 return redirect(action: 'reading', params: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
-            } else if(qualifier.contains("survey") && !uts?.surveyScore){
+            } else if(qualifier.contains("survey") && uts.surveyScore < 0){
                 return redirect(action: 'survey', params: [trainingSetId: trainingSet.id, assignmentId:assignmentId])
             } else if (params.begin) {
                 return render(view:"intro",model: [trainingSetId:trainingSetId, assignmentId:assignmentId])
