@@ -29,6 +29,7 @@
 
     <div class="row" id="workContent">
         <div class="col-xs-12 col-md-6 col-md-offset-3"><!-- Content for Worker -->
+        <strong>Please only accept one HIT from this batch, or else you will be rejected! Return this HIT if you have already accepted another.</strong>
             <table class="table table-condensed table-bordered">
                 <colgroup>
                     <col class="col-xs-4 col-md-4" />
