@@ -16,8 +16,8 @@ class AdminService {
         Session.withNewTransaction { status ->
             def session = new Session(name: 'Session_' + (Session.count() + 1), exp: experiment, trainingSet: trainingSet, type: type, startPending: new Date().getTime())
             //adding these here because they don't seem to be called from BootStrap
-            session.doneCode =  randomStringGenerator.generateLowercase(12)
-            session.fullCode =  randomStringGenerator.generateLowercase(12)
+            session.doneCode = randomStringGenerator.generateLowercase(12)
+            session.fullCode = randomStringGenerator.generateLowercase(12)
             session.waitingCode = randomStringGenerator.generateLowercase(12)
             log.debug("About to save session...")
 
@@ -39,20 +39,20 @@ class AdminService {
      * @param session
      * @return
      */
-    def createExperiment(String name,Story story,int min_node,int max_nodes,int min_degree,int max_degree,
-                         int initialNbrOfTiles,Experiment.Network_type network_type,int rounds,int duration,
-                         def qualifier,TrainingSet training_set, int m, def probability,
-                         def accepting,def completion,def waiting,def score, int uiflag) {
+    def createExperiment(String name, Story story, int min_node, int max_nodes, int min_degree, int max_degree,
+                         int initialNbrOfTiles, Experiment.Network_type network_type, int rounds, int duration,
+                         def qualifier, TrainingSet training_set, int m, def probability,
+                         def accepting, def completion, def waiting, def score, int uiflag) {
         def tail
 
         Experiment experiment
 
         Experiment.withSession { status ->
 
-            experiment = new Experiment(name: name, story: story, network_type:network_type, qualifier:qualifier,training_set:training_set,
-                    roundTime: duration, roundCount: rounds, initialNbrOfTiles: initialNbrOfTiles, max_node: max_nodes, min_node:min_node
-            ,m:m, probability: probability,min_degree:min_degree,max_degree:max_degree, accepting:accepting, completion:completion,
-                    waiting:waiting, score:score, uiflag:uiflag)
+            experiment = new Experiment(name: name, story: story, network_type: network_type, qualifier: qualifier, training_set: training_set,
+                    roundTime: duration, roundCount: rounds, initialNbrOfTiles: initialNbrOfTiles, max_node: max_nodes, min_node: min_node
+                    , m: m, probability: probability, min_degree: min_degree, max_degree: max_degree, accepting: accepting, completion: completion,
+                    waiting: waiting, score: score, uiflag: uiflag)
 
             if (experiment.save(flush: true)) {
 
@@ -66,7 +66,7 @@ class AdminService {
         }
     }
 
-    def createStory(def title, def tails){
+    def createStory(def title, def tails) {
         def tail
         Story story = new Story(title: title).save(flush: true)
         mturkService.createQualification(story, "loom story")
@@ -77,7 +77,7 @@ class AdminService {
             log.debug("New tail with id ${tail.id} has been created.")
         }
 
-        if (story){
+        if (story) {
             log.debug("New story with id ${story.id} has been created.")
             return story
         } else {
@@ -125,6 +125,13 @@ class AdminService {
 
         def idx = 0
         List<Tile> tileSrc = experiment.story.tails as List<Tile>
+
+        int numTilesPerUser = Math.min(
+                Math.max(experiment.initialNbrOfTiles,
+                        Math.ceil(tileSrc.size() / map.size())),
+                tileSrc.size())
+
+
         def nextTile = {
             idx %= tileSrc.size()
             if (idx == 0) {
@@ -135,7 +142,7 @@ class AdminService {
 
         map.each { String node, List<String> data ->
             def userStory = new ExperimentInitialUserStory(experiment: experiment, alias: node)
-            (1..experiment.initialNbrOfTiles).each {
+            (1..numTilesPerUser).each {
                 userStory.addToInitialTiles(nextTile())
             }
             if (userStory.save(flush: true)) {

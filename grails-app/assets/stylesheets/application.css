@@ -5718,3 +5718,23 @@ table.text-center th {
 table.table.table-centered th, table.table.table-centered td {
       text-align: center;
 }
+
+.training-survey label {
+    display: inline;
+    font-weight: normal;
+}
+
+.story-passage {
+    height: 600px;
+    overflow: auto;
+    border: gray;
+    border-width: thin;
+    border-style: solid;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    background: rgba(200,200,200,.2);
+}
+
+.story-passage p {
+    margin: 0;
+}

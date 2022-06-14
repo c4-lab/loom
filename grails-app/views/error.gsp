@@ -16,7 +16,7 @@
 
                     <p>
                         Unfortunately, we encountered an internal error.  Please email <a
-                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> with the following information.
+                            href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a> with the following information.
 
                     </p>
 

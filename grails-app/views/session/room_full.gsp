@@ -15,7 +15,7 @@
 
 Sorry, this session is not currently available to you.  Please verify that you have completed the necessary training and that the session is currently active.
 
-If you feel you have reached this page in error, please email the experimenter: <a href="mailto:jintrone@msu.edu">jintrone@msu.edu</a>.
+If you feel you have reached this page in error, please email the experimenter: <a href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a>.
 
 
 

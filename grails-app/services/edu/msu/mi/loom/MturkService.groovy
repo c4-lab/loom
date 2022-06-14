@@ -13,6 +13,8 @@ import com.amazonaws.services.mturk.model.*
 import grails.transaction.Transactional
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
+import java.util.stream.Collectors
 
 
 @Transactional
@@ -142,7 +144,12 @@ class MturkService {
         // QualificationRequirement: Locale IN (US, CA)
         String qualifier = exp.qualifier
         Collection<QualificationRequirement> qualificationRequirements = new ArrayList<>()
-        String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')));
+        //String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')));
+        InputStream is = this.class.classLoader.getResourceAsStream("my_question.xml")
+        String questionSample = new BufferedReader(
+                new InputStreamReader(is, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n"));
         questionSample = questionSample.replace("goToThisLink","http://localhost:8080/loom/session/s/"+session.id.toString())
         if(qualifier){
             List qualifiers = qualifier.split(";")
@@ -257,14 +264,22 @@ class MturkService {
 
     }
 
-    def createTrainingHIT(TrainingSet trainingSet, int num_hits) throws IOException {
+    def createTrainingHIT(TrainingSet trainingSet, int num_hits, String contextPath) throws IOException {
+
+        log.debug("Got context path ${contextPath}")
 
         if(num_hits>0){
             setClient(getSandboxClient());
             // QualificationRequirement: Locale IN (US, CA)
             String qualifier = trainingSet.qualifier
-            String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')))
-            questionSample = questionSample.replace("goToThisLink","http://localhost:8080/loom/training/t/"+trainingSet.id.toString())
+            //String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')))
+            InputStream is = this.class.classLoader.getResourceAsStream("my_question.xml")
+            String questionSample = new BufferedReader(
+                    new InputStreamReader(is, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+
+            questionSample = questionSample.replace("goToThisLink","${contextPath}/training/t/"+trainingSet.id.toString())
             QualificationRequirement localeRequirement = new QualificationRequirement();
             localeRequirement.setQualificationTypeId("00000000000000000071");
             localeRequirement.setComparator(Comparator.In);
@@ -284,15 +299,15 @@ class MturkService {
             (1..num_hits).each {
                 CreateHITRequest request = new CreateHITRequest();
                 request.setMaxAssignments(1);
-                request.setLifetimeInSeconds(60L);
-                request.setAssignmentDurationInSeconds(600L);
+                request.setLifetimeInSeconds(28800L);
+                request.setAssignmentDurationInSeconds(3600L);
                 // 3 days
                 request.setAutoApprovalDelayInSeconds(259200)
                 // Reward is a USD dollar amount - USD$0.20 in the example below
                 request.setReward(trainingSet.training_payment as String);
-                request.setTitle("Loom Training HIT_"+trainingSet.id.toString()+"_"+it.toString());
-                request.setKeywords("question, answer, research");
-                request.setDescription("Answer a simple question");
+                request.setTitle("Story Loom Training: "+trainingSet.name);
+                request.setKeywords("qualifier, research, game");
+                request.setDescription("This HIT will provide a qualifier so that you can participate in the Story Loom game");
                 request.setQuestion(questionSample);
                 if(qualifier){
                     request.setQualificationRequirements(qualificationRequirements);

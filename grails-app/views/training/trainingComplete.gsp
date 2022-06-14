@@ -39,15 +39,15 @@
                     </p>
 
                     <p>
-                        Please contact the requester, Joshua Introne, via email at <a
-                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> if you have any questions or concerns.
+                        Please contact the requester, Qiusi Sun, via email at <a
+                            href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a> if you have any questions or concerns.
                     </p>
 
                 </g:if>
                 <g:else>
                     <p>
-                        Congratulations, you have completed your training. Please contact Joshua Introne, via email at <a
-                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> for available sessions.
+                        Congratulations, you have completed your training. Please contact Qiusi Sun, via email at <a
+                            href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a> for available sessions.
                     </p>
                 </g:else>
 

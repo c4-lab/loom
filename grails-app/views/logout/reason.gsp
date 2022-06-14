@@ -16,7 +16,7 @@
 
                     <p>
                         Please email <a
-                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a> to ask when the next training is available.
+                            href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a> to ask when the next training is available.
 
                     </p>
 

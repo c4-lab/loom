@@ -18,7 +18,7 @@
                         </g:if>
                         <p class="text-center">
                         If you feel you have reached this page in error, please email <a
-                            href="mailto:jintrone@msu.edu">jintrone@msu.edu</a>.
+                            href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a>.
                         </p>
 
                     </section>

@@ -111,9 +111,12 @@ log4j.main = {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
     root {
-        debug() //by default, root log level is error. Now, we changed it to debug level,
+        info() //by default, root log level is error. Now, we changed it to debug level,
         //stdout(console) is default appender for root.
     }
+    debug  'loom.MturkService',
+            'loom.TrainingSetService'
+
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP
            'org.codehaus.groovy.grails.web.sitemesh',       // layouts

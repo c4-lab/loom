@@ -129,10 +129,11 @@ class AdminController {
     }
 
     def launchTraining() {
+        String fullUrl = "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}"
 
         TrainingSet ts = TrainingSet.get(params.trainingId)
         int num_hits = params.num_hits as int
-        mturkService.createTrainingHIT(ts, num_hits)
+        mturkService.createTrainingHIT(ts, num_hits, fullUrl)
         redirect(action: 'board')
     }
 

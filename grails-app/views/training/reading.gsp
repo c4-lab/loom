@@ -5,14 +5,21 @@
 
     <div class="wrapper" >
         <div class="content-wrapper container">
-            <section class="content">
+            <section class="content training-survey">
                 <div class="row">
                     <div class="col-md-12">
                         <g:form controller="training" action="readingComplete">
                         <g:each var="passage" in="${readingTasks}" status="i">
                             <div class="col-md-12">
                             <strong style="color:midnightblue;font-size:40px;">Section ${i+1}</strong>
-                            <p>${passage.passage}</p>
+                            <div class="row story-passage">
+                                <div class="col-md-8 mx-auto">
+
+                                <g:each var="section" in="${passage.passage.split("\\n")}">
+                                <p>${section}</p>
+                                </g:each>
+                                </div>
+                            </div>
                             <g:each var="question" in="${passage.questions.sort{it.id}}" status="j">
 
 
