@@ -39,13 +39,15 @@ class MturkService {
         String AWS_SECRET_KEY = props.getProperty("secret_key")
         String SANDBOX_ENDPOINT = props.getProperty("sandbox_endpoint")
         String SIGNING_REGION = props.getProperty("signing_region")
-        boolean sandbox = props.getProperty("sandbox")
+        boolean sandbox = Boolean.parseBoolean(props.getProperty("sandbox"))
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
         AmazonMTurkClientBuilder builder = AmazonMTurkClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
         if(sandbox){
+            println("**************** SANDBOX ENDPOINT SELECTED ****************")
             builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(SANDBOX_ENDPOINT, SIGNING_REGION));
         }else{
+            println("**************** PRODUCTION ENDPOINT SELECTED ****************")
             String PRODUCTION_ENDPOINT = props.getProperty("production_endpoint")
             builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(PRODUCTION_ENDPOINT, SIGNING_REGION))
         }
