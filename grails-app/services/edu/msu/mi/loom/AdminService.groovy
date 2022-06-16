@@ -142,7 +142,14 @@ class AdminService {
         map.each { String node, List<String> data ->
             def userStory = new ExperimentInitialUserStory(experiment: experiment, alias: node)
             (1..numTilesPerUser).each {
-                userStory.addToInitialTiles(nextTile())
+                def t = nextTile()
+
+                if (userStory?.getInitialTiles()?.contains(t)) {
+                    log.debug("Not adding tile ${t}")
+                    //do nothing?
+                } else {
+                    userStory.addToInitialTiles(t)
+                }
             }
             if (userStory.save(flush: true)) {
                 log.debug("New user story with id ${userStory.id} has been created.")

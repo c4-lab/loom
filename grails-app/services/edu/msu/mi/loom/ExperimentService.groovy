@@ -38,6 +38,7 @@ class ExperimentService {
                 if(aliases){
                     aliases.remove(myAlias)
                     int i = 1
+                    //What is going  on here?
                     aliases.sort().collectEntries {
                         [(i++), getUserTilesForCurrentRound(it as String,s, aliases.size())]
                     }
@@ -48,6 +49,7 @@ class ExperimentService {
             //TODO This needs optimization
             def story = UserRoundStory.findAllByUserAliasAndSession(alias, s).max { it?.round }
             if (story) {
+                println("${alias} current tiles are ${story.currentTails}")
                 return story.currentTails
             }
         }
@@ -82,7 +84,6 @@ class ExperimentService {
                 Edge.findAllByExperimentAndSourceAndIsDirected(expSession.exp,myAlias,false).target) as Set
 
         int i = 1
-
         aliases.sort().collectEntries {
 
             [(i++), getUserTilesForCurrentRound(it as String,expSession, aliases.size())]

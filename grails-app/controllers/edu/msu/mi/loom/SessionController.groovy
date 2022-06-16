@@ -122,7 +122,10 @@ class SessionController {
             } else if (session.state == Session.State.ACTIVE) {
 
                 if (sessionService.userInSessionRun(user, session)) {
-                    def model = [myState: experimentService.getMyState(session)]+experimentService.getNeighborModel(session)
+                    def nmodel = experimentService.getNeighborModel(session)
+                    //print("My neighbors model is ${nmodel}")
+                    def model = [myState: experimentService.getMyState(session)]+nmodel
+                    //print("rendering ${model}")
                     return render(view: 'experiment', model: model+[uiflag: session.exp.uiflag as int])
                 } else {
 
