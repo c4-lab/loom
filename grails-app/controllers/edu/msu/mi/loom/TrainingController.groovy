@@ -1,10 +1,10 @@
 package edu.msu.mi.loom
 
-import grails.converters.JSON
+
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.json.JSONElement
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
 
@@ -204,14 +204,20 @@ class TrainingController {
         User user = springSecurityService.currentUser as User
         def trainingSetId = params.trainingSetId
         def trainingSet = TrainingSet.get(trainingSetId)
+        print("Got training set: ${trainingSet}")
+        def userTrainingSet = UserTrainingSet.findByUserAndTrainingSet(user, trainingSet)
+        print("Got user training set: ${userTrainingSet}")
         def scores = 0
-        trainingSet.surveys.eachWithIndex{ Survey sur, int i ->
-            int score = params["question"+sur.id.toString()] as Integer
-            scores = scores + score
-
+        List<UserSurveyOption> options = trainingSet.surveys.collect{ Survey sur  ->
+            Integer option_id = params["question"+sur.id.toString()] as Integer
+            def option = SurveyOption.get(option_id)
+            scores = scores + option.score
+            def uso = new UserSurveyOption(userTrainingSet: userTrainingSet, surveyOption: option)
+            uso.save(flush: true)
+            return uso
         }
 
-        trainingSetService.changeTrainingState(user,null,null,null,trainingSet.surveys.first(), null,scores as Float)
+        trainingSetService.changeTrainingState(user,null,null,null,options, null,scores as Float)
         if(params.assignmentId!="null"){
 
             mturkService.assignQualification(user.turkerId, "loomsurveys",scores as Float)

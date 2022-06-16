@@ -3,7 +3,6 @@ package edu.msu.mi.loom
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import edu.msu.mi.loom.utils.ArrayUtil
-import grails.converters.JSON
 
 @Slf4j
 @Transactional
@@ -147,7 +146,7 @@ class TrainingSetService {
         return training
     }
 
-    def changeTrainingState(User u, Training training, Simulation simulation, Reading reading, Survey survey, def trainingSetId=null, def score=null) {
+    def changeTrainingState(User u, Training training, Simulation simulation, Reading reading, List<UserSurveyOption> surveyOptions, def trainingSetId=null, def score=null) {
         TrainingSet ts = null
         if (training) {
             ts = training.trainingSet
@@ -157,8 +156,9 @@ class TrainingSetService {
             ts = reading.trainingSet
 
 
-        } else if (survey){
-            ts = survey.trainingSet
+        } else if (surveyOptions){
+            println("Survey options are ${surveyOptions}")
+            ts = surveyOptions.first().userTrainingSet.trainingSet
 
         } else if(trainingSetId){
             ts = TrainingSet.get(trainingSetId)
@@ -182,9 +182,19 @@ class TrainingSetService {
 //            mturkService.assignQualification(u.turkerId, "loomreadings",score)
 
         }
-        if (survey){
-            uts.addToSurveyCompleted(survey)
-            uts.surveyScore = score
+        if (surveyOptions){
+            def myscore = 0
+            surveyOptions.each {
+                uts.addToSurveyAnswers(it)
+                myscore+=it.surveyOption.score
+            }
+
+            (surveyOptions.collect {
+                it.surveyOption.survey
+            } as Set).each {
+                uts.addToSurveyCompleted(it)
+            }
+            uts.surveyScore = myscore
 //            mturkService.assignQualification(u.turkerId, "loomsurveys",score)
         }
         if (training && (!uts.trainingsCompleted || !uts.trainingsCompleted.contains(training))) {

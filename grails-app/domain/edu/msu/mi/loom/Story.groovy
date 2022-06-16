@@ -30,7 +30,8 @@ class Story {
         "loomstory${s.id}"
     }
 
-    public String getText() {
-        tails?tails.sort{it.text_order}.text.join(" "):"--none--"
+    public String toString() {
+        def text = tails?tails.sort{it.text_order}.text.join(" "):"--none--"
+        return text
     }
 }

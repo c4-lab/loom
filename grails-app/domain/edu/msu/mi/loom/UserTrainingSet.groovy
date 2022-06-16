@@ -11,7 +11,11 @@ class UserTrainingSet {
 
     boolean complete
 
-    static hasMany = [trainingsCompleted:Training, simulationsCompleted:SimulationScore, readingCompleted:Reading, surveyCompleted:Survey]
+    static hasMany = [trainingsCompleted:Training,
+                      simulationsCompleted:SimulationScore,
+                      readingCompleted:Reading,
+                      surveyCompleted:Survey,
+                        surveyAnswers:UserSurveyOption]
 
     Date trainingStartTime
     Date trainingEndTime

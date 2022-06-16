@@ -31,7 +31,7 @@
                 <ul class="dvSource originalstory g_list">
                     <g:each in="${n.value}" var="tt">
                         <li class="ui-state-default tile-available "
-                            drag-id="${tt.id}"><span>${tt.text}</span></li>
+                            drag-id="${tt.id}"><span>${raw(tt.text)}</span></li>
                     </g:each>
                 </ul>
             </g:if>
@@ -39,7 +39,7 @@
                 <ul class="sort1 originalstory_list g_list">
                     <g:each in="${n.value}" var="tt">
                         <li class="ui-state-default tile-available"
-                            drag-id="${tt.id}"><span>${tt.text}</span></li>
+                            drag-id="${tt.id}"><span>${raw(tt.text)}</span></li>
                     </g:each>
                 </ul>
             </g:else>

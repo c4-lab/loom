@@ -20,6 +20,8 @@ $(document).ready(function () {
     });
 
 
+
+
     $("#create-trainingset").click(function () {
         $("#training-set-file-upload-modal").modal('show');
     });
@@ -55,10 +57,21 @@ $(document).ready(function () {
         $("#email-modal").modal('show');
     });
 
-    $(".launch-experiment").click(function () {
-        $("#sessionLaunchId").val($("span",this).text());
-        $("#launch-modal").modal('show');
+    $(".launch_experiment").click(function () {
+        var experimentId = $(this).find('span.expid').text();
+
+        var numhits = $(this).find('span.numhits').text();
+        $("#experimentID").text(experimentId);
+        $('#num_exp_hits').val(numhits)
+        $("#launch-experiment-modal").modal('show');
     });
+
+    // $(".launch_experiment").click(function () {
+    //
+    //     // alert($("#launch_training").find('span').text());
+    //     $("#launch-experiment-modal").modal('show');
+    //     $("#experimentID").text(experimentId);
+    // });
 
     $('#complete-form').find('input').change(function () {
 
@@ -340,36 +353,36 @@ $(document).ready(function () {
                 data:
                     {
                         name: name,
-                        storySet:storySet,
-                        trainingSet:trainingSet,
-                        min_nodes:min_nodes,
-                        max_nodes:max_nodes,
-                        initialNbrOfTiles:initialNbrOfTiles,
-                        rounds:rounds,
-                        duration:duration,
-                        network_type:network_type,
-                        min_degree:min_degree,
-                        max_degree:max_degree,
-                        m:m,
-                        prob:prob,
-                        performance:performance,
-                        reading:reading,
-                        vaccine_min:vaccine_min,
-                        vaccine_max:vaccine_max,
-                        uiflag:uiflag,
-                        isQualifier:isQualifier,
-                        accepting:accepting,
-                        completion:completion,
-                        waiting:waiting,
-                        score:score
+                        storySet: storySet,
+                        trainingSet: trainingSet,
+                        min_nodes: min_nodes,
+                        max_nodes: max_nodes,
+                        initialNbrOfTiles: initialNbrOfTiles,
+                        rounds: rounds,
+                        duration: duration,
+                        network_type: network_type,
+                        min_degree: min_degree,
+                        max_degree: max_degree,
+                        m: m,
+                        prob: prob,
+                        performance: performance,
+                        reading: reading,
+                        vaccine_min: vaccine_min,
+                        vaccine_max: vaccine_max,
+                        uiflag: uiflag,
+                        isQualifier: isQualifier,
+                        accepting: accepting,
+                        completion: completion,
+                        waiting: waiting,
+                        score: score
 
                     },
-                dataType:"json",
-                success: function (data){
-                    if(data.message==="duplicate"){
+                dataType: "json",
+                success: function (data) {
+                    if (data.message === "duplicate") {
                         alert("name already exists!");
                     }
-                    if(data.message==="exp_error"){
+                    if (data.message === "exp_error") {
 
                         alert("fail to create the experiment!");
                     }
@@ -377,7 +390,7 @@ $(document).ready(function () {
                     //
                     //     alert("wrong network parameters!");
                     // }
-                    if( data.message==="success"){
+                    if (data.message === "success") {
                         window.location = "/loom/admin/board/";
 
                     }
@@ -672,6 +685,8 @@ $(document).ready(function () {
     $("#launch_training_hits").on('click', function (){
         var trainingID = $("#trainingID").text();
         var num_hits = $("#num_training_hits").val();
+        var hit_lifetime = $("#exp_available_time").val();
+        var assignment_lifetime = $("#exp_assignment_lifetime").val();
 
 
 
@@ -682,6 +697,48 @@ $(document).ready(function () {
                 {
                     trainingId: trainingID,
                     num_hits:num_hits,
+                    assignment_lifetime: assignment_lifetime,
+                    hit_lifetime: hit_lifetime
+
+                },
+            // dataType:"json",
+            success: function (data){
+                $("#launch-training-modal").modal('hide');
+                // $("#launch-training").hide();
+                // if(data.message==="duplicate"){
+                //     alert("title already exists!");
+                // }
+                // if(data.message==="error"){
+                //
+                //     alert("fail to create!");
+                // }
+                // if( data.message==="success"){
+                //     window.location = "/loom/admin/board/";
+                //
+                // }
+
+
+            }
+        });
+    });
+
+    $("#launch_experiment_hits").on('click', function (){
+        var experimentID = $("#experimentID").text();
+        var num_hits = $("#num_exp_hits").val();
+        var hit_lifetime = $("#exp_available_time").val();
+        var assignment_lifetime = $("#exp_assignment_lifetime").val();
+
+
+
+        $.ajax({
+            url: "/loom/admin/launchExperiment",
+            type: 'POST',
+            data:
+                {
+                    experimentID: experimentID,
+                    num_hits:num_hits,
+                    hit_lifetime: hit_lifetime,
+                    assignment_lifetime: assignment_lifetime
 
                 },
             // dataType:"json",

@@ -18,7 +18,7 @@
                                 <p>Question ${i}: ${question.question}</p>
 
                                 <g:each var="option" in="${question.options.sort{it.id}}" status="m">
-                                    <g:radio name="question${question.id}" value="${option.score}" required=""/>
+                                    <g:radio name="question${question.id}" value="${option.id}" required=""/>
                                     <label>${option.answer}</label>
                                     <p></p>
 %{--                                    <label>${option.answer}</label>--}%

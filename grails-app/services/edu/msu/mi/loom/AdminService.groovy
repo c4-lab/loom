@@ -66,13 +66,12 @@ class AdminService {
         }
     }
 
-    def createStory(def title, def tails) {
+    def createStory(def title, def storyText) {
         def tail
         Story story = new Story(title: title).save(flush: true)
         mturkService.createQualification(story, "loom story")
-        int i = 0
-        tails.eachLine {
-            tail = new Tile(text: it, text_order: i)
+        storyText.eachLine { line, count ->
+            tail = new Tile(text: line, text_order: count)
             story.addToTails(tail).save(flush: true)
             log.debug("New tail with id ${tail.id} has been created.")
         }

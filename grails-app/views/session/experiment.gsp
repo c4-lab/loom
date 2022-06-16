@@ -57,8 +57,8 @@
                                                 <g:each in="${myState}" var="tt">
 
                                                     <li class="ui-state-default purple"
-                                                        drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
-                                                    <p></p>
+                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                                    <p></p>S
                                                 </g:each>
                                             %{--<g:else>--}%
                                             %{--<li class="placeholder">Add tails here</li>--}%
@@ -70,7 +70,7 @@
                                                 <g:each in="${myState}" var="tt">
 
                                                     <li class="ui-state-default purple"
-                                                        drag-id="${tt.id}"><span class="tile-text">${tt.text}</span></li>
+                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
 
                                                 </g:each>
 

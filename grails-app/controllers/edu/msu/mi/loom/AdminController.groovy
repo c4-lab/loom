@@ -104,36 +104,40 @@ class AdminController {
 
     }
 
+    def getFullUrl() {
+       return "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}"
+    }
+
     def launchExperiment() {
 
         List<Session> sessionList = Session.findAll()
         boolean  flag = true
-        for(Session s: sessionList){
-            if(s.state != Session.State.FINISHED){
-                flash.error = "Cannot create two sessions without finishing them first!"
-                flag = false
-
-            }
-        }
+//        for(Session s: sessionList){
+//            if(s.state != Session.State.FINISHED){
+//                flash.error = "Cannot create two sessions without finishing them first!"
+//                flag = false
+//
+//            }
+//        }
         if(flag){
-            Experiment exp = Experiment.get(params.experimentId)
+            Experiment exp = Experiment.get(params.experimentID)
 
             TrainingSet ts = exp.training_set
             def session = adminService.createSession(exp,ts)
 
             sessionService.launchSession(session.id)
-            mturkService.createExperimentHIT(exp, session.id as String)
+            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, getFullUrl())
         }
 
         redirect(action: 'board')
     }
 
     def launchTraining() {
-        String fullUrl = "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}"
+        String fullUrl = getFullUrl()
 
         TrainingSet ts = TrainingSet.get(params.trainingId)
         int num_hits = params.num_hits as int
-        mturkService.createTrainingHIT(ts, num_hits, fullUrl)
+        mturkService.createTrainingHIT(ts, num_hits, params.assignment_lifetime as int, params.hit_lifetime as int, fullUrl)
         redirect(action: 'board')
     }
 
@@ -258,7 +262,12 @@ class AdminController {
 
             story = adminService.createStory(title, story_text)
             if (story){
-                mturkService.createQualification(story, "loom story ["+title+"]")
+                print(story)
+                try {
+                    mturkService.createQualification(story, "loom story [" + title + "]")
+                }  catch (Exception e) {
+                   log.warn("Couldn't create qualification for story",e)
+                }
                 def result = [ 'message': "success"]
 
                 render result as JSON
