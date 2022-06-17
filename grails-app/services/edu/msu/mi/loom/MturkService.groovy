@@ -308,7 +308,7 @@ class MturkService {
 
             if (qualifier) {
                 QualificationRequirement trainingRequirement = new QualificationRequirement();
-                trainingRequirement.setQualificationTypeId(searchQualificationTypeByString(TrainingSet.constructQualificationString(trainingSet)))
+                trainingRequirement.setQualificationTypeId(searchQualificationType(trainingSet))
                 trainingRequirement.setComparator(Comparator.DoesNotExist)
                 qualificationRequirements.add(trainingRequirement)
 
