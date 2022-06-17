@@ -114,8 +114,9 @@ log4j.main = {
         info() //by default, root log level is error. Now, we changed it to debug level,
         //stdout(console) is default appender for root.
     }
-    debug  'loom.MturkService',
-            'loom.TrainingSetService'
+    debug  'edu.msu.mi.loom.TrainingSetService'
+    debug  'edu.msu.mi.loom.MturkService'
+
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP

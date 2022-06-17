@@ -3,7 +3,7 @@ package edu.msu.mi.loom
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
-class Simulation {
+class Simulation implements HasQualification {
     String name
     int roundCount
     int roundTime
@@ -24,7 +24,17 @@ class Simulation {
     }
 
     static String constructQualificationString(Simulation s) {
-        "loomsimulations${s.id}"
+        return "Story Loom Simulation"
+    }
+
+    @Override
+    String getQualificationString() {
+        return constructQualificationString(this)
+    }
+
+    @Override
+    String getQualificationDescription() {
+        return "The qualification reflects your score on the Loom training simulation"
     }
 
     public Simulation clone() {

@@ -39,6 +39,11 @@ class TrainingController {
         User user = springSecurityService.currentUser as User
         TrainingSet ts = TrainingSet.get(params.trainingSetId)
         def assignmentId = params.assignmentId
+        if (assignmentId) {
+            mturkService.assignQualification(user.turkerId,ts, 1)
+        }
+
+
         render view:"trainingComplete",model:[confirmationCode:UserTrainingSet.findByUserAndTrainingSet(user,ts).confirmationCode, assignmentId: assignmentId]
     }
 
@@ -157,7 +162,7 @@ class TrainingController {
 
         if(assignmentId!="null"){
 
-            mturkService.assignQualification(user.turkerId,Simulation.constructQualificationString(simulation), scores.last())
+            mturkService.assignQualification(user.turkerId,simulation, scores.last())
         }
         render(view:"trainingScore",model:[scores:scores,trainingSetId:training.id, action:action, assignmentId: assignmentId])
     }
@@ -188,7 +193,7 @@ class TrainingController {
         trainingSetService.changeTrainingState(user,null,null,trainingSet.readings.first(),null,null,correct/total as Float)
         if(params.assignmentId!="null"){
 
-            mturkService.assignQualification(user.turkerId, "loomreadings",correct/total as Float)
+            mturkService.assignQualification(user.turkerId, trainingSet.readings.first(),correct/total as Float)
         }
         redirect(action: 'training', params: [trainingSetId: trainingSetId, begin:true, assignmentId: params.assignmentId])
     }
@@ -220,7 +225,7 @@ class TrainingController {
         trainingSetService.changeTrainingState(user,null,null,null,options, null,scores as Float)
         if(params.assignmentId!="null"){
 
-            mturkService.assignQualification(user.turkerId, "loomsurveys",scores as Float)
+            mturkService.assignQualification(user.turkerId, trainingSet.surveys.first(),scores as Float)
         }
         redirect(action: 'training', params: [trainingSetId: trainingSetId, begin:true, assignmentId: params.assignmentId])
 

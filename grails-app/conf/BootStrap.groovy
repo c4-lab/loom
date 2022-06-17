@@ -13,13 +13,15 @@ class BootStrap {
     def init = { servletContext ->
         environments {
             development {
-
+                println("------->Mturk service is ${mturkService}")
+                println("------->Mturk client is ${mturkService.getMturkClient()}")
                 createInitialRecords()
 
                 def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","simulation;-;-",0.1,1);
                 trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
-                mturkService.createQualification("loomreadings", 'reading score')
-                mturkService.createQualification("loomsurveys", 'survey score')
+//                mturkService.createQualification(trainingset.readings.first())
+//                mturkService.createQualification(trainingset.surveys.first())
+//                mturkService.createQualification(trainingset.simulations.first())
 
                 adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
                         2,Experiment.Network_type.Lattice,3,1,
@@ -44,10 +46,10 @@ class BootStrap {
             production {
                 createInitialRecords()
                 TrainingSet.list().each {
-                    mturkService.createQualification(it as TrainingSet, 'loom training')
+                    mturkService.createQualification(it as TrainingSet)
                 }
-                mturkService.createQualification("loomreadings", 'reading score')
-                mturkService.createQualification("loomsurveys", 'survey score')
+                mturkService.createQualification(Reading.first())
+                mturkService.createQualification(Survey.first())
             }
         }
     }
@@ -82,9 +84,9 @@ class BootStrap {
 
     private void createTestUsers(TrainingSet ts) {
 //        mturkService.assignQualification("A3FTY9DQKKJ002","3CNIZ8EIUVQZYD8YHMEU9ANVZY73BK",500)
-        mturkService.assignQualification("A3FTY9DQKKJ002","loomsimulations1",1)
-        mturkService.assignQualification("A3FTY9DQKKJ002","loomreadings",1)
-        mturkService.assignQualification("A3FTY9DQKKJ002","loomsurveys",1)
+        mturkService.assignQualification("A3FTY9DQKKJ002",ts.simulations.first(),1)
+        mturkService.assignQualification("A3FTY9DQKKJ002",ts.readings.first(),1)
+        mturkService.assignQualification("A3FTY9DQKKJ002",ts.surveys.first(),1)
 
         (1..10).each { n ->
 //            "A3FTY9DQKKJ002"

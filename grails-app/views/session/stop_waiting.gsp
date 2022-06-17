@@ -19,16 +19,17 @@
 
 
                             </g:else>
+                        <p>
+                            Please enter the following confirmation code into the HIT to get credit for your time.
+                        </p>
+                        <h1 class="text-center">
+                            ${session.waitingCode}
+                        </h1>
                         </p>
                         <p>
                             If you wish to keep waiting, click <a href="/loom/session/s/${session.id}?workerId=${user.username}">here</a>.
                         </p>
-                        <p>
-                        Otherwise, please enter the following confirmation code into the HIT to get credit for your time. Hope to see you again!
-                        </p>
-                        <h1 class="text-center">
-                        ${session.waitingCode}
-                        </h1>
+
 
                     </div>
                     <div class="col-md-1"></div>

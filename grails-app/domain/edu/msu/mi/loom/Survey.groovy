@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-class Survey {
+class Survey implements HasQualification {
 
 
     String question
@@ -14,5 +14,13 @@ class Survey {
 
     }
 
+    @Override
+    String getQualificationString() {
+        return "Story Loom Survey"
+    }
 
+    @Override
+    String getQualificationDescription() {
+        return "The qualification reflects your score on the Loom survey"
+    }
 }

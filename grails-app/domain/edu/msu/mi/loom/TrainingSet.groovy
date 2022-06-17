@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-class TrainingSet {
+class TrainingSet implements HasQualification {
 
 
     static hasMany = [simulations: Simulation, trainings: Training, readings:Reading, surveys:Survey, HITId: String, HITTypeId: String]
@@ -27,6 +27,16 @@ class TrainingSet {
 
 
     static String constructQualificationString(TrainingSet ts) {
-        "loomtrainings${ts.id}"
+        return "Story Loom Training-${ts.name}-${ts.id}"
+    }
+
+    @Override
+    String getQualificationString() {
+        return constructQualificationString(this)
+    }
+
+    @Override
+    String getQualificationDescription() {
+        return "This qualification enables you to participate in Story Loom experiments"
     }
 }

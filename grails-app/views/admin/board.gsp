@@ -179,8 +179,11 @@
                                                     <g:link controller="admin" action="view"
                                                             params="[experiment: experiment.id]">${experiment.name}</g:link>
                                                 </span>
-                                                <span class='description'>Qualifier: ${experiment.qualifier}</span>
-                                                <span class='description'>Created - <g:formatDate
+
+                                                <span class='description'><b>Training Set Qual:</b> ${experiment.training_set.qualificationString}</span>
+                                                <span class='description'><b>Story Qual (excludes):</b> ${experiment.story.qualificationString}</span>
+                                                <span class='description'><b>Extra Qualifiers:</b> ${experiment.qualifier}</span>
+                                                <span class='description'><b>Created:</b> <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
                                                         date="${experiment.dateCreated}"/>, Rounds: ${experiment.roundCount}, Max allowed connections: ${experiment.max_node}</span><br/>
                                                 <span class='description'>${experiment.story.tails.sort {
@@ -236,6 +239,10 @@
 
                                                     <span class='description'>
                                                         <b>Qualifier: ${training.qualifier}</b></br>
+                                                    </span>
+
+                                                    <span class='description'>
+                                                        <b>Qualifier ID: ${training.qualificationString}</b></br>
                                                     </span>
 
                                                     <span class='description'>

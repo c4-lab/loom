@@ -69,7 +69,7 @@ class AdminService {
     def createStory(def title, def storyText) {
         def tail
         Story story = new Story(title: title).save(flush: true)
-        mturkService.createQualification(story, "loom story")
+        mturkService.createQualification(story)
         storyText.eachLine { line, count ->
             tail = new Tile(text: line, text_order: count)
             story.addToTails(tail).save(flush: true)

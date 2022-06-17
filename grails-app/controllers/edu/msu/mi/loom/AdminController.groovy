@@ -164,11 +164,13 @@ class AdminController {
             def training_set = TrainingSet.get(params.trainingSet)
             def m = params.m
             def prob = params.prob
+
             def isQualifier = params.isQualifier
             def performance = params.performance
             def reading = params.reading
             def vaccine_min = params.vaccine_min
             def vaccine_max = params.vaccine_max
+
             def accepting = params.accepting
             def completion = params.completion
             def waiting = params.waiting
@@ -264,7 +266,7 @@ class AdminController {
             if (story){
                 print(story)
                 try {
-                    mturkService.createQualification(story, "loom story [" + title + "]")
+                    mturkService.createQualification(story)
                 }  catch (Exception e) {
                    log.warn("Couldn't create qualification for story",e)
                 }

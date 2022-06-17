@@ -100,12 +100,12 @@ class SimulationService {
                 roundCount: json.sequence.size(), userCount: json.sequence.get(0).size(), trainingSet: trainingSet)
 
         if (simulation.save(flush: true)) {
-            mturkService.createQualification(simulation,"loom simulation")
+            mturkService.createQualification(simulation)
             trainingSet.addToSimulations(simulation)
             log.debug("New simulation with id ${simulation.id} has been created for session ${trainingSet.name}.")
             def storyId = Story.count() + 1
             story = new Story(title: "Story "+storyId.toString()).save(flush: true)
-            mturkService.createQualification(story, "loom story")
+            mturkService.createQualification(story)
             simulation.addToStories(story)
             for (int i = 0; i < json.solution.size(); i++) {
                 tail = new Tile(text: json.solution.get(i), text_order: i)

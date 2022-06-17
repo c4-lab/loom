@@ -9,7 +9,8 @@
                     <div class="col-md-10">
 
                         <p>
-                            There are no sessions for which you are qualified running right now.  Please contact the administrator (jeintron@syr.edu) if you have questions about how to participate.
+                            There are no sessions for which you are qualified running right now.  Please contact the administrator (<a
+                                href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a>) if you have questions about how to participate.
                         </p>
 
 

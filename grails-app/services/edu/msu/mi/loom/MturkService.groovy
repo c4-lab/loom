@@ -6,143 +6,143 @@ import com.amazonaws.client.builder.AwsClientBuilder
 
 //import com.amazonaws.mturk.service.axis.RequesterService
 import com.amazonaws.services.mturk.AmazonMTurk
+import com.amazonaws.services.mturk.AmazonMTurkClient
 import com.amazonaws.services.mturk.AmazonMTurkClientBuilder
 import com.amazonaws.services.mturk.model.*
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 
 import java.nio.charset.StandardCharsets
 import java.util.stream.Collectors
 
-
+@Slf4j
 @Transactional
 class MturkService {
 
-    AmazonMTurk client;
-    def grailsApplication
+    AmazonMTurkClient client
+    Properties config
 
     def isSandbox() {
-        InputStream stream = this.class.classLoader.getResourceAsStream("global.mturk.properties")
-        Properties props = new Properties()
-        props.load(stream);
-        Boolean.parseBoolean(props.getProperty("sandbox"))
+        if (!config) {
+            getMturkClient()
+        }
+        return Boolean.parseBoolean(config.getProperty("sandbox"))
     }
 
     def getBaseMturkUrl() {
-        return("https://worker${isSandbox()?"sandbox":""}.mturk.com")
+        return ("https://worker${isSandbox() ? "sandbox" : ""}.mturk.com")
     }
 
     def getMturkClient() {
-
-//        FilePropertiesConfig config
-        InputStream stream = this.class.classLoader.getResourceAsStream("global.mturk.properties")
-        if (!stream) {
-            println("Uh oh, can't find resource!")
-        }
-        Properties props = new Properties()
-        props.load(stream);
-//        config = new FilePropertiesConfig(stream)
-
-        String AWS_ACCESS_KEY = props.getProperty("access_key")
-        log.debug("Got access key ${AWS_ACCESS_KEY}")
-        String AWS_SECRET_KEY = props.getProperty("secret_key")
-        String SANDBOX_ENDPOINT = props.getProperty("sandbox_endpoint")
-        String SIGNING_REGION = props.getProperty("signing_region")
-        boolean sandbox = Boolean.parseBoolean(props.getProperty("sandbox"))
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
-        AmazonMTurkClientBuilder builder = AmazonMTurkClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
-        if(sandbox){
-            println("**************** SANDBOX ENDPOINT SELECTED ****************")
-            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(SANDBOX_ENDPOINT, SIGNING_REGION));
-        }else{
-            println("**************** PRODUCTION ENDPOINT SELECTED ****************")
-            String PRODUCTION_ENDPOINT = props.getProperty("production_endpoint")
-            builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(PRODUCTION_ENDPOINT, SIGNING_REGION))
-        }
-
-        return builder.build();
-    }
-
-    def createQualification(TrainingSet ts, String description) {
-        createQualification(TrainingSet.constructQualificationString(ts),description)
-    }
-
-    def createQualification(Simulation s, String description) {
-        createQualification(Simulation.constructQualificationString(s),description)
-
-    }
-
-    def createQualification(Story story, String description) {
-        createQualification(Story.constructQualificationString(story), description)
-    }
-
-
-
-    private setClient(AmazonMTurk clients) {
-        client = clients;
-    }
-
-
-    def createQualification(String qualificationName, String description) {
-
-        setClient(getMturkClient());
-        try {
-            def s = searchQualificationTypeId(qualificationName)
-            if(s && s.size()>0){
-                log.warn("Qualification ${qualificationName} already exists: ${s}")
-
-            }else{
-                CreateQualificationTypeRequest createQualificationTypeRequest = new CreateQualificationTypeRequest();
-                createQualificationTypeRequest.setName(qualificationName);
-                createQualificationTypeRequest.setQualificationTypeStatus("Active");
-                createQualificationTypeRequest.setDescription(description);
-                createQualificationTypeRequest.setKeywords("loom,training,game");
-                log.debug("Creating qualifiction ${createQualificationTypeRequest}")
-                def r = client.createQualificationType(createQualificationTypeRequest);
-                log.debug("Qual result is ${r}")
+        if (!client) {
+            //        FilePropertiesConfig config
+            InputStream stream = this.class.classLoader.getResourceAsStream("global.mturk.properties")
+            if (!stream) {
+                throw new LoomConfigurationException("Missing global.mturk.properties configuration file")
             }
-        }catch (Exception e) {
-            e.printStackTrace()
+            config = new Properties()
+            config.load(stream);
+            String AWS_ACCESS_KEY = config.getProperty("access_key")
+            String AWS_SECRET_KEY = config.getProperty("secret_key")
+            String SANDBOX_ENDPOINT = config.getProperty("sandbox_endpoint")
+            String SIGNING_REGION = config.getProperty("signing_region")
+            boolean sandbox = Boolean.parseBoolean(config.getProperty("sandbox"))
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
+            AmazonMTurkClientBuilder builder = AmazonMTurkClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
+            if (sandbox) {
+                println("**************** SANDBOX ENDPOINT SELECTED ****************")
+                builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(SANDBOX_ENDPOINT, SIGNING_REGION));
+            } else {
+                println("**************** PRODUCTION ENDPOINT SELECTED ****************")
+                String PRODUCTION_ENDPOINT = props.getProperty("production_endpoint")
+                builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(PRODUCTION_ENDPOINT, SIGNING_REGION))
+            }
+
+            client = (AmazonMTurkClient)builder.build()
+
+        }
+        return client
+    }
+
+    def createQualification(HasQualification obj) {
+        createQualification(obj.qualificationString,obj.qualificationDescription)
+    }
+
+
+
+
+    def createQualification(String qualificationName, String description) throws ServiceException, RequestErrorException{
+
+
+        def qualId = null
+
+        def s = searchQualificationTypeByString(qualificationName)
+        if (s && s.size() > 0) {
+            log.warn("Qualification ${qualificationName} already exists: ${s}")
+
+        } else {
+            CreateQualificationTypeRequest createQualificationTypeRequest = new CreateQualificationTypeRequest();
+            createQualificationTypeRequest.setName(qualificationName);
+            //createQualificationTypeRequest.setQualificationTypeStatus("Active");
+            createQualificationTypeRequest.setDescription(description);
+            createQualificationTypeRequest.setQualificationTypeStatus(QualificationTypeStatus.Active)
+            createQualificationTypeRequest.setKeywords("loom,training,game");
+            print("Creating qualification with name ${qualificationName} because it does not apparently exist")
+            log.debug("Creating qualifiction ${createQualificationTypeRequest}")
+            def r = getMturkClient().createQualificationType(createQualificationTypeRequest);
+            log.debug("Qual result is ${r}")
+            qualId = r.qualificationType.qualificationTypeId
         }
 
+        return qualId
+
     }
 
-    def assignQualification(String workerId, String qualification, def value) {
-        println(Math.floor(value).toInteger())
-        value = Math.floor(value).toInteger()
-        setClient(getMturkClient())
+    def assignQualification(String workerId, HasQualification q, def Double value) {
+        Integer ivalue = Math.floor(value).toInteger()
         AssociateQualificationWithWorkerRequest aq = new AssociateQualificationWithWorkerRequest();
-        def q = searchQualificationTypeId(qualification)
-        log.debug("Attempt to assign ${q} to ${workerId}")
-        aq.setQualificationTypeId(q);
+        def qual = searchQualificationType(q)
+        log.debug("Attempt to assign ${qual} to ${workerId}")
+        aq.setQualificationTypeId(qual);
         aq.setWorkerId(workerId);
-        aq.setIntegerValue(value)
-        client.associateQualificationWithWorker(aq);
+        aq.setIntegerValue(ivalue)
+        getMturkClient().associateQualificationWithWorker(aq);
     }
 
 
-    def getQualificationScore(String qualificationId, String workerId){
-        setClient(getMturkClient());
+
+    def getQualificationScore(String qualificationId, String workerId) {
+
         GetQualificationScoreRequest req = new GetQualificationScoreRequest()
         req.setQualificationTypeId(qualificationId)
         req.setWorkerId(workerId)
-        GetQualificationScoreResult result = client.getQualificationScore(req)
+        GetQualificationScoreResult result = getMturkClient().getQualificationScore(req)
         result.getQualification()
         return result
 
     }
 
-    def searchQualificationTypeId(String qualificationType){
-        setClient(getMturkClient());
+    def searchQualificationType(HasQualification obj, boolean create=true) {
+        def qid = searchQualificationTypeByString(obj.qualificationString)
+        if (!qid && create) {
+            qid = createQualification(obj.qualificationString,obj.qualificationDescription)
+        }
+        return qid
+
+    }
+
+    def searchQualificationTypeByString(String qualificationType) {
+
         ListQualificationTypesRequest lqtr = new ListQualificationTypesRequest();
-        lqtr.setMustBeRequestable(true);
+        lqtr.setMustBeRequestable(false);
         lqtr.setMustBeOwnedByCaller(true)
         lqtr.setQuery(qualificationType);
-        ListQualificationTypesResult result = client.listQualificationTypes(lqtr);
+        ListQualificationTypesResult result = getMturkClient().listQualificationTypes(lqtr);
         List<QualificationType> s = result.getQualificationTypes();
-        if (s.size()>0){
+        if (s.size() > 0) {
             log.debug("Found ${qualificationType} -> ${s}")
-            return s.get(s.size()-1).getQualificationTypeId()
+            return s.get(s.size() - 1).getQualificationTypeId()
         }
         return null
     }
@@ -151,7 +151,7 @@ class MturkService {
     def createExperimentHIT(Experiment exp, String sessionId, int num_hits, int assignmentLifetime, int hitLifetime, String fullUrl) throws IOException {
         if (num_hits > 0) {
             Session session = Session.get(sessionId)
-            setClient(getMturkClient());
+
             // QualificationRequirement: Locale IN (US, CA)
             String qualifier = exp.qualifier
             Collection<QualificationRequirement> qualificationRequirements = new ArrayList<>()
@@ -164,25 +164,21 @@ class MturkService {
             questionSample = questionSample.replace("goToThisLink", "${fullUrl}/session/s/" + session.id.toString())
             if (qualifier) {
                 List qualifiers = qualifier.split(";")
-
-                QualificationRequirement performanceRequirement = new QualificationRequirement();
-                performanceRequirement.setQualificationTypeId(searchQualificationTypeId(Simulation.constructQualificationString(exp.training_set.simulations.first())));
+                QualificationRequirement performanceRequirement = getQualificationRequirement(exp.training_set.simulations.first())
                 performanceRequirement.setComparator(Comparator.GreaterThanOrEqualTo);
                 List<Integer> performanceValues = new ArrayList<>();
                 performanceValues.add(qualifiers.get(4).split(">=")[1] as Integer);
                 performanceRequirement.setIntegerValues(performanceValues)
                 qualificationRequirements.add(performanceRequirement)
 
-                QualificationRequirement readingRequirement = new QualificationRequirement();
-                readingRequirement.setQualificationTypeId(searchQualificationTypeId("loomreadings"));
+                QualificationRequirement readingRequirement = getQualificationRequirement(Reading.first());
                 readingRequirement.setComparator(Comparator.GreaterThanOrEqualTo);
                 List<Integer> readingValues = new ArrayList<>();
                 readingValues.add(qualifiers.get(5).split(">=")[1] as Integer);
                 readingRequirement.setIntegerValues(readingValues)
                 qualificationRequirements.add(readingRequirement)
 
-                QualificationRequirement vaccineRequirement = new QualificationRequirement();
-                vaccineRequirement.setQualificationTypeId(searchQualificationTypeId("loomsurveys"));
+                QualificationRequirement vaccineRequirement = getQualificationRequirement(Survey.first())
                 vaccineRequirement.setComparator(Comparator.In);
                 List<Integer> vaccineValues = new ArrayList<>();
                 (qualifiers.get(6).split("<=")[0]..qualifiers.get(6).split("<=")[2]).each { n ->
@@ -191,7 +187,6 @@ class MturkService {
                 vaccineRequirement.setIntegerValues(vaccineValues)
                 qualificationRequirements.add(vaccineRequirement)
 
-
                 QualificationRequirement numHitsRequirement = new QualificationRequirement();
                 numHitsRequirement.setQualificationTypeId("3CNIZ8EIUVQZYD8YHMEU9ANVZY73BK");
                 numHitsRequirement.setComparator(Comparator.GreaterThanOrEqualTo);
@@ -199,12 +194,6 @@ class MturkService {
                 numHitsValues.add(500);
                 numHitsRequirement.setIntegerValues(numHitsValues)
                 qualificationRequirements.add(numHitsRequirement)
-
-
-
-
- //
-
 
             }
 
@@ -218,11 +207,14 @@ class MturkService {
             qualificationRequirements.add(localeRequirement)
 
             //No repeat stories requirement
-            QualificationRequirement storyRequirement = new QualificationRequirement();
-            storyRequirement.setQualificationTypeId(searchQualificationTypeId(Story.constructQualificationString(exp.story)));
+            QualificationRequirement storyRequirement = getQualificationRequirement(exp.story)
             storyRequirement.setComparator(Comparator.DoesNotExist);
             qualificationRequirements.add(storyRequirement)
 
+            //Training set requirement
+            QualificationRequirement trainingSetRequirement = getQualificationRequirement(exp.training_set)
+            trainingSetRequirement.setComparator(Comparator.Exists)
+            qualificationRequirements.add(trainingSetRequirement)
 
 //            QualificationRequirement approvalRateRequirement = new QualificationRequirement();
 //            approvalRateRequirement.setQualificationTypeId("000000000000000000L0");
@@ -231,7 +223,6 @@ class MturkService {
 //            approvalRateValues.add(98);
 //            approvalRateRequirement.setIntegerValues(approvalRateValues)
 //            qualificationRequirements.add(approvalRateRequirement)
-
 
 
             //int max_HIT_num = exp.max_node
@@ -251,8 +242,8 @@ class MturkService {
                 request.setQualificationRequirements(qualificationRequirements);
 
 
-                def result = client.createHIT(request);
-                def linkurl="${getBaseMturkUrl()}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
+                def result = getMturkClient().createHIT(request);
+                def linkurl = "${getBaseMturkUrl()}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
                 println(linkurl)
                 log.debug(linkurl)
                 hits.add(result.getHIT().getHITId())
@@ -266,15 +257,23 @@ class MturkService {
 
     }
 
-    def hasQualification(String workerId, String qualification){
-        setClient(getMturkClient());
+    def getQualificationRequirement(HasQualification obj) throws ServiceException, RequestErrorException {
+        def qtype = searchQualificationType(obj)
+        QualificationRequirement req = new QualificationRequirement();
+        req.setQualificationTypeId(qtype);
+        return req
+    }
+
+
+    def hasQualification(String workerId, String qualification) {
+
         ListWorkersWithQualificationTypeRequest request = new ListWorkersWithQualificationTypeRequest()
-        request.setQualificationTypeId(searchQualificationTypeId(qualification))
-        ListWorkersWithQualificationTypeResult result = client.listWorkersWithQualificationType(request)
+        request.setQualificationTypeId(searchQualificationTypeByString(qualification))
+        ListWorkersWithQualificationTypeResult result = getMturkClient().listWorkersWithQualificationType(request)
         List<Qualification> quals = result.getQualifications()
         boolean flag = false
-        for(Qualification qual: quals){
-            if(qual.getWorkerId() == workerId){
+        for (Qualification qual : quals) {
+            if (qual.getWorkerId() == workerId) {
                 flag = true
             }
         }
@@ -286,8 +285,8 @@ class MturkService {
 
         //log.debug("Got context path ${contextPath}")
 
-        if(num_hits>0){
-            setClient(getMturkClient());
+        if (num_hits > 0) {
+
             // QualificationRequirement: Locale IN (US, CA)
             String qualifier = trainingSet.qualifier
             //String questionSample = new String(Files.readAllBytes(Paths.get('grails-app/conf/my_question.xml')))
@@ -297,7 +296,7 @@ class MturkService {
                     .lines()
                     .collect(Collectors.joining("\n"));
 
-            questionSample = questionSample.replace("goToThisLink","${fullUrl}/training/t/"+trainingSet.id.toString())
+            questionSample = questionSample.replace("goToThisLink", "${fullUrl}/training/t/" + trainingSet.id.toString())
             QualificationRequirement localeRequirement = new QualificationRequirement();
             localeRequirement.setQualificationTypeId("00000000000000000071");
             localeRequirement.setComparator(Comparator.In);
@@ -307,9 +306,9 @@ class MturkService {
             Collection<QualificationRequirement> qualificationRequirements = new ArrayList<>()
             qualificationRequirements.add(localeRequirement)
 
-            if (qualifier){
+            if (qualifier) {
                 QualificationRequirement trainingRequirement = new QualificationRequirement();
-                trainingRequirement.setQualificationTypeId(searchQualificationTypeId(TrainingSet.constructQualificationString(trainingSet)))
+                trainingRequirement.setQualificationTypeId(searchQualificationTypeByString(TrainingSet.constructQualificationString(trainingSet)))
                 trainingRequirement.setComparator(Comparator.DoesNotExist)
                 qualificationRequirements.add(trainingRequirement)
 
@@ -321,23 +320,23 @@ class MturkService {
                 request.setLifetimeInSeconds(hitLifetime * 60L);
                 request.setAssignmentDurationInSeconds(assignmentLifetime * 60L);
                 // 3 days
-                request.setAutoApprovalDelayInSeconds(60*60*24*4)
+                request.setAutoApprovalDelayInSeconds(60 * 60 * 24 * 4)
                 // Reward is a USD dollar amount - USD$0.20 in the example below
                 request.setReward(trainingSet.training_payment as String);
-                request.setTitle("Story Loom Training: "+trainingSet.name);
+                request.setTitle("Story Loom Training: " + trainingSet.name);
                 request.setKeywords("qualifier, research, game");
                 request.setDescription("This HIT will provide a qualifier so that you can participate in the Story Loom game");
                 request.setQuestion(questionSample);
-                if(qualifier){
+                if (qualifier) {
                     request.setQualificationRequirements(qualificationRequirements);
                 }
 
-                def result = client.createHIT(request);
-                def hiturl = "https://worker${sandbox ? "sandbox":""}.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId()
+                def result = getMturkClient().createHIT(request);
+                def hiturl = "https://worker${sandbox ? "sandbox" : ""}.mturk.com/mturk/preview?groupId=" + result.getHIT().getHITTypeId()
                 println(hiturl)
                 log.debug(hiturl)
                 trainingSet.HITId.add(result.getHIT().getHITId())
-                trainingSet.HITTypeId.add( result.getHIT().getHITTypeId())
+                trainingSet.HITTypeId.add(result.getHIT().getHITTypeId())
                 trainingSet.save(flush: true)
             }
         }
@@ -346,18 +345,17 @@ class MturkService {
     }
 
 
+    def sendExperimentBonus(String assignmentId, def max_score, def total_score, def wait_time, def session_id, def worker_id) {
 
-    def sendExperimentBonus(String assignmentId, def max_score, def total_score, def wait_time, def session_id, def worker_id){
-        setClient(getMturkClient())
         SendBonusRequest req = new SendBonusRequest();
         Experiment exp = Session.get(session_id).exp
         def score_payment = exp.score
         def finished_payment = exp.completion
         Float payment
 //        Float payment = 0.1
-        if(total_score){
-            payment = (max_score/total_score) * score_payment + finished_payment + wait_time * exp.waiting
-        }else{
+        if (total_score) {
+            payment = (max_score / total_score) * score_payment + finished_payment + wait_time * exp.waiting
+        } else {
             payment = finished_payment + wait_time * exp.waiting
         }
 
@@ -365,7 +363,7 @@ class MturkService {
         req.setWorkerId(worker_id);
         req.setBonusAmount(payment.toString());
         req.setReason("finish experiment");
-        SendBonusResult result = client.sendBonus(req);
+        SendBonusResult result = getMturkClient().sendBonus(req);
     }
 
 //    def sendExperimentWaitingBonus(String assignmentId, def wait_time, def session_id){
@@ -376,75 +374,75 @@ class MturkService {
 //        req.setWorkerId(getWorkerId(assignmentId));
 //        req.setBonusAmount(payment.toString());
 //        req.setReason("finish experiment");
-//        SendBonusResult result = client.sendBonus(req);
+//        SendBonusResult result = getMturkClient().sendBonus(req);
 //    }
 
 //    def blockWorker(String workerId){
 //        CreateWorkerBlockRequest req = new CreateWorkerBlockRequest()
 //        req.setWorkerId(workerId)
-//        CreateWorkerBlockResult result = client.createWorkerBlock(req)
+//        CreateWorkerBlockResult result = getMturkClient().createWorkerBlock(req)
 //    }
 
-    def getWorkerId(String assignmentId){
-        setClient(getMturkClient())
+    def getWorkerId(String assignmentId) {
+
         GetAssignmentRequest req = new GetAssignmentRequest()
         req.setAssignmentId(assignmentId)
-        GetAssignmentResult result = client.getAssignment(req)
+        GetAssignmentResult result = getMturkClient().getAssignment(req)
         String workerId = result.getAssignment().getWorkerId()
         return workerId
     }
 
-    def listAssighmentsForHIT(String HITId){
-        setClient(getMturkClient())
+    def listAssighmentsForHIT(String HITId) {
+
         ListAssignmentsForHITRequest req = new ListAssignmentsForHITRequest()
         req.setHITId(HITId)
-        ListAssignmentsForHITResult result = client.listAssignmentsForHIT(req)
-        if (result.getAssignments()){
+        ListAssignmentsForHITResult result = getMturkClient().listAssignmentsForHIT(req)
+        if (result.getAssignments()) {
             return result.getAssignments().get(0).getAssignmentId()
         }
         return null
     }
 
-    def getHit(String HITId){
-        setClient(getMturkClient())
+    def getHit(String HITId) {
+
         GetHITRequest hitreq = new GetHITRequest()
         hitreq.setHITId(HITId)
-        GetHITResult hitresult = client.getHIT(hitreq)
+        GetHITResult hitresult = getMturkClient().getHIT(hitreq)
         return hitresult
     }
 
-    def deleteHit(String HITId){
+    def deleteHit(String HITId) {
 
-        setClient(getMturkClient());
+
         DeleteHITRequest dhr = new DeleteHITRequest()
 
         dhr.setHITId(HITId)
-        client.deleteHIT(dhr)
+        getMturkClient().deleteHIT(dhr)
 
     }
 
-    def updateExpirationForHit(Session session){
-        setClient(getMturkClient())
+    def updateExpirationForHit(Session session) {
+
 
         def HITIds = session.getHITId()
         List delete_HITIds = new ArrayList<>()
-        for(String HITId: HITIds){
+        for (String HITId : HITIds) {
             GetHITResult hitresult = getHit(HITId)
             println(hitresult.getHIT().getHITStatus())
-            if (hitresult.getHIT().getHITStatus() == "Assignable"){
+            if (hitresult.getHIT().getHITStatus() == "Assignable") {
                 UpdateExpirationForHITRequest req = new UpdateExpirationForHITRequest()
 
                 req.setHITId(HITId)
                 req.setExpireAt(new Date())
-                client.updateExpirationForHIT(req)
+                getMturkClient().updateExpirationForHIT(req)
                 deleteHit(HITId)
                 delete_HITIds.add(HITId)
 
             }
 
         }
-        for(String HITId: delete_HITIds){
-            if (session.HITId.contains(HITId)){
+        for (String HITId : delete_HITIds) {
+            if (session.HITId.contains(HITId)) {
                 session.HITId.remove(HITId)
                 session.save(flush: true)
             }
@@ -454,21 +452,21 @@ class MturkService {
     }
 
 
-    def check_session_payable(Session session){
-        setClient(getMturkClient())
+    def check_session_payable(Session session) {
+
         int count = UserSession.countBySession(session)
         def HITIds = session.getHITId()
         // #submitted+#approved
         int total = 0
         int payable = 0
         List payableHIT = new ArrayList()
-        for(String HITId: HITIds){
+        for (String HITId : HITIds) {
             try {
                 String assignmentId = listAssighmentsForHIT(HITId)
                 if (assignmentId) {
                     GetAssignmentRequest req = new GetAssignmentRequest()
                     req.setAssignmentId(assignmentId)
-                    GetAssignmentResult result = client.getAssignment(req)
+                    GetAssignmentResult result = getMturkClient().getAssignment(req)
                     String status = result.getAssignment().getAssignmentStatus()
                     if (status == "Submitted" || (status == "Approved" && listBonus(HITId).size() == 0)) {
                         payable += 1
@@ -480,31 +478,31 @@ class MturkService {
 
                     }
                 }
-            } catch(Exception e) {
-                log.warn("Could not process hit id ${HITId}",e)
+            } catch (Exception e) {
+                log.warn("Could not process hit id ${HITId}", e)
             }
 
         }
-        session.paid = total-payable
+        session.paid = total - payable
         session.total = total
         session.save(flush: true)
 
-            return [payableHIT, total-payable, total, count]
+        return [payableHIT, total - payable, total, count]
     }
 
-    def check_trainingset_payable(TrainingSet trainingSet){
-        setClient(getMturkClient())
+    def check_trainingset_payable(TrainingSet trainingSet) {
+
         def HITIds = trainingSet.getHITId()
         int total = 0
         int payable = 0
         List payableHIT = new ArrayList()
-        for(String HITId: HITIds){
+        for (String HITId : HITIds) {
             try {
                 String assignmentId = listAssighmentsForHIT(HITId)
                 if (assignmentId) {
                     GetAssignmentRequest req = new GetAssignmentRequest()
                     req.setAssignmentId(assignmentId)
-                    GetAssignmentResult result = client.getAssignment(req)
+                    GetAssignmentResult result = getMturkClient().getAssignment(req)
                     String status = result.getAssignment().getAssignmentStatus()
                     if (status == "Submitted") {
                         payable += 1
@@ -516,51 +514,51 @@ class MturkService {
 
                     }
                 }
-            } catch(Exception e) {
-                log.warn("Could not process hit id ${HITId}",e)
+            } catch (Exception e) {
+                log.warn("Could not process hit id ${HITId}", e)
             }
 
         }
-        trainingSet.paid = total-payable
+        trainingSet.paid = total - payable
         trainingSet.total = total
         trainingSet.save(flush: true)
 
-        return [payableHIT, total-payable, total]
+        return [payableHIT, total - payable, total]
     }
 
-    def listBonus(String HITId){
-        setClient(getMturkClient())
+    def listBonus(String HITId) {
+
         ListBonusPaymentsRequest req = new ListBonusPaymentsRequest()
         req.setHITId(HITId)
-        ListBonusPaymentsResult result = client.listBonusPayments(req)
+        ListBonusPaymentsResult result = getMturkClient().listBonusPayments(req)
         return result.getBonusPayments()
     }
 
-    def pay_session_HIT(Session session){
-        setClient(getMturkClient())
+    def pay_session_HIT(Session session) {
+
         def (payableHIT, paid, total, count) = check_session_payable(session)
-        for(String HITId: payableHIT){
+        for (String HITId : payableHIT) {
             String assignmentId = listAssighmentsForHIT(HITId)
             GetAssignmentRequest req = new GetAssignmentRequest()
             req.setAssignmentId(assignmentId)
-            GetAssignmentResult result = client.getAssignment(req)
+            GetAssignmentResult result = getMturkClient().getAssignment(req)
             String state = result.getAssignment().getAssignmentStatus()
-            if (state == "Submitted"){
+            if (state == "Submitted") {
                 ApproveAssignmentRequest areq = new ApproveAssignmentRequest()
                 areq.setAssignmentId(assignmentId)
-                client.approveAssignment(areq)
+                getMturkClient().approveAssignment(areq)
             }
 
             String worker_id = getWorkerId(assignmentId)
             User user = User.findByTurkerId(worker_id)
             UserSession us = UserSession.findBySessionAndUser(session, user)
-            if (us){
-                int wait_time = us?.wait_time?:0
-                List scores = UserRoundStory.findAllBySessionAndUserAlias(session,us    .userAlias).sort {it.round}.score
+            if (us) {
+                int wait_time = us?.wait_time ?: 0
+                List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }.score
                 def total_score = scores.sum()
                 def max_score = scores.max()
                 sendExperimentBonus(assignmentId, max_score as int, total_score as int, wait_time, session.id, worker_id)
-            }else{
+            } else {
                 sendExperimentBonus(assignmentId, 0, 0, 0, session.id, worker_id)
             }
 
@@ -568,28 +566,28 @@ class MturkService {
         }
     }
 
-    def pay_trainingset_HIT(TrainingSet trainingSet){
-        setClient(getMturkClient())
+    def pay_trainingset_HIT(TrainingSet trainingSet) {
+
         def (payableHIT, paid, total) = check_trainingset_payable(trainingSet)
-        for(String HITId: payableHIT){
+        for (String HITId : payableHIT) {
             String assignmentId = listAssighmentsForHIT(HITId)
             GetAssignmentRequest req = new GetAssignmentRequest()
             req.setAssignmentId(assignmentId)
-            GetAssignmentResult result = client.getAssignment(req)
+            GetAssignmentResult result = getMturkClient().getAssignment(req)
             String state = result.getAssignment().getAssignmentStatus()
-            if (state == "Submitted"){
+            if (state == "Submitted") {
                 ApproveAssignmentRequest areq = new ApproveAssignmentRequest()
                 areq.setAssignmentId(assignmentId)
-                client.approveAssignment(areq)
+                getMturkClient().approveAssignment(areq)
             }
         }
     }
 
-    def rejectAssignment(String assignmentId){
-        setClient(getMturkClient())
+    def rejectAssignment(String assignmentId) {
+
         RejectAssignmentRequest request = new RejectAssignmentRequest()
         request.setAssignmentId(assignmentId)
-        client.rejectAssignment(request)
+        getMturkClient().rejectAssignment(request)
     }
 
 }

@@ -38,7 +38,7 @@ class TrainingSetService {
                     createSurvey(json.training.survey, trainingSet)
                 }
 
-                mturkService.createQualification(trainingSet,"loom training")
+                mturkService.createQualification(trainingSet)
                 return trainingSet
             } else {
                 status.setRollbackOnly()
@@ -60,7 +60,7 @@ class TrainingSetService {
             log.debug("New training with id ${training.id} has been created for trainingSet ${trainingSet.name}.")
             def storyId = Story.count() + 1
             story = new Story(title: "Story "+storyId.toString()).save(flush: true)
-            mturkService.createQualification(story, "loom story")
+            mturkService.createQualification(story)
             training.addToStories(story)
             for (int i = 0; i < tr.problem.size(); i++) {
                 tail = new Tile(text: tr.solution.get(i), text_order: i)
@@ -109,6 +109,7 @@ class TrainingSetService {
                 return null;
             }
         }
+        mturkService.createQualification(trainingSet.readings.first())
     }
 
     def createSurvey(def json, TrainingSet trainingSet){
@@ -132,6 +133,7 @@ class TrainingSetService {
                 return null;
             }
         }
+        mturkService.createQualification(trainingSet.surveys.first())
     }
 
     Training getNextTraining(User u, TrainingSet ts) {

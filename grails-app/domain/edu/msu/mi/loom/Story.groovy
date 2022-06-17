@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-class Story {
+class Story implements HasQualification {
     String title
 
     static hasMany = [tails: Tile]
@@ -27,11 +27,21 @@ class Story {
     }
 
     static String constructQualificationString(Story s) {
-        "loomstory${s.id}"
+        return "Loom Story Participation-${s.title}-${s.id}"
     }
 
     public String toString() {
         def text = tails?tails.sort{it.text_order}.text.join(" "):"--none--"
         return text
+    }
+
+    @Override
+    String getQualificationString() {
+        return constructQualificationString(this)
+    }
+
+    @Override
+    String getQualificationDescription() {
+        return "This qualification indicates that you have participated in a Loom session using this story"
     }
 }
