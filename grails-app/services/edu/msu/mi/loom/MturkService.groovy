@@ -557,7 +557,7 @@ class MturkService {
                 List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }.score
                 def total_score = scores.sum()
                 def max_score = scores.max()
-                sendExperimentBonus(assignmentId, max_score as int, total_score as int, wait_time, session.id, worker_id)
+                sendExperimentBonus(assignmentId, max_score?max_score:0 as int, total_score?total_score:0 as int, wait_time, session.id, worker_id)
             } else {
                 sendExperimentBonus(assignmentId, 0, 0, 0, session.id, worker_id)
             }
