@@ -126,7 +126,7 @@ class AdminController {
             def session = adminService.createSession(exp,ts)
 
             sessionService.launchSession(session.id)
-            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, getFullUrl())
+            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, params.other_quals, getFullUrl())
         }
 
         redirect(action: 'board')
@@ -137,7 +137,7 @@ class AdminController {
 
         TrainingSet ts = TrainingSet.get(params.trainingId)
         int num_hits = params.num_hits as int
-        mturkService.createTrainingHIT(ts, num_hits, params.assignment_lifetime as int, params.hit_lifetime as int, fullUrl)
+        mturkService.createTrainingHIT(ts, num_hits, params.assignment_lifetime as int, params.hit_lifetime as int, params.other_quals, fullUrl)
         redirect(action: 'board')
     }
 

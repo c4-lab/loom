@@ -687,7 +687,8 @@ $(document).ready(function () {
         var num_hits = $("#num_training_hits").val();
         var hit_lifetime = $("#exp_available_time").val();
         var assignment_lifetime = $("#exp_assignment_lifetime").val();
-
+        var other_quals = $("#other_quals").val();
+        alert(other_quals);
 
 
         $.ajax({
@@ -698,7 +699,9 @@ $(document).ready(function () {
                     trainingId: trainingID,
                     num_hits:num_hits,
                     assignment_lifetime: assignment_lifetime,
-                    hit_lifetime: hit_lifetime
+                    hit_lifetime: hit_lifetime,
+                    other_quals: other_quals
+
 
                 },
             // dataType:"json",
@@ -730,6 +733,7 @@ $(document).ready(function () {
 
 
 
+
         $.ajax({
             url: "/loom/admin/launchExperiment",
             type: 'POST',
@@ -738,7 +742,8 @@ $(document).ready(function () {
                     experimentID: experimentID,
                     num_hits:num_hits,
                     hit_lifetime: hit_lifetime,
-                    assignment_lifetime: assignment_lifetime
+                    assignment_lifetime: assignment_lifetime,
+                    other_quals: other_quals
 
                 },
             // dataType:"json",

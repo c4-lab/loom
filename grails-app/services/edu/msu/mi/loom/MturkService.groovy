@@ -3,6 +3,8 @@ package edu.msu.mi.loom
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.mturk.requester.GetQualificationType
+import com.amazonaws.mturk.requester.GetQualificationTypeResponse
 
 //import com.amazonaws.mturk.service.axis.RequesterService
 import com.amazonaws.services.mturk.AmazonMTurk
@@ -281,9 +283,9 @@ class MturkService {
 
     }
 
-    def createTrainingHIT(TrainingSet trainingSet, int num_hits, int assignmentLifetime, int hitLifetime, String fullUrl) throws IOException {
+    def createTrainingHIT(TrainingSet trainingSet, int num_hits, int assignmentLifetime, int hitLifetime, String otherquals, String fullUrl) throws IOException {
 
-        //log.debug("Got context path ${contextPath}")
+        log.debug("Got otherquals ${otherquals}")
 
         if (num_hits > 0) {
 
@@ -313,6 +315,27 @@ class MturkService {
                 qualificationRequirements.add(trainingRequirement)
 
             }
+
+            if (otherquals) {
+                otherquals.split(",").each {
+                    try {
+                        if (checkQualificationid(it)) {
+                            QualificationRequirement req = new QualificationRequirement();
+                            req.setQualificationTypeId(it)
+                            req.setComparator(Comparator.Exists)
+                            qualificationRequirements.add(req)
+                        } else {
+                            log.warn("Could not identify qual: ${it}")
+                        }
+
+
+                    } catch (Exception e) {
+                        log.warn("Could not identify qual is ${it}",e)
+                        throw(e)
+                    }
+                }
+            }
+
             def sandbox = isSandbox()
             (1..num_hits).each {
                 CreateHITRequest request = new CreateHITRequest();
@@ -344,6 +367,13 @@ class MturkService {
 
     }
 
+    def checkQualificationid(String qualid) {
+        log.debug("Checking the existence of qualifier: ${qualid}")
+        GetQualificationTypeRequest qtype = new GetQualificationTypeRequest()
+        qtype.setQualificationTypeId(qualid)
+        GetQualificationTypeResult response = getMturkClient().getQualificationType(qtype)
+        return response?.qualificationType != null;
+    }
 
     def sendExperimentBonus(String assignmentId, def max_score, def total_score, def wait_time, def session_id, def worker_id) {
 
