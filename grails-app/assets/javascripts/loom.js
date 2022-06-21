@@ -743,7 +743,7 @@ $(document).ready(function () {
                     num_hits:num_hits,
                     hit_lifetime: hit_lifetime,
                     assignment_lifetime: assignment_lifetime,
-                    other_quals: other_quals
+
 
                 },
             // dataType:"json",
