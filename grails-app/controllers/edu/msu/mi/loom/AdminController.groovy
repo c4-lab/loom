@@ -126,7 +126,7 @@ class AdminController {
             def session = adminService.createSession(exp,ts)
 
             sessionService.launchSession(session.id)
-            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, params.other_quals, getFullUrl())
+            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, getFullUrl())
         }
 
         redirect(action: 'board')
