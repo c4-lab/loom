@@ -375,7 +375,7 @@ class MturkService {
         return response?.qualificationType != null;
     }
 
-    def sendExperimentBonus(String assignmentId, def max_score, def total_score, def wait_time, def session_id, def worker_id) {
+    def sendExperimentBonus(String assignmentId, float max_score, float mean_score, def wait_time, def session_id, def worker_id) {
 
         SendBonusRequest req = new SendBonusRequest();
         Experiment exp = Session.get(session_id).exp
@@ -383,16 +383,16 @@ class MturkService {
         def finished_payment = exp.completion
         Float payment
 //        Float payment = 0.1
-        if (total_score) {
-            payment = (max_score / total_score) * score_payment + finished_payment + wait_time * exp.waiting
+        if (mean_score) {
+            payment = 0.5f*(max_score + mean_score) * score_payment + finished_payment + wait_time * exp.waiting
         } else {
             payment = finished_payment + wait_time * exp.waiting
         }
 
         req.setAssignmentId(assignmentId);
         req.setWorkerId(worker_id);
-        req.setBonusAmount(payment.toString());
-        req.setReason("finish experiment");
+        req.setBonusAmount(String. format("%. 2f", payment));
+        req.setReason("Bonus for Story Loom Experiment");
         SendBonusResult result = getMturkClient().sendBonus(req);
     }
 
@@ -585,9 +585,9 @@ class MturkService {
             if (us) {
                 int wait_time = us?.wait_time ?: 0
                 List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }.score
-                def total_score = scores.sum()
-                def max_score = scores.max()
-                sendExperimentBonus(assignmentId, max_score?max_score:0 as int, total_score?total_score:0 as int, wait_time, session.id, worker_id)
+                float total_score = scores.sum() / (float)scores.size()
+                float max_score = scores.max() as float
+                sendExperimentBonus(assignmentId, max_score?max_score:0, total_score?total_score:0, wait_time, session.id, worker_id)
             } else {
                 sendExperimentBonus(assignmentId, 0, 0, 0, session.id, worker_id)
             }
