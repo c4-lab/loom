@@ -40,6 +40,9 @@
     <asset:javascript src="application.js"/>
     <asset:javascript src="Sortable.js"/>
     <asset:javascript src="loom.js"/>
+    <asset:javascript src="story_modal.js"/>
+    <asset:javascript src="experiment_modal.js"/>
+    <asset:javascript src="session_modal.js"/>
     <g:layoutHead/>
 </head>
 

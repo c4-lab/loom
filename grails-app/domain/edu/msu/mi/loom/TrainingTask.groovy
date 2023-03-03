@@ -2,7 +2,7 @@ package edu.msu.mi.loom
 
 class TrainingTask {
     Training training
-    Tile tail
+    Tile tile
 
     static constraints = {
     }

@@ -60,7 +60,7 @@
                     <p>
                         In the following screens you will be given some sample problems so you can get used to the interface.
                         After the training has been satisfactorily completed, you will be granted a qualification that let's you
-                        participate in actual games; games will be posted as seperate HITs.
+                        participate in actual games.
                     </p>
 
                     <p>
@@ -68,13 +68,15 @@
                     </p>
 
                     <p class="lead text-center">
-                        <em><a href="${trainingSetId}?assignmentId=${assignmentId}">Continue</a></em>
+
+
+                    <g:form controller="training" action="submitIntro">
+                        <g:hiddenField name="assignmentId" value="${assignmentId}"/>
+                        <g:hiddenField name="trainingSetId" value="${trainingSetId}"/>
+                        <g:submitButton name="continue" class="btn btn-success" value="Continue"/>
+                    </g:form>
+
                     </p>
-%{--                    <g:form controller="training" action="training">--}%
-%{--                        <g:hiddenField name="assignmentId" value="${assignmentId}"/>--}%
-%{--                        <g:hiddenField name="trainingSetId" value="${trainingId}"/>--}%
-%{--                        <g:submitButton name="continue" class="btn btn-success" value="Continue"/>--}%
-%{--                    </g:form>--}%
 
                 </div>
             </div>

@@ -44,43 +44,89 @@
                                                       loomSession  : loomSession, paused: paused, uiflag:uiflag]"/>
                                 </div>
 
-                                <p>Your story:</p>
-
-                                <div class="row"></div>
-
+                                <!---  THIS IS YOUR STORY ------>
                                 <div class="row">
-                                    <div class="col-xs-1"></div>
+                                    <div class="col-xs-2 center-block">
+                                        <p>Your story:</p>
+                                    </div>
+                                </div>
 
-                                    <div class="col-xs-10 table-bordered ui-widget-content dvDest" >
-                                        <g:if test="${uiflag == 1}">
-                                            <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">
+                                <div class="row center-block">
+
+                                    <div class="col-xs-11 table-bordered ui-widget-content dvDest col-centered">
+                                        <ul style="min-height: 200px !important;" id="sort2" class="${uiflag == 1?"dvSource":""}  g_list">
+
+                                            <g:if test="${myState?.size() > 0}">
                                                 <g:each in="${myState}" var="tt">
-
                                                     <li class="ui-state-default purple"
-                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
-                                                    <p></p>S
+                                                        drag-id="${tt.text_order}">${raw(tt.text)}</li>
                                                 </g:each>
-                                            %{--<g:else>--}%
-                                            %{--<li class="placeholder">Add tails here</li>--}%
-                                            %{--</g:else>--}%
-                                            </ul>
-                                        </g:if>
-                                        <g:else>
-                                            <ul style="min-height: 200px !important;" id="sort3" class="g_list">
-                                                <g:each in="${myState}" var="tt">
+                                            </g:if>
 
-                                                    <li class="ui-state-default purple"
-                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
-
-                                                </g:each>
-
-                                            </ul>
-                                        </g:else>
-
+                                        </ul>
                                     </div>
 
-                                    <div class="col-xs-1"></div>
                                 </div>
+
+                                <!---  THIS IS YOUR PRIVATE INFO ------>
+                                <div class="row col-centered">
+                                    <div class="col-xs-4">
+                                        <p>Your private info:</p>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row">
+                                    <div class="col-xs-11 table-bordered ui-widget-content dvSourceContainer col-centered">
+                                        <ul style="min-height: 200px !important;" id="sort4" class="${uiflag == 1?"dvSource":""} g_list privateinfo">
+                                            <g:each in="${myInitialState}" var="tt">
+                                                <li class="ui-state-default tile-available"
+                                                    drag-id="${tt.text_order}">${raw(tt.text)}</li>
+                                            </g:each>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+%{--                                <p>Your story:</p>--}%
+
+%{--                                <div class="row"></div>--}%
+
+%{--                                <div class="row">--}%
+%{--                                    <div class="col-xs-1"></div>--}%
+
+%{--                                    <div class="col-xs-10 table-bordered ui-widget-content dvDest" >--}%
+%{--                                        <g:if test="${uiflag == 1}">--}%
+%{--                                            <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">--}%
+%{--                                                <g:each in="${myState}" var="tt">--}%
+
+%{--                                                    <li class="ui-state-default purple"--}%
+%{--                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>--}%
+%{--                                                    <p></p>S--}%
+%{--                                                </g:each>--}%
+%{--                                            --}%%{--<g:else>--}%
+%{--                                            --}%%{--<li class="placeholder">Add tails here</li>--}%
+%{--                                            --}%%{--</g:else>--}%
+%{--                                            </ul>--}%
+%{--                                        </g:if>--}%
+%{--                                        <g:else>--}%
+%{--                                            <ul style="min-height: 200px !important;" id="sort3" class="g_list">--}%
+%{--                                                <g:each in="${myState}" var="tt">--}%
+
+%{--                                                    <li class="ui-state-default purple"--}%
+%{--                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>--}%
+
+%{--                                                </g:each>--}%
+
+%{--                                            </ul>--}%
+%{--                                        </g:else>--}%
+
+%{--                                    </div>--}%
+
+%{--                                    <div class="col-xs-1"></div>--}%
+%{--                                </div>--}%
 
                                 <hr/>
 

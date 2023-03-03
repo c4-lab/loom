@@ -3,12 +3,11 @@ package edu.msu.mi.loom
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
-class Training {
+class Training extends ConstraintProvider implements Trainable {
     String name
     Date dateCreated
 
     static hasMany = [stories: Story]
-    static belongsTo = [trainingSet: TrainingSet]
 
     static constraints = {
         name blank: false
@@ -27,5 +26,10 @@ class Training {
         }
 
         return copy
+    }
+
+    @Override
+    String getViewName() {
+        return "practice"
     }
 }

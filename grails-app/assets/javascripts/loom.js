@@ -1,7 +1,11 @@
 $(document).ready(function () {
-    $("#create-experiment").click(function () {
-        $("#experiment-file-upload-modal").modal('show');
-    });
+
+    /**
+     * ADMINISTRATATIVE STUFF
+     */
+
+
+
 
     $("#create-users").click(function () {
         $("#create-users-modal").modal('show');
@@ -26,8 +30,26 @@ $(document).ready(function () {
         $("#training-set-file-upload-modal").modal('show');
     });
 
-    $("#create-stories").click(function () {
-        $("#create-story-set").modal('show');
+    $("#create-reading").click(function () {
+        $("#reading-file-upload-modal").modal('show');
+    });
+
+    $("#create-simulation").click(function () {
+        $("#simulation-script-upload-modal").modal('show');
+    });
+
+    $("#create-survey").click(function () {
+        $("#survey-upload-modal").modal('show');
+    });
+
+
+
+    // $.getScript("story_modal.js").done(function(script,textStatus) {
+    //     console.log(textStatus)
+    // })
+
+    $("#create-credentials").click(function () {
+        $("#create-credentials-modal").modal('show');
     });
 
     $("#stop-waiting").click(function() {
@@ -57,19 +79,12 @@ $(document).ready(function () {
         $("#email-modal").modal('show');
     });
 
-    $(".launch_experiment").click(function () {
-        var experimentId = $(this).find('span.expid').text();
 
-        var numhits = $(this).find('span.numhits').text();
-        $("#experimentID").text(experimentId);
-        $('#num_exp_hits').val(numhits)
-        $("#launch-experiment-modal").modal('show');
-    });
 
     // $(".launch_experiment").click(function () {
     //
     //     // alert($("#launch_training").find('span').text());
-    //     $("#launch-experiment-modal").modal('show');
+    //     $("#session-modal").modal('show');
     //     $("#experimentID").text(experimentId);
     // });
 
@@ -274,228 +289,10 @@ $(document).ready(function () {
         });
     });
 
-    $("#create-exp").on('click', function (){
-        var name = $("#name").val();
-        var storySet = $("#StorySelect").val();
-        var trainingSet = $("#trainingSetSelect").val();
-        var min_nodes = $("#min_nodes").val();
-        var max_nodes = $("#max_nodes").val();
-        var initialNbrOfTiles = $('#initialNbrOfTiles').val();
-        var rounds = $('#rounds').val();
-        var duration = $('#duration').val();
-        var network_type = $('input:radio[name="network_type"]:checked').val();
-        var min_degree;
-        var max_degree;
-        var m;
-        var prob;
-        var performance;
-        var reading;
-        var vaccine_min;
-        var vaccine_max;
-        var uiflag = $('input:radio[name="UIflag"]:checked').val();
-        var isQualifier =  $('input:radio[name="qualifier"]:checked').val();
-        var accepting = $("#accepting").val();
-        var completion = $("#completion").val();
-        var waiting = $("#waiting").val();
-        var score = $("#score").val();
-
-        if (network_type === 'Lattice'){
-            min_degree = $("#Lattice_min_degree").val();
-            max_degree = 0;
-            m = 0;
-            prob = 0;
-        }else if(network_type === 'Newman_Watts'){
-            min_degree = $("#Newman_min_degree").val();
-            max_degree = $("#Newman_max_degree").val();
-            m = 0;
-            prob = $("#Newman_prob").val();
-
-        }else if(network_type === 'Barabassi_Albert'){
-            min_degree = $("#BA_min_degree").val();
-            max_degree = $("#BA_max_degree").val();
-            m = $("#BA_M").val();
-            // prob = $("#BA_prob").val();
-            prob = 0;
-        }
-
-        if (isQualifier === 'yes'){
-            performance = $("#performance").val();
-            reading = $("#reading").val();
-            vaccine_min = $("#vaccine_score_min").val();
-            vaccine_max = $("#vaccine_score_max").val();
-            if (vaccine_min>vaccine_max){
-                alert("please use the correct range of vaccine score")
-            }
-        }else if(isQualifier === 'no'){
-            performance = -1;
-            reading = -1;
-            vaccine_min = -1;
-            vaccine_max = -1;
-        }
-
-        if (name==='' || storySet==='null' || trainingSet==='null' || network_type==null || (prob==='' && network_type==='Newman_Watts')
-        || isQualifier==null || (vaccine_min && vaccine_max==null) || (vaccine_max && vaccine_min==null)
-        || accepting==='' || completion==='' || waiting==='' || score==='' || uiflag==null){
-            alert("please complete the required fields");
-            $("#experiment-file-upload-modal").modal('show');
-        }
-        else if (network_type === 'Barabassi_Albert' && max_degree<min_degree){
-            alert("total number of nodes must be at least equal to the initial set");
-            $("#experiment-file-upload-modal").modal('show');
-        }
-        else if (max_nodes<min_nodes){
-            alert("max allowed nodes must not be smaller than min allowed nodes");
-            $("#experiment-file-upload-modal").modal('show');
-        } else{
-            $.ajax({
-                url: "/loom/admin/uploadExperiment",
-                type: 'POST',
-                data:
-                    {
-                        name: name,
-                        storySet: storySet,
-                        trainingSet: trainingSet,
-                        min_nodes: min_nodes,
-                        max_nodes: max_nodes,
-                        initialNbrOfTiles: initialNbrOfTiles,
-                        rounds: rounds,
-                        duration: duration,
-                        network_type: network_type,
-                        min_degree: min_degree,
-                        max_degree: max_degree,
-                        m: m,
-                        prob: prob,
-                        performance: performance,
-                        reading: reading,
-                        vaccine_min: vaccine_min,
-                        vaccine_max: vaccine_max,
-                        uiflag: uiflag,
-                        isQualifier: isQualifier,
-                        accepting: accepting,
-                        completion: completion,
-                        waiting: waiting,
-                        score: score
-
-                    },
-                dataType: "json",
-                success: function (data) {
-                    if (data.message === "duplicate") {
-                        alert("name already exists!");
-                    }
-                    if (data.message === "exp_error") {
-
-                        alert("fail to create the experiment!");
-                    }
-                    // if(data.message==="network_error"){
-                    //
-                    //     alert("wrong network parameters!");
-                    // }
-                    if (data.message === "success") {
-                        window.location = "/loom/admin/board/";
-
-                    }
-
-
-                }
-            });
-        }
-
-    });
-
-
-    // $("#create-training").on('click', function (){
-    //     var name = $("#trainingSetName").val();
-    //     var inputFile = $("#inputFile");
-    //     var performance = $("#perform");
-    //     var reading = $("#reading").val();
-    //     var vaccine = $("#vaccine").val();
-    //     var performance_score = $("#traing_performance").val();
-    //
-    //     alert(inputFile);
-    //     if (name==='' || inputFile==null){
-    //         alert("please complete the required fields");
-    //         $("#training-set-file-upload-modal").modal('show');
-    //     }
-    //      else{
-    //         $.ajax({
-    //             url: "/loom/admin/uploadTrainingSet",
-    //             type: 'POST',
-    //             data:
-    //                 {
-    //                     name: name,
-    //                     // inputFile:inputFile,
-    //                     performance:performance.checked,
-    //                     performance_score:performance_score,
-    //                     reading:reading,
-    //                     vaccine:vaccine,
-    //
-    //                 },
-    //             dataType:"json",
-    //             success: function (data){
-    //                 if(data.message==="duplicate"){
-    //                     alert("name already exists!");
-    //                 }
-    //                 // if(data.message==="exp_error"){
-    //                 //
-    //                 //     alert("fail to create the experiment!");
-    //                 // }
-    //                 // if(data.message==="network_error"){
-    //                 //
-    //                 //     alert("wrong network parameters!");
-    //                 // }
-    //                 if( data.message==="success"){
-    //                     window.location = "/loom/admin/board/";
-    //
-    //                 }
-    //
-    //
-    //             }
-    //         });
-    //     }
-    //
-    // });
-
-    $("#create-story").on('click', function (){
-        var title = $("#story-title").val();
-        var tails = $("#story-text").val();
-        // alert(tails);
-
-        if (title==='' || tails===''){
-            alert("please complete the required fields");
-            // $("#experiment-file-upload-modal").modal('show');
-        }
-         else{
-            $.ajax({
-                url: "/loom/admin/uploadStorySet",
-                type: 'POST',
-                data:
-                    {
-                        title: title,
-                        tails:tails,
-
-                    },
-                dataType:"json",
-                success: function (data){
-                    if(data.message==="duplicate"){
-                        alert("title already exists!");
-                    }
-                    if(data.message==="error"){
-
-                        alert("fail to create!");
-                    }
-                    if( data.message==="success"){
-                        window.location = "/loom/admin/board/";
-
-                    }
-
-
-                }
-            });
-        }
 
 
 
-    });
+
 
     initTraining();
     initSimulation();
@@ -592,95 +389,7 @@ $(document).ready(function () {
 
     });
 
-    // var trainings = $('.training-row');
 
-    // trainings.each(function (){
-    //     var timeInterval;
-    //     var sessionId = $(".sessionId",this.parentNode).text();
-    //     var setTimer = $(".set-timer",this);
-    //     var currentRound = $(".current-round",this);
-    //     var count = $(".count",this);
-    //     var connected = $(".connected",this);
-    //     var status = $(".session-span",this);
-    //     // var completed = $(".completed",this);
-    //     var pay_btn = $(".pay-session", this.parentNode);
-    //     // var check_payable_btn = $(".check-payable", this.parentNode);
-    //     // var pay_status = $(".payment-status",this);
-    //     // alert(pay_btn.text());
-    //     setInterval(function (){
-    //
-    //
-    //         $.ajax({
-    //
-    //             url: "/loom/admin/refresh",
-    //             type: 'POST',
-    //             data:
-    //                 {
-    //                     sessionId: sessionId,
-    //
-    //                 },
-    //             dataType:"json",
-    //             success: function (data){
-    //                 var current = Date.now();
-    //                 count.text("User sessions: "+data.connected);
-    //                 connected.text("Connected users: "+data.count)
-    //                 if(data.sessionState === "PENDING"){
-    //                     clearInterval(timeInterval);
-    //                     setTimer.text( "Pending Time: "+Math.floor((current-data.startPending)/1000/60)+" minutes");
-    //                     // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
-    //
-    //                     status.text("Status: "+data.sessionState);
-    //
-    //
-    //
-    //
-    //                     // pay_btn.hide();
-    //                     // check_payable_btn.hide();
-    //                     currentRound.text("Current round: "+data.round)
-    //
-    //                     // timeInterval = setTimeer(data, setTimer, "Pending",status,count,currentRound);
-    //
-    //                 }
-    //                 else if(data.sessionState === "ACTIVE"){
-    //
-    //                     clearInterval(timeInterval);
-    //                     setTimer.text( "Active Time: "+Math.floor((current-data.startActive)/1000/60)+" minutes");
-    //                     // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
-    //
-    //                     status.text("Status: "+data.sessionState);
-    //
-    //                     // count.text("Connected users: "+data.count);
-    //                     pay_btn.hide();
-    //                     check_payable_btn.hide();
-    //
-    //
-    //
-    //                     currentRound.text("Current round: "+data.round)
-    //                 }
-    //                 else if(data.sessionState === "CANCEL" || data.sessionState === "FINISHED"){
-    //                     status.text("Status: "+data.sessionState);
-    //                     // completed.text("payment status: "+data.payment_status);
-    //                     // alert(pay_btn.style);
-    //                     // if(data.greyed !== "pay"){
-    //                     //     pay_btn.show();
-    //                     // }
-    //                     // if(data.greyed !== "check"){
-    //                     //     check_payable_btn.show();
-    //                     // }
-    //                     //
-    //                     // pay_status.text("Payment status: "+data.payment_status);
-    //                     // pay_status.show();
-    //
-    //                     // alert("sdfs");
-    //                 }
-    //
-    //             }
-    //         });
-    //
-    //     },6000);
-    //
-    //
-    // });
 
     $("#launch_training_hits").on('click', function (){
         var trainingID = $("#trainingID").text();
@@ -840,37 +549,6 @@ $(document).ready(function () {
     });
 
 
-    // $("#create-default").on('click', function (){
-    //     $("#username").val("default-user");
-    // });
-    //
-    // $("#submit-users").on('click', function (){
-    //     var username = $("#username").val();
-    //     if(!username){
-    //         alert("please provide a username")
-    //     }
-    //     $.ajax({
-    //         url: "/loom/admin/createUser",
-    //         type: 'POST',
-    //         data:
-    //             {
-    //                 username: username,
-    //
-    //             },
-    //         dataType:"json",
-    //         success: function (data){
-    //
-    //             if(data.status==="duplicate_username"){
-    //                 alert("username already exists!");
-    //             }else{
-    //
-    //                 $("#create-users-modal").modal('hide');
-    //                 alert("successfully create "+data.username);
-    //             }
-    //
-    //         }
-    //     });
-    // });
 
 
 
@@ -880,9 +558,53 @@ $(document).ready(function () {
         $("#create-user-table").append(tr);
     });
 
+
+
+    $("#submit-credentials").on('click', function (){
+        var name = $("#credentialsName").val();
+        var accessKey = $("#accessKey").val();
+        var secretKey = $("#secretKey").val();
+        var serviceName = $("#serviceType").val();
+        var sandbox = $("input[name='sandboxSetting']:checked").val()
+
+        if (name==='' || accessKey==='' || secretKey === '' || serviceName === '') {
+            alert("All fields are required")
+        } else {
+            $.ajax({
+                url: "/loom/admin/createUserCredentials",
+                type: 'POST',
+                // contentType: "application/json;",
+                // data: JSON.stringify({ 'list': usernames }),
+                data:
+                    {
+                        credentialsName: name,
+                        accessKey: accessKey,
+                        secretKey: secretKey,
+                        serviceType: serviceName,
+                        sandboxSetting: sandbox
+
+
+                    },
+                dataType: "json",
+                success: function (data) {
+                    if (data.status === "duplicate") {
+                        alert("Name already exists")
+                    } else {
+                        $("#create-credentials-modal").modal('hide');
+                        alert("Successfully created credentials: " + name);
+                    }
+                }
+            });
+
+        }
+
+    });
+
     $("#create-user-table").on('click', '.remove-username', function (){
         $(this).parents("tr").remove();
     });
+
+
 
     $("#submit-users").on('click', function (){
         var usernames = [];
@@ -998,7 +720,8 @@ function create_train(){
                 //     alert("wrong network parameters!");
                 // }
                 if( data.message==="success"){
-                    window.location = "/loom/admin/board/";
+
+                    window.location = "/loom/admin/board#stories";
 
                 }
 
@@ -1207,6 +930,9 @@ function initTilesOld() {
 }
 
 function initTiles() {
+    //This function just takes care of marking tiles as being avialable or not
+    //and adds remove buttons as necessary
+
     $("#sort2").find(".purple").each(function () {
         var destTileId = $(this).attr('drag-id');
         var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
@@ -1232,30 +958,34 @@ function initTiles() {
             removeRemoveBtn($(this));
         }
     });
+
+    $("#sort4").find(".purple").each(function () {
+        var destTileId = $(this).attr('drag-id');
+        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        if (matched.length > 0) {
+            matched.each(function () {
+                // $(this).remove();
+                $(this).removeClass('tile-available').addClass('blue');
+            });
+            addRemoveBtn($(this));
+        } else {
+            removeRemoveBtn($(this));
+        }
+    });
 }
 
 function markAsDropped(source) {
     $(".originalstory").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
+    $(".privateinfo").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue');
+
     $("#sort2").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
     $("#sort2").find("[drag-id='" + source + "']").removeAttr("style");
-    $(".originalstory_list").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('blue').addClass('static');
-    $("#sort3").find("[drag-id='" + source + "']").removeClass('tile-available').addClass('purple');
-    $("#sort3").find("[drag-id='" + source + "']").removeAttr("style");
+
 }
 
 function addRemoveBtn(elt) {
     if (!($(elt).find("a").length)) {
-        // console.log($(elt).text());
-        // var t = $(elt).text();
-        // $(elt).text("");
-        // console.log($(elt).text());
-        // elt.append("<span class='removeTile close'><button className=\"close\">\n" +
-        //     "            X\n" +
-        //     "        </button></span>");
-
-        elt.append("<span class='removeTile' >&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' style=\"color:red\"><b>X</b></a></span>");
-        // elt.append(t)
-        // elt.append("<span class='removeTile'>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);'><b>X</b></a></span>");
+        elt.append("<span class='removeTile' >&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' style=\"color:#ff0000\"><b>X</b></a></span>");
         removeTileEvent(elt);
     }
 }
@@ -1266,7 +996,6 @@ function removeRemoveBtn(elt) {
 
 function removeTile(elt) {
     var toremove = $(elt).closest("li");
-    console.log(toremove.attr('drag-id'));
     toremove.remove();
 
     var elem = $(".g_list").find("[drag-id='" + toremove.attr('drag-id') + "']");
@@ -1284,12 +1013,6 @@ function removeTileEvent(elt) {
         var toremove = $(this).closest("li");
         removeTile(toremove);
         updateTrainingScore();
-        //toremove.remove();
-        //console.log(toremove.attr('id'));
-        //var elem = $(".dvSource").find("[drag-id='" + toremove.attr('drag-id') + "']");
-        //elem.removeClass('blue');
-        //elem.addClass('tile-available');
-        //updateTrainingScore();
     });
 }
 
@@ -1303,22 +1026,17 @@ function initDragNDrop() {
         cancel: ".blue",
         placeholder: "ui-state-highlight",
         start: function (event,ui) {
-            // $('.ui-draggable-dragging').css("white-space", "nowrap");
+            var width = $(event.target).width()
+            var height =  $(event.target).height()
+            $('.ui-draggable-dragging').width(width)
+            $('.ui-draggable-dragging').height(height)
+
         },
         stop: function (event,ui) {
-            console.log($(event.target).attr("drag-id"));
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
                 var source = $(event.target).attr("drag-id");
                 markAsDropped(source);
                 addRemoveBtn($("#sort2").find("[drag-id='" + source + "']"));
-                //removeTile();
-                console.log('receive');
-                //updateTrainingScore();
-                //var elems = $(".dvDest").find('ul li span.tile-text');
-                //var text_all = elems.map(function () {
-                //    return $(this).text();
-                //}).get().join(";");
-                //$("#tails").val(text_all);
             }
 
            // console.log($("#trainingForm .ui-draggable").map(function() {return $(this).attr("drag-id")}).get().join(";"))
@@ -1327,55 +1045,34 @@ function initDragNDrop() {
         }
 
     });
-    var byClass = function (id) {
-        return document.getElementsByClassName(id);
-    };
-    var sort1Col = byClass("sort1");
-    //trying to fix ES5 violation here
-    //for (var item of sort1Col) {
-    for (var i = 0;i<sort1Col.length;i++) {
-        var item = sort1Col[i];
-        new Sortable(item, {
-            filter: ".static",
-            group: {
-                name: 'shared',
-                pull: 'clone',
-                put: false // Do not allow items to be put into this list
-            },
-            animation: 150,
-            onEnd: function (/**Event*/evt) {
-                // updateTrainingScore();
-                if ($("#sort3").find("[drag-id='" + $(evt.item).attr("drag-id") + "']").length > 0) {
-                    var source = $(evt.item).attr("drag-id");
-                    markAsDropped(source);
-                    addRemoveBtn($("#sort3").find("[drag-id='" + source + "']"));
-                    if ($("#training-name").length > 0) {
-                        updateTrainingScore();
 
-                    }
-                }
-            },
+    $(".privateinfo").find("li").draggable({
+        helper: "clone",
+        opacity: 0.5,
+        cursor: "crosshair",
+        connectToSortable: "#sort2",
+        revert: "invalid",
+        cancel: ".blue",
+        placeholder: "ui-state-highlight",
+        start: function (event,ui) {
+            console.log("Start dragging")
 
-            sort: false,
-        });
-    }
+            var width = $(event.target).width()
+            var height =  $(event.target).height()
+            $('.ui-draggable-dragging').width(width)
+            $('.ui-draggable-dragging').height(height)
+        },
+        stop: function (event,ui) {
+            console.log($(event.target).attr("drag-id"));
+            if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
+                var source = $(event.target).attr("drag-id");
+                markAsDropped(source);
+                addRemoveBtn($("#sort2").find("[drag-id='" + source + "']"));
+            }
 
-    if($("#sort3").length>0){
-        new Sortable(sort3, {
-            group: 'shared', // set both lists to same group
-            animation: 150,
-            // onEnd: function (/**Event*/evt) {
-            //     console.log($(evt.target).attr("drag-id"));
-            //
-            // },
-            onUpdate: function (/**Event*/evt) {
-                if ($("#training-name").length > 0) {
-                    updateTrainingScore();
+        }
 
-                }
-            },
-        });
-    }
+    });
 
 
 }
@@ -1388,6 +1085,7 @@ function initMyDragNDrop() {
         forcePlaceholderSize: true,
 
         start: function (event,ui) {
+            console.log("Detecting a drag event")
             ui.placeholder.height(ui.item.height());
             ui.placeholder.width(ui.item.width());
             // $(event.target).find('li').css("white-space", "nowrap");
@@ -1395,27 +1093,27 @@ function initMyDragNDrop() {
         stop: function (event,ui) {
             updateTrainingScore();
         }
-    });
+    })
 
 }
 
 function updateTrainingScore() {
     if ($("#training-name").length > 0) {
-        var elems = $(".dvSourceContainer").find('ul li span.tile-text');
-        var text_all = elems.map(function () {
-            return $(this).text();
-        }).get().join(";");
+        var elems = $("#sort2").find('li');
+        var tile_ids = $("#sort2 li").map(function () {
+            return $(this).attr("drag-id")
+        }).get().join(",")
+        console.log("Got "+tile_ids)
+        $("input[name='storyTiles']").val(tile_ids);
 
-        $("#tails").val(text_all);
+
 
 
         $.ajax({
             url: "/loom/training/getTrainingScore",
             type: 'POST',
             data: {
-                userTiles: $("#trainingForm .ui-draggable").map(function () {
-                    return $(this).attr("drag-id")
-                }).get().join(";"),
+                userTiles: tile_ids,
                 trainingSetId: $("#training").val()
             },
             timeout: 999
@@ -1578,7 +1276,7 @@ function startSimulationTimer(duration, display) {
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-        console.log('timer inside: ' + timer);
+        //console.log('timer inside: ' + timer);
         display.text(minutes + ":" + seconds);
 
         if (--timer < 0) {
@@ -1667,8 +1365,9 @@ function submitSimulationAjax() {
         url: "/loom/training/submitSimulation",
         type: 'POST',
         data: {
-            tails: text_all,
-            simulation: $("#simulation").val(),
+            tiles: text_all,
+            trainingSetId: $("input[name='trainingSetId']").val(),
+            simulation: $("#simulationid").val(),
             roundNumber: $("#roundNumber").text(),
             assignmentId: $("#assignmentId").val()
 
@@ -1676,20 +1375,10 @@ function submitSimulationAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        if (data.indexOf("experiment_ready") >= 0) {
+        if (data.indexOf("status") >= 0) {
             confirmSimNav = false;
-            var params = $.parseJSON(data);
-            window.location ="/loom/training/score/"+$("#simulation").val()+"?assignmentId="+params.assignmentId;
-            //
-            //var simulationScore = JSON.parse(data).simulationScore;
-            //var roundNumber = 0;
-            ////console.log("/loom/exper/" + session + "/" + roundNumber);
-            ////window.location = "/loom/exper/" + session + "/" + roundNumber;
-            //$("#simulationMainContainer").remove();
-            //$("#simulationScore").css('display', 'block');
-            //$("#scorePanel").text(simulationScore);
-            //$("#roundNumber").val(roundNumber);
-            ////$("#session").val(session);
+            window.location ="/loom/training/viewSimulationScores/"+$("#simulationid").val()+"?assignmentId="+$("#assignmentId").val()+"&trainingSetId="+$("input[name='trainingSetId']").val();
+
         } else {
             setTimeout(function () {
                 $("#simulation-content-wrapper").html(data);

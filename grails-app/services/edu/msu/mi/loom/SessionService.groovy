@@ -75,7 +75,4 @@ class SessionService {
         UserSession.findByUserAndSessionAndUserAliasIsNotNull(u,s)
     }
 
-    def hasTraining(User u, Session s) {
-        u && s && UserTrainingSet.countByUserAndTrainingSetAndComplete(u,s.trainingSet,true)
-    }
 }

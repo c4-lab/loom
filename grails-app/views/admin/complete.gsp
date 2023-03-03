@@ -1,3 +1,4 @@
+%{--TODO Is this used?  Perhaps safe to delete; 3-1-23--}%
 <g:applyLayout name="main">
     <div class="content-wrapper">
         <section class="content">
@@ -20,7 +21,7 @@
                                 </li>
                             </ul>
 
-                            <a href="javascript:void(0);" id="create-experiment"
+                            <a href="javascript:void(0);" id="create-experiment-button"
                                class="btn btn-primary btn-block"><b>Create a session</b></a>
                         </div>
                     </div>

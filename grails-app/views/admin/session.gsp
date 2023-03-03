@@ -82,7 +82,7 @@
                                             </div>
 
                                             <p>
-                                                <g:each in="${(session.exp.story.tails).sort { it.text_order}}" var="tail">
+                                                <g:each in="${(session.exp.story.tiles).sort { it.text_order}}" var="tail">
                                                     ${tail.text}
                                                 </g:each>
                                             </p>

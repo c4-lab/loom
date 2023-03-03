@@ -2,7 +2,7 @@
     <div class="wrapper" id="simulationMainContainer">
         <div id="simulation-content-wrapper">
             <g:render template="simulation_content"
-                      model="[userList: userList, simulation: simulation, roundNbr: roundNbr, uiflag:uiflag]"/>
+                      model="[userList: userList, simulation: simulation, roundNbr: roundNbr, uiflag:uiflag, privateTiles: privateTiles]"/>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
 
                         <div class="col-md-2">
 
-                            <g:form controller="training" action="trainingComplete">
+                            <g:form controller="training" action="trainingSetComplete">
 
                                 <g:hiddenField name="roundNumber"/>
                                 <g:hiddenField name="assignmentId" value="${assignmentId}"/>

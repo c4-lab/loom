@@ -11,7 +11,7 @@
                 <div class="row">
                     <g:form controller="training" action="surveyComplete">
 
-                    <g:each var="question" in="${surveyTask}" status="i">
+                    <g:each var="question" in="${survey.surveyItems as List}" status="i">
                         <div class="col-md-12">
 
 
@@ -36,7 +36,7 @@
 
 
 
-
+                            <g:hiddenField name="surveyId" value="${survey.id}"/>
                             <g:hiddenField name="trainingSetId" value="${trainingSetId}"/>
                             <g:hiddenField name="assignmentId" value="${assignmentId}"/>
                             <g:submitButton name="submit" class="btn btn-success" value="Submit"/>

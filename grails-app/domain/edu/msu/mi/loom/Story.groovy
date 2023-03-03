@@ -1,14 +1,14 @@
 package edu.msu.mi.loom
 
-class Story implements HasQualification {
+class Story extends ConstraintProvider {
     String title
 
-    static hasMany = [tails: Tile]
+    static hasMany = [tiles: Tile]
     static belongsTo = [experiment: Experiment, simulation: Simulation, training: Training]
 
     static constraints = {
         title blank: false
-        tails nullable: true
+        tiles nullable: true
         experiment nullable: true
         simulation nullable: true
         training nullable: true
@@ -19,29 +19,18 @@ class Story implements HasQualification {
 
         copy.title = this.title
 
-        for (Tile tail : tails) {
-            copy.addToTails(tail)
+        for (Tile tail : this.tiles) {
+            copy.addToTiles(tail)
         }
 
         return copy
     }
 
-    static String constructQualificationString(Story s) {
-        return "Loom Story Participation-${s.title}-${s.id}"
-    }
 
     public String toString() {
-        def text = tails?tails.sort{it.text_order}.text.join(" "):"--none--"
+        def text = this.tiles ? this.tiles.sort{it.text_order}.text.join(" "):"--none--"
         return text
     }
 
-    @Override
-    String getQualificationString() {
-        return constructQualificationString(this)
-    }
 
-    @Override
-    String getQualificationDescription() {
-        return "This qualification indicates that you have participated in a Loom session using this story"
-    }
 }

@@ -2,7 +2,7 @@ package edu.msu.mi.loom
 
 class SimulationTask {
     Simulation simulation
-    Tile tail
+    Tile tile
     int user_nbr
     int round_nbr
 
@@ -15,8 +15,8 @@ class SimulationTask {
         version false
     }
 
-    static SimulationTask createSimulationTask(Tile tail, int user_nbr = 0, int round_nbr = 0, Simulation simulation, boolean flush = true) {
-        def instance = new SimulationTask(tail: tail, user_nbr: user_nbr, round_nbr: round_nbr, simulation: simulation)
+    static SimulationTask createSimulationTask(Tile tile, int user_nbr = 0, int round_nbr = 0, Simulation simulation, boolean flush = true) {
+        def instance = new SimulationTask(tile: tile, user_nbr: user_nbr, round_nbr: round_nbr, simulation: simulation)
         instance.save(flush: flush, insert: true)
         instance
     }

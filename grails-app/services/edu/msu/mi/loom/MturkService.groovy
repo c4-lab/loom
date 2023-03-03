@@ -3,11 +3,9 @@ package edu.msu.mi.loom
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
-import com.amazonaws.mturk.requester.GetQualificationType
-import com.amazonaws.mturk.requester.GetQualificationTypeResponse
 
 //import com.amazonaws.mturk.service.axis.RequesterService
-import com.amazonaws.services.mturk.AmazonMTurk
+
 import com.amazonaws.services.mturk.AmazonMTurkClient
 import com.amazonaws.services.mturk.AmazonMTurkClientBuilder
 import com.amazonaws.services.mturk.model.*
@@ -21,7 +19,7 @@ import java.util.stream.Collectors
 @Transactional
 class MturkService {
 
-    AmazonMTurkClient client
+    Map<CrowdServiceCredentials,AmazonMTurkClient> clients = new HashMap<>()
     Properties config
 
     def isSandbox() {
@@ -35,68 +33,77 @@ class MturkService {
         return ("https://worker${isSandbox() ? "sandbox" : ""}.mturk.com")
     }
 
-    def getMturkClient() {
+    def getMturkClient(CrowdServiceCredentials credentials) {
+        AmazonMTurkClient client = clients.get(credentials)
         if (!client) {
-            //        FilePropertiesConfig config
             InputStream stream = this.class.classLoader.getResourceAsStream("global.mturk.properties")
             if (!stream) {
                 throw new LoomConfigurationException("Missing global.mturk.properties configuration file")
             }
             config = new Properties()
             config.load(stream);
-            String AWS_ACCESS_KEY = config.getProperty("access_key")
-            String AWS_SECRET_KEY = config.getProperty("secret_key")
+
+            String AWS_ACCESS_KEY = credentials.access_key
+            String AWS_SECRET_KEY = credentials.secret_key
+
             String SANDBOX_ENDPOINT = config.getProperty("sandbox_endpoint")
+            String PRODUCTION_ENDPOINT = config.getProperty("production_endpoint")
             String SIGNING_REGION = config.getProperty("signing_region")
-            boolean sandbox = Boolean.parseBoolean(config.getProperty("sandbox"))
+
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
             AmazonMTurkClientBuilder builder = AmazonMTurkClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
-            if (sandbox) {
+            if (credentials.sandbox) {
                 println("**************** SANDBOX ENDPOINT SELECTED ****************")
                 builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(SANDBOX_ENDPOINT, SIGNING_REGION));
             } else {
                 println("**************** PRODUCTION ENDPOINT SELECTED ****************")
-                String PRODUCTION_ENDPOINT = config.getProperty("production_endpoint")
                 builder.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(PRODUCTION_ENDPOINT, SIGNING_REGION))
             }
 
             client = (AmazonMTurkClient)builder.build()
-
+            clients.put(credentials,client)
         }
         return client
     }
 
-    def createQualification(HasQualification obj) {
-        createQualification(obj.qualificationString,obj.qualificationDescription)
+    def verifyQualification(CrowdServiceCredentials credentials, ConstraintTest instance) {
+
+        CrowdServiceQualification qual = CrowdServiceQualification.findByConstraintAndCredentials(instance.constraintProvider,credentials)
+        if (!qual) {
+            AmazonMTurkClient client = getMturkClient(credentials)
+            String name = instance.constraintProvider.constraintTitle
+            String desc = instance.constraintProvider.constraintDescription
+
+            String qualId = createMturkQualification(client, name,desc)
+            CrowdServiceQualification csQual = new CrowdServiceQualification(credentials: credentials, constraint: instance.constraintProvider, serviceId: qualId)
+            instance.constraintProvider.addToQualifications(csQual).save(flush: true)
+        }
+
+
     }
 
 
 
 
-    def createQualification(String qualificationName, String description) throws ServiceException, RequestErrorException{
 
+    def createMturkQualification(AmazonMTurkClient client, String qualificationName, String description) throws ServiceException, RequestErrorException{
 
-        def qualId = null
-
-        def s = searchQualificationTypeByString(qualificationName)
-        if (s && s.size() > 0) {
+        def qualId = searchQualificationTypeByString(qualificationName)
+        if (qualId) {
             log.warn("Qualification ${qualificationName} already exists: ${s}")
 
         } else {
             CreateQualificationTypeRequest createQualificationTypeRequest = new CreateQualificationTypeRequest();
             createQualificationTypeRequest.setName(qualificationName);
-            //createQualificationTypeRequest.setQualificationTypeStatus("Active");
             createQualificationTypeRequest.setDescription(description);
             createQualificationTypeRequest.setQualificationTypeStatus(QualificationTypeStatus.Active)
-            createQualificationTypeRequest.setKeywords("loom,training,game");
-            print("Creating qualification with name ${qualificationName} because it does not apparently exist")
+            createQualificationTypeRequest.setKeywords("loom,experiment,game");
             log.debug("Creating qualifiction ${createQualificationTypeRequest}")
-            def r = getMturkClient().createQualificationType(createQualificationTypeRequest);
+            def r = client.createQualificationType(createQualificationTypeRequest);
             log.debug("Qual result is ${r}")
             qualId = r.qualificationType.qualificationTypeId
         }
-
         return qualId
 
     }
@@ -128,7 +135,7 @@ class MturkService {
     def searchQualificationType(HasQualification obj, boolean create=true) {
         def qid = searchQualificationTypeByString(obj.qualificationString)
         if (!qid && create) {
-            qid = createQualification(obj.qualificationString,obj.qualificationDescription)
+            qid = createQualificationMturk(obj.qualificationString,obj.qualificationDescription)
         }
         return qid
 
@@ -180,7 +187,7 @@ class MturkService {
                 readingRequirement.setIntegerValues(readingValues)
                 qualificationRequirements.add(readingRequirement)
 
-                QualificationRequirement vaccineRequirement = getQualificationRequirement(Survey.first())
+                QualificationRequirement vaccineRequirement = getQualificationRequirement(SurveyItem.first())
                 vaccineRequirement.setComparator(Comparator.In);
                 List<Integer> vaccineValues = new ArrayList<>();
                 (qualifiers.get(6).split("<=")[0]..qualifiers.get(6).split("<=")[2]).each { n ->
@@ -450,8 +457,12 @@ class MturkService {
         getMturkClient().deleteHIT(dhr)
 
     }
-
-    def updateExpirationForHit(Session session) {
+    /**
+     * Force HIT for session to expire
+     *
+     * @param session
+     */
+    def forceSessionHITExpiry(Session session) {
 
 
         def HITIds = session.getHITId()

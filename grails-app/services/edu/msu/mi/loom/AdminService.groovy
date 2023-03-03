@@ -41,18 +41,24 @@ class AdminService {
      */
     def createExperiment(String name, Story story, int min_node, int max_nodes, int min_degree, int max_degree,
                          int initialNbrOfTiles, Experiment.Network_type network_type, int rounds, int duration,
-                         def qualifier, TrainingSet training_set, int m, def probability,
-                         def accepting, def completion, def waiting, def score, int uiflag) {
-        def tail
+                         int m, def probability,
+                        int uiflag) {
+
 
         Experiment experiment
 
+
+
+
+
         Experiment.withSession { status ->
 
-            experiment = new Experiment(name: name, story: story, network_type: network_type, qualifier: qualifier, training_set: training_set,
-                    roundTime: duration, roundCount: rounds, initialNbrOfTiles: initialNbrOfTiles, max_node: max_nodes, min_node: min_node
-                    , m: m, probability: probability, min_degree: min_degree, max_degree: max_degree, accepting: accepting, completion: completion,
-                    waiting: waiting, score: score, uiflag: uiflag)
+            experiment = new Experiment(name: name,  network_type: network_type,
+                    roundTime: duration, roundCount: rounds, initialNbrOfTiles: initialNbrOfTiles, max_node: max_nodes, min_node: min_node,
+                    m: m, probability: probability, min_degree: min_degree, max_degree: max_degree, inline: uiflag)
+
+
+            experiment.addToStories(story)
 
             if (experiment.save(flush: true)) {
 
@@ -67,22 +73,25 @@ class AdminService {
     }
 
     def createStory(def title, def storyText) {
-        def tail
-        Story story = new Story(title: title).save(flush: true)
-        mturkService.createQualification(story)
+        def tile
+        Story story = new Story(title: title)
+
+
         storyText.eachLine { line, count ->
-            tail = new Tile(text: line, text_order: count)
-            story.addToTails(tail).save(flush: true)
-            log.debug("New tail with id ${tail.id} has been created.")
+            if (line && ((String)line.trim()).length()) {
+                tile = new Tile(text: line, text_order: count)
+                story.addToTiles(tile)
+            }
         }
 
-        if (story) {
-            log.debug("New story with id ${story.id} has been created.")
-            return story
-        } else {
+        story.save(flush: true)
+
+        if (!story.id) {
             log.error("Story creation attempt failed")
             log.error(story?.errors?.dump())
-            return null;
+            return null
+        } else {
+            return story
         }
     }
 
@@ -123,7 +132,7 @@ class AdminService {
         def experiment = Experiment.get(experimentId)
 
         def idx = 0
-        List<Tile> tileSrc = experiment.story.tails as List<Tile>
+        List<Tile> tileSrc = experiment.story.tiles as List<Tile>
 
         int numTilesPerUser = Math.min(
                 Math.max(experiment.initialNbrOfTiles,
@@ -251,4 +260,7 @@ class AdminService {
         us.each { it.delete() }
     }
 
+    void deleteCredential(def id) {
+        CrowdServiceCredentials.get(id).delete()
+    }
 }

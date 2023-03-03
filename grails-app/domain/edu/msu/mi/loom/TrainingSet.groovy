@@ -1,20 +1,16 @@
 package edu.msu.mi.loom
 
-class TrainingSet implements HasQualification {
+/**
+ * Convenience class to bundle a set of trainings for users
+ */
+class TrainingSet extends ConstraintProvider {
 
 
-    static hasMany = [simulations: Simulation, trainings: Training, readings:Reading, surveys:Survey, HITId: String, HITTypeId: String]
+    static hasMany = [simulations: Simulation, trainings: Training, readings:Reading, surveys:Survey, tasks: CrowdServiceTask]
 
     String name
     List<Training> trainings
-    String qualifier
-//    int HIT_num
-    float training_payment
-    List<String> HITId = new ArrayList<>()
-    List<String> HITTypeId = new ArrayList<>()
     int uiflag = 0
-    int paid = 0
-    int total = 0
 
     static constraints = {
         name blank: false, unique: true
@@ -22,21 +18,7 @@ class TrainingSet implements HasQualification {
         trainings nullable: true
         readings nullable: true
         surveys nullable: true
-        qualifier nullable: true
     }
 
 
-    static String constructQualificationString(TrainingSet ts) {
-        return "Story Loom Training-${ts.name}-${ts.id}"
-    }
-
-    @Override
-    String getQualificationString() {
-        return constructQualificationString(this)
-    }
-
-    @Override
-    String getQualificationDescription() {
-        return "This qualification enables you to participate in Story Loom experiments"
-    }
 }

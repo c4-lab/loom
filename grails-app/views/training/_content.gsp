@@ -11,23 +11,7 @@
 </section>
 
 <section class="content-header">
-    <div class="row">
-        <div class="col-sm-1"></div>
 
-
-        <div class="col-sm-7">
-            <h1 class="text-left" id="training-name">${training.name}</h1>
-            <g:hiddenField name="training" id="training" value="${training.id}"/>
-        </div>
-
-        <div class="col-sm-4">
-            <h1>SCORE:<span id="training-score">0.0</span></h1>
-        </div>
-
-
-
-
-    </div>
 </section>
 
 <section class="content-header">
@@ -35,6 +19,18 @@
         <div class="col-sm-1"></div>
 
         <div class="col-sm-10">
+            <div class="row">
+
+                <div class="col-sm-3">
+                    <h1 class="text-left" id="training-name">${training.name}</h1>
+                    <g:hiddenField name="training" id="training" value="${training.id}"/>
+                </div>
+
+                <div class="col-sm-3 pull-right text-right">
+                    <h1>SCORE:<span id="training-score">0.0</span></h1>
+                </div>
+
+            </div>
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
                     <div class="col-md-8">
@@ -47,134 +43,74 @@
                 </div>
 
                 <div class="box-body">
-                    <g:if test="${uiflag == 1}">
-                        <div class="row">
+                    <g:form name="trainingForm" method="post" controller="training" action="submitTraining">
+                        <div class="row col-centered">
+                            <div class="col-xs-4">
+                                <p>Your story:</p>
+                            </div>
+                        </div>
 
-                            <div class="col-sm-1"></div>
+                        <div class="row center-block">
 
-                            <div class="col-sm-10 table-bordered dvSourceContainer"
-                                 style="min-height: 200px !important;">
-                                <ul class="dvSource g_list originalstory" >
-                                    <g:each in="${tts}" var="tt">
-                                        <li class="draggable ui-state-default tile-available ui-draggable"
-                                            drag-id="${tt.id}"><span class="tile-text">${tt.text}<g:hiddenField name="userTails" value="${tt.text}"/></span></li>
-                                    </g:each>
+                            <div class="col-xs-11 table-bordered ui-widget-content dvDest col-centered">
+                                <ul style="min-height: 200px !important;" id="sort2"
+                                    class="${uiflag == 1 ? "dvSource" : ""}  g_list">
+                                    <g:if test="${storyTiles}">
+                                        <g:each in="${storyTiles}" var="tt">
+                                            <li class="ui-state-default purple"
+                                                drag-id="${tt.text_order}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                        </g:each>
+                                    </g:if>
+
                                 </ul>
                             </div>
-
-                            <div class="col-sm-1"></div>
+                            <g:hiddenField name = "storyTiles" value=''/>
+                            <g:hiddenField name="uiflag" value="${uiflag}"/>
+                            <g:hiddenField name="trainingSetId" value="${trainingSet.id}"/>
+                            <g:hiddenField name="trainingId" value="${training.id}"/>
+                            <g:hiddenField name="assignmentId" value="${assignmentId}"/>
+                            <div id="userTiles"></div>
 
                         </div>
 
-                        <p>Your story:</p>
-                        <div class="row"></div>
 
-                        <g:form name="trainingForm" method="post" controller="training" action="submitTraining">
-                            <div class="row">
-                                <div class="col-sm-1"></div>
-
-                                <div class="col-sm-10 table-bordered ui-widget-content dvDest">
-                                    <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">
-                                        <g:if test="${tailsList}">
-                                            <g:each in="${tailsList}" var="tail">
-                                                <li class="draggable ui-state-default ui-draggable ui-draggable-handle purple"
-                                                    drag-id="${tail.id}">
-                                                    <span class="tile-text">${tail.text}</span>
-                                                </li>
-                                            </g:each>
-                                        </g:if>
-                                    </ul>
-                                </div>
-
-                                <div class="col-sm-1"></div>
-                                <g:hiddenField name="tails" value="${rawTails}"/>
-                                <g:hiddenField name="uiflag" value="${uiflag}"/>
-                                <g:hiddenField name="trainingSetId" value="${training.id}"/>
-
-                                <g:hiddenField name="assignmentId" value="${assignmentId}"/>
-
+                        <!---  THIS IS YOUR PRIVATE INFO ------>
+                        <div class="row col-centered">
+                            <div class="col-xs-4">
+                                <p>Your private info:</p>
                             </div>
+                        </div>
 
-                            <hr/>
-
-
-
-                            <div class="row">
-                                <div class="col-sm-9"></div>
-
-                                <div class="col-sm-3">
-                                    <button type="submit" class="btn btn-success"
-                                            >Submit</button>
-                                    <button type="reset" class="btn btn-default reset-training" onclick="resetTraining(${uiflag})">Reset</button>
-                                </div>
-                            </div>
-                        </g:form>
-                    </g:if>
-                    <g:else>
 
                         <div class="row">
-
-                            <div class="col-sm-1"></div>
-
-                            <div class="col-sm-10 table-bordered dvSourceContainer"
-                                 style="min-height: 200px !important;">
-                                <ul class="g_list originalstory_list sort1">
-                                    <g:each in="${tts}" var="tt">
-                                        <li class="draggable ui-state-default tile-available ui-draggable"
-                                            drag-id="${tt.id}"><span class="tile-text">${tt.text}<g:hiddenField name="userTails" value="${tt.text}"/></span></li>
-
+                            <div class="col-xs-11 table-bordered ui-widget-content dvSourceContainer col-centered">
+                                <ul style="min-height: 200px !important;" id="sort4"
+                                    class="${uiflag == 1 ? "dvSource" : ""} g_list privateinfo">
+                                    <g:each in="${allTiles}" var="tt">
+                                        <li class="ui-state-default tile-available"
+                                            drag-id="${tt.text_order}"><span class="tile-text">${raw(tt.text)}</span></li>
                                     </g:each>
+
                                 </ul>
                             </div>
 
-                            <div class="col-sm-1"></div>
-
                         </div>
 
-                        <p>Your story:</p>
-                        <div class="row"></div>
+                        <div class="row">
+                            <p></p>
+                        </div>
+                        <div class="row">
 
-                        <g:form name="trainingForm" method="post" controller="training" action="submitTraining">
-                            <div class="row">
-                                <div class="col-sm-1"></div>
 
-                                <div class="col-sm-10 table-bordered ui-widget-content" >
-                                    <ul style="min-height: 200px !important;" id="sort3" class="g_list">
-%{--                                        <g:if test="${tailsList}">--}%
-%{--                                            <g:each in="${tailsList}" var="tail">--}%
-%{--                                                <li class="draggable ui-state-default ui-draggable ui-draggable-handle purple"--}%
-%{--                                                    drag-id="${tail.id}">--}%
-%{--                                                    <span class="tile-text">${tail.text}</span>--}%
-%{--                                                </li>--}%
-%{--                                            </g:each>--}%
-%{--                                        </g:if>--}%
-
-                                    </ul>
-                                </div>
-
-                                <div class="col-sm-1"></div>
-                                <g:hiddenField name="uiflag" value="${uiflag}"/>
-                                <g:hiddenField name="tails" value="${rawTails}"/>
-                                <g:hiddenField name="trainingSetId" value="${training.id}"/>
-                                <g:hiddenField name="assignmentId" value="${assignmentId}"/>
-
+                            <div class="col-sm-3 pull-right center-block text-center">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="reset" class="btn btn-default reset-training"
+                                        onclick="resetTraining(${uiflag})">Reset</button>
                             </div>
+                        </div>
+                    </g:form>
 
-                            <hr/>
 
-
-
-                            <div class="row">
-                                <div class="col-sm-9"></div>
-
-                                <div class="col-sm-3">
-                                    <button type="submit" class="btn btn-success"
-                                            >Submit</button>
-                                    <button type="reset" class="btn btn-default reset-training" >Reset</button>
-                                </div>
-                            </div>
-                        </g:form>
-                    </g:else>
                 </div>
             </div>
         </div>
@@ -196,12 +132,13 @@
     //     animation: 150,
     // });
     var initial = [];
-    $('#sort1').each(function(index, anchor) {
+    $('#sort1').each(function (index, anchor) {
         initial.push(anchor.innerHTML);
     });
-    function res(){
 
-        $('#sort1').each(function(index, anchor) {
+    function res() {
+
+        $('#sort1').each(function (index, anchor) {
             anchor.innerHTML = initial[index];
         });
         var toremove = $("#sort3").find("li");

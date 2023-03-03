@@ -11,34 +11,36 @@ class TrainingSetService {
     def simulationService
     def mturkService
 
-    def createTrainingSet(def json, def name, def qualifier, def training_payment, def uiflag) {
+    def createTrainingSet(def json, def name, def uiflag) {
         Session.withNewTransaction { status ->
 
-            def trainingSet = new TrainingSet(name: name, qualifier: qualifier, training_payment:training_payment, uiflag: uiflag)
+            def trainingSet = new TrainingSet(name: name, uiflag: uiflag)
+
+
+            trainingSet.save(flush: true)
+
+//            Training creation
+            if (json.training.practices != null) {
+                createTrainings(json.training.practices, trainingSet)
+            }
+
+//            Simulation creation
+            if (json.training.simulations != null) {
+                simulationService.createSimulations(json.training.simulations, trainingSet)
+            }
+
+            if (json.training.readings != null) {
+                createReading(json.training.readings, trainingSet)
+            }
+
+            if (json.training.surveys != null) {
+                createSurvey(json.training.surveys, trainingSet)
+            }
+
 
             if (trainingSet.save(flush: true)) {
                 trainingSet.save(flush: true)
                 log.debug("New trainingSet with id ${trainingSet.id} has been created.")
-
-//            Training creation
-                if (json.training.practice != null) {
-                    createTraining(json.training.practice, trainingSet)
-                }
-
-//            Simulation creation
-                if (json.training.simulation != null) {
-                    simulationService.createSimulation(json.training.simulation, trainingSet)
-                }
-
-                if (json.training.reading != null){
-                    createReading(json.training.reading, trainingSet)
-                }
-
-                if (json.training.survey != null){
-                    createSurvey(json.training.survey, trainingSet)
-                }
-
-                mturkService.createQualification(trainingSet)
                 return trainingSet
             } else {
                 status.setRollbackOnly()
@@ -49,183 +51,142 @@ class TrainingSetService {
         }
     }
 
-    def createTraining(def json, TrainingSet trainingSet) {
-        def tail
+    /**
+     * Accepts a json list containing one or more training practice instances
+     * @param json
+     * @param trainingSet
+     * @return
+     */
+    def createTrainings(def json, TrainingSet trainingSet) {
+        def tile
         def story
         Training training
         json.eachWithIndex { tr, idx ->
-            training = new Training(name: "Training ${(idx + 1)}", trainingSet: trainingSet)
-            //if (training.save(flush: true)) {
-            trainingSet.addToTrainings(training)
+            training = new Training(name: tr.name).save(flush: true)
+
+
             log.debug("New training with id ${training.id} has been created for trainingSet ${trainingSet.name}.")
             def storyId = Story.count() + 1
-            story = new Story(title: "Story "+storyId.toString()).save(flush: true)
-            mturkService.createQualification(story)
+
+            story = new Story(title: "Story " + tr.name).save(flush: true)
+
+            story.save()
+
             training.addToStories(story)
             for (int i = 0; i < tr.problem.size(); i++) {
-                tail = new Tile(text: tr.solution.get(i), text_order: i)
-                if (tail.save(flush: true)) {
-                    story.addToTails(tail).save(flush: true)
-                    log.debug("New task with id ${tail.id} has been created.")
+                tile = new Tile(text: tr.solution.get(i), text_order: i)
+                if (tile.save(flush: true)) {
+                    story.addToTiles(tile).save(flush: true)
+                    log.debug("New task with id ${tile.id} has been created.")
                 } else {
                     log.error("Task creation attempt failed")
                     log.error(training?.errors?.dump())
                 }
             }
 
-            def tails = Tile.findAllByStory(story)
+            def tiles = Tile.findAllByStory(story)
             for (int i = 0; i < tr.problem.size(); i++) {
-                new TrainingTask(training: training, tail: tails.get(tr.problem.get(i))).save(flush: true)
+                new TrainingTask(training: training, tile: tiles.get(tr.problem.get(i))).save(flush: true)
             }
-            if (!trainingSet.save(flush: true)) {
+            if (!training.save(flush: true)) {
                 log.error("Training creation attempt failed")
-                log.error(trainingSet?.errors?.dump())
+                log.error(training?.errors?.dump())
                 return null;
+            }
+            if (trainingSet) {
+                trainingSet.addToTrainings(training)
             }
         }
     }
 
-    def createReading(def json, TrainingSet trainingSet){
+    def createReading(def readingJson, TrainingSet trainingSet = null) {
 
-        Reading reading
-        json.eachWithIndex { read, idx ->
-            def a = read.passage
-            reading = new Reading(name: "Reading ${(idx + 1)}", trainingSet: trainingSet, passage: read.passage)
-            read.questions.eachWithIndex {
+        readingJson.each { readingInstance ->
+
+
+            Reading reading = null
+            reading = new Reading(name: readingInstance.name, passage: readingInstance.passage, dateCreated: new Date())
+            readingInstance.questions.eachWithIndex {
                 question, idxx ->
                     ArrayList<String> options = ArrayUtil.convert(question.options);
                     ArrayList<Integer> corrects = ArrayUtil.convert(question.corrects);
-                    question = new ReadingQuestion(question: question.question, reading: reading, options: options,corrects: corrects)
+                    question = new ReadingQuestion(question: question.question, reading: reading, options: options, corrects: corrects)
                     reading.addToQuestions(question)
             }
-//            if(!reading.save(flush: true)){
-//                log.error(reading?.errors?.dump())
-//            }
-            trainingSet.addToReadings(reading)
-            log.debug("New reading with id ${reading.id} has been created for trainingSet ${trainingSet.name}.")
-            if (!trainingSet.save(flush: true)) {
+            if (!reading.save(flush: true)) {
                 log.error("Reading creation attempt failed")
-                log.error(trainingSet?.errors?.dump())
+                log.error(reading?.errors?.dump())
                 return null;
             }
+            if (trainingSet) {
+                trainingSet.addToReadings(reading)
+            }
         }
-        mturkService.createQualification(trainingSet.readings.first())
+
     }
 
-    def createSurvey(def json, TrainingSet trainingSet){
+    def createSurvey(def surveyJson, TrainingSet trainingSet = null) {
 
-        Survey survey
-        json.eachWithIndex { sur, idx ->
-            survey = new Survey(question: sur.question, trainingSet: trainingSet)
-            def options = sur.options
-            options.eachWithIndex { opt, idxx ->
-                SurveyOption so = new SurveyOption(answer: opt.answer, score: opt.score)
-                survey.addToOptions(so)
+        surveyJson.each { surveyInstance ->
+            Survey survey = new Survey(name: surveyInstance.name)
 
+            surveyInstance.items.eachWithIndex { item, idx ->
+                SurveyItem surveyitem = new SurveyItem(survey: survey, question: item.question)
+                survey.addToSurveyItems(surveyitem)
+                def options = item.options
+                options.eachWithIndex { opt, idxx ->
+                    SurveyOption so = new SurveyOption(answer: opt.answer, score: opt.score)
+                    surveyitem.addToOptions(so)
+                }
             }
 
 
-            trainingSet.addToSurveys(survey)
-            log.debug("New survey with id ${survey.id} has been created for trainingSet ${trainingSet.name}.")
-            if (!trainingSet.save(flush: true)) {
-                log.error("Reading creation attempt failed")
-                log.error(trainingSet?.errors?.dump())
+            if (!survey.save(flush: true)) {
+                log.error("Survey creation attempt failed")
+                log.error(survey?.errors?.dump())
                 return null;
             }
-        }
-        mturkService.createQualification(trainingSet.surveys.first())
-    }
 
-    Training getNextTraining(User u, TrainingSet ts) {
-        Training training
-        log.debug("Trainings are $ts.trainings")
-        def completed = UserTrainingSet.findByUserAndTrainingSet(u,ts)?.trainingsCompleted?:[]
-        log.debug("Completed are $completed")
-        def trainingLst = ts.trainings - completed
-        if (trainingLst) {
-            training = trainingLst.getAt(0)
-        }
-        return training
-    }
-
-    def changeTrainingState(User u, Training training, Simulation simulation, Reading reading, List<UserSurveyOption> surveyOptions, def trainingSetId=null, def score=null) {
-        TrainingSet ts = null
-        if (training) {
-            ts = training.trainingSet
-        } else if (simulation) {
-            ts = simulation.trainingSet
-        } else if (reading){
-            ts = reading.trainingSet
-
-
-        } else if (surveyOptions){
-            println("Survey options are ${surveyOptions}")
-            ts = surveyOptions.first().userTrainingSet.trainingSet
-
-        } else if(trainingSetId){
-            ts = TrainingSet.get(trainingSetId)
-        }
-        else {
-            log.error("Cannot advance training state without a either a simulation or training")
-        }
-        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(u, ts)
-
-
-//        if (!uts) {
-//
-//            uts = new UserTrainingSet(user: u, trainingSet: ts, trainingStartTime: new Date(), isDemographicsComplete: true)
-//            uts.save(flush: true)
-//
-//        }
-
-        if (reading){
-            uts.addToReadingCompleted(reading)
-            uts.readingScore = score
-//            mturkService.assignQualification(u.turkerId, "loomreadings",score)
-
-        }
-        if (surveyOptions){
-            def myscore = 0
-            surveyOptions.each {
-                uts.addToSurveyAnswers(it)
-                myscore+=it.surveyOption.score
+            if (trainingSet) {
+                trainingSet.addToSurveys(survey)
             }
-
-            (surveyOptions.collect {
-                it.surveyOption.survey
-            } as Set).each {
-                uts.addToSurveyCompleted(it)
-            }
-            uts.surveyScore = myscore
-//            mturkService.assignQualification(u.turkerId, "loomsurveys",score)
         }
-        if (training && (!uts.trainingsCompleted || !uts.trainingsCompleted.contains(training))) {
-            uts.addToTrainingsCompleted(training)
-        }
-
-
-        boolean simsCompleted = uts.simulationsCompleted && (uts.simulationsCompleted.first().scores.size() == ts.simulations.first().roundCount)
-
-
-        def trainings = ts.trainings - uts.trainingsCompleted?:[]
-        List<String> qualifiers = ts.qualifier.split(";")
-        def readingcompleted = (qualifiers.get(1).contains("-") || (!qualifiers.get(1).contains("-") && uts.readingCompleted))
-        def surveycompleted = (qualifiers.get(2).contains("-") || (!qualifiers.get(2).contains("-") && uts.surveyCompleted))
-        if (simsCompleted && trainings.isEmpty() && readingcompleted && surveycompleted) {
-
-            completeTraining(uts)
-
-        }
-
-        uts.save(flush: true)
     }
 
-    def completeTraining(UserTrainingSet uts) {
+
+    /**
+     * Gets the next available traininable item in a training set
+     *
+     * @param uts
+     * @return
+     */
+    Trainable getNextTraining(UserTrainingSet uts) {
+        TrainingSet ts = uts.trainingSet
+        List<Trainable> trainables = []
+
+        trainables.addAll(ts.readings)
+        trainables.addAll(ts.surveys)
+        trainables.addAll(ts.trainings)
+        trainables.addAll(ts.simulations)
+
+        trainables.removeAll(uts.trainingResponse)
+        Collection<Simulation> simsCompleted = uts.simulationsCompleted.collect {
+            it.simulation
+        }
+        trainables.removeAll(simsCompleted)
+        trainables.removeAll(uts.readingCompleted)
+        trainables.removeAll(uts.surveyResponse.collect{it.survey} as Set)
+
+        return trainables.size()>0?trainables[0]:null
+
+
+    }
+
+
+    def completeTrainingSet(UserTrainingSet uts) {
         uts.complete = true
         uts.trainingEndTime = new Date()
-        def scores = uts.simulationsCompleted.first().scores
-
-
+        uts.save(flush: true)
     }
 
 

@@ -5,7 +5,7 @@
         <div class="col-xs-10">
             <g:render template="/shared/alert-templates"/>
             <h1 id="simulation-name">${simulation.name}</h1>
-            <g:hiddenField name="simulation" value="${simulation.id}"/>
+            <g:hiddenField id="simulationid" name="simulation" value="${simulation.id}"/>
         </div>
 
         <div class="col-xs-1"></div>
@@ -13,13 +13,12 @@
 </section>
 
 <section class="content-header">
-    <div class="row">
+    <div class="row center-block container-fluid">
         <div class="col-xs-1"></div>
-
-        <div class="col-xs-10">
+        <div class="col-xs-10 col-centered">
             <div class="box box-success box-solid">
                 <div class="box-header with-border">
-                    <div class="row">
+                    <div class="row col-centered">
                         <div class="col-xs-10">
                             <h3 class="box-title" id="roundNumber">Round ${roundNbr} of ${simulation.roundCount}</h3>
                             <g:hiddenField name="simulationDuration" value="${simulation.roundTime}"/>
@@ -32,11 +31,11 @@
                     </div>
                 </div>
 
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-xs-1"></div>
 
-                        <div class="col-xs-10">
+                <div class="box-body">
+                    <div class="row center-block">
+
+                        <div class="col-xs-11 col-centered">
                             <ul class="nav nav-tabs" id="neighbors">
                                 <g:each in="${userList}" var="user">
                                     <g:if test="${user.key != 1}">
@@ -48,132 +47,76 @@
                                 </g:each>
                             </ul>
                         </div>
+                    </div>
 
-                        <div class="col-xs-1">
+                    <!---  THIS IS THE NEIGHBOR INFO ------>
+                    <div class="row center-block ">
+
+
+                            <div class="tab-content col-xs-11 table-bordered dvSourceContainer col-centered">
+                                <g:each in="${userList}" var="user">
+                                    <g:if test="${user.key != 1}">
+                                        <div class="tab-pane ${user.key != 2 ?: "active"}"
+                                             id="neighbour${user.key}">
+                                            <ul class="${uiflag == 1?"dvSource":""} originalstory g_list">
+                                                <g:each in="${user.value.tts}" var="tt">
+                                                    <li class="ui-state-default tile-available"
+                                                        drag-id="${tt.text_order}"
+                                                        nei-id="neighbour${user.key}">${raw(tt.text)}</li>
+                                                </g:each>
+                                            </ul>
+                                        </div>
+                                    </g:if>
+                                </g:each>
+                            </div>
+                    </div>
+
+                    <!---  THIS IS YOUR STORY ------>
+                    <div class="row">
+                        <div class="col-xs-2 center-block">
+                            <p>Your story:</p>
                         </div>
                     </div>
 
-                    <g:if test="${uiflag == 1}">
-                        <div class="row">
-                            <div class="col-xs-1"></div>
+                    <div class="row center-block">
 
-
-                            <div class="tab-content col-xs-10 table-bordered dvSourceContainer">
-                                <g:each in="${userList}" var="user">
-                                    <g:if test="${user.key != 1}">
-                                        <div class="tab-pane ${user.key != 2 ?: "active"}"
-                                             id="neighbour${user.key}">
-                                            <ul class="dvSource originalstory g_list">
-                                                <g:each in="${user.value.tts}" var="tt">
-                                                    <li class="ui-state-default tile-available"
-                                                        drag-id="${tt.text_order}" nei-id="neighbour${user.key}">${tt.text}</li>
-                                                </g:each>
-                                            </ul>
-                                        </div>
-                                    </g:if>
-                                </g:each>
-                            </div>
-
-
-                            <div class="col-xs-1"></div>
-                        </div>
-
-                        <p>Your story:</p>
-
-                        <div class="row"></div>
-
-                        <div class="row">
-                            <div class="col-xs-1"></div>
-
-                            <div class="col-xs-10 table-bordered ui-widget-content dvDest" >
-                                <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">
-                                    <g:each in="${userList}" var="user">
-                                        <g:if test="${user.key == 1}">
-                                            <g:each in="${user.value.tts}" var="tt">
-                                                <li class="ui-state-default purple"
-                                                    drag-id="${tt.text_order}">${tt.text}</li>
-                                            </g:each>
-                                        </g:if>
-                                    </g:each>
+                            <div class="col-xs-11 table-bordered ui-widget-content dvDest col-centered">
+                                <ul style="min-height: 200px !important;" id="sort2" class="${uiflag == 1?"dvSource":""}  g_list">
 
                                     <g:if test="${tempStory?.size() > 0}">
-                                        <g:each in="${tempStory}" var="tail">
+                                        <g:each in="${tempStory}" var="tt">
                                             <li class="ui-state-default purple"
-                                                drag-id="${tail.text_order}">${tail.text}</li>
+                                                drag-id="${tt.text_order}">${raw(tt.text)}</li>
                                         </g:each>
                                     </g:if>
-                                %{--<g:else>--}%
-                                %{--<li class="placeholder">Add tails here</li>--}%
-                                %{--</g:else>--}%
+
                                 </ul>
                             </div>
 
-                            <div class="col-xs-1"></div>
+                    </div>
+
+
+                    <!---  THIS IS YOUR PRIVATE INFO ------>
+                    <div class="row col-centered">
+                        <div class="col-xs-4">
+                            <p>Your private info:</p>
                         </div>
-                    </g:if>
-                    <g:else>
-                        <div class="row">
-                            <div class="col-xs-1"></div>
+                    </div>
 
 
-                            <div class="tab-content col-xs-10 table-bordered dvSourceContainer">
-                                <g:each in="${userList}" var="user">
-                                    <g:if test="${user.key != 1}">
-                                        <div class="tab-pane ${user.key != 2 ?: "active"}"
-                                             id="neighbour${user.key}">
-                                            <ul class="g_list sort1 originalstory_list">
-                                                <g:each in="${user.value.tts}" var="tt">
-                                                    <li class="ui-state-default tile-available"
-                                                        drag-id="${tt.text_order}" nei-id="neighbour${user.key}"><span>${tt.text}</span></li>
-                                                </g:each>
-                                            </ul>
-                                        </div>
-                                    </g:if>
-                                </g:each>
-                            </div>
 
-
-                            <div class="col-xs-1"></div>
-                        </div>
-
-                        <p>Your story:</p>
-
-                        <div class="row"></div>
-
-                        <div class="row">
-                            <div class="col-xs-1"></div>
-
-                            <div class="col-xs-10 table-bordered dvDest">
-                                <ul style="min-height: 200px !important;" class="g_list" id="sort3">
-
-                                    <g:each in="${userList}" var="user">
-                                        <g:if test="${user.key == 1}">
-                                            <g:each in="${user.value.tts}" var="tt">
-                                            %{--                                            <li class="ui-state-default purple"--}%
-                                            %{--                                                drag-id="${tt.text_order}">${tt.text}</li>--}%
-
-                                                <li class="ui-state-default draggable tile-available ui-draggable purple" drag-id="${tt.text_order}">
-                                                   <span> ${tt.text}</span>
-                                                </li>
-                                            </g:each>
-                                        </g:if>
+                    <div class="row">
+                            <div class="col-xs-11 table-bordered ui-widget-content dvSourceContainer col-centered">
+                                <ul style="min-height: 200px !important;" id="sort4" class="${uiflag == 1?"dvSource":""} g_list privateinfo">
+                                    <g:each in="${privateTiles}" var="tt">
+                                        <li class="ui-state-default tile-available"
+                                            drag-id="${tt.text_order}">${raw(tt.text)}</li>
                                     </g:each>
 
-                                    <g:if test="${tempStory?.size() > 0}">
-                                        <g:each in="${tempStory}" var="tail">
-                                            <li class="ui-state-default purple"
-                                                drag-id="${tail.text_order}"><span>${tail.text}</span></li>
-                                        </g:each>
-                                    </g:if>
-                                %{--<g:else>--}%
-                                %{--<li class="placeholder">Add tails here</li>--}%
-                                %{--</g:else>--}%
                                 </ul>
                             </div>
 
-                            <div class="col-xs-1"></div>
-                        </div>
-                    </g:else>
+                    </div>
 
                 </div>
             </div>

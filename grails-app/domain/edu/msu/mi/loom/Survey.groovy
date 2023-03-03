@@ -1,26 +1,24 @@
 package edu.msu.mi.loom
 
-class Survey implements HasQualification {
 
+/**
+ * Collection of {@link SurveyItem}
+ */
+class Survey extends ConstraintProvider implements Trainable {
 
-    String question
-    Date dateCreated
+    static constraints = {
+    }
 
-    static hasMany = [options: SurveyOption]
+    static hasMany = [surveyItems:SurveyItem]
 
-    static belongsTo = [trainingSet: TrainingSet]
+    String name
 
-    static mapping = {
-
+    String constructConstraintTitle() {
+        return "${super.constructConstraintTitle()} - ${name}"
     }
 
     @Override
-    String getQualificationString() {
-        return "Story Loom Survey"
-    }
-
-    @Override
-    String getQualificationDescription() {
-        return "The qualification reflects your score on the Loom survey"
+    String getViewName() {
+        "survey"
     }
 }

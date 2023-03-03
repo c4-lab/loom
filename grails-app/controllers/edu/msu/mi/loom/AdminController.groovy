@@ -21,13 +21,15 @@ class AdminController {
     def exportService
     def trainingSetService
     def sessionService
+    def simulationService
     def adminService
     def networkGenerateService
     def mturkService
+    def constraintService
 
     static allowedMethods = [
             board           : 'GET',
-            uploadExperiment: 'POST',
+            createExperiment: 'POST',
             view            : 'GET',
             cloneSession    : 'POST'
     ]
@@ -63,11 +65,15 @@ class AdminController {
             def paid = it.paid
             def total = it.total
             def connected_users = UserSession.countBySessionAndStateInList(it as Session, ['WAITING', 'ACTIVE'])
-            [(it.id):[active,count,startPending,startActive, round, paid.toString()+"/"+total.toString(), connected_users]]
+            [(it.id): [active, count, startPending, startActive, round, paid.toString() + "/" + total.toString(), connected_users]]
         }
+        def trainingSets = TrainingSet.list()
+        print(trainingSets.first().trainings)
         def users = User.findAllByTurkerIdIsNullAndUsernameNotEqual("admin", [sort: 'dateCreated', order: 'desc'])
 
-        render(view: 'board', model: [sessions: Session.list(), sessionState: sessionStates, experiments: Experiment.list(), trainings: TrainingSet.list(), stories: Story.list(), users: users])
+        render(view: 'board', model: [sessions   : Session.list(), sessionState: sessionStates,
+                                      experiments: Experiment.list(), trainings: trainingSets,
+                                      stories    : Story.list(), users: users, credentials: CrowdServiceCredentials.list()])
     }
 
     def refresh() {
@@ -85,33 +91,33 @@ class AdminController {
 //                session.state = Session.State.FINISHED
 //            }
 //        }
-        if(session){
+        if (session) {
             int count = UserSession.countBySession(session)
             def round = experimentService.getExperimentStatus(session)?.round
-            if(!round){
+            if (!round) {
                 round = 0
             }
-            def connected_users = UserSession.countBySessionAndStateInList(session, ['WAITING','ACTIVE'])
+            def connected_users = UserSession.countBySessionAndStateInList(session, ['WAITING', 'ACTIVE'])
 
 
-            def result = ['startPending': session.startPending, 'startActive': session.startActive, 'connected':connected_users,'count':count,'sessionState':session.state.toString(),'round':round]
+            def result = ['startPending': session.startPending, 'startActive': session.startActive, 'connected': connected_users, 'count': count, 'sessionState': session.state.toString(), 'round': round]
 
             render result as JSON
-        }
-        else{
-            redirect(action:"board")
+        } else {
+            redirect(action: "board")
         }
 
     }
 
     def getFullUrl() {
-       return "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}"
+        return "${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}"
     }
+
 
     def launchExperiment() {
 
         List<Session> sessionList = Session.findAll()
-        boolean  flag = true
+        boolean flag = true
 //        for(Session s: sessionList){
 //            if(s.state != Session.State.FINISHED){
 //                flash.error = "Cannot create two sessions without finishing them first!"
@@ -119,14 +125,14 @@ class AdminController {
 //
 //            }
 //        }
-        if(flag){
+        if (flag) {
             Experiment exp = Experiment.get(params.experimentID)
 
             TrainingSet ts = exp.training_set
-            def session = adminService.createSession(exp,ts)
+
 
             sessionService.launchSession(session.id)
-            mturkService.createExperimentHIT(exp, session.id as String,params.num_hits as int,params.assignment_lifetime as int, params.hit_lifetime as int, getFullUrl())
+            mturkService.createExperimentHIT(exp, session.id as String, params.num_hits as int, params.assignment_lifetime as int, params.hit_lifetime as int, getFullUrl())
         }
 
         redirect(action: 'board')
@@ -141,15 +147,15 @@ class AdminController {
         redirect(action: 'board')
     }
 
-    def uploadExperiment() {
+    def createSession() {
 
         def name = params.name
-        def exp = Experiment.findByName(name)
-        if (exp){
-            def result = [ 'message': "duplicate"]
+        def exp = Session.findByName(name)
+        if (exp) {
+            def result = ['message': "duplicate"]
             render result as JSON
 
-        }else{
+        } else {
             def story = Story.get(params.storySet)
             def min_nodes = params.min_nodes
             def max_nodes = params.max_nodes
@@ -160,50 +166,166 @@ class AdminController {
             def rounds = params.rounds
             def duration = params.duration
             def uiflag = params.uiflag
-            def qualifier = ''
-            def training_set = TrainingSet.get(params.trainingSet)
+
             def m = params.m
             def prob = params.prob
 
-            def isQualifier = params.isQualifier
-            def performance = params.performance
-            def reading = params.reading
-            def vaccine_min = params.vaccine_min
-            def vaccine_max = params.vaccine_max
+            def constraints = params.list('constraints[]')
+            def constraintoperators = params.list('constraintoperators[]')
+            def constraintparams = params.list('constraintparams[]')
 
-            def accepting = params.accepting
-            def completion = params.completion
-            def waiting = params.waiting
-            def score = params.score
-            if (network_type == 'Lattice'){
+            if (network_type == 'Lattice') {
                 network_type = Experiment.Network_type.Lattice
 
-            }else if (network_type == 'Newman_Watts'){
+            } else if (network_type == 'Newman_Watts') {
                 network_type = Experiment.Network_type.Newman_Watts
 
-            }else if(network_type == 'Barabassi_Albert'){
+            } else if (network_type == 'Barabassi_Albert') {
                 network_type = Experiment.Network_type.Barabassi_Albert
 
             }
-            if (isQualifier == 'yes'){
+//            if (isQualifier == 'yes') {
+//
+//                qualifier = "Hitnum>500;ApprovalRate>98;Local=US;" + "!Story" + story.id + ";Performance>=" + performance + ";" + "Reading>=" + reading + ";" + vaccine_min + "<=vaccine<=" + vaccine_max + ";"
+//            }
 
-                qualifier = "Hitnum>500;ApprovalRate>98;Local=US;"+"!Story"+story.id+";Performance>="+performance+";"+"Reading>="+reading+";"+ vaccine_min+"<=vaccine<="+vaccine_max+";"
-            }
+            def experiment = adminService.createExperiment(name, story, min_nodes as int, max_nodes as int, min_degree as int, max_degree as int, initialNbrOfTiles as int,
+                    network_type, rounds as int, duration as int, m as int, prob, uiflag as int)
 
-            def experiment = adminService.createExperiment(name,story,min_nodes as int,max_nodes as int, min_degree as int, max_degree as int,initialNbrOfTiles as int,
-                    network_type,rounds as int,duration as int,qualifier,training_set, m as int, prob, accepting,completion,waiting,score, uiflag as int)
             if (experiment) {
-                def result = [ 'message': "success"]
+
+                List<ConstraintTest> tests = constraintService.getConstraintTests(constraints, constraintoperators, constraintparams) + constraintService.getStoryConstraint(story)
+                constraintService.addConstraints(experiment, tests)
+                experiment.save(flush: true)
+                def result = ['message': "success"]
                 render result as JSON
 
-
-            }else{
-                def result = [ 'message': "exp_error"]
+            } else {
+                def result = ['message': "exp_error"]
 
                 render result as JSON
             }
+
+            def result = ['message': "success"]
+            render result as JSON
 
         }
+
+    }
+
+    def createExperiment() {
+
+        def name = params.name
+        def exp = Experiment.findByName(name)
+        if (exp) {
+            def result = ['message': "duplicate"]
+            render result as JSON
+
+        } else {
+            def story = Story.get(params.storySet)
+            def min_nodes = params.min_nodes
+            def max_nodes = params.max_nodes
+            def min_degree = params.min_degree
+            def max_degree = params.max_degree
+            def initialNbrOfTiles = params.initialNbrOfTiles
+            def network_type = params.network_type
+            def rounds = params.rounds
+            def duration = params.duration
+            def uiflag = params.uiflag
+
+            def m = params.m
+            def prob = params.prob
+
+            def constraints = params.list('constraints[]')
+            def constraintoperators = params.list('constraintoperators[]')
+            def constraintparams = params.list('constraintparams[]')
+
+            if (network_type == 'Lattice') {
+                network_type = Experiment.Network_type.Lattice
+
+            } else if (network_type == 'Newman_Watts') {
+                network_type = Experiment.Network_type.Newman_Watts
+
+            } else if (network_type == 'Barabassi_Albert') {
+                network_type = Experiment.Network_type.Barabassi_Albert
+
+            }
+//            if (isQualifier == 'yes') {
+//
+//                qualifier = "Hitnum>500;ApprovalRate>98;Local=US;" + "!Story" + story.id + ";Performance>=" + performance + ";" + "Reading>=" + reading + ";" + vaccine_min + "<=vaccine<=" + vaccine_max + ";"
+//            }
+
+            def experiment = adminService.createExperiment(name, story, min_nodes as int, max_nodes as int, min_degree as int, max_degree as int, initialNbrOfTiles as int,
+                    network_type, rounds as int, duration as int, m as int, prob, uiflag as int)
+
+            if (experiment) {
+
+                List<ConstraintTest> tests = constraintService.getConstraintTests(constraints, constraintoperators, constraintparams) + constraintService.getStoryConstraint(story)
+                constraintService.addConstraints(experiment, tests)
+                experiment.save(flush: true)
+                def result = ['message': "success"]
+                render result as JSON
+
+            } else {
+                def result = ['message': "exp_error"]
+
+                render result as JSON
+            }
+
+            def result = ['message': "success"]
+            render result as JSON
+
+        }
+
+    }
+
+    def uploadReading() {
+
+        def file = params.inputFile
+
+        def text = fileService.readFile(file as MultipartFile)
+        def json = jsonParserService.parseToJSON(text)
+
+        if (json) {
+
+            trainingSetService.createReading(json)
+
+        }
+
+        redirect(action: 'board')
+
+
+    }
+
+    def uploadSimulation() {
+        def file = params.inputFile
+
+        def text = fileService.readFile(file as MultipartFile)
+        def json = jsonParserService.parseToJSON(text)
+
+        if (json) {
+
+            simulationService.createSimulations(json)
+
+        }
+        redirect(action: 'board', fragment: "trainings")
+
+
+    }
+
+    def uploadSurvey() {
+        def file = params.inputFile
+
+        def text = fileService.readFile(file as MultipartFile)
+        def json = jsonParserService.parseToJSON(text)
+
+        if (json) {
+
+            trainingSetService.createSurvey(json)
+
+        }
+        redirect(action: 'board', fragment: "trainings")
+
 
     }
 
@@ -215,32 +337,18 @@ class AdminController {
         def training_payment = params.training_payment
         def uiflag = params.UIflag
 
-        if (name){
+        if (name) {
 
             flash.error = "name already exists, please use another name."
 
-        }else{
-            if ('simulation' in params){
-                qualifiers_list.add("simulation")
-            }else{
-                qualifiers_list.add('-')
-            }
-            if ('read' in params){
-                qualifiers_list.add("read")
-            }else{
-                qualifiers_list.add('-')
-            }
-            if ('survey' in params){
-                qualifiers_list.add("survey")
-            }else{
-                qualifiers_list.add('-')
-            }
+        } else {
+
             def text = fileService.readFile(file as MultipartFile)
             def json = jsonParserService.parseToJSON(text)
 
             if (json) {
 
-                trainingSetService.createTrainingSet(json,params.name, qualifiers_list.join(';'), training_payment, uiflag as int)
+                trainingSetService.createTrainingSet(json, params.name, uiflag as int)
 
             }
 
@@ -251,34 +359,29 @@ class AdminController {
     }
 
 
-    def uploadStorySet(){
+    def uploadStorySet() {
         def title = params.title
+        def result = ['message': "success"]
 
         def story = Story.findByTitle(title)
-        if (story){
-            def result = [ 'message': "duplicate"]
-            render result as JSON
+        if (story) {
+            result = ['message': "duplicate"]
 
-        }else{
-            String story_text = params.tails
+
+        } else {
+            String story_text = params.tiles
 
             story = adminService.createStory(title, story_text)
-            if (story){
-                print(story)
-                try {
-                    mturkService.createQualification(story)
-                }  catch (Exception e) {
-                   log.warn("Couldn't create qualification for story",e)
-                }
-                def result = [ 'message': "success"]
+            if (!story) {
 
-                render result as JSON
-            }else{
-                def result = [ 'message': "error"]
+                result = ['message': "error"]
 
-                render result as JSON
             }
+
         }
+
+        render result as JSON
+
 
     }
 
@@ -289,26 +392,26 @@ class AdminController {
         boolean auto = params.auto
         List userSession = UserSession.findAllBySessionAndStateInList(session, ["ACTIVE", "WAITING"])
         def result = ['status': null]
-        if(session.state == Session.State.CANCEL){
+        if (session.state == Session.State.CANCEL) {
             result = ['status': "cancel"]
 //            render(text:"cancel")
-        }else{
+        } else {
 
 
             if (userSession.size() >= session.exp.min_node) {
                 if (session.state == Session.State.PENDING) {
                     experimentService.kickoffSession(session)
                     session = Session.get(params.sessionId)
-                    if(session.state == Session.State.ACTIVE){
-                        mturkService.updateExpirationForHit(session)
+                    if (session.state == Session.State.ACTIVE) {
+                        mturkService.forceSessionHITExpiry(session)
                         result = ['status': "start"]
-                    }else{
+                    } else {
                         result = ['status': "fail"]
                     }
-                }else{
+                } else {
                     result = ['status': "fail"]
                 }
-            }else{
+            } else {
                 result = ['status': "less"]
 
             }
@@ -319,7 +422,7 @@ class AdminController {
     def cancelSession() {
 
         def session = Session.get(params.sessionId)
-        mturkService.updateExpirationForHit(session)
+        mturkService.forceSessionHITExpiry(session)
         if (session.state == Session.State.PENDING || session.state == Session.State.ACTIVE) {
             session.startPending = null
             session.startActive = null
@@ -341,71 +444,71 @@ class AdminController {
         mturkService.createExperimentHIT(session.exp, session.id as String)
         int count = UserSession.countBySession(session)
         def round = experimentService.getExperimentStatus(session)?.round
-        if(!round){
+        if (!round) {
             round = 0
         }
-        def result = [ 'startPending': session.startPending, 'startActive': session.startActive, 'count':count,'sessionState':session.state.toString(),'round':round]
+        def result = ['startPending': session.startPending, 'startActive': session.startActive, 'count': count, 'sessionState': session.state.toString(), 'round': round]
 
         render result as JSON
     }
 
-    def paySession(){
+    def paySession() {
         def session = Session.get(params.sessionId)
         def (payableHIT, paid, total, count) = mturkService.check_session_payable(session)
-        if (payableHIT){
+        if (payableHIT) {
             mturkService.pay_session_HIT(session)
-            def result = ['status': "success","payment_status":total.toString()+"/"+total.toString()]
+            def result = ['status': "success", "payment_status": total.toString() + "/" + total.toString()]
             render result as JSON
-        }else{
-            def result = ['status': "no_payable","payment_status":total.toString()+"/"+total.toString()]
+        } else {
+            def result = ['status': "no_payable", "payment_status": total.toString() + "/" + total.toString()]
             render result as JSON
         }
 
 
     }
 
-    def checkSessionPayble(){
+    def checkSessionPayble() {
         def check_greyed = false
         def pay_greyed = false
         def session = Session.get(params.sessionId)
         def (payableHIT, paid, total, session_count) = mturkService.check_session_payable(session)
-        if(total == session_count || total == paid){
+        if (total == session_count || total == paid) {
             check_greyed = true
         }
-        if(paid == total && total!=0){
+        if (paid == total && total != 0) {
             pay_greyed = true
         }
-        def result = ['payment_status': paid.toString()+"/"+total.toString(),
-                      'check_greyed':check_greyed, 'pay_greyed':pay_greyed]
+        def result = ['payment_status': paid.toString() + "/" + total.toString(),
+                      'check_greyed'  : check_greyed, 'pay_greyed': pay_greyed]
 
         render result as JSON
     }
 
-    def checkTrainingsetPayble(){
+    def checkTrainingsetPayble() {
         def check_greyed = false
         def pay_greyed = false
         def trainingset = TrainingSet.get(params.trainingsetId)
         def (payableHIT, paid, total) = mturkService.check_trainingset_payable(trainingset)
-        if(total == paid){
+        if (total == paid) {
             check_greyed = true
         }
 
-        def result = ['payment_status': paid.toString()+"/"+total.toString(),
-                      'check_greyed':check_greyed]
+        def result = ['payment_status': paid.toString() + "/" + total.toString(),
+                      'check_greyed'  : check_greyed]
 
         render result as JSON
     }
 
 
-    def payTrainingHIT(){
+    def payTrainingHIT() {
         def trainingsetHIT = TrainingSet.get(params.trainingsetId)
         def (payableHIT, paid, total) = mturkService.check_trainingset_payable(trainingsetHIT)
-        if (payableHIT){
+        if (payableHIT) {
             mturkService.pay_trainingset_HIT(trainingsetHIT)
-            def result = ['status': "success","payment_status":total.toString()+"/"+total.toString()]
+            def result = ['status': "success", "payment_status": total.toString() + "/" + total.toString()]
             render result as JSON
-        }else{
-            def result = ['status': "no_payable","payment_status":total.toString()+"/"+total.toString()]
+        } else {
+            def result = ['status': "no_payable", "payment_status": total.toString() + "/" + total.toString()]
             render result as JSON
         }
 
@@ -423,6 +526,14 @@ class AdminController {
         redirect(action: 'board')
     }
 
+    def deleteCredential() {
+        def id = params.credentialId
+        if (id) {
+            adminService.deleteCredential(id)
+        }
+
+        redirect(action: 'board')
+    }
 
 
     def view() {
@@ -432,7 +543,7 @@ class AdminController {
             def session = Session.get(sessionId)
             if (session) {
 
-                render(view: 'session', model: [ session : session])
+                render(view: 'session', model: [session: session])
             } else {
                 redirect(uri: '/not-found')
             }
@@ -532,44 +643,43 @@ class AdminController {
         def duplicate_usernames = []
         def status = "success"
 
-        for(String username: usernames){
-            if(username){
-                if (username == "default-user"){
+        for (String username : usernames) {
+            if (username) {
+                if (username == "default-user") {
                     List<User> users = User.findAll()
                     username = "user-" + (users.last().id + 1).toString()
                     duplicate_usernames.add(0)
-                }else{
+                } else {
 
-                    if (User.findByUsername(username) || usernames.count(username)>1){
+                    if (User.findByUsername(username) || usernames.count(username) > 1) {
                         duplicate_usernames.add(1)
 
 
 //                    def result = ['status': "duplicate_username"]
 //                    render result as JSON
 //                    return
-                    }else{
+                    } else {
                         duplicate_usernames.add(0)
                     }
                 }
             }
 
 
-
 //            final_usernames.add(username)
         }
-        if (duplicate_usernames.contains(1)){
+        if (duplicate_usernames.contains(1)) {
 
             final_usernames = duplicate_usernames
             status = "duplicate"
 
-        }else{
-            for(String username: usernames){
-                if(username){
+        } else {
+            for (String username : usernames) {
+                if (username) {
                     def user
-                    if(username != "default-user"){
+                    if (username != "default-user") {
                         user = new User(username: username, password: "pass").save(failOnError: true)
-                    }else{
-                        user = new User(username: "user-"+User.findAll().last().id.toString(), password: "pass").save(failOnError: true)
+                    } else {
+                        user = new User(username: "user-" + User.findAll().last().id.toString(), password: "pass").save(failOnError: true)
                     }
 
                     def role = Role.findByAuthority(Roles.ROLE_USER.name)
@@ -584,10 +694,75 @@ class AdminController {
         }
 
 
-        def result = ['status': status, "username":final_usernames]
+        def result = ['status': status, "username": final_usernames]
         render result as JSON
 
     }
+
+    def createUserCredentials() {
+        def user = springSecurityService.currentUser as User
+        def credentialsName = params.credentialsName
+        def accessKey = params.accessKey
+        def secretKey = params.secretKey
+        CrowdService serviceType = CrowdService.valueOf(params.serviceType)
+        def sandbox = params.sandboxSetting
+
+        def status = 'success'
+
+        def credentials = CrowdServiceCredentials.findByUserAndName(user, credentialsName)
+        if (credentials) {
+            status = "duplicate"
+
+        } else {
+            if (serviceType == CrowdService.MTURK) {
+                if (sandbox == "sandbox" || sandbox == "both") {
+                    credentials = CrowdServiceCredentials.create(user, credentialsName, accessKey, secretKey, serviceType)
+                    credentials.setSandbox(true)
+                    credentials.save(flush: true)
+                }
+                if (sandbox == "production" || sandbox == "both") {
+                    credentials = CrowdServiceCredentials.create(user, credentialsName, accessKey, secretKey, serviceType)
+                    credentials.setSandbox(false)
+                    credentials.save(flush: true)
+                }
+
+            } else {
+
+                credentials = CrowdServiceCredentials.create(user, credentialsName, accessKey, secretKey, serviceType)
+
+            }
+            if (credentials) {
+                status = "failure"
+            }
+        }
+
+        def result = ['status': status]
+        render result as JSON
+
+    }
+
+    def getExperimentData() {
+        //TODO create a custom marshaller - @see https://blog.mrhaki.com/2013/11/grails-goodness-register-custom.html,
+        //TODO https://manbuildswebsite.com/2010/02/15/rendering-json-in-grails-part-3-customise-your-json-with-object-marshallers/
+        def exp = Experiment.get(params.experimentId)
+        def data = ["id"         : exp.id,
+                    "name"       : exp.name,
+                    "constraints": exp.constraintTests.collect {
+                        ["provider_id"   : it.constraintProvider.id,
+                         "operator": it.operator.toString(),
+                         "params"  : it.params]
+                    },
+                    "stories"    : exp.stories.collect {
+                        [name: it.title,
+                         id  : it.id]
+                    }]
+
+        print("Sending ${data}")
+        def result = ['status': 'OK', 'data': data]
+        render result as JSON
+
+    }
+
 
 //    def createUser() {
 //        def usernames = params["usernames[]"] as List

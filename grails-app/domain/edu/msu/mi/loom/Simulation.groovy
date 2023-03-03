@@ -3,7 +3,7 @@ package edu.msu.mi.loom
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
-class Simulation implements HasQualification {
+class Simulation extends ConstraintProvider implements Trainable {
     String name
     int roundCount
     int roundTime
@@ -11,7 +11,6 @@ class Simulation implements HasQualification {
     int userCount
 
     static hasMany = [stories: Story]
-    static belongsTo = [trainingSet: TrainingSet]
 
     static constraints = {
         name blank: false
@@ -23,19 +22,7 @@ class Simulation implements HasQualification {
     static mapping = {
     }
 
-    static String constructQualificationString(Simulation s) {
-        return "Story Loom Simulation"
-    }
 
-    @Override
-    String getQualificationString() {
-        return constructQualificationString(this)
-    }
-
-    @Override
-    String getQualificationDescription() {
-        return "The qualification reflects your score on the Loom training simulation"
-    }
 
     public Simulation clone() {
         Simulation copy = new Simulation()
@@ -50,5 +37,10 @@ class Simulation implements HasQualification {
         }
 
         return copy
+    }
+
+    @Override
+    String getViewName() {
+        "simulation"
     }
 }

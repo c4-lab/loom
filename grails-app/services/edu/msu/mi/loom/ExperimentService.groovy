@@ -53,7 +53,8 @@ class ExperimentService {
                 return story.currentTails
             }
         }
-        ExperimentInitialUserStory.findByAliasAndExperiment(alias,s.exp).initialTiles
+        return []
+        //ExperimentInitialUserStory.findByAliasAndExperiment(alias,s.exp).initialTiles
 
 
     }
@@ -63,6 +64,12 @@ class ExperimentService {
         def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
         getUserTilesForCurrentRound(myAlias, expSession, myAlias.size())
 
+    }
+
+    def getMyInitialState(Session expSession) {
+        def myAlias = sessionService.lookupUserAlias(expSession, springSecurityService.currentUser as User)
+        Experiment e = expSession.exp
+        ExperimentInitialUserStory.findByAliasAndExperiment(myAlias,e).initialTiles
     }
 
 
@@ -201,8 +208,14 @@ class ExperimentService {
     }
 
 
-
-    public static Float score(List truth, List sample) {
+    /**
+     * Scoring procedure for a single story; roughly counts the number of inversions present
+     *
+     * @param truth
+     * @param sample
+     * @return
+     */
+    static Float score(List truth, List sample) {
         if (sample && sample.size()>1) {
             def c2 = { (it.size() * (it.size() - 1)) / 2f }
             def tmap = [:]

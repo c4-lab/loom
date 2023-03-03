@@ -38,7 +38,7 @@ environments {
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/loom"
             driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
-            dbCreate = "create-drop"
+            dbCreate = "update"
             username = "loom"
             password = "loom"
         }

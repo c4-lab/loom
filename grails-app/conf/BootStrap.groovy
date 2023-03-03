@@ -13,43 +13,48 @@ class BootStrap {
     def init = { servletContext ->
         environments {
             development {
-                println("------->Mturk service is ${mturkService}")
-                println("------->Mturk client is ${mturkService.getMturkClient()}")
+//                println("------->Mturk service is ${mturkService}")
+//                println("------->Mturk client is ${mturkService.getMturkClient()}")
+//                createInitialRecords()
+//
+                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1",1);
+//                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
+////                mturkService.createQualification(trainingset.readings.first())
+////                mturkService.createQualification(trainingset.surveys.first())
+////                mturkService.createQualification(trainingset.simulations.first())
+//
+//                adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
+//                        2,Experiment.Network_type.Lattice,3,1,
+//                "",TrainingSet.get(1), 2, 0,
+//                0.1,0.1,0.1,0.1,1)
+//
+//                adminService.createExperiment("Experiment 2",Story.get(1),2,2,1,1,
+//                        2,Experiment.Network_type.Lattice,3,1,
+//                        "",TrainingSet.get(1), 2, 0,
+//                        0.1,0.1,0.1,0.1,0)
+//
+//                def session1 = adminService.createSession(Experiment.get(1),trainingset)
+//                sessionService.launchSession(session1.id)
+//                def session2 = adminService.createSession(Experiment.get(2),trainingset)
+//                sessionService.launchSession(session2.id)
+//
+//                createTestUsers(trainingset)
                 createInitialRecords()
-
-                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1","simulation;-;-",0.1,1);
-                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
-//                mturkService.createQualification(trainingset.readings.first())
-//                mturkService.createQualification(trainingset.surveys.first())
-//                mturkService.createQualification(trainingset.simulations.first())
-
-                adminService.createExperiment("Experiment 1",Story.get(1),2,2,1,1,
-                        2,Experiment.Network_type.Lattice,3,1,
-                "",TrainingSet.get(1), 2, 0,
-                0.1,0.1,0.1,0.1,1)
-
-                adminService.createExperiment("Experiment 2",Story.get(1),2,2,1,1,
-                        2,Experiment.Network_type.Lattice,3,1,
-                        "",TrainingSet.get(1), 2, 0,
-                        0.1,0.1,0.1,0.1,0)
-
-                def session1 = adminService.createSession(Experiment.get(1),trainingset)
-                sessionService.launchSession(session1.id)
-                def session2 = adminService.createSession(Experiment.get(2),trainingset)
-                sessionService.launchSession(session2.id)
-
-                createTestUsers(trainingset)
-
+//                TrainingSet.list().each {
+//                    mturkService.createMturkQualification(it as TrainingSet)
+//                }
+//                mturkService.createMturkQualification(Reading.first())
+//                mturkService.createMturkQualification(SurveyItem.first())
 
             }
 
             production {
                 createInitialRecords()
-                TrainingSet.list().each {
-                    mturkService.createQualification(it as TrainingSet)
-                }
-                mturkService.createQualification(Reading.first())
-                mturkService.createQualification(Survey.first())
+//                TrainingSet.list().each {
+//                    mturkService.createMturkQualification(it as TrainingSet)
+//                }
+//                mturkService.createMturkQualification(Reading.first())
+//                mturkService.createMturkQualification(SurveyItem.first())
             }
         }
     }

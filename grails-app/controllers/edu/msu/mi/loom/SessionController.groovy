@@ -21,6 +21,7 @@ class SessionController {
     def adminService
     def networkGenerateService
     def mturkService
+    def constraintService
 
     def startWaiting() {
 
@@ -97,7 +98,7 @@ class SessionController {
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
         def model =  experimentService.getNeighborModel(session)
 
-        return render(template: 'experiment_content', model: model+[uiflag:session.exp.uiflag as int])
+        return render(template: 'experiment_content', model: model+[uiflag:session.exp.isInline as int])
     }
 
 
@@ -111,11 +112,11 @@ class SessionController {
 
 //            sessionService.reachMaximumUser(session)
             if (session.state == Session.State.PENDING) {
-                if (sessionService.hasTraining(user, session)) {
-
+                def failures = constraintService.failsConstraints(user, session)
+                if (failures) {
                     return redirect(action: "startWaiting", params: [session:session.id])
                 } else {
-                    log.debug("User ${user.username} lacks training")
+                    log.debug("User ${user.username} is not qualified for session ${session.id}")
                     return redirect(controller: "logout", action: "index", params: [reason: "you are not trained", sessionId: session.id])
                 }
 
@@ -124,9 +125,9 @@ class SessionController {
                 if (sessionService.userInSessionRun(user, session)) {
                     def nmodel = experimentService.getNeighborModel(session)
                     //print("My neighbors model is ${nmodel}")
-                    def model = [myState: experimentService.getMyState(session)]+nmodel
+                    def model = [myState: experimentService.getMyState(session), myInitialState: experimentService.getMyInitialState(session)]+nmodel
                     //print("rendering ${model}")
-                    return render(view: 'experiment', model: model+[uiflag: session.exp.uiflag as int])
+                    return render(view: 'experiment', model: model+[uiflag: session.exp.isInline as int])
                 } else {
 
                     return redirect(controller: "logout", action: "index", params: [reason: "The session is full", sessionId: session.id])
@@ -188,7 +189,7 @@ class SessionController {
                 render("pausing")
             } else {
 
-                redirect(action:"experimentContent",params:[session:params.sessionId]+[uiflag: s.exp.uiflag as int])
+                redirect(action:"experimentContent",params:[session:params.sessionId]+[uiflag: s.exp.isInline as int])
             }
         }
 

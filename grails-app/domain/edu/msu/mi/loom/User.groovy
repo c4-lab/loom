@@ -12,6 +12,7 @@ class User {
     boolean accountLocked
     boolean passwordExpired
     Date dateCreated
+    static hasMany = [credentials: CrowdServiceCredentials]
 
     static transients = ['springSecurityService']
 
@@ -41,5 +42,9 @@ class User {
 
     protected void encodePassword() {
         password = springSecurityService?.passwordEncoder ? springSecurityService.encodePassword(password) : password
+    }
+
+    def isMturkWorker() {
+        turkerId==null
     }
 }

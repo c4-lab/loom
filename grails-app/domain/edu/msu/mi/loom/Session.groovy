@@ -5,39 +5,57 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 @ToString(includeNames = true)
+
+/**
+ * Sessions include one trial in an experiment.  In addition to including settings regarding the subject population,
+ * sessions are "active" objects, in that they maintain the state of execution.
+ */
 class Session {
 
-    static final enum State {
+    static final enum Network_type {
 
-        PENDING,ACTIVE,FINISHED,CANCEL
+        Lattice,Newman_Watts,Barabassi_Albert
 
     }
 
+    static final enum State {
+
+        PENDING,WAITING,ACTIVE,FINISHED,CANCEL
+
+    }
+
+    def mturkService
     def randomStringGenerator
 
+    //Bean fields
     String name
-    String type
     Date dateCreated
-    TrainingSet trainingSet
     Experiment exp
+    Network_type network_type
+    int m
+    Float probability
+    int min_degree
+    int max_degree
+
+
+
+    //State management
     State state
     String fullCode
     String doneCode
     String waitingCode
+
+
     Long startPending
     Long startActive
+
     int paid = 0
     int total = 0
 
-    List<String> HITId = new ArrayList<>()
-
-    List<String> HITTypeId = new ArrayList<>()
-
-    static hasMany = [HITId: String, HITTypeId: String]
+    static hasMany = [serviceTasks: CrowdServiceTask, userConstraints: ConstraintTest]
 
     static constraints = {
         name blank: false
-        trainingSet nullable: true
         state nullable: true
         startPending nullable: true
         startActive nullable: true
@@ -49,7 +67,6 @@ class Session {
         Session copy = new Session()
         def count = count()
         copy.name = "Session ${count + 1}"
-        copy.trainingSet = trainingSet
         copy.exp = exp
 
         return copy
@@ -65,6 +82,16 @@ class Session {
         }
         if (!waitingCode) {
             waitingCode = randomStringGenerator.generateLowercase(12)
+        }
+
+        if (serviceTasks) {
+            serviceTasks.each {CrowdServiceTask cst ->
+                mturkService.setBasicQualifications(cst.serviceCredentials)
+                userConstraints.each { ConstraintTest ci ->
+                    mturkService.verifyQualification(cst.serviceCredentials, ci)
+                }
+
+            }
         }
 
     }

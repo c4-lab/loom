@@ -4,47 +4,44 @@ import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 @Slf4j
 @ToString(includeNames = true)
+
+/**
+ * Experiments cover the selection of story, network, and interface.  Details about the specific subject population (including criteria for inclusion) are part of the session
+ */
 class Experiment {
-    static final enum Network_type {
 
-        Lattice,Newman_Watts,Barabassi_Albert
-
-    }
 
     String name
 
     int min_node
     int max_node
     int initialNbrOfTiles
-    Network_type network_type
+
+
     int roundCount
     int roundTime
-    int m
-    Float probability
-    int min_degree
-    int max_degree
-    String qualifier
-    Date dateCreated
-    Story story
-    TrainingSet training_set
-    Float accepting
-    Float completion
-    Float waiting
-    Float score
-    int uiflag = 0
 
-    static hasMany = [edges: Edge, sessions:Session, initialStories:ExperimentInitialUserStory,stories:Story]
+    Date dateCreated
+
+    int isInline = 0
+    static hasMany = [edges: Edge, sessions:Session, initialStories:ExperimentInitialUserStory,stories:Story, constraintTests: ConstraintTest]
 
     static constraints = {
-        min_node nullable:false
         name blank: false, unique: true
-        qualifier nullable: true
-        probability nullable: true
         max_node min: 2
     }
 
-    static mapping = {
+    def beforeInsert() {
+
+
+        stories.each {
+            ConstraintTest test = new ConstraintTest(operator: ConstraintTest.Operator.NOT_HAS, constraintProvider: it)
+            println("Adding ${test}")
+            this.addToConstraintTests(test)
+        }
     }
+
+
 
 //    public Experiment clone() {
 //        Experiment copy = new Experiment()

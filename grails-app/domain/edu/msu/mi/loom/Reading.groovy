@@ -1,15 +1,15 @@
 package edu.msu.mi.loom
 
-class Reading implements HasQualification {
+import org.grails.datastore.mapping.model.types.Simple
+
+class Reading extends ConstraintProvider implements Trainable {
 
 
     String name
     Date dateCreated
     String passage
 
-
     static hasMany = [questions: ReadingQuestion]
-    static belongsTo = [trainingSet: TrainingSet]
 
 
     static constraints = {
@@ -21,12 +21,7 @@ class Reading implements HasQualification {
     }
 
     @Override
-    String getQualificationString() {
-        return "Story Loom Reading Test"
-    }
-
-    @Override
-    String getQualificationDescription() {
-        return "Provides an indiecation of your reading comprehension ability"
+    String getViewName() {
+        "reading"
     }
 }
