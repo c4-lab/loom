@@ -3,7 +3,10 @@
 /.slcache/
 /.slcache-old/
 /target/
+/target-old/
+/target-old2/
 /out/
+/output/
 /test/reports/
 /lib/third-party/
 /web-app/plugins

@@ -29,12 +29,12 @@
                         <tbody>
                         <g:each in="${usersimresult.scores}" var="score" status="idx">
                             <tr>
-                                <td>${idx}</td><td>${score}</td>
+                                <td>${idx}</td><td>${score.value}</td>
                             </tr>
                         </g:each>
                         <tr>
                             <td><b>Average:</b></td>
-                            <td>${new DecimalFormat("####0.00").format(usersimresult.averageScore)}</td>
+                            <td>${new DecimalFormat("####0.00").format(usersimresult.mean())}</td>
                         </tr>
 
                         </tbody>

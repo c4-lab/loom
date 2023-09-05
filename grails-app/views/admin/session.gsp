@@ -69,6 +69,7 @@
                                         <div class="post">
                                             <div class="user-block">
                                                 <span class='username'>
+                                                    <!-- TODO: why is this a delete?? -->
                                                     <a href="#">${session.exp.name}</a>
                                                     <g:link controller="admin" action="deleteExperiment"
                                                             class='pull-right btn-box-tool'
@@ -78,65 +79,18 @@
                                                 </span>
                                                 <span class='description'>Created - <g:formatDate
                                                         format="yyyy/MM/dd HH:mm"
-                                                        date="${session.exp.dateCreated}"/></span>
+                                                        date="${session.created}"/></span>
                                             </div>
 
                                             <p>
-                                                <g:each in="${(session.exp.story.tiles).sort { it.text_order}}" var="tail">
-                                                    ${tail.text}
+                                                <g:each in="${(session.sessionParameters.safeGetStory().tiles).sort { it.text_order}}" var="tile">
+                                                    ${tile.text}
                                                 </g:each>
                                             </p>
                                         </div>
 
 
-                                    %{--<g:each in="${trainings}" var="training">--}%
-                                        %{--<div class="post">--}%
-                                            %{--<div class="user-block">--}%
-                                                %{--<span class='username'>--}%
-                                                    %{--<a href="#">${training.name}</a>--}%
-                                                    %{--<g:link controller="admin" action="deleteExperiment"--}%
-                                                            %{--class='pull-right btn-box-tool'--}%
-                                                            %{--params="[experimentId: training.id, type: ExpType.TRAINING]">--}%
-                                                        %{--<i class='fa fa-times'></i>--}%
-                                                    %{--</g:link>--}%
-                                                %{--</span>--}%
-                                                %{--<span class='description'>Created - <g:formatDate--}%
-                                                        %{--format="yyyy/MM/dd HH:mm"--}%
-                                                        %{--date="${training.dateCreated}"/></span>--}%
-                                            %{--</div>--}%
 
-                                            %{--<p>--}%
-                                                %{--<g:each in="${training.stories[0]?.tails}" var="tail">--}%
-                                                    %{--${tail.text}--}%
-                                                %{--</g:each>--}%
-                                            %{--</p>--}%
-
-                                        %{--</div>--}%
-                                    %{--</g:each>--}%
-
-                                    %{--<g:each in="${simulations}" var="simulation">--}%
-                                        %{--<div class="post">--}%
-                                            %{--<div class="user-block">--}%
-                                                %{--<span class='username'>--}%
-                                                    %{--<a href="#">${simulation.name}</a>--}%
-                                                    %{--<g:link controller="admin" action="deleteExperiment"--}%
-                                                            %{--class='pull-right btn-box-tool'--}%
-                                                            %{--params="[experimentId: simulation.id, type: ExpType.SIMULATION]">--}%
-                                                        %{--<i class='fa fa-times'></i>--}%
-                                                    %{--</g:link>--}%
-                                                %{--</span>--}%
-                                                %{--<span class='description'>Created - <g:formatDate--}%
-                                                        %{--format="yyyy/MM/dd HH:mm"--}%
-                                                        %{--date="${simulation.dateCreated}"/></span>--}%
-                                            %{--</div>--}%
-
-                                            %{--<p>--}%
-                                                %{--<g:each in="${simulation.stories[0]?.tails}" var="tail">--}%
-                                                    %{--${tail.text}--}%
-                                                %{--</g:each>--}%
-                                            %{--</p>--}%
-                                        %{--</div>--}%
-                                    %{--</g:each>--}%
                                 </div>
                             </div>
                         </div>

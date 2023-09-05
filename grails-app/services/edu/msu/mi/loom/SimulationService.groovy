@@ -14,6 +14,7 @@ class SimulationService {
     def statService
     def experimentService
     def mturkService
+    def adminService
 
 
 
@@ -21,18 +22,19 @@ class SimulationService {
         def userCount = simulation.userCount
         def userList = [:]
 
-        //TODO why is user_nbr 1?  Should be zero or should provide a unique accessor
-        def privateTiles = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, 1, 0).tile
+        //TODO using "user number 0" is weird - should do something else
+        def privateTiles = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, 0, 0).tile
 
         for (int i = 1; i <= userCount; i++) {
             def tts = SimulationTask.findAllBySimulationAndUser_nbrAndRound_nbr(simulation, i, roundNumber).tile
             userList.put(i, [roundNbr: roundNumber, tts: tts])
         }
 
+
         def tileList = []
         if (tempStory) {
             tempStory.each {
-                tileList.add(Tile.findByText_orderAndStory(it, simulation.stories.getAt(0)))
+                tileList.add(Tile.get(it))
             }
         }
         return [simulation:simulation, roundNbr: roundNumber, userList: userList, tempStory: tileList, privateTiles: privateTiles]
@@ -44,48 +46,40 @@ class SimulationService {
         def story
         Tile tile
         json.each { sim ->
+
+            story = adminService.createStory(sim.name,sim.solution)
             Simulation simulation = new Simulation(name: sim.name, roundTime: sim.timeperround,
-                    roundCount: sim.sequence.size(), userCount: sim.sequence.get(0).size())
+                    roundCount: sim.sequence.size(), userCount: sim.sequence.get(0).size()-1, story: story)
 
             if (simulation.save(flush: true)) {
-
-
-                simulation.save()
-                story = new Story(title: "Story: " + sim.name).save(flush: true)
-
-
-                story.save()
-                simulation.addToStories(story)
-                for (int i = 0; i < sim.solution.size(); i++) {
-                    tile = new Tile(text: sim.solution.get(i), text_order: i)
-                    story.addToTiles(tile).save(flush: true)
-                    log.debug("New task with id ${tile.id} has been created.")
-                }
-
-                def userJSONArray
-                for (int j = 0; j < sim.sequence.size(); j++) {
-                    for (int k = 1; k <= sim.sequence.get(j).size(); k++) {
-                        if (j == 0) {
-                            if (k == 1) {
-                                userJSONArray = sim.sequence.get(j).getJSONArray("user")
-                            } else {
-                                userJSONArray = sim.sequence.get(j).getJSONArray("neighbor" + (k - 1))
-                            }
+                sim.sequence.eachWithIndex { Map item, Integer idx ->
+                    //print(item)
+                    item.each { ent ->
+                        Integer userNumber
+                        if (ent.key == "user") {
+                            userNumber = 0
                         } else {
-                            userJSONArray = sim.sequence.get(j).getJSONArray("neighbor" + k)
+                            def matcher = ent.key=~/(\d+)/
+                            userNumber = Integer.parseInt(matcher[0][1])
                         }
 
-                        for (int m = 0; m < userJSONArray.size(); m++) {
-                            def simulationTask = SimulationTask.createSimulationTask(Tile.findByStoryAndText_order(story, userJSONArray.get(m)), j == 0 ? k : (k + 1), j, simulation)
+                        ent.value.each {
+                            def simulationTask = SimulationTask.createSimulationTask(story.tiles[it], userNumber, idx, simulation)
                             if (simulationTask.save(flush: true)) {
+
                                 log.debug("New simulationTask with id ${simulationTask.id} has been created for simulation ${simulation.id}.")
                             } else {
+                                println("Did not save ${simulationTask} due to ${simulationTask.errors}")
                                 log.error("SimulationTask creation attempt failed")
                                 log.error(simulationTask?.errors?.dump())
                             }
                         }
+
                     }
+
                 }
+
+
             } else {
                 log.error("Simulation creation attempt failed")
                 log.error(simulation?.errors?.dump())
@@ -104,17 +98,21 @@ class SimulationService {
         }
     }
 
-    def addRoundScore(List<Integer> integers, Simulation simulation) {
+    def addRoundScore(List<Integer> integers, Simulation simulation, Integer round) {
         User user = springSecurityService.currentUser as User
-        UserSimulationResponse usr = UserSimulationResponse.findByUserAndSimulation(user, simulation)
+        UserSimulationResponse usr = UserSimulationResponse.findByUserAndConstraintProvider(user, simulation)
         if (!usr) {
-            new UserSimulationResponse(simulation: simulation, user: user)
+            usr = new UserSimulationResponse(constraintProvider: simulation, user: user)
         }
 
 
-        def correct = simulation.stories.first().tiles.text_order.sort()
-
-        usr.addToScores(ExperimentService.score(correct, integers))
+        def correct = simulation.story.tiles.sort {
+            it.text_order
+        }.collect {
+            it.id
+        }
+        UserSimulationRoundScore score = new UserSimulationRoundScore(round: round, value: ExperimentService.score(correct, integers))
+        usr.addToScores(score)
         usr.save(flush: true)
 
     }

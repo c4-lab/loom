@@ -31,6 +31,12 @@ grails.mime.types = [ // the first one is the default format
                       xml          : ['text/xml', 'application/xml']
 ]
 
+grails.assets.extensions = [
+        "js", "css", "gif", "jpg", "jpeg", "png", "ico", "svg", "ttf", "woff", "woff2", "eot",
+        "mp4", "webm"
+]
+
+
 // URL Mapping Cache Max Size, defaults to 5000
 //grails.urlmapping.cache.maxsize = 1000
 
@@ -111,10 +117,9 @@ log4j.main = {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
     root {
-        info() //by default, root log level is error. Now, we changed it to debug level,
+        error() //by default, root log level is error. Now, we changed it to debug level,
         //stdout(console) is default appender for root.
     }
-    debug  'edu.msu.mi.loom.TrainingSetService'
     debug  'edu.msu.mi.loom.MturkService'
 
 
@@ -128,7 +133,12 @@ log4j.main = {
            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
            'org.springframework',
            'org.hibernate',
-           'net.sf.ehcache.hibernate'
+           'net.sf.ehcache.hibernate',
+            'org.apache.http',
+    'org.catalina.connector',
+    'org.apache.http11'
+
+
 }
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'edu.msu.mi.loom.User'

@@ -24,7 +24,7 @@
 %{--                            If you wish to keep waiting, click <a href="/loom/session/s/${session.id}?workerId=${user.username}">here</a>.--}%
 %{--                        </p>--}%
                         <p>
-                            Otherwise, please enter the following confirmation code into the HIT to get credit for your time. Hope to see you again!
+                            Please enter the following confirmation code into the HIT to get credit for your time. Hope to see you again!
                         </p>
                         <h1 class="text-center">
                             ${session.waitingCode}

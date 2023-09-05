@@ -55,9 +55,58 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" id='submit-credentials'>Add Credentials</button>
+                <button type="button" class="btn btn-primary" id='submit-credentials'>Add Credentials</button>
             </div>
 
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+         $("#submit-credentials").on('click', function (){
+            var name = $("#credentialsName").val();
+            var accessKey = $("#accessKey").val();
+            var secretKey = $("#secretKey").val();
+            var serviceName = $("#serviceType").val();
+            var sandbox = $("input[name='sandboxSetting']:checked").val()
+
+            if (name==='' || accessKey==='' || secretKey === '' || serviceName === '') {
+                alert("All fields are required")
+            } else {
+                $.ajax({
+                    url: "/loom/admin/createUserCredentials",
+                    type: 'POST',
+                    // contentType: "application/json;",
+                    // data: JSON.stringify({ 'list': usernames }),
+                    data:
+                        {
+                            credentialsName: name,
+                            accessKey: accessKey,
+                            secretKey: secretKey,
+                            serviceType: serviceName,
+                            sandboxSetting: sandbox
+
+
+                        },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.status === "duplicate") {
+                            alert("Name already exists")
+                        } else {
+                            alert("Should create credentials")
+                            $("#create-credentials-modal").modal('hide');
+                            window.location.href="/loom/admin/board#credentials"
+                            window.location.reload()
+                            return false;
+                        }
+                    }
+                });
+
+            }
+
+        });
+
+    });
+
+</script>

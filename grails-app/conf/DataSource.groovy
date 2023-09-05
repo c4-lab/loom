@@ -4,6 +4,7 @@ dataSource {
     driverClassName = "org.h2.Driver"
     username = "sa"
     password = ""
+
 }
 hibernate {
     cache.use_second_level_cache = true
@@ -20,12 +21,20 @@ environments {
         dataSource {
             //logSql = true
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+            //dialect = "edu.msu.mi.loom.utils.ImprovedH2Dialect"
             url = "jdbc:mysql://localhost:3306/loom"
             driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
-            dbCreate = "create-drop"
+            dbCreate = "create"
             username = "loom"
             password = "loom"
+            validationQuery = "SELECT 1"
+            testOnBorrow = true
+            testWhileIdle = true
+            timeBetweenEvictionRunsMillis = 3 * 60 * 60 * 1000 // 3 hours in milliseconds
+            removeAbandoned = true
+            removeAbandonedTimeout = 3600 // 1 hour
         }
+
     }
     test {
         dataSource {

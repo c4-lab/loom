@@ -1,4 +1,4 @@
-<%@ page import="edu.msu.mi.loom.ConstraintProvider; edu.msu.mi.loom.Session; edu.msu.mi.loom.ConstraintTest; edu.msu.mi.loom.Story; edu.msu.mi.loom.CrowdService; edu.msu.mi.loom.TrainingSet; edu.msu.mi.loom.ExpType" %>
+<%@ page import="com.amazonaws.mturk.requester.HITStatus; edu.msu.mi.loom.MturkHIT; edu.msu.mi.loom.ConstraintProvider; edu.msu.mi.loom.Session; edu.msu.mi.loom.ConstraintTest; edu.msu.mi.loom.Story; edu.msu.mi.loom.CrowdService; edu.msu.mi.loom.TrainingSet; edu.msu.mi.loom.ExpType" %>
 
 <g:applyLayout name="main">
     <div class="wrapper">
@@ -91,96 +91,12 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="sessions">
-
-                                %{--                                    <asset:javascript src="loom.js"/>--}%
-                                %{--                                    <g:set var="session" value="${sessions}" />--}%
-                                %{--                                    <g:javascript> var sessionss = ${sessions} </g:javascript>--}%
-                                    <g:each in="${sessions}" var="session" id="each-session">
-                                        <div class="post session">
-                                            <div class="row session-row">
-                                                <div class="user-block ">
-                                                    <span class='username'>
-                                                        <g:link controller="admin" action="view"
-                                                                params="[session: session.id]">${session.name}</g:link>
-
-                                                    </span>
-                                                    <span class='description'>Created - <g:formatDate
-                                                            format="yyyy/MM/dd HH:mm"
-                                                            date="${session.dateCreated}"/></span>
-                                                    <span class='description'>
-                                                        Experiment: ${session.exp.name}(${session.exp.id}),
-                                                        Thread: ${sessionState[session.id] ? "Up" : "Down"},
-                                                        %{--                                                        Status: <b>${session.state ?: "INACTIVE"}</b>,--}%
-
-                                                    </span>
-                                                    <span class='description connected'>Connected users: <b>${sessionState[session.id][6]}</b>
-                                                    </span>
-                                                    <span class='description session-span'>Status: ${session.state ?: "INACTIVE"}</span>
-                                                    <span class='description current-round'>Current round: ${sessionState[session.id][4]}</span>
-
-                                                    <span class='description payment-status'
-                                                          hidden>Payment status: ${sessionState[session.id][5]}</span>
-                                                    <span class='description count'>User sessions: <b>${sessionState[session.id][1]}</b>
-                                                    </span>
-                                                    <span class='description set-timer'></span>
-                                                    <span class='description'>
-                                                        <b>URL: ${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}/session/s/${session.id}?workerId=?</b></br>
-                                                    </span>
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="user-block">
-
-                                                    <g:link controller="admin" action="deleteExperiment"
-                                                            class='btn btn-primary'
-                                                            params="[sessionId: session.id, type: ExpType.SESSION]">
-                                                        Delete
-                                                    </g:link>
-                                                    <button class='btn btn-primary session-action'
-                                                            data-text-swap="Start Listening"
-                                                            data-text-original="Cancel">Cancel</button>
-                                                    <button class='btn btn-primary start-session'>Launch</button>
-                                                    <button class='btn btn-primary check-payble'><i
-                                                            class="check-payable-i"></i>Check Payable</button>
-                                                    <button class='btn btn-primary pay-session'><i class="pay-i"></i>Pay
-                                                    </button>
-                                                    <span class="sessionId" style="display:none">${session.id}</span>
-                                                    <span class="startPending"
-                                                          style="display:none">${sessionState[session.id][2]}</span>
-                                                    <span class="startActive"
-                                                          style="display:none">${sessionState[session.id][3]}</span>
-
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <g:each in="${sessions}" var="loomSession">
+                                        ${loomSession.name}
+                                        <g:render template="session_detail" model="[loomSession: loomSession]"/>
                                     </g:each>
                                 </div>
 
-                                %{--                                <div class="tab-pane" id="session-hit">--}%
-
-                                %{--                                    <g:each in="${sessions}" var="session">--}%
-                                %{--                                        <div class="post">--}%
-                                %{--                                            <div class="row">--}%
-                                %{--                                                <div class="user-block ">--}%
-                                %{--                                                    <span>--}%
-                                %{--                                                        <g:link controller="admin" action="view"--}%
-                                %{--                                                                params="[session: session.id]">${session.name}</g:link>--}%
-
-                                %{--                                                    </span>--}%
-
-                                %{--                                                    <g:each in="${session.HITTypeId}" var="hit">--}%
-                                %{--                                                        <span class='description hits'>https://workersandbox.mturk.com/mturk/preview?groupId=${hit}</span>--}%
-                                %{--                                                    </g:each>--}%
-                                %{--                                                </div>--}%
-
-                                %{--                                            </div>--}%
-
-                                %{--                                        </div>--}%
-                                %{--                                    </g:each>--}%
-                                %{--                                </div>--}%
 
                                 <div class="tab-pane" id="experiments">
                                     <table class="table table-bordered grid" border="1">
@@ -203,88 +119,20 @@
                                                     %{--                                            <th>Created</th>--}%
                                                     <g:formatDate
                                                             format="yyyy/MM/dd HH:mm"
-                                                            date="${experiment.dateCreated}"/></td>
+                                                            date="${experiment.created}"/></td>
                                                 <td>
                                                     %{--                                            <th>Story</th>--}%
-                                                    <g:each in="${experiment.stories}" var="story">
-                                                        <g:link controller="admin" action="view"
-                                                                params="[story: story]">${story.title}</g:link>
-                                                    </g:each>
-                                                </td>
 
-                                                <td>
-                                                    %{--                                            <th>Network</th>--}%
-                                                    ${experiment.network_type}
-                                                </td>
-
-                                                <td>
-                                                    ${Session.countByExpAndStateInList(experiment,
-                                                            [Session.State.PENDING, Session.State.WAITING, Session.State.ACTIVE])}
-                                                    %{--                                            <th>Available sessions</th>--}%
-                                                </td>
-                                                <td>
-                                                    %{--                                            <th>Total sessions</th>--}%
-                                                    ${Session.countByExp(experiment)}
-                                                </td>
-                                                <td>
-                                                    %{--                                            <th>Action</th> --}%
-                                                    <button type="button" id="create-session-button"
-                                                            class="btn btn-primary">Create session
-                                                        <span
-                                                                class="expid hidden">${experiment.id}</span>
-                                                    </button>
-
-                                                </td>
-                                            </tr>
-                                        </g:each>
-                                        </tbody>
-
-                                    </table>
-                                </div>
-                                <div class="tab-pane" id="session">
-                                    <table class="table table-bordered grid" border="1">
-                                        <th style="text-align:center">Experiment</th>
-                                        <th style="text-align:center">Created</th>
-                                        <th style="text-align:center">Story</th>
-                                        <th style="text-align:center">Available sessions</th>
-                                        <th style="text-align:center">Total sessions</th>
-                                        <th style="text-align:center">Action</th>
-                                        <tbody>
-                                        <g:each in="${experiments}" var="experiment">
-                                            <tr>
-                                                <td>
-                                                    %{--                                             <th>Title</th>--}%
                                                     <g:link controller="admin" action="view"
-                                                            params="[experiment: experiment.id]">${experiment.name}</g:link>
-                                                </td>
-                                                <td>
-                                                    %{--                                            <th>Created</th>--}%
-                                                    <g:formatDate
-                                                            format="yyyy/MM/dd HH:mm"
-                                                            date="${experiment.dateCreated}"/></td>
-                                                <td>
-                                                    %{--                                            <th>Story</th>--}%
-                                                    <g:each in="${experiment.stories}" var="story">
-                                                        <g:link controller="admin" action="view"
-                                                                params="[story: story]">${story.title}</g:link>
-                                                    </g:each>
-                                                </td>
-                                                <td>
-                                                    %{--                                            <th>Constraints</th>--}%
-                                                    <g:each in="${experiment.constraintTests}" var="constraint"
-                                                            status="i">
-                                                        ${constraint.buildMturkString()}
-                                                    </g:each>
+                                                            params="[story: experiment.defaultSessionParams.story]">${experiment.defaultSessionParams.story?.name}</g:link>
 
                                                 </td>
+
                                                 <td>
                                                     %{--                                            <th>Network</th>--}%
-                                                    ${experiment.network_type}
+                                                    ${experiment.defaultSessionParams?.networkTemplate?.class?.simpleName}
                                                 </td>
-                                                <td>
-                                                    %{--                                            <th>Interface</th>--}%
-                                                    <span class='description'>${experiment.isInline ? "paragraph" : "list"}</span>
-                                                </td>
+
                                                 <td>
                                                     ${Session.countByExpAndStateInList(experiment,
                                                             [Session.State.PENDING, Session.State.WAITING, Session.State.ACTIVE])}
@@ -297,7 +145,7 @@
                                                 <td>
                                                     %{--                                            <th>Action</th> --}%
                                                     <button type="button"
-                                                            class="btn btn-primary launch_experiment">Create session
+                                                            class="btn btn-primary create-session-button">Create session
                                                         <span
                                                                 class="expid hidden">${experiment.id}</span>
                                                     </button>
@@ -310,89 +158,94 @@
                                     </table>
                                 </div>
 
+
                                 <div class="tab-pane" id="trainings">
-                                    <g:each in="${trainings}" var="training">
-                                        <div class="post">
-                                            <div class="row training-row">
-                                                <div class="user-block">
-                                                    <span class='username'>
-                                                        <g:link controller="admin" action="view"
-                                                                params="[training: training.id]">${training.name}</g:link>
-                                                        <g:link controller="admin" action="deleteExperiment"
-                                                                class='pull-right btn-box-tool'
-                                                                params="[trainingId: training.id, type: ExpType.TRAINING]">
-                                                            <i class='fa fa-times'></i>
-                                                        </g:link>
-                                                    </span>
-                                                    <g:each in="${training.trainings}" var="t">
-                                                        <span class='description'>
-                                                            <b>Training: ${t.name} (${t.id})</b></br>
-                                                        ${t.stories.first().toString()}
 
-                                                        </span>
-                                                    </g:each>
-                                                    <g:each in="${training.simulations}" var="s">
-                                                        <span class='description'>
-                                                            <b>Simulation: ${s.name} (${s.id})</b></br>
-                                                        ${s.stories.first().toString()}
+                                    <table class="table table-bordered grid" border="1">
+                                        <th style="text-align:center">TrainingSet</th>
+                                        <th style="text-align:center">Interface</th>
+                                        <th style="text-align:center">Simulation</th>
+                                        <th style="text-align:center">Reading</th>
+                                        <th style="text-align:center">Surveys</th>
+                                        <th style="text-align:center">State</th>
+                                        <th style="text-align:center">HITs (Avail/Tot)</th>
+                                        <th style="text-align:center">Action</th>
+                                        <tbody>
+                                        <g:each in="${trainings}" var="trainingSet">
+                                            <tr>
+                                                <td>
+                                                    %{--                                             <th>Title</th>--}%
+                                                    <g:link controller="admin" action="view"
+                                                            params="[trainingId: trainingSet.id]">${trainingSet.name}</g:link>
+                                                </td>
+                                                <td>
+                                                    ${trainingSet.uiflag ? "Paragraph" : "List"}
+                                                </td>
+                                                <td>
+                                                    %{--                                            <th>Story</th>--}%
+                                                    <g:if test="${trainingSet.simulations}">
+                                                        <g:each in="${trainingSet.simulations}" var="simulation">
+                                                            <g:link controller="admin" action="view"
+                                                                    params="[simulation: simulation.id]">
+                                                                ${simulation.story.name}</g:link>
+                                                        </g:each>
+                                                    </g:if>
+                                                    <g:else>
+                                                        --
+                                                    </g:else>
+                                                </td>
+                                                <td>
+                                                    <g:if test="${trainingSet.readings}">
+                                                        <g:each in="${trainingSet.readings}" var="reading">
+                                                            <g:link controller="admin" action="view"
+                                                                    params="[reading: reading.id]">
+                                                                ${reading.name}</g:link>
+                                                        </g:each>
+                                                    </g:if>
+                                                    <g:else>
+                                                        --
+                                                    </g:else>
+                                                </td>
+                                                <td>
+                                                    <g:if test="${trainingSet.surveys}">
+                                                        <g:each in="${trainingSet.surveys}" var="survey">
+                                                            <g:link controller="admin" action="view"
+                                                                    params="[survey: survey.id]">
+                                                                ${survey.name}</g:link>
+                                                        </g:each>
+                                                    </g:if>
+                                                    <g:else>
+                                                        --
+                                                    </g:else>
+                                                </td>
+                                                <td>
+                                                    ${trainingSet.state}
+                                                </td>
+                                                <td>
+                                                    ${trainingSet.countByHitStatus("Assignable")}/${trainingSet.countByHitStatus(null)}
+                                                </td>
+                                                <td>
+                                                    <button type="button"
+                                                            class="btn btn-primary show-training-launch-modal">
+                                                        <g:if test="${trainingSet.state == TrainingSet.State.PENDING}">
+                                                            Launch
+                                                            <span class="mode hidden">launch</span>
+                                                        </g:if>
+                                                        <g:else>
+                                                            Cancel
+                                                            <span class="mode hidden">cancel</span>
+                                                        </g:else>
+                                                        <span class="trainingId hidden">${trainingSet.id}</span>
 
-                                                        </span>
-                                                    </g:each>
+                                                    </button>
 
+                                                </td>
+                                            </tr>
+                                        </g:each>
+                                        </tbody>
 
-
-                                                    <span class='description'>
-                                                        <b>URL: ${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}${request.contextPath}/training/t/${training.id}?workerId=?</b></br>
-                                                    </span>
-
-%{--                                                    <span class='description training-payment-status'--}%
-%{--                                                          hidden><b>Payment status: ${training.paid}/${training.total}</b>--}%
-%{--                                                    </span>--}%
-                                                </div>
-
-
-                                                <ul class="list-inline">
-                                                </ul>
-                                            %{--                                            <g:link controller="admin" action="launchTraining" params="[trainingId: training.id]">--}%
-%{--                                                <g:if test="${training.qualifier != "-;-;-"}">--}%
-%{--                                                    <button type="button"--}%
-%{--                                                            class="btn btn-primary launch_training">Launch Training HITs<span--}%
-%{--                                                            hidden>${training.id}</span></button>--}%
-%{--                                                    <button class='btn btn-primary check-training_payble'><i--}%
-%{--                                                            class="check-training-payable-i"></i>Check Payable</button>--}%
-%{--                                                    <button class='btn btn-primary pay-training'><i--}%
-%{--                                                            class="pay-training-i"></i>Pay</button>--}%
-%{--                                                --}%
-%{--                                                </g:if>--}%
-                                            </div>
-                                        </div>
-
-                                    </g:each>
+                                    </table>
                                 </div>
-
-                                %{--                                <div class="tab-pane" id="training-hit">--}%
-
-                                %{--                                    <g:each in="${trainings}" var="training">--}%
-                                %{--                                        <div class="post">--}%
-                                %{--                                            <div class="row">--}%
-                                %{--                                                <div class="user-block ">--}%
-                                %{--                                                    <span>--}%
-                                %{--                                                        <g:link controller="admin" action="view"--}%
-                                %{--                                                                params="[training: training.id]">${training.name}</g:link>--}%
-                                %{--                                                    </span>--}%
-
-
-
-                                %{--                                                    <g:each in="${training.HITTypeId}" var="hit">--}%
-                                %{--                                                        <span class='description hits'>https://workersandbox.mturk.com/mturk/preview?groupId=${hit}</span>--}%
-                                %{--                                                    </g:each>--}%
-                                %{--                                                </div>--}%
-
-                                %{--                                            </div>--}%
-
-                                %{--                                        </div>--}%
-                                %{--                                    </g:each>--}%
-                                %{--                                </div>--}%
 
                                 <div class="tab-pane" id="stories">
                                     <g:each in="${stories}" var="story">
@@ -400,7 +253,7 @@
                                             <div class="user-block">
                                                 <span class='username'>
                                                     <g:link controller="admin" action="view"
-                                                            params="[training: story.id]">${story.title}</g:link>
+                                                            params="[training: story.id]">${story.name}</g:link>
 
                                                 </span>
                                                 <span class='description'>
@@ -529,6 +382,20 @@
         $('.nav-tabs a').on('shown.bs.tab', function (e) {
             window.location.hash = e.target.hash;
         });
+
+        let sessionCount = $('.post.session-info.panel.panel-info').length;
+        if (sessionCount > 0) {
+            setInterval(function () {
+                updateSessionInfo()
+            }, 1000)
+        }
+
+        $('button.show-session-cancel').on('click', function (e) {
+            const id = $(".session-id",this.parentNode).text()
+            window.location.href = "/loom/admin/cancelSession?sessionId="+id
+        });
+
+
     });
 
     function credentialsShowMTurkOptions(event) {
@@ -537,6 +404,42 @@
         } else {
             $("#credentials-model-sandbox-options").hide()
         }
+    }
+
+
+    function updateSessionInfo() {
+        $.ajax({
+            type: "GET",
+            url: "/loom/admin/getDynamicSessionInfo",
+            dataType: "json",
+            success: function (result) {
+                console.log(result)
+                for (let [sessionid, info] of Object.entries(result['waiting'])) {
+                    let domElt = $("#session-info-"+sessionid)
+                    for (let [key, value] of Object.entries(info)) {
+                        $(".session-wait-"+key,domElt).text(value)
+                    }
+                    $(".session-waiting-block",domElt).removeClass("hidden")
+                    $("button.show-session-cancel",domElt).prop("disabled",false)
+                    domElt.removeClass("panel-info")
+                    domElt.addClass("panel-warning")
+                    domElt.addClass("panel-success")
+
+
+                }
+                for (let [sessionid, info] of Object.entries(result['active'])) {
+                    let domElt = $("#session-info-"+sessionid)
+                    for (let [key, value] of Object.entries(info)) {
+                        $(".session-active-"+key,domElt).text(value)
+                    }
+                    $(".session-active-block",domElt).show()
+                    $("button.show-session-cancel",domElt).prop("disabled",false)
+                    domElt.removeClass("panel-warning")
+                    domElt.addClass("panel-success")
+                }
+            }
+        });
+
     }
 
 

@@ -26,7 +26,7 @@
                                 <div class="row">
                                     <div class="col-xs-10">
                                         <h3 class="box-title">Round <span id="roundNumberTarget">...</span>
-                                            of ${loomSession.exp.roundCount}
+                                            of ${loomSession.sessionParameters.safeGetRoundCount()}
                                         </h3>
                                     </div>
 
@@ -90,43 +90,7 @@
 
                                 </div>
 
-%{--                                <p>Your story:</p>--}%
 
-%{--                                <div class="row"></div>--}%
-
-%{--                                <div class="row">--}%
-%{--                                    <div class="col-xs-1"></div>--}%
-
-%{--                                    <div class="col-xs-10 table-bordered ui-widget-content dvDest" >--}%
-%{--                                        <g:if test="${uiflag == 1}">--}%
-%{--                                            <ul style="min-height: 200px !important;" id="sort2" class="dvSource g_list">--}%
-%{--                                                <g:each in="${myState}" var="tt">--}%
-
-%{--                                                    <li class="ui-state-default purple"--}%
-%{--                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>--}%
-%{--                                                    <p></p>S--}%
-%{--                                                </g:each>--}%
-%{--                                            --}%%{--<g:else>--}%
-%{--                                            --}%%{--<li class="placeholder">Add tails here</li>--}%
-%{--                                            --}%%{--</g:else>--}%
-%{--                                            </ul>--}%
-%{--                                        </g:if>--}%
-%{--                                        <g:else>--}%
-%{--                                            <ul style="min-height: 200px !important;" id="sort3" class="g_list">--}%
-%{--                                                <g:each in="${myState}" var="tt">--}%
-
-%{--                                                    <li class="ui-state-default purple"--}%
-%{--                                                        drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>--}%
-
-%{--                                                </g:each>--}%
-
-%{--                                            </ul>--}%
-%{--                                        </g:else>--}%
-
-%{--                                    </div>--}%
-
-%{--                                    <div class="col-xs-1"></div>--}%
-%{--                                </div>--}%
 
                                 <hr/>
 

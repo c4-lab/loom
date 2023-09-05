@@ -9,6 +9,7 @@ class SurveyItem  {
 
     String question
     Date dateCreated
+    List<SurveyOption> options
 
     static hasMany = [options: SurveyOption]
 

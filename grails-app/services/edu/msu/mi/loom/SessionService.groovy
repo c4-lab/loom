@@ -1,5 +1,6 @@
 package edu.msu.mi.loom
 
+import com.amazonaws.mturk.requester.QualificationRequirement
 import grails.transaction.Transactional
 
 @Transactional
@@ -7,19 +8,36 @@ class SessionService {
 
     def springSecurityService
     def experimentService
+    def mturkService
 
-    def launchSession(long sessionId) {
-            Session s
-            Session.withNewTransaction {
+    def launchSession(Session session,MturkTask task) {
+        session.state = Session.State.WAITING
+        session.startWaiting = new Date()
 
-                s = Session.get(sessionId)
-                s.state = Session.State.PENDING
-                s.save(flush: true)
-                //TODO why is this not the same as the experiment status?
+        if (task) {
+            Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"))
+            mturkService.launchMturkTask(qualRequirements,task)
+        }
 
-            }
+        if (!session.save(flush: true)) {
+            return session.errors
+        } else {
+            return null
+        }
+    }
 
+    def cancelSession(Session session) {
 
+        mturkService.forceHITExpiry(session.mturkTasks as MturkTask[])
+
+        if (session.state == Session.State.WAITING) {
+            session.state = Session.State.PENDING
+            session.save(flush: true)
+        } else if (session.state == Session.State.ACTIVE) {
+            session.state = Session.State.CANCEL
+            session.cancelled = new Date()
+            session.save(flush: true)
+        }
     }
 
 
@@ -27,38 +45,14 @@ class SessionService {
         UserSession.findBySessionAndUser(session,user).userAlias
     }
 
-    def reachMaximumUser(Session session){
-        int count = UserSession.countBySession(session)
-        if (count == session.exp.max_node){
-            return true
 
-        }
-    }
-
-
-    def assignAliasesAndMakeActive(Session session) {
-        List<String> aliases = session.exp.initialStories.collect {it.alias}
-        Collections.shuffle(aliases)
-        List<UserSession> sessions = UserSession.findAllBySession(session).sort{it.started}
-        aliases.each {
-            UserSession s = sessions.pop()
-            s.userAlias = it
-            s.state="ACTIVE"
-            s.save(flush:true)
-        }
-        session.state = Session.State.ACTIVE
-        session.startActive = new Date().getTime()
-        session.startPending = null
-        session.save(flush:true)
-
-    }
 
 
     def leaveAllSessions() {
         log.debug("Leaving sessions....")
         UserSession.withSession {
-            UserSession.findAllByUserAndStateInList(springSecurityService.currentUser as User, ["ACTIVE", "WAITING"]).each {
-                it.state = "MISSING"
+            UserSession.findAllByUserAndStateInList(springSecurityService.currentUser as User, [UserSession.State.ACTIVE, UserSession.State.WAITING]).each {
+                it.missing = true
                 it.save(flush:true)
             }
         }
@@ -67,12 +61,9 @@ class SessionService {
     }
 
     def saveUserStory(Session session, int roundNumber, List<Tile> tiles, User user) {
-        new UserRoundStory(time: new Date(), session: session, round: roundNumber, currentTails: tiles, userAlias: lookupUserAlias(session, user)).save(flush: true)
+        new UserRoundStory(time: new Date(), session: session, round: roundNumber, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save(flush: true)
         experimentService.userSubmitted(user,session, roundNumber)
     }
 
-    def userInSessionRun(User u, Session s) {
-        UserSession.findByUserAndSessionAndUserAliasIsNotNull(u,s)
-    }
 
 }

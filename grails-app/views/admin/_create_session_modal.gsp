@@ -1,3 +1,4 @@
+<%@ page import="edu.msu.mi.loom.CrowdServiceCredentials" %>
 <div class="modal modal-info" style="padding-top: 140px" id="session-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -7,178 +8,114 @@
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Create Session</h4>
             </div>
+            <%
+                def basicParams = [["class": "story", "label": "Story:"],
+                                   ["class": "constraintTests", "label": "Constraints:"],
+                                   ["class": "minNode", "label": "Min Nodes:"],
+                                   ["class": "maxNode", "label": "Max Nodes:"],
+                                   ["class": "initialNbrOfTiles", "label": "Initial Number of Tiles:"],
+                                   ["class": "roundCount", "label": "Rounds:"],
+                                   ["class": "roundTime", "label": "Time per round:"],
+                                   ["class": "isInline", "label": "Interface mode:"],
+                                   ["class": "networkTemplate", "label": "Network Type:"]]
 
-            <g:form name="session-form" controller="admin" action="createSession">
+                def paymentParams = [["class": "paymentBase", "label": "Acceptance Payment"],
+                                     ["class": "paymentWaitingBonusPerMinute", "label": "Waiting Payment / min"],
+                                     ["class": "paymentMaxScoreBonus", "label": "Max Bonus Payment"]]
+
+                def mturkParams = [["class": "mturkHitLifetimeInSeconds", "label": "Hit lifetime in seconds"],
+                                   ["class": "mturkAssignmentLifetimeInSeconds", "label": "Assignment lifetime in seconds"],
+                                   ["class": "mturkAdditionalQualifications", "label": "Additional qualifications"]]
+
+
+            %>
+            <g:form enctype="multipart/form-data" name="session-upload-form" controller="admin" action="createSession">
                 <div class="modal-body">
+
                     <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#session-basic" data-toggle="tab">General</a></li>
-                            %{--                               <li><a href="#session-hit" data-toggle="tab">Sessions-HIT</a></li>--}%
                             <li><a href="#session-mturk" data-toggle="tab">Mturk</a></li>
                             <li><a href="#session-payments" data-toggle="tab">Payments</a></li>
-                            %{--                                <li><a href="#training-hit" data-toggle="tab">Trainings-HIT</a></li>--}%
                         </ul>
 
                         <div class="tab-content">
                             <div class="active tab-pane" id="session-basic">
                                 <div class="form-group">
                                     <div class="panel panel-default">
-                                        <div class="panel-heading">Session Info</div>
-
-                                        <div class="panel-body">
-                                            <em>Experiment name:</em><span class="experiment-name"></span>
-                                            <label for="session-name">Session name:</label>
-                                            <input type="text" name="name" id="session-name" style="color: black">
-
-                                            <p></p>
-                                            <label for="StorySelect">Story:</label>
-                                            <g:select name="storySet" id="StorySelect"
-                                                      from="${stories}" optionKey="id" style="color: black"
-                                                      optionValue="title" noSelection="${['null': 'Select One...']}"/>
-
-                                            <p></p>
-
+                                        <div class="panel-body default-session-parameters">
+                                            <table class="table">
+                                                <thead>
+                                                <tr><td>Parameter</td><td>Inherited</td></tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr class="name"><td>Experiment Name</td><td></td></tr>
+                                                <g:each in="${basicParams}" var="param">
+                                                    <tr class="${param['class']}"><td>${param.label}</td><td></td>
+                                                    </tr>
+                                                </g:each>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
-
-
-                                <p></p>
-
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Base Constraints</div>
-                                    <ul class="inherited-constraints"></ul>
-                                </div>
-
-
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Additional Constraints</div>
-
-                                    <div class="panel-body">
-                                        <table class="table table-bordered grid create-constraint-table"
-                                               id="session-constraint-table"
-                                               border="1">
-
-                                            <th style="text-align:center">Constraint</th>
-                                            <th style="text-align:center">Operator</th>
-                                            <th style="text-align:center">Parameters</th>
-                                            <th style="text-align:center">Action</th>
-
-
-
-                                            <tbody style="background-color: #23272b">
-
-                                            </tbody>
-                                        </table>
-                                        <button type="button"
-                                                class="btn btn-primary pull-left add-constraint">Add constraint</button>
-
-                                    </div>
-                                </div>
-
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Network</div>
-
-                                    <div class="panel-body">
-                                        <label>Network type:</label>
-                                        <label><input type="radio" onclick="chooseType('Lattice')" name="network_type"
-                                                      value="Lattice"/>1D Lattice</label>
-                                        <label><input type="radio" onclick="chooseType('Newman-Watts')" name="network_type"
-                                                      value="Newman_Watts"/>Newman-Watts</label>
-                                        <label><input type="radio" onclick="chooseType('Barabassi-Albert')" name="network_type"
-                                                      value="Barabassi_Albert"/>Barabassi-Albert</label>
-
-
-                                        <div id="s1" style="display:none">
-                                            <label>degree:</label>
-                                            <select style="display:none">
-
-                                                <option><input type="number" name='min_degree' id='Lattice_min_degree' min="2"
-                                                               max="100"
-                                                               value="0" style="color:black;" required=False></option>
-                                            </select>
-                                        </div>
-
-                                        <div id="s2" style="display:none">
-
-                                            <label>degree:</label>
-                                            <input type="number" min="3" max="100" name='min_degree' value="3"
-                                                   id='Newman_min_degree'
-                                                   style="color:black;">
-
-                                            <p></p>
-                                            <label>k-nearest neighbors:</label>
-                                            <input type="number" min="3" max="100" name='max_degree' value="3"
-                                                   id='Newman_max_degree'
-                                                   style="color:black;">
-
-                                            <p></p>
-                                            <label>shortcut probability:</label>
-                                            <input type="number" step="0.1" name='prob' id='Newman_prob'
-                                                   oninput="if (value > 1) value = 1;
-                                                   if (value.length > 4) value = value.slice(0, 4);
-                                                   if (value <= 0) value = 0.1" style="color:black;"/>
-
-                                        </div>
-
-                                        <div id="s3" style="display:none">
-                                            <label>initial nodes:</label>
-                                            <input type="number" min="2" max="100" name='min_degree' value="2"
-                                                   id='BA_min_degree'
-                                                   style="color:black;">
-
-                                            <p></p>
-                                            <label>max degree:</label>
-                                            <input type="number" min="2" max="100" name='max_degree' value="2"
-                                                   id='BA_max_degree'
-                                                   style="color:black;">
-
-                                            <p></p>
-                                            <label>edges per node:</label>
-                                            <input type="number" min="2" max="100" name='M' id='BA_M' value="2"
-                                                   style="color:black;">
-
-                                            <p></p>
-
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
 
-                            <span hidden id="experiment-id"></span>
-
-
-                            </div>
                             <div class="tab-pane" id="session-mturk">
-                                <label>Number of HITs:</label>
-                                <input type="number" name='num_hits' id='num_exp_hits' min="0" max="10000" value=0
-                                       style="color:black;" required>
-
-                                <p></p>
-                                <label>Available time (minutes):</label>
-                                <input type="number" name='available_time' id='exp_available_time' min="0" max="10080"
-                                       value="1440"
-                                       style="color:black;" required>
-
-                                <p></p>
-                                <label>Assignment lifetime (minutes):</label>
-                                <input type="number" name='assignment_lifetime' id='exp_assignment_lifetime' min="0"
-                                       max="1440"
-                                       value="120"
-                                       style="color:black;" required>
-
-                                <p></p>
-                                <label>Additional qualifiers (comma separated):</label>
-                                <input type="text" name='other_quals' id='exp_other_quals'
-                                       style="color:black;"><br>
+                                <div class="form-group">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body default-session-parameters">
+                                            <table class="table">
+                                                <thead>
+                                                <tr><td>Parameter</td><td>Inherited</td></tr>
+                                                </thead>
+                                                <tbody>
+                                                <g:each in="${mturkParams}" var="param">
+                                                    <tr class="${param['class']}"><td>${param.label}</td><td></td>
+                                                    </tr>
+                                                </g:each>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="tab-pane" id="session-payments">
-                                <p>
-                                    Placeholder text
-                                </p>
+                                <div class="form-group">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body default-session-parameters">
+                                            <table class="table">
+                                                <thead>
+                                                <tr><td>Parameter</td><td>Inherited</td></tr>
+                                                </thead>
+                                                <tbody>
+                                                <g:each in="${paymentParams}" var="param">
+                                                    <tr class="${param['class']}"><td>${param.label}</td><td></td>
+                                                    </tr>
+                                                </g:each>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Session Configuration</div>
+
+                        <div class="panel-body">
+                            <label for="session-name">Session name:</label>
+                            <input type="text" name="name" id="session-name" style="color: black">
+
+                            <p></p>
+                            <input name="experimentId" type="hidden" value=""/>
+                            <input name="sessiondata" type="hidden" value=""/>
+                            <input class="pull-left" type="file" id="session-input-file"
+                                   name="inputFile" required>
+                            <span class="pull-right validation-message">Invalid file</span>
 
                         </div>
                     </div>
@@ -186,11 +123,252 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button id="create-session" type="submit" class="btn btn-primary">Lanch HITs</button>
+                    <button type="submit" class="btn btn-primary" id='create-session'>Create</button>
                 </div>
             </g:form>
 
-        </div>
-    </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
+<div class="modal modal-info" style="padding-top: 140px" id="session-launch-modal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Launch Session</h4>
+            </div>
+
+            <g:form enctype="multipart/form-data" name="session-launch-form" controller="admin" action="launchSession">
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="panel-body session-launch-parameters">
+                            <input hidden name="sessionId" id="launchSessionId" value=""/>
+                            <label>Enable MTurk?</label>
+                            <input type="checkbox" name="enableMturk" id="sessionEnableMturk" value="false"><br>
+                            <label>Credentials</label>
+                            <g:select class="sessionLaunchParam" from="${CrowdServiceCredentials.list()}"
+                                      name="mturkSelectCredentials"
+                                       optionKey="id"
+                                      noSelection="${['': 'Select One...']}"/><br>
+                            <label>Number of HITs:</label>
+                            <input type="number" class="sessionLaunchParam" name='num_hits' id='num_session_hits' min="0" max="10000"
+                                   value="0"
+                                   style="color:black;" required><br>
+                            <label>Available time (minutes):</label>
+                            <input type="number" class="sessionLaunchParam" name='hit_time' id='hit_session_time' min="0" max="10080"
+                                   value="1440"
+                                   style="color:black;" required><br>
+                            <label>Assignment lifetime (minutes):</label>
+                            <input type="number" class="sessionLaunchParam" name='assignment_time' id='assignment_session_time' min="0"
+                                   max="1440" value="120"
+                                   style="color:black;" required><br>
+                            <label>Additional qualifiers (comma separated):</label>
+                            <input type="text" class="sessionLaunchParam" name='other_quals' id='other_session_quals' style="color:black;"><br>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id='launch-session'>Create</button>
+                </div>
+            </g:form>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".show-session-launch-modal").click(function (e){
+            $("#session-launch-form")[0].reset()
+            const id = $(".session-id",this.parentNode).text()
+            $("#launchSessionId").val(id)
+            $("#session-launch-modal .sessionLaunchParam").attr('disabled','disabled');
+            $("#session-launch-modal").modal('show');
+
+        });
+
+        $("#sessionEnableMturk").change(function (e) {
+            if (e.target.checked) {
+                $(".sessionLaunchParam").removeAttr('disabled');
+            } else {
+                $(".sessionLaunchParam").attr('disabled','disabled');
+
+            }
+
+        })
+
+        $("#session-name").keypress(function () {
+            validate()
+        })
+
+
+
+
+
+        $(".create-session-button").click(function (e) {
+            expid = $(e.target).find(".expid").text()
+            $("#session-modal input[name=experimentId]").val(expid)
+
+            $.ajax({
+                type: "GET",
+                url: "/loom/admin/getExperimentData",
+                data: {
+                    experimentId: expid
+                },
+                dataType: "json",
+                success: function (result) {
+                    console.log(result)
+                    for (const [key, value] of Object.entries(result.data)) {
+                        $("tr." + key + " td:nth-child(2)").text(value);
+                    }
+                }
+            });
+            $("#session-upload-form")[0].reset()
+            $("#session-modal").modal('show');
+
+
+        });
+
+
+        $("#session-input-file").change(function () {
+            fd = new FormData()
+            fd.append("inputFile", $("#session-input-file")[0].files[0])
+            $.ajax({
+                type: "POST",
+                url: "/loom/admin/validateParametersFile",
+                data: fd,
+
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.status === "error") {
+                        alert("Invalid file:" + data.message)
+                        $("#validation-message").text("Validated").removeClass("valid")
+                    } else {
+                        $("#session-modal input[name=sessiondata]").val(data)
+                        $("#session-modal .validation-message").text("Validated").addClass("valid")
+                    }
+                    validate()
+                }
+            });
+        });
+
+
+        function refreshSessionDetails(data) {
+            $('.session-row').each(function() {
+                const sessionId = $(".sessionId",this.parentNode).text();
+                if (sessionId in data) {
+                    $(".current-round",this).text(data[sessionId]['round'])
+                    $(".connected",this).text(data[sessionId]['connected'])
+                    $(".session-span",this).text(data[sessionId]['status'])
+                }
+            });
+        }
+
+        // setInterval(
+        //     function () {
+        //         //console.log("Would refresh")
+        //         $.ajax({
+        //
+        //             url: "/loom/admin/refresh",
+        //             type: 'GET',
+        //             dataType: "json",
+        //             success: function (data) {
+        //                 //console.log("Refresshing data",data)
+        //                 refreshSessionDetails(data)
+        //
+        //             }
+        //         });
+        //     },1000);
+
+
+
+
+        // $("#sessions").on('click', '.pay-session', function (){
+        //     var sessionId = $(".sessionId",this.parentNode).text();
+        //     var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
+        //     var pay_btn = $(".pay-session", this.parentNode);
+        //     var pay_i = $(".pay-i", this.parentNode);
+        //     pay_btn.addClass("buttonload");
+        //     pay_btn.attr("disabled",true)
+        //     pay_i.addClass("fa fa-spinner fa-spin");
+        //
+        //     $.ajax({
+        //         url: "/loom/admin/paySession",
+        //         type: 'POST',
+        //         data:
+        //             {
+        //                 sessionId: sessionId,
+        //
+        //             },
+        //         dataType:"json",
+        //         success: function (data){
+        //             payment_status.text("Payment status: "+data.payment_status);
+        //             pay_btn.removeClass("buttonload");
+        //             pay_btn.attr("disabled",false)
+        //             pay_i.removeClass("fa fa-spinner fa-spin");
+        //             if(data.status==="no_payable"){
+        //                 alert("No payable assignment!");
+        //             }
+        //             // if(data.status==="success"){
+        //             //
+        //             //
+        //             //     window.location = "/loom/admin/board/";
+        //             // }
+        //
+        //
+        //         }
+        //     });
+        // });
+        //
+        // $("#sessions").on('click', '.check-payble', function (){
+        //     var sessionId = $(".sessionId",this.parentNode).text();
+        //     var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
+        //
+        //     var check_btn = $(".check-payble", this.parentNode);
+        //     var check_i = $(".check-payable-i", this.parentNode);
+        //     check_btn.addClass("buttonload");
+        //     check_btn.attr("disabled",true)
+        //     check_i.addClass("fa fa-spinner fa-spin");
+        //
+        //     $.ajax({
+        //         url: "/loom/admin/checkSessionPayble",
+        //         type: 'POST',
+        //         data:
+        //             {
+        //                 sessionId: sessionId,
+        //
+        //             },
+        //         dataType:"json",
+        //         success: function (data){
+        //             payment_status.text("Payment status: "+data.payment_status);
+        //             check_btn.removeClass("buttonload");
+        //             check_btn.attr("disabled",false)
+        //             check_i.removeClass("fa fa-spinner fa-spin");
+        //             if(data.check_greyed){
+        //                 alert("No payable assignment!");
+        //                 // check_btn.attr("disabled",true);
+        //             }
+        //             if(data.pay_greyed){
+        //                 // pay_btn.attr("disabled",true);
+        //             }
+        //             // if(data.status==="success"){
+        //             //     window.location = "/loom/admin/board/";
+        //             // }
+        //
+        //
+        //         }
+        //     });
+        // });
+
+
+    });
+</script>

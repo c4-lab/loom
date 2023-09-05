@@ -14,7 +14,7 @@
 
 %{--                            </g:if>--}%
 %{--                            <g:else>--}%
-                                You already joined this session, please return this HIT if you accidently accept it, thank you!
+                                You already joined this session, please return this HIT if you accidentally accepted it, thank you!
 
 
 %{--                            </g:else>--}%

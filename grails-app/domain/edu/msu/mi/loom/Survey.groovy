@@ -9,13 +9,9 @@ class Survey extends ConstraintProvider implements Trainable {
     static constraints = {
     }
 
+    List<SurveyItem> surveyItems
     static hasMany = [surveyItems:SurveyItem]
 
-    String name
-
-    String constructConstraintTitle() {
-        return "${super.constructConstraintTitle()} - ${name}"
-    }
 
     @Override
     String getViewName() {

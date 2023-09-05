@@ -17,7 +17,7 @@ class BootStrap {
 //                println("------->Mturk client is ${mturkService.getMturkClient()}")
 //                createInitialRecords()
 //
-                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1",1);
+//                def trainingset = trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 1",1);
 //                trainingSetService.createTrainingSet(parseTrainingSessionToText(),"TrainingSet 2","simulation;read;survey",0.1,0);
 ////                mturkService.createQualification(trainingset.readings.first())
 ////                mturkService.createQualification(trainingset.surveys.first())

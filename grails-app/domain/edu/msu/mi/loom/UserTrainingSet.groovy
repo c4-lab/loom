@@ -15,33 +15,42 @@ class UserTrainingSet {
 
     boolean complete
 
-    static hasMany = [trainingResponse: UserTrainingResponse,
-                      simulationResponse: UserSimulationResponse,
-            readingResponse: UserReadingResponse,
-            surveyReponse: UserSurveyResponse]
+    static hasMany = [trainingResponses: UserTrainingResponse,
+                      simulationResponses: UserSimulationResponse,
+            readingResponses: UserReadingResponse,
+            surveyReponses: UserSurveyResponse]
 
 
     boolean intro
+    boolean simIntro
     Date trainingStartTime
     Date trainingEndTime
-    Float simulationScore
-    Float readingScore
-    Float surveyScore
     String confirmationCode
-    String assignmentId
+    MturkAssignment mturkAssignment
 
 
     static constraints = {
         complete nullable:true
         intro defaultValue: false
+        simIntro defaultValue: false
         trainingStartTime nullable:true
         trainingEndTime nullable:true
         confirmationCode nullable:true
-        assignmentId nullable: true
+        mturkAssignment nullable: true
     }
 
     static UserTrainingSet create(User user, TrainingSet ts, boolean complete = false, boolean flush = false) {
         def instance = new UserTrainingSet(user:user,trainingSet: ts,complete: complete)
+        instance.save(flush: flush, insert: true)
+        instance
+    }
+
+    static UserTrainingSet create(User user, TrainingSet ts, trainingStartTime, MturkAssignment mturkAssignment, boolean complete = false, boolean flush = false) {
+        def instance = new UserTrainingSet(user:user,trainingSet: ts,complete: complete, trainingStartTime: trainingStartTime, mturkAssignment: mturkAssignment)
+        if (mturkAssignment) {
+            mturkAssignment.userTrainingSet = instance
+            mturkAssignment.save(flush: flush, insert: true)
+        }
         instance.save(flush: flush, insert: true)
         instance
     }

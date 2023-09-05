@@ -27,8 +27,9 @@
                             </div>
 
                             <div class="box-body">
-                                <loom:progressBar userCount="${edu.msu.mi.loom.UserSession.countBySessionAndState(session,"WAITING")}"
-                                                  userMaxCount="${session.exp.max_node}"/>
+                                <!--TODO: Need to fix the logic for counting the number of users in the waiting room -->
+                                <loom:progressBar userCount="${UserSession.countBySessionAndState(session,UserSession.State.WAITING)}"
+                                                  userMaxCount="${session.sp("maxNode")}"/>
                                 <a href="javascript:void(0);" id="stop-waiting" class="btn btn-block btn-success">Stop waiting</a>
 
                             </div>
@@ -49,6 +50,11 @@
             var session = ${session.id};
             window.onbeforeunload = logout;
 
+            $("#stop-waiting").click(function() {
+                shouldLogout = false;
+                window.location="/loom/session/stopWaiting?session="+$("#sessionId").val();
+            });
+
             setInterval(function () {
                 jQuery.ajax({
                     url: "/loom/session/checkExperimentReadyState",
@@ -61,7 +67,7 @@
                         shouldLogout = false;
                         window.location = "/loom/session/s/" + session+"?workerId=${username}";
                     } else {
-                        updateProgressBar(data.count, ${session.exp.max_node})
+                        updateProgressBar(data.count, ${session.sessionParameters.safeGetMaxNode()})
                     }
                 }).error(function () {
                     window.location = "/loom/"

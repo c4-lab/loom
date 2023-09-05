@@ -20,7 +20,8 @@
                 <div class="box-header with-border">
                     <div class="row col-centered">
                         <div class="col-xs-10">
-                            <h3 class="box-title" id="roundNumber">Round ${roundNbr} of ${simulation.roundCount}</h3>
+                            <h3 class="box-title" id="roundNumber">Round ${roundNbr+1} of ${simulation.roundCount}
+                            <span class="round" style="display: none">${roundNbr}</span></h3>
                             <g:hiddenField name="simulationDuration" value="${simulation.roundTime}"/>
                         </div>
 
@@ -38,10 +39,10 @@
                         <div class="col-xs-11 col-centered">
                             <ul class="nav nav-tabs" id="neighbors">
                                 <g:each in="${userList}" var="user">
-                                    <g:if test="${user.key != 1}">
+                                    <g:if test="${user.key != 0}">
                                         <li class="${user.key != 2 ?: "active"}">
                                             <a href="#neighbour${user.key}"
-                                               data-toggle="tab">${"neighbour " + (user.key - 1)}</a>
+                                               data-toggle="tab">${"neighbour " + (user.key)}</a>
                                         </li>
                                     </g:if>
                                 </g:each>
@@ -55,13 +56,13 @@
 
                             <div class="tab-content col-xs-11 table-bordered dvSourceContainer col-centered">
                                 <g:each in="${userList}" var="user">
-                                    <g:if test="${user.key != 1}">
+                                    <g:if test="${user.key != 0}">
                                         <div class="tab-pane ${user.key != 2 ?: "active"}"
                                              id="neighbour${user.key}">
                                             <ul class="${uiflag == 1?"dvSource":""} originalstory g_list">
                                                 <g:each in="${user.value.tts}" var="tt">
                                                     <li class="ui-state-default tile-available"
-                                                        drag-id="${tt.text_order}"
+                                                        drag-id="${tt.id}"
                                                         nei-id="neighbour${user.key}">${raw(tt.text)}</li>
                                                 </g:each>
                                             </ul>
@@ -86,7 +87,7 @@
                                     <g:if test="${tempStory?.size() > 0}">
                                         <g:each in="${tempStory}" var="tt">
                                             <li class="ui-state-default purple"
-                                                drag-id="${tt.text_order}">${raw(tt.text)}</li>
+                                                drag-id="${tt.id}">${raw(tt.text)}</li>
                                         </g:each>
                                     </g:if>
 
@@ -110,7 +111,7 @@
                                 <ul style="min-height: 200px !important;" id="sort4" class="${uiflag == 1?"dvSource":""} g_list privateinfo">
                                     <g:each in="${privateTiles}" var="tt">
                                         <li class="ui-state-default tile-available"
-                                            drag-id="${tt.text_order}">${raw(tt.text)}</li>
+                                            drag-id="${tt.id}">${raw(tt.text)}</li>
                                     </g:each>
 
                                 </ul>

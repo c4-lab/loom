@@ -29,6 +29,11 @@ class UrlMappings {
             action = "completeExperimentCreation"
         }
 
+        "/advancetraining/t/$trainingSetId?" {
+            controller = "training"
+            action = "advanceTraining"
+        }
+
         "/training/t/$trainingSetId/$seqNumber?" {
             controller = "training"
             action = "training"

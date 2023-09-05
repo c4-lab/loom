@@ -8,8 +8,8 @@ class UserConstraintValue<T> {
 
     static belongsTo =  [user: User]
     ConstraintProvider constraintProvider
-    float value
-    Date created
+    Integer value
+    Date created = new Date()
 
 
 
@@ -18,7 +18,7 @@ class UserConstraintValue<T> {
         created nullable:true
     }
 
-    T getConstraintProvider() {
+    T castConstraintProvider() {
         (T)constraintProvider
     }
 

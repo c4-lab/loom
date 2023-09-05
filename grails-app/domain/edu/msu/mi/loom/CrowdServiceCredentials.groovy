@@ -29,4 +29,8 @@ class CrowdServiceCredentials {
         String postfix = serviceType==CrowdService.MTURK?"(${sandbox?'sandbox':'production'})":""
         "${name}${postfix}"
     }
+
+    String toString() {
+        return getFormattedName()
+    }
 }

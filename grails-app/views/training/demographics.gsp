@@ -55,9 +55,11 @@
                         <g:form controller="training" action="demographicsComplete" >
 
                             <p><b>1. What gender do you identify as?</b></p>
-                            <select id="gender" name="gender" onchange="chooseGenderOther()" >
+                            <select id="gender" name="gender" onchange="chooseGenderOther()" required>
+                                <option value="">No selection</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
+                                <option value="Nonbinary">Non-binary</option>
                                 <option value="Other">Other</option>
                                 <option value="None">Prefer not to answer</option>
                             </select>
@@ -68,7 +70,8 @@
                             <input type="number" min="18" max="120" value="18" name="age">
                             <p></p>
                             <p><b>3. Where did most (or the most significant part of) your grade school education take place? (Please select other if language is not listed)</b></p>
-                            <select id="country" class="selectpicker" name="country" data-live-search="true" onchange="chooseCountryOther()" data-size="5">
+                            <select id="country" class="selectpicker" name="country" data-live-search="true" onchange="chooseCountryOther()" data-size="5" required>
+                                <option value="">No selection</option>
                                 <option value="Afganistan">Afghanistan</option>
                                 <option value="Albania">Albania</option>
                                 <option value="Algeria">Algeria</option>
@@ -320,7 +323,7 @@
                             <input id="other_country" name="country" type="text" hidden>
                             <p></p>
                             <p><b>4. Which language did you speak the most growing up as a child? (Please select other if language is not listed)</b></p>
-                            <select id="language" class="selectpicker " name="language" data-placeholder="Choose a Language..." data-live-search="true" data-size="5" onchange="chooseLanguageOther()">
+                            <select id="language" class="selectpicker " name="language" data-placeholder="Choose a Language..." data-live-search="true" data-size="5" onchange="chooseLanguageOther()" required>
                                 <option value="Afrikaans">Afrikaans</option>
                                 <option value="Albanian">Albanian</option>
                                 <option value="Arabic">Arabic</option>
@@ -330,6 +333,7 @@
                                 <option value="Bulgarian">Bulgarian</option>
                                 <option value="Catalan">Catalan</option>
                                 <option value="Cambodian">Cambodian</option>
+                                <option value="Chinese (Cantonese)">Chinese (Cantonese)</option>
                                 <option value="Chinese (Mandarin)">Chinese (Mandarin)</option>
                                 <option value="Croatian">Croatian</option>
                                 <option value="Czech">Czech</option>
@@ -374,6 +378,7 @@
                                 <option value="Romanian">Romanian</option>
                                 <option value="Russian">Russian</option>
                                 <option value="Samoan">Samoan</option>
+                                <option value="Sanskrit">Sanskrit</option>
                                 <option value="Serbian">Serbian</option>
                                 <option value="Slovak">Slovak</option>
                                 <option value="Slovenian">Slovenian</option>
@@ -399,7 +404,8 @@
 
                             <p></p>
                             <p><b>5. What is the highest level of education you’ve obtained?</b></p>
-                            <select id="education" name="education">
+                            <select id="education" name="education" required>
+                                <option value="">No selection</option>
                                 <option value="Some High School">Some High School</option>
                                 <option value="High School Degree / GED">High School Degree / GED</option>
                                 <option value="Associates Degree / Some College">Associates Degree / Some College</option>
@@ -413,7 +419,8 @@
                             <p></p>
                             <p><b>6. What is your annual income?</b></p>
                             <p></p>
-                            <select id="income" name="income">
+                            <select id="income" name="income" required>
+                                <option value="">No selection</option>
                                 <option value="Less than $25,000">Less than $25,000</option>
                                 <option value="$25,000 - $50,000">$25,000 - $50,000</option>
                                 <option value="$50,000 - $100,000">$50,000 - $100,000</option>
@@ -422,14 +429,15 @@
                                 <option value="Prefer not to say">Prefer not to say</option>
                             </select>
                             <p></p>
-                            <p><b>7. How would you describe your political view?</b></p>
-                            <select id="political" name="political">
+                            <p><b>7. How would you describe your political orientation?</b></p>
+                            <select id="political" name="political" required>
+                                <option value="">No selection</option>
                                 <option value="Very Liberal">Very Liberal</option>
                                 <option value="Slightly Liberal">Slightly Liberal</option>
                                 <option value="Politically Neutral">Politically Neutral</option>
                                 <option value="Slightly Conservative">Slightly Conservative</option>
                                 <option value="Very Conservative">Very Conservative</option>
-                                <option value="I do not have a political view">I do not have a political view</option>
+                                <option value="I do not have a political view">I do not have a political orientation</option>
                                 <option value="Prefer not to say">Prefer not to say</option>
                             </select>
                             <p></p>

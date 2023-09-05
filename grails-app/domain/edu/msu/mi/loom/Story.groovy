@@ -1,23 +1,24 @@
 package edu.msu.mi.loom
 
 class Story extends ConstraintProvider {
-    String title
 
+
+    List<Tile> tiles
     static hasMany = [tiles: Tile]
     static belongsTo = [experiment: Experiment, simulation: Simulation, training: Training]
 
     static constraints = {
-        title blank: false
+
         tiles nullable: true
         experiment nullable: true
         simulation nullable: true
         training nullable: true
     }
 
-    public Story clone() {
+    Story clone() {
         Story copy = new Story()
 
-        copy.title = this.title
+        copy.name = this.name
 
         for (Tile tail : this.tiles) {
             copy.addToTiles(tail)

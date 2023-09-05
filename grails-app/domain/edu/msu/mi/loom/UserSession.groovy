@@ -2,6 +2,15 @@ package edu.msu.mi.loom
 
 class UserSession implements Serializable{
 
+    static final enum State {
+        WAITING,  //in the waiting room
+        REJECTED, //rejected because too many players
+        ACTIVE,   //playing the game
+        COMPLETE, //finished the game
+        STOP //was waiting, stopped
+
+    }
+
     def randomStringGenerator
 
     User user
@@ -10,9 +19,11 @@ class UserSession implements Serializable{
     String completionCode
     Date started
     Date stoppedWaiting
-    String state = "WAITING"
+    State state = State.WAITING
     int wait_time
-    String assignmentId
+    MturkAssignment mturkAssignment
+    boolean missing = false
+    boolean selected = false
 
     static mapping = {
         id composite: ['user', 'session']
@@ -25,27 +36,28 @@ class UserSession implements Serializable{
         state nullable: true
         started nullable: true
         wait_time nullable: true
-        assignmentId nullable: true
+        mturkAssignment nullable: true
+    }
+
+    static UserSession create(User user, Session session, boolean flush = false) {
+        def instance = new UserSession(user: user, session: session)
+        instance.save(flush: flush, insert: true)
+        instance
+    }
+
+    static UserSession create(User user, Session session, Date started, MturkAssignment mturkAssignment, boolean flush = false) {
+        def instance = new UserSession(user: user, session: session, started: started, mturkAssignment: mturkAssignment)
+        if (mturkAssignment) {
+            mturkAssignment.userSession = instance
+            mturkAssignment.save(flush: flush, insert: true)
+        }
+        instance.save(flush: flush, insert: true)
+        instance
     }
 
 
-    boolean isWaiting() {
-        state=="WAITING"
-    }
 
-    boolean isActive() {
-        state=="ACTIVE"
-    }
-
-    boolean isMissing() {
-        state=="MISSING"
-    }
-
-    boolean isCompleted() {
-        state=="COMPLETED"
-    }
-
-    def beforeValidate = {
+    def beforeInsert = {
         if (!completionCode) {
             completionCode = randomStringGenerator.generateLowercase(12)
         }

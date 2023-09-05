@@ -6,20 +6,28 @@ package edu.msu.mi.loom
 class ConstraintProvider {
 
 
-    static hasMany = [qualifications:CrowdServiceQualification]
+    static hasMany = [serviceIds: CrowdServiceScopedId]
 
+    Date dateCreated = new Date()
+
+    String name
+
+    String constraintTitle
 
     static constraints = {
 
     }
 
-
     String getConstraintTitle() {
-        return "Story Loom ${this.class.simpleName}"
+        return "${this.class.simpleName}:${this.name}"
     }
 
     String getConstraintDescription() {
         return "Qualification for the Story Loom platform"
+    }
+
+    def beforeInsert() {
+        constraintTitle = getConstraintTitle()
     }
 
 

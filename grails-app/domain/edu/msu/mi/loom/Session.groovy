@@ -12,68 +12,70 @@ import groovy.util.logging.Slf4j
  */
 class Session {
 
-    static final enum Network_type {
-
-        Lattice,Newman_Watts,Barabassi_Albert
-
-    }
 
     static final enum State {
 
-        PENDING,WAITING,ACTIVE,FINISHED,CANCEL
+        PENDING,  //default start state, not yet listening
+        WAITING,  //listening, waiting for users
+        ACTIVE,   //active, users playing game
+        FINISHED, //finished, game has been completed
+        CANCEL //cancelled by user
 
     }
 
-    def mturkService
+    //def mturkService
     def randomStringGenerator
 
     //Bean fields
     String name
-    Date dateCreated
+    Date created = new Date()
     Experiment exp
-    Network_type network_type
-    int m
-    Float probability
-    int min_degree
-    int max_degree
+
+    SessionParameters sessionParameters
+
 
 
 
     //State management
-    State state
+    State state = State.PENDING
     String fullCode
     String doneCode
     String waitingCode
 
 
-    Long startPending
-    Long startActive
+    Date startWaiting
+    Date startActive
+    Date finished
+    Date cancelled
+
 
     int paid = 0
     int total = 0
 
-    static hasMany = [serviceTasks: CrowdServiceTask, userConstraints: ConstraintTest]
+    static hasMany = [mturkTasks: MturkTask]
 
     static constraints = {
         name blank: false
         state nullable: true
-        startPending nullable: true
+        startWaiting nullable: true
         startActive nullable: true
+        finished nullable: true
+        cancelled nullable: true
+        mturkTasks nullable: true
 
+   }
 
-    }
-
-    public Session clone() {
+    Session clone() {
         Session copy = new Session()
         def count = count()
-        copy.name = "Session ${count + 1}"
+        copy.name = "${name}:${count + 1}"
         copy.exp = exp
-
+        copy.sessionParameters = sessionParameters
         return copy
     }
 
-    def beforeInsert = {
-        println("Executing before insert...")
+
+    def generateCodes() {
         if (!fullCode) {
             fullCode = randomStringGenerator.generateLowercase(12)
         }
@@ -84,16 +86,30 @@ class Session {
             waitingCode = randomStringGenerator.generateLowercase(12)
         }
 
-        if (serviceTasks) {
-            serviceTasks.each {CrowdServiceTask cst ->
-                mturkService.setBasicQualifications(cst.serviceCredentials)
-                userConstraints.each { ConstraintTest ci ->
-                    mturkService.verifyQualification(cst.serviceCredentials, ci)
+    }
+    /**
+     * Mysteriously named to reduce typing; simply looks up parameter in the underlying session params object
+     * @param prop
+     */
+    def sp(String prop) {
+        sessionParameters.defaultGetter(prop)
+    }
+
+    def allConstraintTests() {
+        (Collection<ConstraintTest>)sessionParameters.safeGetConstraintTests()
+    }
+
+    def countByHitStatus(String status) {
+        mturkTasks.sum{ MturkTask task ->
+            if (status) {
+                task.hits.count { MturkHIT hit ->
+                    hit.lastKnownStatus == status
                 }
-
+            } else {
+                task.hits.size()
             }
-        }
 
+        }
     }
 
 

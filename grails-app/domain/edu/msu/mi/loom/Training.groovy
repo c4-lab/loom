@@ -4,14 +4,9 @@ import groovy.transform.ToString
 
 @ToString(includeNames = true)
 class Training extends ConstraintProvider implements Trainable {
-    String name
-    Date dateCreated
 
-    static hasMany = [stories: Story]
 
-    static constraints = {
-        name blank: false
-    }
+    Story story
 
     static mapping = {
     }
@@ -20,10 +15,7 @@ class Training extends ConstraintProvider implements Trainable {
         Training copy = new Training()
 
         copy.name = this.name
-
-        for (Story story : stories) {
-            copy.addToStories(story)
-        }
+        copy.story = story
 
         return copy
     }

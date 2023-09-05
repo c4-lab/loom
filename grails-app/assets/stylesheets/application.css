@@ -5536,7 +5536,16 @@ table.text-center th {
 .user-block .description {
     color: #999;
     font-size: 13px;
+    font-weight: bold;
 }
+
+.user-block .description-text {
+    color: #999;
+    margin-left: 10px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
 
 .user-block.user-block-sm .username,
 .user-block.user-block-sm .description,
@@ -5736,6 +5745,18 @@ table.table.table-centered th, table.table.table-centered td {
     background: rgba(200,200,200,.2);
 }
 
+.story-passage table td, .story-passage table th{
+    padding: 4px;
+    border: 1px solid #ddd;
+}
+
+.story-passage table th{
+    text-align: center;
+    color: black;
+    background-color: #ddd;
+}
+
+
 .story-passage p {
     margin: 0;
 }
@@ -5743,4 +5764,41 @@ table.table.table-centered th, table.table.table-centered td {
 .col-centered {
     float: none;
     margin: 0 auto;
+}
+
+#validation-message {
+    color: darkred;
+}
+
+#validation-message.valid {
+    color: darkgreen;
+}
+
+
+/**
+Session rendering
+ */
+.session-internal-panel {
+    border: none;
+    background-color: #ffffff;  /* Replace with the color you want */
+}
+.user-block .panel-body .description {
+    margin-left: 5px;
+}
+
+/* Remove background shading on the header */
+.session-internal-panel .panel-heading {
+    background-color: #ffffff; /* Replace with the color you want */
+    border-bottom: none;
+}
+
+/* Optional: Style the text in the header */
+.session-internal-panel .panel-title {
+    color: #000000; /* Replace with the color you want */
+
+}
+
+.full-width-btn {
+    display: block;
+    width: 100%;
 }

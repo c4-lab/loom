@@ -1,3 +1,4 @@
+<%@ page import="edu.msu.mi.loom.CrowdServiceCredentials" %>
 <div class="modal modal-info" style="padding-top: 140px" id="training-set-file-upload-modal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -24,50 +25,12 @@
                     %{--                    <label>number of HITs: </label>--}%
                     %{--                    <input type="number"  name='hit_num' id='hit_num' min="0" max="100" value="0" style="color:black;" required>--}%
                     <p></p>
-                    <label for="name">payment:</label>
-                    <input type="number" step="0.1" name='training_payment' id='training_payment'
-                           oninput="if (value.length > 4) value = value.slice(0, 4);
-                           if (value <= 0) value = 0" style="color:black;"/>
-
-                    <p></p>
                     <label>File input</label>
                     <input type="file" id="trainingInputFile" name="inputFile" required>
 
                     <p class="help-block">Select trainingset file (*.json).</p>
 
-                    <label>check simulation:</label>
-                    <g:checkBox name="simulation" value="${false}"/>
-                    %{--                        <div id="traing_perform" style="display:none">--}%
-                    %{--                            <label >Simulation Score >=</label>--}%
 
-                    %{--                            <select  style="display:none" >--}%
-                    %{--                                <option><input type="number"  name='performance' id='simulation_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
-                    %{--                            </select>--}%
-
-                    %{--                        </div>--}%
-                    <p></p>
-
-                    <label>check reading:</label>
-                    <g:checkBox name="read" value="${false}"/>
-                    %{--                        <div id="traing_reading" style="display:none">--}%
-                    %{--                            <label >Reading score >=</label>--}%
-
-                    %{--                            <select  style="display:none" >--}%
-                    %{--                                <option><input type="number"  name='reading' id='reading_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
-                    %{--                            </select>--}%
-
-                    %{--                        </div>--}%
-                    <p></p>
-                    <label>check survey:</label>
-                    <g:checkBox name="survey" id="survey" value="${false}"/>
-                    %{--                        <div id="traing_survey" style="display:none">--}%
-                    %{--                            <label >Survey score >=</label>--}%
-
-                    %{--                            <select  style="display:none" >--}%
-                    %{--                                <option><input type="number"  name='survey' id='survey_score' min="0" max="5" value="0" style="color:black;" required></option>--}%
-                    %{--                            </select>--}%
-
-                    %{--                        </div>--}%
 
                 </div>
 
@@ -83,3 +46,118 @@
         </div>
     </div>
 </div>
+
+<div class="modal modal-info" style="padding-top: 140px" id="training-launch-modal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Launch Training</h4>
+            </div>
+
+            <g:form enctype="multipart/form-data" name="training-launch-form" controller="admin" action="launchTraining">
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <div class="panel-body training-launch-parameters">
+                            <input hidden name="trainingId" id="launchTrainingId" value=""/>
+                            <label>Enable MTurk?</label>
+                            <input type="checkbox" name="enableMturk" id="trainingEnableMturk" value="false"><br>
+                            <label>Credentials</label>
+                            <g:select class="trainingLaunchParam" from="${CrowdServiceCredentials.list()}"
+                                      name="mturkSelectCredentials"
+                                      optionKey="id"
+                                      noSelection="${['': 'Select One...']}"/><br>
+                            <label>Number of HITs:</label>
+                            <input type="number" class="trainingLaunchParam" name='num_hits' id='num_training_hits' min="0" max="10000"
+                                   value="0"
+                                   style="color:black;" required><br>
+                            <label>Available time (minutes):</label>
+                            <input type="number" class="trainingLaunchParam" name='hit_time' id='hit_training_time' min="0" max="10080"
+                                   value="1440"
+                                   style="color:black;" required><br>
+                            <label>Assignment lifetime (minutes):</label>
+                            <input type="number" class="trainingLaunchParam" name='assignment_time' id='assignment_training_time' min="0"
+                                   max="1440" value="120"
+                                   style="color:black;" required><br>
+                            <label>Payment:</label>
+                            <input type="number" class="trainingLaunchParam" name='payment' id='training_payment' min="0.0" value="0.0" step=".01"
+                                   style="color:black;" required><br>
+                            <label>Additional qualifiers (comma separated):</label>
+                            <input type="text" class="trainingLaunchParam" name='other_quals' id='other_training_quals' style="color:black;"><br>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id='launch-training'>Create</button>
+                </div>
+            </g:form>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+        $(".show-training-launch-modal").click(function (e){
+            const id = $(".trainingId",this.parentNode).text()
+            const mode = $(".mode",this.parentNode).text()
+
+            if (mode === "launch") {
+                $("#training-launch-form")[0].reset()
+                $("#launchTrainingId").val(id)
+
+                $("#training-launch-modal .trainingLaunchParam").prop('disabled', true);
+                $("#training-launch-modal").modal('show');
+            } else {
+
+                $.ajax({
+                    type: "GET",
+                    url: "/loom/admin/cancelTraining",
+                    data: {
+                        trainingId: id
+                    },
+                    dataType: "json",
+
+                    success: function (result) {
+                        //console.log("I am successful")
+                        window.location.reload()
+                    }
+
+                })
+            }
+
+
+        });
+
+        $("#launch-training").click(function (e) {
+            e.preventDefault();
+
+            if ($("#trainingEnableMturk").is(':checked') && $("select[name='mturkSelectCredentials']").val() === "") {
+                alert("Please select credentials when enabling mTurk.");
+                return;
+            }
+
+            // If the validation passes, submit the form
+            $("form[name='training-launch-form']").submit();
+        });
+
+        $("#trainingEnableMturk").change(function (e) {
+            if (e.target.checked) {
+                $(".trainingLaunchParam").removeAttr('disabled');
+            } else {
+                $(".trainingLaunchParam").attr('disabled','disabled');
+
+            }
+
+        });
+    });
+</script>

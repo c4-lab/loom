@@ -15,7 +15,7 @@
                         <div class="col-md-12">
 
 
-                                <p>Question ${i}: ${question.question}</p>
+                                <p>Question ${i+1}: ${question.question}</p>
 
                                 <g:each var="option" in="${question.options.sort{it.id}}" status="m">
                                     <g:radio name="question${question.id}" value="${option.id}" required=""/>

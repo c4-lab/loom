@@ -1,0 +1,47 @@
+{
+  "name": "Climate Attitude",
+  "items": [
+    {
+      "question": "Please indicate how strongly you agree or disagree with this statement: Global warming is affecting the weather in the United States.",
+      "options": [
+        {
+          "answer": "strongly agree",
+          "score": 1
+        },
+        {
+          "answer": "somewhat agree",
+          "score": 2
+        },
+        {
+          "answer": "somewhat disagree",
+          "score": 3
+        },
+        {
+          "answer": "strongly disagree",
+          "score": 4
+        }
+      ]
+    },
+    {
+      "question": "How worried are you about global warming?",
+      "options": [
+        {
+          "answer": "very worried",
+          "score": 1
+        },
+        {
+          "answer": "somewhat worried",
+          "score": 2
+        },
+        {
+          "answer": "not very worries",
+          "score": 3
+        },
+        {
+          "answer": "not at all worried",
+          "score": 4
+        }
+      ]
+    }
+  ]
+}

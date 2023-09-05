@@ -36,35 +36,14 @@
                     <asset:image src="instruction1.png" alt="Loom" height="95" class="center-block"/>
 
                     <p>
-                        The game proceeds in timed rounds. In each round, try to make the best story you can using small phrases
-                        you and your neighbors have. There is one correct story, and all the phrases you find will be part of it.
+                        Watch the video below to see how to play the game.
                     </p>
-
-                    <asset:image src="instruction2.png" alt="Loom" width="95%" class="center-block"/>
-
-
-                    <p>
-                        The main way to get new phrases is to drag them from your neighbors into your own story area (see above).  <b>But don't drag
-                        phrases into your story if you don't know where they go!</b> Phrases that are out of order lower your score.
-                    </p>
-
-                    <p>
-                        For example...
-                    </p>
-
-                    <asset:image src="instruction3.png" alt="Loom" width="500px" class="center-block"/>
-
+                    <iframe width="100%" height="700" src="https://www.youtube.com/embed/Ve1FerMPYbA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
                     <h1 class="text-center">Training</h1>
 
                     <p>
-                        In the following screens you will be given some sample problems so you can get used to the interface.
-                        After the training has been satisfactorily completed, you will be granted a qualification that let's you
-                        participate in actual games.
-                    </p>
-
-                    <p>
-                        Good luck and have fun!
+                        Once you're finished with the above video, continue on to the next screen to try it out!
                     </p>
 
                     <p class="lead text-center">

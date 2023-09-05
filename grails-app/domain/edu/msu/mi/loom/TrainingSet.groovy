@@ -6,19 +6,36 @@ package edu.msu.mi.loom
 class TrainingSet extends ConstraintProvider {
 
 
-    static hasMany = [simulations: Simulation, trainings: Training, readings:Reading, surveys:Survey, tasks: CrowdServiceTask]
+    static final enum State {
 
-    String name
-    List<Training> trainings
-    int uiflag = 0
-
-    static constraints = {
-        name blank: false, unique: true
-        simulations nullable: true
-        trainings nullable: true
-        readings nullable: true
-        surveys nullable: true
+        PENDING,  //unavailable
+        AVAILABLE   //active, training is available
     }
 
+    static hasMany = [simulations: Simulation, trainings: Training, readings:Reading, surveys:Survey, mturkTasks: MturkTask]
 
+
+
+    List<Training> trainings
+    int uiflag = 0
+    State state = State.PENDING
+
+    def countByHitStatus(String status) {
+        mturkTasks.sum{ MturkTask task ->
+            if (status) {
+                task.hits.count { MturkHIT hit ->
+                    hit.lastKnownStatus == status
+                }
+            } else {
+                task.hits.size()
+            }
+
+        }
+    }
+
+    Collection<ConstraintProvider> allSubConstraints() {
+        List<ConstraintProvider> result = [trainings, simulations, readings, surveys].flatten()
+        result.removeAll{it == null}
+        return result
+    }
 }

@@ -1,5 +1,6 @@
 package edu.msu.mi.loom
 
+import com.amazonaws.mturk.requester.QualificationRequirement
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import edu.msu.mi.loom.utils.ArrayUtil
@@ -10,6 +11,8 @@ class TrainingSetService {
 
     def simulationService
     def mturkService
+    def adminService
+    def experimentService
 
     def createTrainingSet(def json, def name, def uiflag) {
         Session.withNewTransaction { status ->
@@ -58,35 +61,19 @@ class TrainingSetService {
      * @return
      */
     def createTrainings(def json, TrainingSet trainingSet) {
-        def tile
-        def story
+
+
         Training training
         json.eachWithIndex { tr, idx ->
-            training = new Training(name: tr.name).save(flush: true)
 
+            def story = adminService.createStory(tr.name, tr.solution)
+            training = new Training(name: tr.name, story: story)
+            training.save(flush: true)
 
             log.debug("New training with id ${training.id} has been created for trainingSet ${trainingSet.name}.")
-            def storyId = Story.count() + 1
-
-            story = new Story(title: "Story " + tr.name).save(flush: true)
-
-            story.save()
-
-            training.addToStories(story)
-            for (int i = 0; i < tr.problem.size(); i++) {
-                tile = new Tile(text: tr.solution.get(i), text_order: i)
-                if (tile.save(flush: true)) {
-                    story.addToTiles(tile).save(flush: true)
-                    log.debug("New task with id ${tile.id} has been created.")
-                } else {
-                    log.error("Task creation attempt failed")
-                    log.error(training?.errors?.dump())
-                }
-            }
-
-            def tiles = Tile.findAllByStory(story)
-            for (int i = 0; i < tr.problem.size(); i++) {
-                new TrainingTask(training: training, tile: tiles.get(tr.problem.get(i))).save(flush: true)
+            def tiles = story.tiles
+            for (int i in tr.problem) {
+                new TrainingTask(training: training, tile: tiles[i]).save(flush: true)
             }
             if (!training.save(flush: true)) {
                 log.error("Training creation attempt failed")
@@ -169,13 +156,20 @@ class TrainingSetService {
         trainables.addAll(ts.trainings)
         trainables.addAll(ts.simulations)
 
-        trainables.removeAll(uts.trainingResponse)
-        Collection<Simulation> simsCompleted = uts.simulationsCompleted.collect {
-            it.simulation
+        log.debug("Training responses thus far are ${uts.trainingResponses*.constraintProvider}")
+
+        if (uts.trainingResponses) {
+            trainables.removeAll(uts.trainingResponses*.constraintProvider)
         }
-        trainables.removeAll(simsCompleted)
-        trainables.removeAll(uts.readingCompleted)
-        trainables.removeAll(uts.surveyResponse.collect{it.survey} as Set)
+        if (uts.simulationResponses) {
+            trainables.removeAll(uts.simulationResponses*.constraintProvider)
+        }
+        if (uts.readingResponses) {
+            trainables.removeAll(uts.readingResponses*.constraintProvider)
+        }
+        if (uts.surveyReponses) {
+            trainables.removeAll(uts.surveyReponses*.constraintProvider)
+        }
 
         return trainables.size()>0?trainables[0]:null
 
@@ -187,7 +181,50 @@ class TrainingSetService {
         uts.complete = true
         uts.trainingEndTime = new Date()
         uts.save(flush: true)
+
+//        if (uts.mturkAssignment) {
+//            CrowdServiceCredentials creds = uts.mturkAssignment.getHit().getTask().credentials
+//            uts.getTrainingSet()
+//            mturkService.assignQualification()
+//
+//        }
+
     }
+
+    def launchTrainingSet(TrainingSet ts, MturkTask task) {
+        ts.state = TrainingSet.State.AVAILABLE
+
+        if (task) {
+            Collection<QualificationRequirement> qualRequirements = mturkService.getDefaultQualifications()
+            mturkService.launchMturkTask(qualRequirements,task)
+        }
+
+        if (!ts.save(flush: true)) {
+            return ts.errors
+        } else {
+            return null
+        }
+    }
+
+    def cancelTrainingSet(TrainingSet ts) {
+        ts.state = TrainingSet.State.PENDING
+        mturkService.forceHITExpiry(ts.mturkTasks as MturkTask[])
+        if (!ts.save(flush: true)) {
+            return ts.errors
+        } else {
+            return null
+        }
+    }
+
+    def calculateTrainingScore(List<Long> tileorder,Collection<Tile> tiles) {
+       List<Long> correctorder = tiles.sort {
+           it.text_order
+       }.collect {
+           it.id
+       }
+        return experimentService.score(correctorder,tileorder)
+    }
+
 
 
 }

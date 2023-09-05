@@ -19,9 +19,17 @@
                             href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a> with the following information.
 
                     </p>
+                    <g:if test="${message}">
+                        <p>
+                            <h3>${message}</h3>h
+                        </p>
+                    </g:if>
 
                     <p>
-                        <g:renderException exception="${exception}"/>
+                        <g:if test="${exception}">
+                            <g:renderException exception="${exception}"/>
+                        </g:if>
+
                     </p>
 
                 </div>

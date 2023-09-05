@@ -6,23 +6,23 @@ class UserRoundStory {
 
     Date time
     Session session
-    List<Tile> currentTails
+    List<Tile> currentTiles
     int round
     String userAlias
     float score
 
-    static hasMany = [currentTails: Tile]
+    static hasMany = [currentTiles: Tile]
 
     static constraints = {
         score nullable: true
     }
 
     def float updateScore() {
-        if (!currentTails) {
+        if (!currentTiles) {
             score = 0
         } else {
-            List<Long> correct =(session.exp.story.tiles as List).sort {it.text_order}.collect {it.id}
-            List<Long> mine = currentTails.collect {it.id}
+            List<Long> correct =(((Story)session.sp("story")).tiles as List<Tile>).sort {it.text_order}.collect {it.id}
+            List<Long> mine = currentTiles.collect {it.id}
             score = experimentService.score(correct,mine)
         }
 

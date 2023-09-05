@@ -20,7 +20,6 @@ class TrainingController {
     def experimentService
     def springSecurityService
     def simulationService
-    def statService
     def mturkService
 
     def trainingSetService
@@ -35,14 +34,37 @@ class TrainingController {
 
     }
 
+
     /**
      * Dispatch method - will direct the user to the next training item
      * @return
      */
     def advanceTraining() {
+        println("Now advancing training")
         def trainingSetId = params.trainingSetId as Long
-        def assignmentId = params.assignmentId
+        def assignmentId = params?.assignmentId
+        def hitId = params?.hitId
         def user = springSecurityService.currentUser as User
+
+        if (assignmentId == "null") {
+            assignmentId = null
+        }
+
+        if (hitId == "null") {
+            hitId = null
+        }
+
+        MturkAssignment  mturkAssignment = null
+        if (assignmentId) {
+            println("Assignment id is "+assignmentId)
+            mturkAssignment = MturkAssignment.findByAssignmentId(assignmentId)
+            if (!mturkAssignment) {
+                mturkAssignment = mturkService.attachAssignment(assignmentId, hitId)
+            }
+            if (!mturkAssignment) {
+                return fail("Internal error resolving assignment")
+            }
+        }
 
         if (!Demographics.findByUser(user)) {
             return render(view: 'demographics', model: [trainingSetId: trainingSetId, assignmentId: assignmentId])
@@ -50,27 +72,35 @@ class TrainingController {
 
         def trainingSet = TrainingSet.get(trainingSetId)
         UserTrainingSet uts = UserTrainingSet.findByTrainingSetAndUser(trainingSet, user)
-        if (!uts) {
-            uts = new UserTrainingSet(user: user, trainingSet: trainingSet, trainingStartTime: new Date(), assignmentId: assignmentId)
-            uts.save(flush: true)
 
+        if (!uts) {
+            uts = UserTrainingSet.create(user, trainingSet, new Date(), mturkAssignment, false, true)
         }
+
+
         if (uts?.complete) {
             return redirect(action: "index")
         }
 
-        if (assignmentId && uts.assignmentId && uts.assignmentId != assignmentId as String) {
+        if (mturkAssignment && uts.mturkAssignment && uts.mturkAssignment != mturkAssignment) {
             return render(view: 'duplicate_uts')
         }
+
         if (!uts.intro) {
-            return render(view: "intro", model: [trainingSetId: trainingSetId, assignmentId: assignmentId])
+
         }
 
 
         Trainable t = trainingSetService.getNextTraining(uts)
 
         if (t) {
-            return redirect(action: t.getViewName(), params: [trainingSetId: trainingSet.id, trainingItem: t.id, assignmentId: assignmentId])
+            if (t instanceof Training && !uts.intro) {
+                return render(view: "intro", model: [trainingSetId: trainingSetId, assignmentId: assignmentId])
+            } else if (t instanceof Simulation && !uts.simIntro) {
+                return render(view: "sim_intro", model: [trainingSetId: trainingSetId, assignmentId: assignmentId])
+            } else {
+                return redirect(action: t.getViewName(), params: [trainingSetId: trainingSet.id, trainingItem: t.id, assignmentId: assignmentId])
+            }
         } else {
             trainingSetService.completeTrainingSet(uts)
             return redirect(action: 'trainingSetComplete', params: [trainingSetId: trainingSetId, assignmentId: assignmentId])
@@ -87,10 +117,23 @@ class TrainingController {
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSet.id, assignmentId: params.assignmentId])
     }
 
+    def submitSimIntro() {
+        def user = springSecurityService.currentUser
+        def trainingSet = TrainingSet.get(params.trainingSetId)
+        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user, trainingSet)
+        uts.simIntro = true
+        uts.save(flush: true)
+        redirect(action: 'advanceTraining', params: [trainingSetId: trainingSet.id, assignmentId: params.assignmentId])
+    }
+
     def reading() {
         def trainingSetId = params.trainingSetId
         Reading reading = Reading.get(params.trainingItem)
         render(view: "reading", model: [trainingSetId: trainingSetId, reading: reading, assignmentId: params.assignmentId])
+    }
+
+    def fail(String message) {
+        render(view: "error",model:[message:message])
     }
 
 
@@ -108,10 +151,10 @@ class TrainingController {
             }
             total = total + 1
         }
-
-        UserReadingResponse usrr = new UserReadingResponse(reading: reading, score: correct / total)
-        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(springSecurityService.currentUser, TrainingSet.get(params.trainingSetId))
-        uts.addToReadingResponse(usrr)
+        User u = springSecurityService.currentUser
+        UserReadingResponse usrr = new UserReadingResponse(user:u, constraintProvider: reading, value: Math.round(correct*100 / total))
+        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(u, TrainingSet.get(params.trainingSetId))
+        uts.addToReadingResponses(usrr)
         uts.save(flush: true)
 
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSetId, assignmentId: params.assignmentId])
@@ -138,7 +181,7 @@ class TrainingController {
         }
 
         UserSurveyResponse usr = UserSurveyResponse.completeSurvey(user, options)
-        userTrainingSet.addToSurveyReponse(usr)
+        userTrainingSet.addToSurveyReponses(usr)
         userTrainingSet.save(flush: true)
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSetId, assignmentId: params.assignmentId])
 
@@ -150,12 +193,35 @@ class TrainingController {
      *
      * @return
      */
-    def training() {
+    def practice() {
         def trainingSet = TrainingSet.get(params.trainingSetId)
         def training = Training.get(params.trainingItem)
         def tts = TrainingTask.findAllByTraining(training).tile
         render(view: 'training', model: [storyTiles: [], allTiles: tts, trainingSet: trainingSet, training: training, uiflag: trainingSet.uiflag as int, assignmentId: params.assignmentId])
     }
+
+    /**
+     * Handles ajaxed calls to update the training score
+     *
+     * @return
+     */
+    def getTrainingScore() {
+        String userTiles = params.userTiles
+        def training = Training.findById(params.trainingId)
+        def story = training.story
+
+
+        log.debug("User Tiles: ${userTiles}")
+        List<Long> tilesList = []
+
+
+        if (userTiles) {
+            tilesList = userTiles?.split(",")?.collect { it as Long }
+        }
+        render(String.valueOf(trainingSetService.calculateTrainingScore(tilesList,story.tiles)))
+
+    }
+
 
     /**
      * Complete training if correct, otherwise return to view
@@ -167,27 +233,19 @@ class TrainingController {
         def trainingSet = TrainingSet.get(params.trainingSetId)
         def training = Training.findById(params.trainingId)
         def assignmentId = params.assignmentId
-
-
-        List storyTiles = ((String) params.storyTiles).split(",").collect { Integer.parseInt(it) }
+        def alltiles = training.story.tiles as List<Tile>
+        List storyTiles = ((String) params.storyTiles).split(",").collect { Long.parseLong(it) }
 
 
         if (training) {
+            if (trainingSetService.calculateTrainingScore(storyTiles,alltiles)==1.0f) {
 
-            def allTiles = TrainingTask.findAllByTraining(training).tile
-            def tile_order = allTiles.collect({ it.text_order }).sort()
-
-            if (tile_order.equals(storyTiles)) {
                 return completeTraining(training, trainingSet, assignmentId)
 
             } else {
-                def userTiles = storyTiles.collect { submitted_order ->
-                    allTiles.find {
-                        it.text_order == submitted_order
-                    }
-                }
+                def userTiles = storyTiles.collect { Tile.get(it) }
                 flash.error = true
-                render(view: 'training', model: [allTiles: allTiles, storyTiles: userTiles, trainingSet: trainingSet, training: training, uiflag: params.uiflag as int, assignmentId: assignmentId])
+                render(view: 'training', model: [allTiles: alltiles, storyTiles: userTiles, trainingSet: trainingSet, training: training, uiflag: params.uiflag as int, assignmentId: assignmentId])
                 return
             }
         }
@@ -197,8 +255,8 @@ class TrainingController {
     def completeTraining(Training t, TrainingSet ts, def assignmentId) {
         def user = springSecurityService.currentUser as User
         UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user, ts)
-        UserTrainingResponse utr = new UserTrainingResponse(user: user, date: new Date(), training: t)
-        uts.addToTrainingResponse(utr)
+        UserTrainingResponse utr = new UserTrainingResponse(user: user, constraintProvider: t)
+        uts.addToTrainingResponses(utr)
         uts.save(flush: true)
         redirect(action: 'advanceTraining', params: [trainingSetId: ts.id, assignmentId: assignmentId])
     }
@@ -218,24 +276,26 @@ class TrainingController {
      * @return
      */
     def simulation() {
-
+        print("In simulation with params ${params}")
         TrainingSet trainingSet = TrainingSet.get(params.trainingSetId)
         Simulation simulation = Simulation.get(params.trainingItem)
         User user = springSecurityService.currentUser as User
         def uiflag = trainingSet.uiflag
 
         //The following are optional parameters and may be null
-        Integer roundNumber = params.roundNumber
-        if (roundNumber == null) {
-            roundNumber = 0
+        Integer roundNumber
+
+        if (params.roundNumber) {
+            roundNumber = Integer.parseInt(params.roundNumber)+1
         } else {
-            roundNumber++
+            roundNumber = 0
         }
-        Integer[] tempStory = params.tempStory
+
+        Integer[] tempStory = params.tempStory.collect { Integer.parseInt(it)}
         def assignmentId = params.assignmentId
 
         //Advance the simulation
-        if (roundNumber <= simulation.roundCount) {
+        if (roundNumber < simulation.roundCount) {
             //TODO OK JOSH HERE"S HOW THIS WORKS
             //At the end of each round, javascript (see {see @loom.js#submitSimulationAjax}) submits to submitSimulation
             //which in turn assigns a round score to a survey response
@@ -244,9 +304,11 @@ class TrainingController {
             def simModel = simulationService.simulation(simulation, roundNumber, tempStory)
             def model = simModel + [uiflag: uiflag as int, assignmentId: assignmentId, trainingSetId: params.trainingSetId]
             if (roundNumber == 0) {
+                println("Return new simulation with model: ${model}")
                 return render(view: 'simulation', model: model)
                 //THIS IS THE VERY FIRST ROUND
             } else {
+                println("Return next simulation round with model: ${model}")
                 //NOTE that this is being picked up inline by an ajaxed call for all but the first round
                 return render(template: 'simulation_content', model: model)
             }
@@ -255,10 +317,10 @@ class TrainingController {
             //TODO OK JOSH HERE"S HOW THIS WORKS
             //Once we send this json back, javascript picks it up (see {see @loom.js#submitSimulationAjax})
             //and forwards to the 'score' method below
-            UserSimulationResponse usr = UserSimulationResponse.findByUserAndSimulation(user, simulation)
-            usr.averageScore = usr.scores.sum() / (Float) usr.scores.size()
+            UserSimulationResponse usr = UserSimulationResponse.findByUserAndConstraintProvider(user, simulation)
+            usr.value = Math.round(100.0 * usr.scores.last().value)
             UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user, trainingSet)
-            uts.addToSimulationResponse(usr)
+            uts.addToSimulationResponses(usr)
             uts.save(flush: true)
             return render(status: OK, text: [status: 'simulation_complete'] as JSON)
         }
@@ -269,7 +331,7 @@ class TrainingController {
         List<Integer> tilesList
 
         if (userTiles) {
-            tilesList = userTiles.split(";").collect{Integer.parseInt(it)}
+            tilesList = userTiles.split(";").collect{Long.parseLong(it)}
         } else {
             tilesList = []
         }
@@ -277,11 +339,11 @@ class TrainingController {
 
         if (simulationId && params.roundNumber != null) {
             def simulation = Simulation.get(simulationId)
-            def roundNumber = params.roundNumber.split("[^0-9]+")[1] as Integer
-            simulationService.addRoundScore(tilesList, simulation)
+            def roundNumber = Integer.parseInt(params.roundNumber)
+            simulationService.addRoundScore(tilesList, simulation,roundNumber)
 
             def tempSimulation = new TempSimulation(simulation: simulation, currentTiles: tilesList, user: springSecurityService.currentUser as User).save(flush: true)
-            redirect(action: 'simulation', params: [trainingSetId: params.trainingSetId, trainingItem: params.simulatipon, roundNumber: roundNumber, tempStory: tempSimulation?.currentTiles, assignmentId: params.assignmentId])
+            redirect(action: 'simulation', params: [trainingSetId: params.trainingSetId, trainingItem: params.simulation, roundNumber: roundNumber, tempStory: tempSimulation?.currentTiles, assignmentId: params.assignmentId])
         } else {
             render(status: BAD_REQUEST)
         }
@@ -295,7 +357,7 @@ class TrainingController {
     def viewSimulationScores() {
 
         def user = springSecurityService.currentUser
-        def usr = UserSimulationResponse.findByUserAndSimulation(user,Simulation.get(params.simulationId))
+        def usr = UserSimulationResponse.findByUserAndConstraintProvider(user,Simulation.get(params.simulationId))
         def assignmentId = params.assignmentId
 
         render(view: "simulationScore", model: [usersimresult: usr, assignmentId: assignmentId, trainingSetId: params.trainingSetId])
@@ -344,34 +406,7 @@ class TrainingController {
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSet.id, begin: true, assignmentId: params.assignmentId])
     }
 
-    /**
-     * Handles ajaxed calls to update the training score
-     *
-     * @return
-     */
-    def getTrainingScore() {
-        String userTiles = params.userTiles
 
-        log.debug("User Tails: ${userTiles}")
-        List<Long> tilesList = []
-
-
-        if (userTiles) {
-            tilesList = userTiles?.split(",")?.collect { it as Long }
-        }
-
-        def trainingId = params.trainingSetId
-
-
-        def training = Training.findById(trainingId)
-        def story = Story.findByTraining(training)
-        List<Long> correct = Tile.executeQuery(("from Tile t where t.story=? order by t.text_order asc"), [story]).collect { it.id as Long }
-
-        def result = experimentService.score(correct, tilesList)
-
-        println "Score:${result}"
-        render(String.valueOf(result))
-    }
 
 
 }

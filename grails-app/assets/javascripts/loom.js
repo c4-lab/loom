@@ -52,10 +52,7 @@ $(document).ready(function () {
         $("#create-credentials-modal").modal('show');
     });
 
-    $("#stop-waiting").click(function() {
-       shouldLogout = false;
-        window.location="/loom/session/stopWaiting?session="+$("#sessionId").val();
-    });
+
 
     $("#clone-session").click(function () {
         alert(parseInt($("#sessionId").val(),16))
@@ -118,321 +115,10 @@ $(document).ready(function () {
         });
     });
 
-    var timeInterval;
-    $("#sessions").on('click', '.session-action', function (){
-
-        var el = $(this);
-        var t = el.text();
-        var sessionId = $(".sessionId",this.parentNode).text();
-        var status = $(".session-span",this.parentNode.parentNode.parentNode);
-        var setTimer = $(".set-timer",this.parentNode.parentNode.parentNode);
-
-        if(t.includes(el.data("text-swap"))){
-            el.text(el.data("text-original"));
-        }else{
-            el.text(el.data("text-swap"));
-        }
-
-
-        if(el.text() === el.data("text-swap")){
-
-            $.ajax({
-                url: "/loom/admin/cancelSession",
-                type: 'POST',
-                data:
-                    {
-                        sessionId: sessionId,
-
-                    },
-
-                success: function (){
-
-                    status.text("Status: CANCEL");
-                    setTimer.text();
-                    setTimer.hide();
-                    clearInterval(timeInterval);
-                }
-            });
-        }else{
-            $.ajax({
-                url: "/loom/admin/validateSession",
-                type: 'POST',
-                data:
-                    {
-                        sessionId: sessionId,
-
-                    },
-                success: function (data){
-
-                    status.text("Status: PENDING");
-                    setTimer.text("");
-                    setTimer.show();
-                    // clearInterval(timeInterval);
-                    timeInterval = setTimeer(data, setTimer, "Pending",status,null,null);
-
-                }
-            })
-        }
-    });
-
-    $("#sessions").on('click', '.start-session', function (){
-        var sessionId = $(".sessionId",this.parentNode).text();
-        var setTimer = $(".set-timer",this.parentNode.parentNode.parentNode);
-        var status = $(".session-span",this.parentNode.parentNode.parentNode);
-        var startTime = Date.now();
-        $.ajax({
-            url: "/loom/admin/startSession",
-            type: 'POST',
-            data:
-                {
-                    sessionId: sessionId,
-                    auto: false
-
-                },
-            dataType:"json",
-            success: function (data){
-                // alert(data.less);
-                if(data.status==="cancel"){
-                    alert("Cannot start a canceled session. Please validate it first!");
-                }
-                if(data.status==="less"){
-
-                    alert("Not enough users!");
-                }
-                if(data.status==="start"){
-                    status.text("Status: Active");
-                    clearInterval(timeInterval);
-                    timeInterval = setTimeer(startTime, setTimer, "Active");
-                }
-                if(data.status==="fail"){
-                    alert("Fail to start!");
-                }
-
-            }
-        });
-    });
-
-    $("#sessions").on('click', '.pay-session', function (){
-        var sessionId = $(".sessionId",this.parentNode).text();
-        var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
-        var pay_btn = $(".pay-session", this.parentNode);
-        var pay_i = $(".pay-i", this.parentNode);
-        pay_btn.addClass("buttonload");
-        pay_btn.attr("disabled",true)
-        pay_i.addClass("fa fa-spinner fa-spin");
-
-        $.ajax({
-            url: "/loom/admin/paySession",
-            type: 'POST',
-            data:
-                {
-                    sessionId: sessionId,
-
-                },
-            dataType:"json",
-            success: function (data){
-                payment_status.text("Payment status: "+data.payment_status);
-                pay_btn.removeClass("buttonload");
-                pay_btn.attr("disabled",false)
-                pay_i.removeClass("fa fa-spinner fa-spin");
-                if(data.status==="no_payable"){
-                    alert("No payable assignment!");
-                }
-                // if(data.status==="success"){
-                //
-                //
-                //     window.location = "/loom/admin/board/";
-                // }
-
-
-            }
-        });
-    });
-
-    $("#sessions").on('click', '.check-payble', function (){
-        var sessionId = $(".sessionId",this.parentNode).text();
-        var payment_status = $(".payment-status",this.parentNode.parentNode.parentNode);
-
-        var check_btn = $(".check-payble", this.parentNode);
-        var check_i = $(".check-payable-i", this.parentNode);
-        check_btn.addClass("buttonload");
-        check_btn.attr("disabled",true)
-        check_i.addClass("fa fa-spinner fa-spin");
-
-        $.ajax({
-            url: "/loom/admin/checkSessionPayble",
-            type: 'POST',
-            data:
-                {
-                    sessionId: sessionId,
-
-                },
-            dataType:"json",
-            success: function (data){
-                payment_status.text("Payment status: "+data.payment_status);
-                check_btn.removeClass("buttonload");
-                check_btn.attr("disabled",false)
-                check_i.removeClass("fa fa-spinner fa-spin");
-                if(data.check_greyed){
-                    alert("No payable assignment!");
-                    // check_btn.attr("disabled",true);
-                }
-                if(data.pay_greyed){
-                    // pay_btn.attr("disabled",true);
-                }
-                // if(data.status==="success"){
-                //     window.location = "/loom/admin/board/";
-                // }
-
-
-            }
-        });
-    });
-
-
-
-
-
-
     initTraining();
     initSimulation();
     initExperiment();
 
-
-    var ss = $('.session-row');
-
-    ss.each(function (){
-        var timeInterval;
-        var sessionId = $(".sessionId",this.parentNode).text();
-        var setTimer = $(".set-timer",this);
-        var currentRound = $(".current-round",this);
-        var count = $(".count",this);
-        var connected = $(".connected",this);
-        var status = $(".session-span",this);
-        // var completed = $(".completed",this);
-        var pay_btn = $(".pay-session", this.parentNode);
-        // var check_payable_btn = $(".check-payable", this.parentNode);
-        // var pay_status = $(".payment-status",this);
-        // alert(pay_btn.text());
-        setInterval(function (){
-
-
-            $.ajax({
-
-                url: "/loom/admin/refresh",
-                type: 'POST',
-                data:
-                    {
-                        sessionId: sessionId,
-
-                    },
-                dataType:"json",
-                success: function (data){
-                    var current = Date.now();
-                    count.text("User sessions: "+data.connected);
-                    connected.text("Connected users: "+data.count)
-                    if(data.sessionState === "PENDING"){
-                        clearInterval(timeInterval);
-                        setTimer.text( "Pending Time: "+Math.floor((current-data.startPending)/1000/60)+" minutes");
-                        // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
-
-                        status.text("Status: "+data.sessionState);
-
-
-
-
-                        // pay_btn.hide();
-                        // check_payable_btn.hide();
-                        currentRound.text("Current round: "+data.round)
-
-                        // timeInterval = setTimeer(data, setTimer, "Pending",status,count,currentRound);
-
-                    }
-                    else if(data.sessionState === "ACTIVE"){
-
-                        clearInterval(timeInterval);
-                        setTimer.text( "Active Time: "+Math.floor((current-data.startActive)/1000/60)+" minutes");
-                        // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
-
-                        status.text("Status: "+data.sessionState);
-
-                        // count.text("Connected users: "+data.count);
-                        pay_btn.hide();
-                        check_payable_btn.hide();
-
-
-
-                        currentRound.text("Current round: "+data.round)
-                    }
-                    else if(data.sessionState === "CANCEL" || data.sessionState === "FINISHED"){
-                        status.text("Status: "+data.sessionState);
-                        // completed.text("payment status: "+data.payment_status);
-                        // alert(pay_btn.style);
-                        // if(data.greyed !== "pay"){
-                        //     pay_btn.show();
-                        // }
-                        // if(data.greyed !== "check"){
-                        //     check_payable_btn.show();
-                        // }
-                        //
-                        // pay_status.text("Payment status: "+data.payment_status);
-                        // pay_status.show();
-
-                        // alert("sdfs");
-                    }
-
-                }
-            });
-
-        },6000);
-
-
-    });
-
-
-
-    $("#launch_training_hits").on('click', function (){
-        var trainingID = $("#trainingID").text();
-        var num_hits = $("#num_training_hits").val();
-        var hit_lifetime = $("#exp_available_time").val();
-        var assignment_lifetime = $("#exp_assignment_lifetime").val();
-        var other_quals = $("#other_quals").val();
-        alert(other_quals);
-
-
-        $.ajax({
-            url: "/loom/admin/launchTraining",
-            type: 'POST',
-            data:
-                {
-                    trainingId: trainingID,
-                    num_hits:num_hits,
-                    assignment_lifetime: assignment_lifetime,
-                    hit_lifetime: hit_lifetime,
-                    other_quals: other_quals
-
-
-                },
-            // dataType:"json",
-            success: function (data){
-                $("#launch-training-modal").modal('hide');
-                // $("#launch-training").hide();
-                // if(data.message==="duplicate"){
-                //     alert("title already exists!");
-                // }
-                // if(data.message==="error"){
-                //
-                //     alert("fail to create!");
-                // }
-                // if( data.message==="success"){
-                //     window.location = "/loom/admin/board/";
-                //
-                // }
-
-
-            }
-        });
-    });
 
     $("#launch_experiment_hits").on('click', function (){
         var experimentID = $("#experimentID").text();
@@ -560,45 +246,7 @@ $(document).ready(function () {
 
 
 
-    $("#submit-credentials").on('click', function (){
-        var name = $("#credentialsName").val();
-        var accessKey = $("#accessKey").val();
-        var secretKey = $("#secretKey").val();
-        var serviceName = $("#serviceType").val();
-        var sandbox = $("input[name='sandboxSetting']:checked").val()
 
-        if (name==='' || accessKey==='' || secretKey === '' || serviceName === '') {
-            alert("All fields are required")
-        } else {
-            $.ajax({
-                url: "/loom/admin/createUserCredentials",
-                type: 'POST',
-                // contentType: "application/json;",
-                // data: JSON.stringify({ 'list': usernames }),
-                data:
-                    {
-                        credentialsName: name,
-                        accessKey: accessKey,
-                        secretKey: secretKey,
-                        serviceType: serviceName,
-                        sandboxSetting: sandbox
-
-
-                    },
-                dataType: "json",
-                success: function (data) {
-                    if (data.status === "duplicate") {
-                        alert("Name already exists")
-                    } else {
-                        $("#create-credentials-modal").modal('hide');
-                        alert("Successfully created credentials: " + name);
-                    }
-                }
-            });
-
-        }
-
-    });
 
     $("#create-user-table").on('click', '.remove-username', function (){
         $(this).parents("tr").remove();
@@ -732,30 +380,7 @@ function create_train(){
 }
 
 
-function setTimeer(data, timer, type,status,count,currentRound){
-    var startTime = data.startActive;
-    if (type==='Pending'){
-        startTime = data.startPending;
-    }
-    return setInterval(
-        function (){
-            var current = Date.now();
 
-            timer.text(type + " Time: "+Math.floor((current-startTime)/1000/60)+" minutes");
-            // timer.text(type + " Time: "+Math.floor((current-startTime))+" minutes");
-
-            status.text("Status: "+data.sessionState);
-            if (count){
-                count.text("Connected users: "+data.count);
-            }
-            if(currentRound){
-
-                currentRound.text("Current round: "+data.round)
-            }
-
-
-        },1000);
-}
 
 function chooseType(tag){
 
@@ -832,7 +457,7 @@ function chooseTrainingQualifier(){
 
 
 
-
+//TODO - need to check this logic; see the "logout" call in thw waiting room
 var shouldLogout = true;
 
 function logout() {
@@ -1114,7 +739,7 @@ function updateTrainingScore() {
             type: 'POST',
             data: {
                 userTiles: tile_ids,
-                trainingSetId: $("#training").val()
+                trainingId: $("#training").val()
             },
             timeout: 999
         }).success(function (data) {
@@ -1368,7 +993,7 @@ function submitSimulationAjax() {
             tiles: text_all,
             trainingSetId: $("input[name='trainingSetId']").val(),
             simulation: $("#simulationid").val(),
-            roundNumber: $("#roundNumber").text(),
+            roundNumber: $("#roundNumber .round").text(),
             assignmentId: $("#assignmentId").val()
 
 
@@ -1377,7 +1002,11 @@ function submitSimulationAjax() {
         localStorage.setItem('remainingTime', 'null');
         if (data.indexOf("status") >= 0) {
             confirmSimNav = false;
-            window.location ="/loom/training/viewSimulationScores/"+$("#simulationid").val()+"?assignmentId="+$("#assignmentId").val()+"&trainingSetId="+$("input[name='trainingSetId']").val();
+            const simulationId = $("#simulationid").val();
+            const assignmentId = $("#assignmentId").val();
+            const trainingSetId = $("input[name='trainingSetId']").val();
+
+            window.location.href = `/loom/training/viewSimulationScores?simulationId=${simulationId}&assignmentId=${assignmentId}&trainingSetId=${trainingSetId}`;
 
         } else {
             setTimeout(function () {

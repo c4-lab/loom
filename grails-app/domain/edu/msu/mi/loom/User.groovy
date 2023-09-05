@@ -8,11 +8,12 @@ class User {
     String password
     String turkerId
     boolean enabled = true
-    boolean accountExpired
-    boolean accountLocked
-    boolean passwordExpired
+    boolean accountExpired = false
+    boolean accountLocked = false
+    boolean passwordExpired = false
     Date dateCreated
-    static hasMany = [credentials: CrowdServiceCredentials]
+    static hasMany = [credentials: CrowdServiceCredentials, assigments: MturkAssignment]
+
 
     static transients = ['springSecurityService']
 

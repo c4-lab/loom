@@ -58,7 +58,7 @@
                                     <g:if test="${storyTiles}">
                                         <g:each in="${storyTiles}" var="tt">
                                             <li class="ui-state-default purple"
-                                                drag-id="${tt.text_order}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                                drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
                                         </g:each>
                                     </g:if>
 
@@ -88,7 +88,7 @@
                                     class="${uiflag == 1 ? "dvSource" : ""} g_list privateinfo">
                                     <g:each in="${allTiles}" var="tt">
                                         <li class="ui-state-default tile-available"
-                                            drag-id="${tt.text_order}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                            drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
                                     </g:each>
 
                                 </ul>
@@ -145,6 +145,109 @@
         toremove.remove();
 
     }
+
+    // function initMyDragNDrop() {
+    //     $("#sort2").sortable({
+    //         opacity: 0.5,
+    //         cursor: "crosshair",
+    //         placeholder: "ui-state-highlight",
+    //         forcePlaceholderSize: true,
+    //
+    //         start: function (event,ui) {
+    //             console.log("Detecting a drag event")
+    //             ui.placeholder.height(ui.item.height());
+    //             ui.placeholder.width(ui.item.width());
+    //             // $(event.target).find('li').css("white-space", "nowrap");
+    //         },
+    //         stop: function (event,ui) {
+    //             updateTrainingScore();
+    //         }
+    //     })
+    //
+    // }
+    //
+    // function updateTrainingScore() {
+    //     if ($("#training-name").length > 0) {
+    //         var elems = $("#sort2").find('li');
+    //         var tile_ids = $("#sort2 li").map(function () {
+    //             return $(this).attr("drag-id")
+    //         }).get().join(",")
+    //         console.log("Got "+tile_ids)
+    //         $("input[name='storyTiles']").val(tile_ids);
+    //
+    //
+    //
+    //
+    //         $.ajax({
+    //             url: "/loom/training/getTrainingScore",
+    //             type: 'POST',
+    //             data: {
+    //                 userTiles: tile_ids,
+    //                 trainingSetId: $("#training").val()
+    //             },
+    //             timeout: 999
+    //         }).success(function (data) {
+    //             $("#training-score").text(data);
+    //             var orig = "black";
+    //             $("#training-score").css("color", "red");
+    //             $("#training-score").animate({color: orig}, 1000);
+    //         }).error(function (data) {
+    //             //check if something is going on here
+    //         });
+    //     }
+    //
+    // }
+    //
+    // function resetTraining() {
+    //     $(".reset-training").click(function () {
+    //         // if(uiflag===1){
+    //         $("#sort2").find("li").each(function () {
+    //             removeTile($(this));
+    //             //$(this).parent().remove();
+    //             //console.log($(this).parent().attr('id'));
+    //             //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+    //             //
+    //             //elem.removeClass('blue').addClass('tile-available');
+    //         });
+    //         $("#sort3").find("li").each(function () {
+    //             removeTile($(this));
+    //             //$(this).parent().remove();
+    //             //console.log($(this).parent().attr('id'));
+    //             //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+    //             //
+    //             //elem.removeClass('blue').addClass('tile-available');
+    //         });
+    //         // }else if(uiflag===0){
+    //         //     var initial = [];
+    //         //     $('#sort1').each(function(index, anchor) {
+    //         //         initial.push(anchor.innerHTML);
+    //         //     });
+    //         //     $('#sort1').each(function(index, anchor) {
+    //         //         anchor.innerHTML = initial[index];
+    //         //     });
+    //         //     var toremove = $("#sort3").find("li");
+    //         //     toremove.remove();
+    //         //
+    //         // }
+    //
+    //
+    //         updateTrainingScore();
+    //         //$("#training-score").text("0.0")
+    //     });
+    //
+    // }
+    //
+    // function initTraining() {
+    //     if ($("#training-content-wrapper").length > 0) {
+    //         initTiles();
+    //         initDragNDrop();
+    //         initMyDragNDrop();
+    //         resetTraining();
+    //         submitTraining();
+    //         updateTrainingScore();
+    //
+    //     }
+    // }
 
 
 

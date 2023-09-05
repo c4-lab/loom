@@ -14,9 +14,11 @@ beans = {
 
 
     authenticationSuccessHandler(CustomAuthSuccessHandler) {
+        log.debug("authenticationSuccessHandler: should be handling a successful login")
         def config = SpringSecurityUtils.securityConfig
         requestCache = ref('requestCache')
         defaultTargetUrl = config.successHandler.defaultTargetUrl
+        log.debug("authenticationSuccessHandler: should be handling a successful login with default url "+defaultTargetUrl)
         alwaysUseDefaultTargetUrl = config.successHandler.alwaysUseDefault
         targetUrlParameter = config.successHandler.targetUrlParameter
         useReferer = config.successHandler.useReferer

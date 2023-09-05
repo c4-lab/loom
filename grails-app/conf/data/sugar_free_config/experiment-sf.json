@@ -1,0 +1,63 @@
+{
+  "_comment": {
+    "network": [
+      {
+        "type": "Lattice",
+        "params": [
+          "degree"
+        ]
+      },
+      {
+        "type": "Newman_Watts",
+        "params": [
+          "min_degree",
+          "max_degree",
+          "prob"
+        ]
+      },
+      {
+        "type": "Barabassi_Albert",
+        "params": [
+          "min_degree",
+          "max_degree",
+          "M"
+        ]
+      }
+    ],
+    "interface": "paragraph|list",
+    "contraints": {
+      "constraint": "Named constraint - Type:Name (* is wildcard)",
+      "operationr": "EQUALS|LESS_THAN|GREATER_THAN|RANGE|IN|HAS|NOT_HAS",
+      "params": "Free text - @see edu.msu.mi.loom"
+    }
+  },
+  "sessionParameters": {
+    "roundCount": 4,
+    "roundTime": 270,
+    "initialNbrOfTiles": 3,
+    "minNode": 20,
+    "maxNode": 30,
+    "isInline": 1,
+    "paymentBase": 0.50,
+    "paymentWaitingBonusPerMinute": 1.00,
+    "paymentMaxScoreBonus": 5.00,
+    "networkTemplate": {
+      "type": "Lattice",
+      "params": {
+        "degree": 2
+      }
+    },
+    "constraintTests": [
+      {
+        "constraint": "Reading:Reading Test 1",
+        "operator": "GREATER_THAN",
+        "params": ".8"
+      },
+      {
+        "constraint": "Survey:Climate Attitude",
+        "operator": "GREATER_THAN",
+        "params": ".5"
+      }
+    ]
+  }
+}
