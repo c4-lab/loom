@@ -21,29 +21,31 @@ class SessionService {
 
         if (!session.save(flush: true)) {
             return session.errors
-        } else {
-            return null
         }
+        experimentService.scheduleWaitingCheck(session)
+
     }
 
     def cancelSession(Session session) {
 
         mturkService.forceHITExpiry(session.mturkTasks as MturkTask[])
 
-        if (session.state == Session.State.WAITING) {
+        if (session.state == Session.State.WAITING  && UserSession.countBySession(session) ==0) {
             session.state = Session.State.PENDING
             session.save(flush: true)
-        } else if (session.state == Session.State.ACTIVE) {
+        } else if (session.state in [Session.State.WAITING, Session.State.ACTIVE]) {
             session.state = Session.State.CANCEL
             session.cancelled = new Date()
+            UserSession.findAllBySession(session).each {
+                it.stopWaiting(UserSession.State.CANCELLED)
+            }
             session.save(flush: true)
+
         }
     }
 
 
-    def lookupUserAlias(Session session, User user) {
-        UserSession.findBySessionAndUser(session,user).userAlias
-    }
+
 
 
 
@@ -52,18 +54,10 @@ class SessionService {
         log.debug("Leaving sessions....")
         UserSession.withSession {
             UserSession.findAllByUserAndStateInList(springSecurityService.currentUser as User, [UserSession.State.ACTIVE, UserSession.State.WAITING]).each {
-                it.missing = true
-                it.save(flush:true)
+                it.presence.missing = true
             }
         }
 
-
     }
-
-    def saveUserStory(Session session, int roundNumber, List<Tile> tiles, User user) {
-        new UserRoundStory(time: new Date(), session: session, round: roundNumber, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save(flush: true)
-        experimentService.userSubmitted(user,session, roundNumber)
-    }
-
 
 }

@@ -46,6 +46,6 @@ class User {
     }
 
     def isMturkWorker() {
-        turkerId==null
+        turkerId!=null
     }
 }

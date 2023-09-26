@@ -126,7 +126,7 @@ class BootStrap {
     }
 
     private JSONElement parseTrainingSessionToText() {
-        def filePath = "data/session_2/trainingset2.json"
+        def filePath = "data/session_2/trainingset_sf.json"
         def text = grailsApplication.getParentContext().getResource("classpath:$filePath").getInputStream().getText()
         def json = JSON.parse(text)
 

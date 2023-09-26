@@ -28,8 +28,8 @@
 
                             <div class="box-body">
                                 <!--TODO: Need to fix the logic for counting the number of users in the waiting room -->
-                                <loom:progressBar userCount="${UserSession.countBySessionAndState(session,UserSession.State.WAITING)}"
-                                                  userMaxCount="${session.sp("maxNode")}"/>
+                                <loom:progressBar userCount="${0}"
+                                                  userMaxCount="${session.sessionParameters.safeGetMaxNode()}"/>
                                 <a href="javascript:void(0);" id="stop-waiting" class="btn btn-block btn-success">Stop waiting</a>
 
                             </div>
@@ -58,7 +58,7 @@
             setInterval(function () {
                 jQuery.ajax({
                     url: "/loom/session/checkExperimentReadyState",
-                    type: 'POST',
+                    type: 'GET',
                     data: {
                         session: session
                     }

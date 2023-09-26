@@ -43,11 +43,6 @@ $(document).ready(function () {
     });
 
 
-
-    // $.getScript("story_modal.js").done(function(script,textStatus) {
-    //     console.log(textStatus)
-    // })
-
     $("#create-credentials").click(function () {
         $("#create-credentials-modal").modal('show');
     });
@@ -327,132 +322,6 @@ $(document).ready(function () {
 });
 
 
-function create_train(){
-    var name = $("#trainingSetName").val();
-    var inputFile = document.getElementById("trainingInputFile").value;
-    var performance = $("#perform");
-    var reading = $("#reading").val();
-    var vaccine = $("#vaccine").val();
-    var performance_score = $("#traing_performance").val();
-
-    alert(inputFile);
-    if (name==='' || inputFile==null){
-        alert("please complete the required fields");
-        $("#training-set-file-upload-modal").modal('show');
-    }
-    else{
-        $.ajax({
-            url: "/loom/admin/uploadTrainingSet",
-            type: 'POST',
-            data:
-                {
-                    name: name,
-                    inputFile:inputFile,
-                    performance:performance.checked,
-                    performance_score:performance_score,
-                    reading:reading,
-                    vaccine:vaccine,
-
-                },
-            dataType:"json",
-            success: function (data){
-                if(data.message==="duplicate"){
-                    alert("name already exists!");
-                }
-                // if(data.message==="exp_error"){
-                //
-                //     alert("fail to create the experiment!");
-                // }
-                // if(data.message==="network_error"){
-                //
-                //     alert("wrong network parameters!");
-                // }
-                if( data.message==="success"){
-
-                    window.location = "/loom/admin/board#stories";
-
-                }
-
-
-            }
-        });
-    }
-}
-
-
-
-
-function chooseType(tag){
-
-    var s1 = document.getElementById('s1');
-    var s2 = document.getElementById('s2');
-    var s3 = document.getElementById('s3');
-    if(tag==='Lattice'){
-        s1.style.display = '';
-        s2.style.display = 'none';
-        s3.style.display = 'none';
-    }
-    else if(tag==='Newman-Watts'){
-        s1.style.display = 'none';
-        s2.style.display = '';
-        s3.style.display = 'none';
-    }else if(tag==='Barabassi-Albert'){
-        s1.style.display = 'none';
-        s2.style.display = 'none';
-        s3.style.display = '';
-    }
-}
-
-
-function chooseExperimentQualifier(tag){
-
-    var s1 = document.getElementById('qualify');
-
-    if(tag==='yes'){
-        s1.style.display = '';
-
-    }else if(tag==='no'){
-        s1.style.display = 'none';
-    }
-
-}
-
-
-function chooseTrainingQualifier(){
-    var s1 = document.getElementById('perform');
-    var s2 = document.getElementById('read');
-    var s3 = document.getElementById('survey');
-    var s4 = document.getElementById('traing_perform');
-    var s5 = document.getElementById('traing_reading');
-    var s6 = document.getElementById('traing_survey');
-
-    if(s1.checked){
-        s4.style.display = '';
-    }else{
-        s4.style.display = 'none';
-    }
-    if(s2.checked){
-        s5.style.display = '';
-    }else{
-        s5.style.display = 'none';
-    }
-    if(s3.checked){
-        s6.style.display = '';
-    }else{
-        s6.style.display = 'none';
-    }
-
-    // var s1 = document.getElementById('perform');
-    // var s2 = document.getElementById('traing_perform');
-    //
-    // if(s1.checked){
-    //     s2.style.display = '';
-    //
-    // }else{
-    //     s2.style.display = 'none';
-    // }
-
-}
 
 
 
@@ -491,7 +360,7 @@ function initTraining() {
         initDragNDrop();
         initMyDragNDrop();
         resetTraining();
-        submitTraining();
+        //submitTraining();
         updateTrainingScore();
 
     }
@@ -536,23 +405,6 @@ function blockIfPaused() {
     }
 }
 
-function initTilesOld() {
-    console.log("Init tiles...");
-    $(".dvSourceContainer").find(".tile-available").each(function () {
-        var sourceTileId = $(this).attr('drag-id');
-        console.log("Found "+sourceTileId);
-        $("#sort2").find(".purple").each(function () {
-            if ($(this).attr('drag-id') == sourceTileId) {
-                $(".dvSourceContainer").find("[drag-id='" + sourceTileId + "']").removeClass('tile-available').addClass('blue');
-            }
-
-        });
-    });
-    //$(".dvDest").find("li.purple").each(function() {
-    //    addRemoveBtn($(this).attr("drag-id"))
-    //})
-
-}
 
 function initTiles() {
     //This function just takes care of marking tiles as being avialable or not
@@ -793,47 +645,6 @@ function resetTraining() {
 
 }
 
-function submitTraining() {
-    // $("#submit-training").click(function () {
-    //    var elems = $(".dvDest").find('ul li span');
-    //    var text_all = elems.map(function () {
-    //        return $(this).text();
-    //    }).get().join(";");
-    //
-    //    console.log(text_all);
-    //    $.blockUI({
-    //        message: '<h1>Processing!</h1>',
-    //        timeout: 1000
-    //    });
-    //    $.ajax({
-    //        url: "/loom/experiment/submitTraining",
-    //        type: 'POST',
-    //        data: {
-    //            tails: text_all,
-    //            training: $("#training").val(),
-    //            trainingName: $("#training-name").text()
-    //        }
-    //    }).success(function (data) {
-    //        if (data.indexOf("simulation") >= 0) {
-    //            var session = JSON.parse(data).sesId;
-    //            var roundNumber = 0;
-    //            console.log("/loom/simulation/" + session + "/" + roundNumber);
-    //            window.location = "/loom/simulation/" + session + "/" + roundNumber;
-    //        } else {
-    //            setTimeout(function () {
-    //                $("#training-content-wrapper").html(data);
-    //                initTraining();
-    //            }, 1000);
-    //        }
-    //    }).error(function () {
-    //        setTimeout(function () {
-    //            $(".dvDest").css('border', 'solid 1px red');
-    //            $("#warning-alert").addClass('show');
-    //            $("#warning-alert").removeClass('hide');
-    //        }, 1000);
-    //    });
-    // });
-}
 
 var after;
 var before;
@@ -853,6 +664,10 @@ function calculateTime() {
 var roundInterval;
 var pingTimer;
 
+/**
+ * After user form is submitted, they begin pinging the server
+ * waiting for the next round to start
+ */
 function startPingingForNextRound() {
     var session = $("#session").val();
     pingTimer = setInterval(function() {
@@ -1033,6 +848,12 @@ function submitExperiment() {
     });
 }
 
+/**
+ * After we've received the data, we process it here
+ * updating the user's experiment view, and then start the
+ * experiment timer again
+ * @param data
+ */
 function processRoundData(data) {
     setTimeout(function () {
         $("#neighborsStories").html(data);
@@ -1061,28 +882,12 @@ function submitExperimentAjax() {
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
         startPingingForNextRound();
-        // //This never happens
-        // if (data.indexOf("finishExperiment") >= 0) {
-        //     shouldLogout = false;
-        //     console.log("/loom/experiment/finishExperiment/" + session);
-        //     window.location = "/loom/session/finishExperiment/" + session;
-        //
-        // } else {
-        //     //processRoundData(data);
-        //     startPingingForNextRound();
-        //
-        // }
+
     }).error(function () {
         $.unblockUI();
         $(".dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');
     });
-}
-
-function resetExperiment() {
-    //$("#reset-experiment").click(function () {
-    //    $(".dvDest").find('ul li').remove();
-    //});
 }
 

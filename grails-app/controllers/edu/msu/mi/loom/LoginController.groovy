@@ -95,7 +95,11 @@ class LoginController {
                 if (original) {
                     if (workerId) {
                         log.debug("Redirecting with parameters")
-                        return redirect(url: "$original?assignmentId=$assignmentId&workerId=$workerId")
+                        def params = "workerId=$workerId"
+                        if (assignmentId) {
+                            params+="?assignmentId=$assignmentId"
+                        }
+                        return redirect(url: "$original?$params")
                     } else {
                         return redirect(url: "$original")
                     }

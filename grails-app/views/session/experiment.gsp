@@ -59,7 +59,7 @@
                                             <g:if test="${myState?.size() > 0}">
                                                 <g:each in="${myState}" var="tt">
                                                     <li class="ui-state-default purple"
-                                                        drag-id="${tt.text_order}">${raw(tt.text)}</li>
+                                                        drag-id="${tt.id}">${raw(tt.text)}</li>
                                                 </g:each>
                                             </g:if>
 

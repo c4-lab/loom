@@ -77,13 +77,13 @@ class AdminService {
             return sessionClone
         } else {
             log.debug("There was problem with expSession cloning ")
-            log.error(session?.errors?.dump())
+            log.error(sessionClone?.errors?.dump())
             return null
         }
     }
 
     def deleteExperiment(def id, def type) {
-        def source, ets
+        def source
         switch (type) {
             case ExpType.TRAINING.toString():
                 source = Training.get(id)
@@ -110,7 +110,7 @@ class AdminService {
         }
         if (source) {
             source.delete(flush: true)
-            log.info("Session with id ${id} has been deleted.")
+            log.info("Object ${type} with id ${id} has been deleted.")
             return true
         } else {
             return false

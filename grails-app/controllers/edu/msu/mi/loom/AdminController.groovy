@@ -30,7 +30,7 @@ class AdminController {
     static allowedMethods = [board           : 'GET',
                              createExperiment: 'POST',
                              view            : 'GET',
-                             cloneSession    : 'POST']
+                             cloneSession    : 'GET']
 
     def index() {}
 
@@ -207,37 +207,6 @@ class AdminController {
         }
     }
 
-
-    def startSession() {
-        def session = Session.get(params.sessionId)
-        def result
-        List userSession = UserSession.findAllBySessionAndStateInList(session, [UserSession.State.WAITING, UserSession.State.ACTIVE])
-        if (session.state == Session.State.CANCEL) {
-            result = ['status': "cancel"]
-//            render(text:"cancel")
-        } else {
-
-
-            if (userSession.size() >= session.sessionParameters.defaultGetter("minNode")) {
-                if (session.state == Session.State.PENDING) {
-                    experimentService.kickoffSession(session)
-                    session = Session.get(params.sessionId)
-                    if (session.state == Session.State.ACTIVE) {
-                        mturkService.forceSessionHITExpiry(session)
-                        result = ['status': "start"]
-                    } else {
-                        result = ['status': "fail"]
-                    }
-                } else {
-                    result = ['status': "fail"]
-                }
-            } else {
-                result = ['status': "less"]
-
-            }
-        }
-        render(result as JSON)
-    }
 
     def cancelSession() {
 
@@ -606,7 +575,8 @@ class AdminController {
     }
 
     def cloneSession() {
-        def sessionId = params.session
+        def sessionId = params.sessionId
+        String message = "Successfully cloned session"
 
         if (sessionId) {
             def session = Session.get(sessionId)
@@ -614,14 +584,13 @@ class AdminController {
             if (session) {
                 def clone = adminService.cloneExperiment(session)
 
-                if (clone.id) {
-                    render(status: OK, text: [session: clone] as JSON)
-                    return
+                if (!clone.id) {
+                    message = "Failed to create clone: ${clone.errors}"
                 }
             }
         }
 
-        render(status: BAD_REQUEST)
+        redirect(action: 'board', fragment: "sessions", flash: message)
     }
 
 
@@ -776,21 +745,26 @@ class AdminController {
     def getDynamicSessionInfo() {
         def result = ["waiting": null, "active": null]
         result['waiting'] = Session.findAllByState(Session.State.WAITING).collectEntries { Session loomSession ->
+            def missingcount = UserSession.executeQuery('select count(*) from UserSession as u where u.session=:sess and u.presence.missing=:missing',
+                    [sess: loomSession, missing: true])[0]
             [loomSession.id, ['started'  : loomSession.startWaiting,
                               'elapsed'  : (int) (System.currentTimeMillis() - loomSession.startWaiting.time) / 1000,
                               'connected': UserSession.countBySessionAndState(loomSession, UserSession.State.WAITING),
                               'stopped'  : UserSession.countBySessionAndState(loomSession, UserSession.State.STOP),
-                              'missing'  : UserSession.countBySessionAndMissing(loomSession, true)]]
+                              'missing'  : missingcount]]
 
         }
 
         result['active'] = Session.findAllByState(Session.State.ACTIVE).collectEntries { Session loomSession ->
-            [loomSession.id, ['state'      : "ACTIVE",
-                              'started'    : loomSession.startActive,
-                              'round'      : experimentService.experimentsRunning[loomSession.id]?.round,
-                              'connected'  : UserSession.countBySessionAndState(loomSession, UserSession.State.ACTIVE),
-                              'missing'    : UserSession.countBySessionAndMissing(loomSession, true),
+            def missingcount = UserSession.executeQuery('select count(*) from UserSession as u where u.session=:sess and u.presence.missing=:missing',
+                    [sess: loomSession, missing: true])[0]
+            [loomSession.id, ['state'       : "ACTIVE",
+                              'started'     : loomSession.startActive,
+                              'round'       : experimentService.experimentsRunning[loomSession.id]?.round,
+                              'connected'   : UserSession.countBySessionAndState(loomSession, UserSession.State.ACTIVE),
+                              'missing'     : missingcount,
                               'round-status': experimentService.experimentsRunning[loomSession.id]?.currentStatus]]
+
         }
 
         render result as JSON

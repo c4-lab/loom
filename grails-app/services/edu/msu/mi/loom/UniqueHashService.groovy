@@ -22,4 +22,6 @@ class UniqueHashService {
     private static boolean uniqueHashExists(String hash) {
         return UniqueHash.countByHash(hash) > 0;
     }
+
+
 }

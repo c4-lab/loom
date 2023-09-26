@@ -71,11 +71,20 @@ class Session {
         copy.name = "${name}:${count + 1}"
         copy.exp = exp
         copy.sessionParameters = sessionParameters
+        copy.generateCodes()
         return copy
+    }
+
+    def beforeInsert() {
+        print("I am trying to generate codes")
+        generateCodes()
     }
 
 
     def generateCodes() {
+        if (!randomStringGenerator) {
+            throw new RuntimeException("Missing autowired service in Session object")
+        }
         if (!fullCode) {
             fullCode = randomStringGenerator.generateLowercase(12)
         }

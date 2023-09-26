@@ -17,7 +17,24 @@
             <!-- Main content -->
             <section class="content">
                 <g:if test="${flash.error}">
-                    <div class="alert alert-error">${flash.error}</div>
+                    <div class="alert alert-error alert-dismissible" role="alert">
+                        ${flash.error}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        This is a dismissible alert!
+                    </div>
+                </g:if>
+                <g:if test="${flash.message}">
+                    <div class="alert alert-info alert-dismissible" role="alert">
+                        ${flash.message}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        This is a dismissible alert!
+                    </div>
+
+                    <div class="alert alert-success">${flash.message}</div>
                 </g:if>
                 <div class="row">
                     <div class="col-sm-3">
@@ -372,6 +389,8 @@
 <g:render template="create_credentials_modal"/>
 
 <script type="application/javascript">
+    var intervalId
+
     $(document).ready(function () {
         var hash = location.hash.replace(/^#/, '');  // ^ means starting, meaning only match the first hash
         if (hash) {
@@ -385,14 +404,21 @@
 
         let sessionCount = $('.post.session-info.panel.panel-info').length;
         if (sessionCount > 0) {
-            setInterval(function () {
+            intervalId = setInterval(function () {
                 updateSessionInfo()
             }, 1000)
         }
 
         $('button.show-session-cancel').on('click', function (e) {
-            const id = $(".session-id",this.parentNode).text()
-            window.location.href = "/loom/admin/cancelSession?sessionId="+id
+            clearInterval(intervalId)
+            const id = $(".session-id", this.parentNode).text()
+            window.location.href = "/loom/admin/cancelSession?sessionId=" + id
+        });
+
+        $('button.show-session-clone').on('click', function (e) {
+            clearInterval(intervalId)
+            const id = $(".session-id", this.parentNode).text()
+            window.location.href = "/loom/admin/cloneSession?sessionId=" + id
         });
 
 
@@ -415,12 +441,12 @@
             success: function (result) {
                 console.log(result)
                 for (let [sessionid, info] of Object.entries(result['waiting'])) {
-                    let domElt = $("#session-info-"+sessionid)
+                    let domElt = $("#session-info-" + sessionid)
                     for (let [key, value] of Object.entries(info)) {
-                        $(".session-wait-"+key,domElt).text(value)
+                        $(".session-wait-" + key, domElt).text(value)
                     }
-                    $(".session-waiting-block",domElt).removeClass("hidden")
-                    $("button.show-session-cancel",domElt).prop("disabled",false)
+                    $(".session-waiting-block", domElt).removeClass("hidden")
+                    $("button.show-session-cancel", domElt).prop("disabled", false)
                     domElt.removeClass("panel-info")
                     domElt.addClass("panel-warning")
                     domElt.addClass("panel-success")
@@ -428,12 +454,12 @@
 
                 }
                 for (let [sessionid, info] of Object.entries(result['active'])) {
-                    let domElt = $("#session-info-"+sessionid)
+                    let domElt = $("#session-info-" + sessionid)
                     for (let [key, value] of Object.entries(info)) {
-                        $(".session-active-"+key,domElt).text(value)
+                        $(".session-active-" + key, domElt).text(value)
                     }
-                    $(".session-active-block",domElt).show()
-                    $("button.show-session-cancel",domElt).prop("disabled",false)
+                    $(".session-active-block", domElt).show()
+                    $("button.show-session-cancel", domElt).prop("disabled", false)
                     domElt.removeClass("panel-warning")
                     domElt.addClass("panel-success")
                 }

@@ -9,6 +9,7 @@ import java.security.SecureRandom
 @Transactional
 class UserService {
     private SecureRandom random = new SecureRandom();
+    def randomStringGenerator
 
     def createUser(String username, String password, String confirmPass) {
         if (password != confirmPass) {
@@ -44,17 +45,22 @@ class UserService {
 
     def createUserByWorkerId(String workerId, boolean isTurker = false) {
         def password = makeRandomPassword();
-        def username = "user-"+User.count().toString()
+        def username = workerId
+        while (User.countByUsername(username)) {
+            username = workerId+"_"+randomStringGenerator.generateLowercase(4)
+        }
+
         def user = new User(username: username, password: password)
         if(isTurker){
             user = new User(username: username, password: password, turkerId: workerId)
         }
 
         if (user.save(flush: true) && !isTurker) {
-            log.info("Created user with id ${user.id}")
+            log.info("Created regular user with id ${user.id}")
             addDefaultRole(user)
             return user
         } else if(user.save(flush: true) && isTurker){
+            log.info("Created Mturk user with id ${user.id}")
             addMturkerRole(user)
             return user
         }else{

@@ -25,12 +25,12 @@
 
     <div class="tab-content col-xs-11 table-bordered dvSourceContainer col-centered">
         <g:each in="${neighborState}" var="user">
-                <div class="tab-pane ${user.key == 1 ?"active": ""}"
+                <div class="tab-pane ${user.key != 2 ?: "active"}"
                      id="neighbour${user.key}">
-                    <ul class="${uiflag == 1?"dvSource":""} originalstory g_list">
+                    <ul style="min-height: 200px !important;" class="${uiflag == 1?"dvSource":""} originalstory g_list">
                         <g:each in="${user.value}" var="tt">
                             <li class="ui-state-default tile-available"
-                                drag-id="${tt.text_order}"
+                                drag-id="${tt.id}"
                                 nei-id="neighbour${user.key}">${raw(tt.text)}</li>
                         </g:each>
                     </ul>

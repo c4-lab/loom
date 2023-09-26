@@ -497,6 +497,11 @@ class MturkService {
     }
 
 
+    /**
+     * Not using this for now.  All payments will be handled outside of the system
+     * @param session
+     * @return
+     */
     def check_session_payable(Session session) {
 
         int count = UserSession.countBySession(session)

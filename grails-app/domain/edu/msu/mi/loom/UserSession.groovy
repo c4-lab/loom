@@ -7,7 +7,8 @@ class UserSession implements Serializable{
         REJECTED, //rejected because too many players
         ACTIVE,   //playing the game
         COMPLETE, //finished the game
-        STOP //was waiting, stopped
+        STOP, //was waiting, stopped
+        CANCELLED //session was cancelled
 
     }
 
@@ -19,10 +20,13 @@ class UserSession implements Serializable{
     String completionCode
     Date started
     Date stoppedWaiting
+
+    UserSessionPresence presence = new UserSessionPresence()
+
     State state = State.WAITING
-    int wait_time
+    int wait_time = 0
     MturkAssignment mturkAssignment
-    boolean missing = false
+
     boolean selected = false
 
     static mapping = {
@@ -49,10 +53,24 @@ class UserSession implements Serializable{
         def instance = new UserSession(user: user, session: session, started: started, mturkAssignment: mturkAssignment)
         if (mturkAssignment) {
             mturkAssignment.userSession = instance
-            mturkAssignment.save(flush: flush, insert: true)
         }
         instance.save(flush: flush, insert: true)
         instance
+    }
+    /**
+     * Updates waiting time, clears the start time, and optionally sets a new time
+     * @param newState
+     * @return
+     */
+    def stopWaiting(State newState=null) {
+        if (state == UserSession.State.WAITING && started) {
+            stoppedWaiting = new Date()
+            wait_time += (stoppedWaiting.time - started.time) / (60 * 1000)
+            started = null
+            if (newState) {
+                state = newState
+            }
+        }
     }
 
 

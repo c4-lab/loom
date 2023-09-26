@@ -23,7 +23,7 @@ class ExperimentRoundStatus {
     Status currentStatus = Status.ACTIVE
 
 
-    public ExperimentRoundStatus(int userCount, int roundCount, long pauseLength=10000l) {
+    ExperimentRoundStatus(int userCount, int roundCount, long pauseLength=10000l) {
         this.userCount = userCount
         this.roundCount = roundCount
         this.pauseLength = pauseLength
@@ -32,37 +32,35 @@ class ExperimentRoundStatus {
 
     }
 
-    public Status checkPauseStatus() {
-        if (currentStatus == Status.PAUSING &&
-                (submitted.size() == userCount || (System.currentTimeMillis() - pauseStart) >= pauseLength)) {
-            log.debug("Advancing round with ${submitted.size()}")
-            round++
-
-            if (isFinished()) {
-                currentStatus = Status.FINISHED
-            } else {
-                currentStatus = Status.ACTIVE
-                submitted.clear()
-                this.roundStart = new Date()
-            }
-
-
-        }
-        currentStatus
-
-//        if (currentStatus == Status.PAUSING &&
-//                ((System.currentTimeMillis() - pauseStart) >= pauseLength)) {
-//            currentStatus = Status.ACTIVE
-//            submitted.clear()
-//            round++
-//            this.roundStart = new Date()
-//        }
-//        currentStatus
-
+    boolean isOverTime() {
+        (System.currentTimeMillis() - pauseStart) >= pauseLength
     }
 
-    public submitUser(userId) {
-        synchronized (submitted){submitted<<userId}
+    boolean isAllSubmitted() {
+        log.debug("Query all submitted; currently have: ${submitted}")
+        submitted.size()>=userCount
+    }
+
+    def advanceRound() {
+        log.debug("ExperimentRoundStatus advancing round from $round to ${round+1}")
+        round++
+        if (isFinished()) {
+            currentStatus = Status.FINISHED
+        } else {
+            currentStatus = Status.ACTIVE
+            submitted.clear()
+            this.roundStart = new Date()
+        }
+    }
+
+
+
+    def submitUser(userId) {
+        //TODO This was synchronized at some point; I've removed
+        //TODO this to avoid lock contention, but uncertain if there was a good reason for
+        //TODO synchronization originally.  Only possible other modification (afaict) is the "clear" that happens
+        //TODO above
+        submitted<<userId
     }
 
     public boolean isFinished() {
