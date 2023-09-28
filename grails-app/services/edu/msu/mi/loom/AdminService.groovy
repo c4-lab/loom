@@ -49,7 +49,7 @@ class AdminService {
 
         ((List)storyText).eachWithIndex { line, count ->
             if (line && ((String)line).trim().length()) {
-                tile = new Tile(text: line, text_order: count)
+                tile = new Tile(text: line, text_order: count).save()
                 story.addToTiles(tile)
             }
         }

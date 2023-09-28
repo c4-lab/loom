@@ -3,6 +3,9 @@ package edu.msu.mi.loom
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
+import org.hibernate.engine.spi.SessionImplementor
+import org.springframework.orm.hibernate4.HibernateTemplate
+import org.hibernate.internal.SessionFactoryImpl
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
@@ -20,6 +23,7 @@ class SessionController {
     def sessionService
     def mturkService
     def constraintService
+    def sessionFactory
 
 
 
@@ -175,6 +179,9 @@ class SessionController {
     private LinkedHashMap<Object, Object> generateRoundModel(Session session, User user) {
         def model = [:]
         ExperimentRoundStatus status = experimentService.getExperimentStatus(session)
+        if (!status) {
+            throw new RuntimeException("Missing experiment round status for ${session.id}!")
+        }
         model['neighborState'] = experimentService.getNeighborsState(session)
         model['myState'] = experimentService.getMyStoryState(session)
         model['myInitialState'] = experimentService.getMyPrivateState(session)
@@ -271,17 +278,32 @@ class SessionController {
         def roundNumber = Integer.parseInt(params.roundNumber)
 
 
-        Session session = Session.get(sessionId)
-        if (!session) {
+        Session loomSession = Session.get(sessionId)
+        if (!loomSession) {
            return render(status: BAD_REQUEST)
         }
-        observeUser(session)
+        observeUser(loomSession)
 
         def user = springSecurityService.currentUser as User
         log.debug("User ${user.username} submitting for $roundNumber: $userTiles")
         List submittedTiles = userTiles ? userTiles.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
-        experimentService.userSubmitted(user, session, roundNumber, submittedTiles)
+        experimentService.userSubmitted(user, loomSession, roundNumber, submittedTiles)
+
+       // inspectSession(sessionFactory.getCurrentSession())
+
         render(status: OK)
+    }
+
+    private void inspectSession(org.hibernate.Session session) {
+        def persistenceContext = ((SessionImplementor)session).getPersistenceContext()
+        def entities = persistenceContext.entitiesByKey.clone()
+        entities.each {
+            def entity = it.value
+            log.info("Checking entity: ${it.key}")
+            if (entity.isDirty()) {
+                log.info("Is marked dirty")
+            }
+        }
     }
 
 
@@ -292,7 +314,7 @@ class SessionController {
         }
         def user = springSecurityService.currentUser as User
         UserSession us = UserSession.findByUserAndSession(user, session)
-        List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }.score
+        List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }?.score
         render(view: 'finish', model: [scores: scores, completionCode: us.completionCode, isTurker:user.isMturkWorker()])
 
 

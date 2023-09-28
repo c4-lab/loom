@@ -14,6 +14,10 @@ class ConstraintProvider {
 
     String constraintTitle
 
+    static mapping = {
+        version false
+    }
+
     static constraints = {
 
     }

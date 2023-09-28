@@ -86,7 +86,7 @@ class ExperimentService {
      * @return
      */
     int countWaitingUsers(Session session) {
-        log.debug("Counting users")
+
         List<UserSession> sessions = UserSession.findAllBySessionAndState(session, UserSession.State.WAITING)
         SessionType type = session.sessionParameters.safeGetSessionType()
 
@@ -196,6 +196,7 @@ class ExperimentService {
             it.state = UserSession.State.ACTIVE
             User user = it.user
             Story story = it.session.sessionParameters.safeGetStory()
+            log.debug("Setting constraint value for $story for $user.username")
             constraintService.setConstraintValueForUser(user, story, 1, user.isMturkWorker() ? it.mturkAssignment.hit.task.credentials : null)
 
         }
@@ -261,7 +262,7 @@ class ExperimentService {
 
         waitingTimer[session.id] = new Timer()
         ((Timer)waitingTimer[session.id]).scheduleAtFixedRate({
-            log.debug("Checking waiters...")
+           // log.debug("Checking waiters...")
             Session s
             //TDOD uncertain if a new session is really necessary here
             Session.withNewSession {
@@ -294,7 +295,7 @@ class ExperimentService {
         if (!currentStatus) {
             int selectedUserCount = UserSession.countBySessionAndSelected(session,true)
             currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
-            log.debug("Initialized status with $currentStatus")
+            log.debug("Initialized status for $session.id with $currentStatus")
             experimentsRunning[session.id] = currentStatus
         }
         if (currentStatus.isFinished()) {

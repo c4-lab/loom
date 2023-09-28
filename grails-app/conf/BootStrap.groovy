@@ -1,6 +1,10 @@
 import edu.msu.mi.loom.*
 import grails.converters.JSON
+import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.json.JSONElement
+import grails.util.Metadata
+import org.hibernate.metadata.ClassMetadata
 
 class BootStrap {
     def experimentService
@@ -10,9 +14,55 @@ class BootStrap {
     def trainingSetService
     def mturkService
     def adminService
+    def sessionFactory
     def init = { servletContext ->
+        //GrailsApplication ga = (GrailsApplication)grailsApplication
+
+       // def allClasses = ga.domainClasses
+
+
+//        allClasses.each { domainClass ->
+//            if (domainClass) {
+//                DefaultGrailsDomainClass dc = (DefaultGrailsDomainClass)domainClass
+//                Class clazz = domainClass.clazz
+//                println "Domain class ${clazz}"
+//                dc.associations.each {
+//                    if (it.explicitSaveUpdateCascade) {
+//                        print("--- Explicit Save or Update Cascade")
+//                    }
+//                }
+//
+//                println "Domain class class: ${domainClass.metaClass.class}"
+//                println "Domain Meta Class ${domainClass.metaClass}"
+//                println ""
+//                ClassMetadata classMetadata = sessionFactory.getClassMetadata(domainClass)
+//                println "Session Class Metadata ${classMetadata}"
+////                domainClass.metaClass.hasMany.each { assocName, assocType ->
+////                    def mappedBy = domainClass.metaClass."${assocName}MappedBy"
+////                    def cascadeType = domainClass.metaClass."${assocName}Cascade"
+////                    println "  hasMany association: ${assocName} (Type: ${assocType}, Mapped By: ${mappedBy}, Cascade: ${cascadeType})"
+////                }
+////
+////                domainClass.metaClass.belongsTo.each { assocName, assocType ->
+////                    def mappedBy = domainClass.metaClass."${assocName}MappedBy"
+////                    def cascadeType = domainClass.metaClass."${assocName}Cascade"
+////                    println "  belongsTo association: ${assocName} (Type: ${assocType}, Mapped By: ${mappedBy}, Cascade: ${cascadeType})"
+////                }
+////
+////                domainClass.metaClass.hasOne.each { assocName, assocType ->
+////                    def mappedBy = domainClass.metaClass."${assocName}MappedBy"
+////                    def cascadeType = domainClass.metaClass."${assocName}Cascade"
+////                    println "  hasOne association: ${assocName} (Type: ${assocType}, Mapped By: ${mappedBy}, Cascade: ${cascadeType})"
+////                }
+//
+//                println() // Print a newline for better readability
+//            }
+//        }
         environments {
             development {
+
+
+
 //                println("------->Mturk service is ${mturkService}")
 //                println("------->Mturk client is ${mturkService.getMturkClient()}")
 //                createInitialRecords()

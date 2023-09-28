@@ -4,14 +4,17 @@ class UserRoundStory {
 
     def experimentService
 
+    List<Tile> currentTiles
+    static hasMany = [currentTiles: Tile]
+
     Date time
     Session session
-    List<Tile> currentTiles
+
     int round
     String userAlias
     float score
 
-    static hasMany = [currentTiles: Tile]
+
 
     static constraints = {
         score nullable: true

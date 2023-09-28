@@ -4,7 +4,12 @@ class Tile {
     String text
     int text_order
 
+
     static belongsTo = [story: Story]
+
+    static mapping = {
+        story cascade: "none"
+    }
 
     static constraints = {
         text blank: false

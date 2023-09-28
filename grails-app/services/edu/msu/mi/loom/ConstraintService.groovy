@@ -65,6 +65,7 @@ class ConstraintService {
 
     //TODO Handle the revocation of a constraint - possibly via a null parameter on the value?
     def setConstraintValueForUser(User user, ConstraintProvider provider, Integer value, CrowdServiceCredentials creds) {
+        log.debug("Setting constraint value for ${provider}")
         UserConstraintValue uc = UserConstraintValue.findByUserAndConstraintProvider(user,provider)
         if (!uc) {
             uc = new UserConstraintValue(user: user, constraintProvider: provider)

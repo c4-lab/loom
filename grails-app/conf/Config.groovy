@@ -120,11 +120,17 @@ log4j.main = {
         error() //by default, root log level is error. Now, we changed it to debug level,
         //stdout(console) is default appender for root.
     }
+
+
     debug  'edu.msu.mi.loom.MturkService',
             'edu.msu.mi.loom.SessionService',
             'edu.msu.mi.loom.ExperimentService',
+            'edu.msu.mi.loom.ConstraintService',
             'edu.msu.mi.loom.SessionController',
             'edu.msu.mi.loom.ExperimentRoundStatus'
+
+
+
 
 
 
@@ -138,7 +144,6 @@ log4j.main = {
            'org.codehaus.groovy.grails.plugins',            // plugins
            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
            'org.springframework',
-           'org.hibernate',
            'net.sf.ehcache.hibernate',
             'org.apache.http',
     'org.catalina.connector',
