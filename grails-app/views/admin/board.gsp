@@ -108,6 +108,9 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="sessions">
+                                    <g:if test="${sessions.size() > 0}">
+                                        <span id="loom-sessions-exist"></span>
+                                    </g:if>
                                     <g:each in="${sessions}" var="loomSession">
                                         ${loomSession.name}
                                         <g:render template="session_detail" model="[loomSession: loomSession]"/>
@@ -402,8 +405,9 @@
             window.location.hash = e.target.hash;
         });
 
-        let sessionCount = $('.post.session-info.panel.panel-info').length;
+        let sessionCount = $('#loom-sessions-exist').length;
         if (sessionCount > 0) {
+            console.log("Found existing sessions")
             intervalId = setInterval(function () {
                 updateSessionInfo()
             }, 1000)

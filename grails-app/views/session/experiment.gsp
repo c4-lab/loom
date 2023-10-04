@@ -37,11 +37,13 @@
                             </div>
 
                             <div class="box-body">
-                                <div id="neighborsStories">
-                                    <g:render template="experiment_content"
-                                              model="[neighborState: neighborState, round: round,
-                                                      timeRemaining: timeRemaining,
-                                                      loomSession  : loomSession, paused: paused, uiflag:uiflag]"/>
+                                <div id="neighborStoryContainer">
+                                    <div id="neighborsStories">
+                                        <g:render template="experiment_content"
+                                                  model="[neighborState: neighborState, round: round,
+                                                          timeRemaining: timeRemaining,
+                                                          loomSession  : loomSession, paused: paused, uiflag:uiflag]"/>
+                                    </div>
                                 </div>
 
                                 <!---  THIS IS YOUR STORY ------>
@@ -82,7 +84,7 @@
                                         <ul style="min-height: 200px !important;" id="sort4" class="${uiflag == 1?"dvSource":""} g_list privateinfo">
                                             <g:each in="${myInitialState}" var="tt">
                                                 <li class="ui-state-default tile-available"
-                                                    drag-id="${tt.text_order}">${raw(tt.text)}</li>
+                                                    drag-id="${tt.id}">${raw(tt.text)}</li>
                                             </g:each>
 
                                         </ul>
@@ -106,13 +108,71 @@
     </div>
     <script type="text/javascript">
 
+        var activeTabGlobal = "";
+
         jQuery(document).ready(function () {
             shouldLogout = true;
             window.onbeforeunload = logout;
             initMyDragNDrop();
             //removeTile();
 
+            //Set the first tab as active if no tab is active.
+            if (activeTabGlobal === "") {
+                setActiveTab($('.nav-tabs li:first-child a').attr('href').substring(1));
+            }
+
+            //The following code is no longer necessary - setting the tab within the fragment appears to work
+            // const container = document.getElementById('neighborStoryContainer');
+            //
+            // const observer = new MutationObserver((mutationsList) => {
+            //     for(const mutation of mutationsList) {
+            //         console.log("Checking mutations "+mutation)
+            //         if (mutation.target.id === "neighborsStories") {
+            //             console.log('Section replaced');
+            //             setActiveTab(activeTabGlobal)
+            //
+            //         }
+            //
+            //     }
+            // });
+
+            //observer.observe(container, { childList: true, subtree: true });
+
+
         });
+
+        function storeActiveTab() {
+            var activeTab = $('.nav-tabs .active a');
+            if (activeTab.length === 0) return null;
+            var href = activeTab.attr('href');
+            var result = href ? href.substring(1) : null; // Return the id without the '#'
+            console.log("Returning active tab: "+result)
+            activeTabGlobal= result;
+        }
+
+
+        function setActiveTab(tabId) {
+
+            console.log("Manually setting active tab: "+tabId)
+            var tab = $('.nav-tabs a[href="#' + tabId + '"]');
+
+
+            if (tab.length === 0) {
+                console.log("No tab to set")
+                return;
+            }
+
+            $('.nav-tabs [aria-expanded="true"]').attr('aria-expanded', 'false');
+            $('.nav-tabs li').removeClass('active'); // remove active class from all tabs
+            $('.tab-content .tab-pane').removeClass('active'); // remove active class from all panes
+
+            tab.parent('li').addClass('active'); // add active class to the selected tab
+            tab.parent('li').attr('aria-expanded', 'true');
+            $('#' + tabId).addClass('active'); // add active class to the corresponding pane
+        }
+
+
+
     </script>
 
 

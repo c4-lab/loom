@@ -685,7 +685,12 @@ function startPingingForNextRound() {
             } else if (data!="pausing") {
                 console.log("Processing round data");
                 clearInterval(pingTimer);
+                storeActiveTab();
                 processRoundData(data)
+                // setTimeout(function() {
+                //     console.log("In set timeout")
+                //     setActiveTab(activeTab);
+                // },0);
             } else {
                 console.log(data)
             }
@@ -870,6 +875,7 @@ function submitExperimentAjax() {
         return $(this).attr('drag-id');
     }).get().join(";");
     var session =  $("#session").val();
+
     $("#neighborsStories").block({message:"<em>Refreshing neighbors...</em>"});
     $.ajax({
         url: "/loom/session/submitExperiment",

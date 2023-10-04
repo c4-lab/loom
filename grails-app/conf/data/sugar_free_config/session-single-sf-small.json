@@ -32,8 +32,8 @@
     }
   },
   "sessionParameters": {
-    "roundCount": 4,
-    "roundTime": 10,
+    "roundCount": 10,
+    "roundTime": 120,
     "sessionType": {
       "type": "SINGLE"
     },
