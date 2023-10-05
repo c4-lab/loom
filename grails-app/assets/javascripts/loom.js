@@ -834,7 +834,9 @@ function submitSimulationAjax() {
                 initSimulation();
             }, 1000);
         }
-    }).error(function () {
+    }).error(function (jqXHR, textStatus, errorThrown) {
+        console.log("Error thrown: "+errorThrown)
+        console.log("Status: "+textStatus)
         $(".dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');
