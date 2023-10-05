@@ -41,6 +41,15 @@ environments {
             dbCreate = "update"
             username = "loom"
             password = "loom"
+	    properties {
+	        validationQuery = "SELECT 1"
+                validationQueryTimeout = 3
+                validationInterval = 15000
+                testOnBorrow = true
+                testWhileIdle = true
+                testOnReturn = false
+
+            }
         }
     }
 }
