@@ -36,11 +36,13 @@ grails.assets.extensions = [
         "mp4", "webm"
 ]
 
-grails.assets.minifyOptions = [
-        languageMode: 'ES6',
-        targetLanguage: 'ES6', //Can go from ES6 to ES5 for those bleeding edgers
-        optimizationLevel: 'SIMPLE' //Or ADVANCED or WHITESPACE_ONLY
-]
+grails.assets.minifyJs = false
+
+//grails.assets.minifyOptions = [
+//        languageMode: 'ES6',
+//        targetLanguage: 'ES6', //Can go from ES6 to ES5 for those bleeding edgers
+//        optimizationLevel: 'SIMPLE' //Or ADVANCED or WHITESPACE_ONLY
+//]
 
 
 // URL Mapping Cache Max Size, defaults to 5000
