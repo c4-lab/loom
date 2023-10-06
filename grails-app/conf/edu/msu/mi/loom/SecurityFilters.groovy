@@ -21,13 +21,13 @@ class SecurityFilters {
         }
 
         switchToHttps(uri: "/**") {
-            before = {
-                if (!request.isSecure() && !Environment.isDevelopmentMode()) {
-                    def url = "https://" + request.serverName + request.forwardURI
-                    redirect(url: url, permanent: true)
-                    return false
-                }
-            }
+            //before = {
+            //    if (!request.isSecure() && !Environment.isDevelopmentMode()) {
+            //        def url = "https://" + request.serverName + request.forwardURI
+            //        redirect(url: url, permanent: true)
+            //        return false
+            //    }
+            //}
 
             after = {Map model ->
                 if ([301,302].contains(response.getStatus())) {
