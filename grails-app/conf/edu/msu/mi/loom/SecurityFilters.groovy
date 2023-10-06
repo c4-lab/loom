@@ -31,11 +31,11 @@ class SecurityFilters {
 
             after = {Map model ->
                 if ([301,302].contains(response.getStatus())) {
-		    //println("Got redirect with location ${response.getHeader("Location")}")
+		    println("Got redirect with location ${response.getHeader("Location")}")
                     def location = response.getHeader("Location")
                     if (location.startsWith("http://")) {
-                            location = "https://${location.substring(7,location.length())}"
-                            log.debug("Rewrite response to ${response.getHeader("Location")}")
+			    location = "https://${location.substring(7,location.length())}"
+                            println("Rewrite response to ${location}")
                             response.setHeader("Location",location)
                         
                     }
