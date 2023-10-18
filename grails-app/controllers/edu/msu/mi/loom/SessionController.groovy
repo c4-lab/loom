@@ -193,7 +193,12 @@ class SessionController {
         int timeRemaining = Math.max(0f, session.sessionParameters.safeGetRoundTime() - (System.currentTimeMillis() - status.roundStart.time) / 1000) as Integer
         log.debug("Returning user model with time remaining: $timeRemaining")
         model['timeRemaining'] = timeRemaining
+        model['startTime']=status.roundStart.time
+        model['roundDuration']=session.sessionParameters.safeGetRoundTime()
+        model['serverTime']=System.currentTimeMillis()
+
         model['loomSession'] = session
+        println("Returning model ${model}")
         model
     }
 

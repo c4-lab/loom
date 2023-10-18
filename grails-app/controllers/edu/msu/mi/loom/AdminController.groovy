@@ -6,9 +6,6 @@ import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 import org.springframework.web.multipart.MultipartFile
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST
-import static org.springframework.http.HttpStatus.OK
-
 @Slf4j
 @Secured("ROLE_ADMIN")
 class AdminController {
@@ -26,6 +23,7 @@ class AdminController {
 
     def mturkService
     def constraintService
+    def csvParserService
 
     static allowedMethods = [board           : 'GET',
                              createExperiment: 'POST',
@@ -69,7 +67,7 @@ class AdminController {
         }
         def trainingSets = TrainingSet.list()
 
-        def users = User.findAllByTurkerIdIsNullAndUsernameNotEqual("admin", [sort: 'dateCreated', order: 'desc'])
+        def users = User.findAllByWorkerIdIsNullAndUsernameNotEqual("admin", [sort: 'dateCreated', order: 'desc'])
         //print("Render view")
         render(view: 'board', model: [sessions   : Session.list(), sessionState: sessionStates,
                                       experiments: Experiment.list(), trainings: trainingSets,
@@ -380,6 +378,46 @@ class AdminController {
         }
 
 
+    }
+
+    def addNewUser(String workerId, String type, String constraints) {
+        User u = User.findByWorkerId(workerId)
+        Roles role = null
+
+        try {
+            role = Roles.valueOf(type)
+        } catch (Exception e) {
+            //no problem
+        }
+        if (!u) {
+            u = userService.createUserByWorkerId(workerId,role)
+        }
+        if (!u) {
+            throw new RuntimeException("Error creating user")
+        }
+
+
+        List constraintList = constraints.split(";").collect {
+            constraintService.parseConstraintValue(u,constraints)
+
+        }
+
+
+
+
+    }
+
+
+    def uploadUsers() {
+        def file = params.inputFile
+        def text = fileService.readFile(file as MultipartFile)
+        def users = csvParserService.parseCsvFile(text)
+        users.each {
+            String workerId = it.workerId
+            String type = it.type
+            String constraints = it.constraints
+            addNewUser(workerId,type,constraints)
+        }
     }
 
 

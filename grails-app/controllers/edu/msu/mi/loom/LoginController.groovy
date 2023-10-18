@@ -73,14 +73,14 @@ class LoginController {
             User u = User.findByUsername(workerId)
             if(orig.parameters.assignmentId && orig.parameters.assignmentId[0]!="null"){
                 assignmentId = orig.parameters?.assignmentId[0]
-                u = User.findByTurkerId(workerId)
+                u = User.findByWorkerId(workerId)
             }
 
             if (u) {
                 springSecurityService.reauthenticate(u.username)
             } else {
                 if(assignmentId){
-                    u = userService.createUserByWorkerId(workerId, true)
+                    u = userService.createUserByWorkerId(workerId, Roles.ROLE_MTURKER)
 
                 }else{
                     u = userService.createUserByWorkerId(workerId)

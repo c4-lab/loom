@@ -39,10 +39,17 @@
                             <div class="box-body">
                                 <div id="neighborStoryContainer">
                                     <div id="neighborsStories">
+
                                         <g:render template="experiment_content"
-                                                  model="[neighborState: neighborState, round: round,
+                                                  model="[neighborState: neighborState,
+                                                          round: round,
                                                           timeRemaining: timeRemaining,
-                                                          loomSession  : loomSession, paused: paused, uiflag:uiflag]"/>
+                                                          loomSession  : loomSession,
+                                                          paused: paused,
+                                                          startTime: startTime,
+                                                          roundDuraction: roundDuration,
+                                                          serverTime: serverTime,
+                                                          uiflag:uiflag]"/>
                                     </div>
                                 </div>
 

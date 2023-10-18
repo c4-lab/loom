@@ -4,48 +4,13 @@ $(document).ready(function () {
      * ADMINISTRATATIVE STUFF
      */
 
-
-
-
-    $("#create-users").click(function () {
-        $("#create-users-modal").modal('show');
-    });
-
     $("#network_type").click(function () {
         var network_type=$("#select option:selected").val();
         alert(network_type);
     });
 
-    $(".launch_training").click(function () {
-        var trainingId = $(this).find('span').text();
-        // alert($("#launch_training").find('span').text());
-        $("#launch-training-modal").modal('show');
-        $("#trainingID").text(trainingId);
-    });
 
 
-
-
-    $("#create-trainingset").click(function () {
-        $("#training-set-file-upload-modal").modal('show');
-    });
-
-    $("#create-reading").click(function () {
-        $("#reading-file-upload-modal").modal('show');
-    });
-
-    $("#create-simulation").click(function () {
-        $("#simulation-script-upload-modal").modal('show');
-    });
-
-    $("#create-survey").click(function () {
-        $("#survey-upload-modal").modal('show');
-    });
-
-
-    $("#create-credentials").click(function () {
-        $("#create-credentials-modal").modal('show');
-    });
 
 
 
@@ -328,6 +293,9 @@ $(document).ready(function () {
 
 //TODO - need to check this logic; see the "logout" call in thw waiting room
 var shouldLogout = true;
+var serverDelta = undefined
+var roundStart = undefined
+var roundDuration = undefined
 
 function logout() {
     if (shouldLogout) {
@@ -344,11 +312,8 @@ function initExperiment() {
     if ($("#experiment-content-wrapper").length > 0) {
         initDragNDrop();
         initTiles();
-
-        localStorage.setItem('remainingTime', 'null');
-        clearInterval(roundInterval);
         initRound();
-        initExperimentTimer();
+        initExperimentTimer($('#timerPanel'));
         blockIfPaused();
 
     }
@@ -388,11 +353,6 @@ function initSimulationTimer() {
     startSimulationTimer(duration, display);
 }
 
-function initExperimentTimer() {
-    var duration = $("#experimentDuration").val(),
-        display = $('#timerPanel');
-    startExperimentTimer(duration, display);
-}
 
 function initRound() {
     var round = Number($("#roundNumber").val())+1;
@@ -412,7 +372,7 @@ function initTiles() {
 
     $("#sort2").find(".purple").each(function () {
         var destTileId = $(this).attr('drag-id');
-        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        var matched = $(".dvSourceContainer").find("[drag-id='" + destTileId + "']");
         if (matched.length > 0) {
             matched.each(function () {
                 $(this).removeClass('tile-available').addClass('blue');
@@ -424,7 +384,7 @@ function initTiles() {
     });
     $("#sort3").find(".purple").each(function () {
         var destTileId = $(this).attr('drag-id');
-        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        var matched = $(".dvSourceContainer").find("[drag-id='" + destTileId + "']");
         if (matched.length > 0) {
             matched.each(function () {
                 // $(this).remove();
@@ -438,7 +398,7 @@ function initTiles() {
 
     $("#sort4").find(".purple").each(function () {
         var destTileId = $(this).attr('drag-id');
-        var matched = $(".dvSourceContainer").find(".tile-available[drag-id='" + destTileId + "']");
+        var matched = $(".dvSourceContainer").find("[drag-id='" + destTileId + "']");
         if (matched.length > 0) {
             matched.each(function () {
                 // $(this).remove();
@@ -735,37 +695,42 @@ function startSimulationTimer(duration, display) {
     }, 1000);
 }
 
-function startExperimentTimer(duration, display) {
-    var timer;
-    if (isNaN(localStorage.remainingTime) || localStorage.remainingTime == 'null') {
-        console.log('duration works');
-        timer = duration;
-    } else {
-        console.log('localstorage works');
-        timer = localStorage.remainingTime;
+
+function initExperimentTimer(display) {
+    var serverDelta, roundDuration, roundStart;
+
+    function readTimingData() {
+        serverDelta = new Date().getTime()-parseInt($("#serverTime").val(),10);
+        roundDuration = parseInt($("#currentRoundDuration").val(),10);
+        roundStart = parseInt($("#roundStart").val(),10);
     }
+
+    readTimingData()
+
+    var worker = new Worker('/loom/assets/second-timer.js');
     var minutes, seconds;
 
-    console.log("experiment timer: " + timer);
-
-    roundInterval = setInterval(function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        console.log('timer inside: ' + timer);
-        display.text(minutes + ":" + seconds);
-
-        if (--timer < 0) {
-            timer = duration;
+    worker.onmessage = function(event) {
+        adjustedLocalTime = new Date().getTime() + serverDelta
+        if (adjustedLocalTime >= roundDuration * 1000 + roundStart) {
             console.log("Submitting the form");
+            worker.terminate()
             submitExperimentAjax();
+        } else {
+
+            const remainingSeconds = roundDuration - Math.floor((adjustedLocalTime - roundStart) / 1000)
+
+            minutes = Math.floor(remainingSeconds / 60)
+            seconds = remainingSeconds % 60
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.text(minutes + ":" + seconds);
         }
+    };
 
-        localStorage.setItem('remainingTime', timer);
+    worker.postMessage('Start');
 
-    }, 1000);
 }
 
 function submitSimulation() {
@@ -871,7 +836,7 @@ function processRoundData(data) {
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
     console.log("ROUND: "+$("#roundNumber").val());
-    clearInterval(roundInterval);
+
     var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');

@@ -600,7 +600,7 @@ class MturkService {
             }
 
             String worker_id = getWorkerId(assignmentId)
-            User user = User.findByTurkerId(worker_id)
+            User user = User.findByWorkerId(worker_id)
             UserSession us = UserSession.findBySessionAndUser(session, user)
             if (us) {
                 int wait_time = us?.wait_time ?: 0

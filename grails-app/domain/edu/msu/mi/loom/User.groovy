@@ -6,7 +6,8 @@ class User {
 
     String username
     String password
-    String turkerId
+    String workerId
+    String prolificId
     boolean enabled = true
     boolean accountExpired = false
     boolean accountLocked = false
@@ -20,7 +21,8 @@ class User {
     static constraints = {
         username blank: false, unique: true, maxSize: 20
         password blank: false
-        turkerId nullable: true
+        workerId nullable: true
+        prolificId nullable: true
     }
 
     static mapping = {
@@ -46,6 +48,14 @@ class User {
     }
 
     def isMturkWorker() {
-        turkerId!=null
+        getAuthorities().find {
+            it.authority == Roles.ROLE_MTURKER.name
+        }
+    }
+
+    def isProlificWorker() {
+        getAuthorities().find {
+            it.authority == Roles.ROLE_PROLIFIC.name
+        }
     }
 }

@@ -86,7 +86,10 @@ class UserRole implements Serializable {
 
     static constraints = {
         role validator: { Role r, UserRole ur ->
-            if (ur.user == null) return
+            if (ur.user?.id == null) {
+                //user does not yet exist
+                return
+            }
             boolean existing = false
             UserRole.withNewSession {
                 existing = UserRole.exists(ur.user.id, r.id)

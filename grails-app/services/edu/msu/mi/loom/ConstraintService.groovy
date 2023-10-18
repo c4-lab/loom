@@ -1,18 +1,43 @@
 package edu.msu.mi.loom
 
-import com.amazonaws.services.mturk.model.Comparator
+
 import grails.transaction.Transactional
 
 import java.util.regex.Matcher
-
 
 @Transactional
 class ConstraintService {
 
     def mturkService
 
+    static CONSTRAINT_VALUE_PATTERH = /(\S+)\s*([\d.]*)/
 
 
+    UserConstraintValue parseConstraintValue(User u, String str) {
+        Matcher m = str=~CONSTRAINT_VALUE_PATTERH
+        if (!m.matches()) {
+            throw new RuntimeException("Malformed constraint value string: $str")
+
+        }
+
+        ConstraintProvider provider = ConstraintProvider.findByConstraintTitle(m[0][1])
+        if (!provider) {
+            throw new RuntimeException("Non-existent constraint priovider: ${m[0][1]}")
+        }
+
+
+        Float value = null
+        if (m[0][2]!=null) {
+            try {
+                value = Float.parseFloat(m[0][2])
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse value for user constraint: $value")
+            }
+        }
+
+        return new UserConstraintValue(user: u, constraintProvider:  provider, value: value)
+
+    }
 
     Collection<ConstraintTest> failsConstraints(User user, Session session) {
         Collection<ConstraintTest> tests = session.allConstraintTests()
@@ -73,7 +98,7 @@ class ConstraintService {
         uc.value = value
         uc.save()
         if (creds) {
-            mturkService.assignQualification(user.turkerId, provider, value, creds)
+            mturkService.assignQualification(user.workerId, provider, value, creds)
         }
     }
 

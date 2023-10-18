@@ -33,7 +33,7 @@ class SecurityFilters {
                 if ([301,302].contains(response.getStatus())) {
                     def location = response.getHeader("Location")
                     println("Got redirect with location ${location}")
-                    if (location.startsWith("http://")) {
+                    if (location.startsWith("http://") && !location.contains("localhost")) {
                         
                         location = "https://${location.substring(7,location.length())}"
                         println("Security filter rewrite to ${location}")

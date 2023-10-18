@@ -82,6 +82,9 @@
                                 <a href="javascript:void(0);" id="create-users"
                                    class="btn btn-primary btn-block"><b>Create users</b></a>
 
+                                <a href="javascript:void(0);" id="upload-users"
+                                   class="btn btn-primary btn-block"><b>Upload users</b></a>
+
                                 <a href="javascript:void(0);" id="create-credentials"
                                    class="btn btn-primary btn-block"><b>Create credentials</b></a>
 
@@ -424,6 +427,49 @@
             const id = $(".session-id", this.parentNode).text()
             window.location.href = "/loom/admin/cloneSession?sessionId=" + id
         });
+
+        $("#create-users").click(function () {
+            $("#create-users-modal").modal('show');
+        });
+
+
+
+        $(".launch_training").click(function () {
+            var trainingId = $(this).find('span').text();
+            // alert($("#launch_training").find('span').text());
+            $("#launch-training-modal").modal('show');
+            $("#trainingID").text(trainingId);
+        });
+
+
+
+
+        $("#create-trainingset").click(function () {
+            $("#training-set-file-upload-modal").modal('show');
+        });
+
+        $("#upload-users").click(function () {
+            $("#users-file-upload-modal").modal('show');
+        });
+
+        $("#create-reading").click(function () {
+            $("#reading-file-upload-modal").modal('show');
+        });
+
+        $("#create-simulation").click(function () {
+            $("#simulation-script-upload-modal").modal('show');
+        });
+
+        $("#create-survey").click(function () {
+            $("#survey-upload-modal").modal('show');
+        });
+
+
+        $("#create-credentials").click(function () {
+            $("#create-credentials-modal").modal('show');
+        });
+
+
 
 
     });

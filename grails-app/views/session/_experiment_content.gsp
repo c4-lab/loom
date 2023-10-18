@@ -1,6 +1,12 @@
 <g:hiddenField id="roundNumber" name="roundNumber" value="${round}"/>
 <g:hiddenField name="experimentDuration"
                value="${timeRemaining}"/>
+<g:hiddenField id="roundStart" name="roundStart"
+               value="${startTime}"/>
+<g:hiddenField id="currentRoundDuration" name="currentRoundDuration"
+               value="${roundDuration}"/>
+<g:hiddenField id="serverTime" name="serverTime"
+               value="${serverTime}"/>
 <g:hiddenField id="paused" name="paused" value="${paused}"/>
 
 <div class="row center-block">

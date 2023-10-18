@@ -34,9 +34,9 @@
   "sessionParameters": {
     "roundCount": 4,
     "roundTime": 270,
-    "initialNbrOfTiles": 10,
-    "minNode": 3,
-    "maxNode": 3,
+    "initialNbrOfTiles": 20,
+    "minNode": 5,
+    "maxNode": 5,
     "isInline": 1,
     "paymentBase": 0.50,
     "paymentWaitingBonusPerMinute": 1.00,

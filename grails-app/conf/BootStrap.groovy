@@ -151,12 +151,12 @@ class BootStrap {
             UserRole.create(user, role, true)
             UserTrainingSet.create(user,ts,true,true)
         }
-        def user = new User(username: "user-${11}", password: "pass", turkerId:"A3FTY9DQKKJ002").save(failOnError: true)
+        def user = new User(username: "user-${11}", password: "pass", workerId:"A3FTY9DQKKJ002").save(failOnError: true)
         def role = Role.findByAuthority(Roles.ROLE_MTURKER.name)
         UserRole.create(user, role, true)
         UserTrainingSet.create(user,ts,true,true)
 
-        user = new User(username: "user-${12}", password: "pass", turkerId: "A39D6U8W1FJEJ3").save(failOnError: true)
+        user = new User(username: "user-${12}", password: "pass", workerId: "A39D6U8W1FJEJ3").save(failOnError: true)
         role = Role.findByAuthority(Roles.ROLE_MTURKER.name)
         UserRole.create(user, role, true)
         UserTrainingSet.create(user,ts,true,true)
