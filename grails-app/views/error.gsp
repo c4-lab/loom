@@ -21,7 +21,7 @@
                     </p>
                     <g:if test="${message}">
                         <p>
-                            <h3>${message}</h3>h
+                            <h3>${message}</h3>
                         </p>
                     </g:if>
 

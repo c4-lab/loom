@@ -801,9 +801,11 @@ class AdminController {
                               'round'       : experimentService.experimentsRunning[loomSession.id]?.round,
                               'connected'   : UserSession.countBySessionAndState(loomSession, UserSession.State.ACTIVE),
                               'missing'     : missingcount,
-                              'round-status': experimentService.experimentsRunning[loomSession.id]?.currentStatus]]
+                              'round-status': experimentService.experimentsRunning[loomSession.id]?.currentStatus?.toString()]]
 
         }
+        result['cancelled'] = Session.findAllByState(Session.State.CANCEL).collect {Session loomSession -> loomSession.id}
+        result['finished'] = Session.findAllByState(Session.State.FINISHED).collect {Session loomSession -> loomSession.id}
 
         render result as JSON
 

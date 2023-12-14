@@ -96,7 +96,7 @@
                                     class="description-text session-active-started"></span>
                             </span>
                             <span class='description'>Round:<span
-                                    class="description-text session-active-connected"></span>
+                                    class="description-text session-active-round"></span>
                             </span>
                             <span class='description'>Connected:<span
                                     class="description-text session-active-connected"></span>

@@ -7,7 +7,7 @@ class User {
     String username
     String password
     String workerId
-    String prolificId
+
     boolean enabled = true
     boolean accountExpired = false
     boolean accountLocked = false
@@ -22,7 +22,6 @@ class User {
         username blank: false, unique: true, maxSize: 20
         password blank: false
         workerId nullable: true
-        prolificId nullable: true
     }
 
     static mapping = {

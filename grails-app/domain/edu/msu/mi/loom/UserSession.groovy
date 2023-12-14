@@ -63,7 +63,7 @@ class UserSession implements Serializable{
      * @return
      */
     def stopWaiting(State newState=null) {
-        if (state == UserSession.State.WAITING && started) {
+        if (state == State.WAITING && started) {
             stoppedWaiting = new Date()
             wait_time += (stoppedWaiting.time - started.time) / (60 * 1000)
             started = null
@@ -71,6 +71,14 @@ class UserSession implements Serializable{
                 state = newState
             }
         }
+    }
+
+    def cancel() {
+        if (state == State.WAITING && started) {
+            stopWaiting()
+        }
+
+        state = State.CANCELLED
     }
 
 

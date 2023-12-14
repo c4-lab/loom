@@ -76,4 +76,13 @@ class HomeController {
             redirect(uri: "/")
         }
     }
+
+    @Secured('permitAll')
+    def error() {
+        def exception = params?.error
+        log.error(exception)
+        def message = params.message
+        render(view: "../error",model:['message':message])
+
+    }
 }

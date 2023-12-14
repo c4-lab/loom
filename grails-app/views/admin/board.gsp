@@ -492,24 +492,54 @@
                 console.log(result)
                 for (let [sessionid, info] of Object.entries(result['waiting'])) {
                     let domElt = $("#session-info-" + sessionid)
+                    $(".session-status",domElt).text("WAITING")
                     for (let [key, value] of Object.entries(info)) {
                         $(".session-wait-" + key, domElt).text(value)
                     }
                     $(".session-waiting-block", domElt).removeClass("hidden")
                     $("button.show-session-cancel", domElt).prop("disabled", false)
                     domElt.removeClass("panel-info")
-                    domElt.addClass("panel-warning")
-                    domElt.addClass("panel-success")
+                    domElt.addClass("panel-primary")
+                    //domElt.addClass("panel-success")
 
 
                 }
                 for (let [sessionid, info] of Object.entries(result['active'])) {
                     let domElt = $("#session-info-" + sessionid)
+                    $(".session-status",domElt).text("ACTIVE")
                     for (let [key, value] of Object.entries(info)) {
                         $(".session-active-" + key, domElt).text(value)
                     }
+                    $(".session-waiting-block", domElt).hide()
+                    $(".session-active-block", domElt).removeClass("hidden")
                     $(".session-active-block", domElt).show()
+
                     $("button.show-session-cancel", domElt).prop("disabled", false)
+                    domElt.removeClass("panel-info")
+                    domElt.removeClass("panel-primary")
+                    domElt.addClass("panel-warning")
+                }
+
+                for (let sessionid of result['cancelled']) {
+                    let domElt = $("#session-info-" + sessionid)
+                    $(".session-status",domElt).text("CANCELLED")
+                    $(".session-waiting-block", domElt).hide()
+                    $(".session-active-block", domElt).hide()
+                    $("button.show-session-cancel", domElt).prop("disabled", true)
+                    domElt.removeClass("panel-info")
+                    domElt.removeClass("panel-primary")
+                    domElt.addClass("panel-danger")
+                }
+
+                for (let sessionid of result['finished']) {
+                    console.log("")
+                    let domElt = $("#session-info-" + sessionid)
+                    $(".session-status",domElt).text("FINISHED")
+                    $(".session-waiting-block", domElt).hide()
+                    $(".session-active-block", domElt).hide()
+                    $("button.show-session-cancel", domElt).prop("disabled", true)
+                    domElt.removeClass("panel-info")
+                    domElt.removeClass("panel-primary")
                     domElt.removeClass("panel-warning")
                     domElt.addClass("panel-success")
                 }

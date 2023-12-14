@@ -35,7 +35,8 @@
     "roundCount": 5,
     "minNode": 3,
     "maxNode": 3,
-    "roundTime": 90,
+    "roundTime": 10,
+    "initialNbrOfTiles": 15,
     "sessionType": {
       "type": "SINGLE"
     },

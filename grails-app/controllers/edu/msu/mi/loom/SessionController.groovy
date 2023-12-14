@@ -3,9 +3,6 @@ package edu.msu.mi.loom
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
-import org.hibernate.engine.spi.SessionImplementor
-import org.springframework.orm.hibernate4.HibernateTemplate
-import org.hibernate.internal.SessionFactoryImpl
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
@@ -160,7 +157,7 @@ class SessionController {
             //TODO - if a session is canceled, it CANNOT be started again.  Need to verify that this is the case
             //
             // TODO - STOPPED HERE 9/4/23 4:07PM - need to make sure  users can rejoin session
-            return render(view: "cancel", model: [time: us.wait_time, user: user, session: session])
+            return render(view: "cancel_waiting", model: [time: us.wait_time, user: user, session: session])
 //                render(view: 'cancel')
 
         }
@@ -230,19 +227,15 @@ class SessionController {
             return render(status: BAD_REQUEST)
         }
         observeUser(s)
-
-        ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
-        //TODO Why do we check both variables here?
-        if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
-
-            render("finishExperiment")
+        if (s.state == Session.State.CANCEL) {
+            render( "cancelled")
         } else {
-
-            if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
-
-                render("pausing")
+            ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
+            if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
+                render("finished")
+            } else if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
+                render("paused")
             } else {
-
                 redirect(action: "experimentContent", params: [session: params.sessionId])
             }
         }
@@ -275,6 +268,12 @@ class SessionController {
 
     }
 
+    def cancelNotification() {
+        Session s = Session.get(params.loomsession)
+        return render(view: 'cancel_running', model: [session: s])
+
+    }
+
 
     def submitExperiment() {
 
@@ -292,24 +291,11 @@ class SessionController {
         def user = springSecurityService.currentUser as User
         log.debug("User ${user.username} submitting for $roundNumber: $userTiles")
         List submittedTiles = userTiles ? userTiles.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
-        experimentService.userSubmitted(user, loomSession, roundNumber, submittedTiles)
-
-       // inspectSession(sessionFactory.getCurrentSession())
-
-        render(status: OK)
+        Map result = experimentService.userSubmitted(user, loomSession, roundNumber, submittedTiles)
+        result.put("status",OK)
+        render(result as JSON)
     }
 
-    private void inspectSession(org.hibernate.Session session) {
-        def persistenceContext = ((SessionImplementor)session).getPersistenceContext()
-        def entities = persistenceContext.entitiesByKey.clone()
-        entities.each {
-            def entity = it.value
-            log.info("Checking entity: ${it.key}")
-            if (entity.isDirty()) {
-                log.info("Is marked dirty")
-            }
-        }
-    }
 
 
     def finishExperiment() {
@@ -319,7 +305,17 @@ class SessionController {
         }
         def user = springSecurityService.currentUser as User
         UserSession us = UserSession.findByUserAndSession(user, session)
-        List scores = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias).sort { it.round }?.score
+        List<UserRoundStory> userRoundStories = UserRoundStory.findAllBySessionAndUserAlias(session, us.userAlias)
+        Map<Integer, List<UserRoundStory>> groupedByRound = userRoundStories.groupBy { it.round }
+        List<UserRoundStory> mostRecentStories = groupedByRound.collect { round, stories ->
+            stories.max { it.time }
+        }
+        List<UserRoundStory> sortedStories = mostRecentStories.sort { it.round }
+
+
+        List scores = sortedStories.collect {
+            it.score
+        }
         render(view: 'finish', model: [scores: scores, completionCode: us.completionCode, isTurker:user.isMturkWorker()])
 
 

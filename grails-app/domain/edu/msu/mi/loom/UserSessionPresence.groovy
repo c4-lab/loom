@@ -10,11 +10,4 @@ class UserSessionPresence {
 
     static belongsTo = [userSession: UserSession]
 
-    def beforeUpdate() {
-        println("---> Before update in $this")
-        if (this.isDirty()) {
-            println("---> is in fact dirty")
-
-        }
-    }
 }

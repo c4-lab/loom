@@ -19,7 +19,7 @@ class Session {
         WAITING,  //listening, waiting for users
         ACTIVE,   //active, users playing game
         FINISHED, //finished, game has been completed
-        CANCEL //cancelled by user
+        CANCEL //cancelled by admin
 
     }
 
@@ -30,6 +30,7 @@ class Session {
     String name
     Date created = new Date()
     Experiment exp
+    Session clonedFrom
 
     SessionParameters sessionParameters
 
@@ -62,17 +63,27 @@ class Session {
         finished nullable: true
         cancelled nullable: true
         mturkTasks nullable: true
+        clonedFrom nullabel: true
 
    }
 
     Session clone() {
         Session copy = new Session()
-        def count = count()
-        copy.name = "${name}:${count + 1}"
         copy.exp = exp
         copy.sessionParameters = sessionParameters
         copy.generateCodes()
+        copy.clonedFrom = retrieveCloneAncestor()
+        copy.name = "${copy.clonedFrom.name} : Clone"
+
         return copy
+    }
+
+    Session retrieveCloneAncestor() {
+        if (clonedFrom) {
+            return clonedFrom.retrieveCloneAncestor()
+        } else {
+            return this
+        }
     }
 
     def beforeInsert() {

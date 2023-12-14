@@ -14,14 +14,10 @@ class ExperimentService {
     def springSecurityService
     def networkGenerateService
     def constraintService
-    Map<Object,ExperimentRoundStatus> experimentsRunning = [:]
+    Map<Object, ExperimentRoundStatus> experimentsRunning = [:]
     def waitingTimer = [:]
 
     long WAITING_PERIOD = 1000l
-
-
-
-
 
 
     def getUserTilesForCurrentRound(String alias, Session s) {
@@ -54,7 +50,7 @@ class ExperimentService {
     def getMyPrivateState(Session expSession) {
         def myAlias = lookupUserAlias(expSession, springSecurityService.currentUser as User)
         Experiment e = expSession.exp
-        SessionInitialUserStory.findByAliasAndSession(myAlias,expSession).initialTiles
+        SessionInitialUserStory.findByAliasAndSession(myAlias, expSession).initialTiles
     }
 
     /**
@@ -64,19 +60,14 @@ class ExperimentService {
      */
     def getNeighborsState(Session expSession) {
         def myAlias = lookupUserAlias(expSession, springSecurityService.currentUser as User)
-        Set<String> aliases = Edge.findAllBySession(expSession).findAll {it.ends.contains(myAlias)}.collect {
+        Set<String> aliases = Edge.findAllBySession(expSession).findAll { it.ends.contains(myAlias) }.collect {
             it.alter(myAlias)
         } as Set
         int i = 1
         aliases.sort().collectEntries {
-            [(i++), getUserTilesForCurrentRound(it,expSession)]
+            [(i++), getUserTilesForCurrentRound(it, expSession)]
         }
     }
-
-
-
-
-
 
 
     /**
@@ -91,7 +82,7 @@ class ExperimentService {
         SessionType type = session.sessionParameters.safeGetSessionType()
 
         sessions.removeAll {
-            if (System.currentTimeMillis() - it.presence.lastSeen.time > 10*WAITING_PERIOD) {
+            if (System.currentTimeMillis() - it.presence.lastSeen.time > 10 * WAITING_PERIOD) {
                 log.debug("removing user")
                 it.presence.missing = true
             }
@@ -103,17 +94,13 @@ class ExperimentService {
         } else if (type.state == SessionType.State.MIXED) {
             int maxByConstraint = session.sp("minNode") / type.constraintTests.size()
             return type.constraintTests.sum { ConstraintTest constraintTest ->
-                int count = sessions.count { UserSession userSession ->
-                    constraintTest.testUser(userSession.user)
+                int count = sessions.count { UserSession userSession -> constraintTest.testUser(userSession.user)
                 }
                 Math.min(count, maxByConstraint)
             }
         }
         return 0
     }
-
-
-
 
 
     private cancelWaitingTimer(Session session) {
@@ -124,10 +111,12 @@ class ExperimentService {
 
     @Transactional
     private makeSessionActive(Session session) {
-        log.debug("Entering tranactional block for session activation")
+        log.debug("Entering transactional block for session activation")
         assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
         session.state = Session.State.ACTIVE
+        session.startActive = new Date()
         log.debug("Leaving transactional block for session activation")
+        return session
     }
 
     /**
@@ -138,13 +127,11 @@ class ExperimentService {
      */
     def assignAliasesAndInitialTiles(Session session, int numUsers) {
         log.debug("Assigning aliases")
-        List<String> nodes = networkGenerateService.generateGraph(session,numUsers, session.sp("networkTemplate"))
+        List<String> nodes = networkGenerateService.generateGraph(session, numUsers, session.sp("networkTemplate"))
         //List<UserSession> sessions = UserSession.findAllBySessionAndMissingAndState(session,false,UserSession.State.WAITING)
 
-        List<UserSession> sessions = UserSession.executeQuery('select u from UserSession as u where u.session=:sess and' +
-                ' u.state=:stat and'+
-                ' u.presence.missing=:missing',
-                [sess: session, stat:UserSession.State.WAITING,missing: false])
+        List<UserSession> sessions = UserSession.executeQuery('select u from UserSession as u where u.session=:sess and' + ' u.state=:stat and' + ' u.presence.missing=:missing',
+                [sess: session, stat: UserSession.State.WAITING, missing: false])
         List<UserSession> active = []
         SessionType type = session.sessionParameters.safeGetSessionType()
         if (type.state == SessionType.State.SINGLE) {
@@ -167,8 +154,7 @@ class ExperimentService {
             int maxByConstraint = nodes.size() / type.constraintTests.size()
             List partitions = [[]] * type.constraintTests.size()
             sessions.each { UserSession us ->
-                int idx = type.constraintTests.findIndexOf { ConstraintTest ct ->
-                    ct.testUser(us.user)
+                int idx = type.constraintTests.findIndexOf { ConstraintTest ct -> ct.testUser(us.user)
                 }
                 if (idx > -1) {
                     partitions[idx] << us
@@ -187,8 +173,7 @@ class ExperimentService {
                 }
             }
 
-            partitions.flatten().each { UserSession us ->
-                us.state = UserSession.State.REJECTED
+            partitions.flatten().each { UserSession us -> us.state = UserSession.State.REJECTED
             }
         }
         assignInitialTiles(active)
@@ -252,7 +237,6 @@ class ExperimentService {
     }
 
 
-
     /**
      * Sets up a periodic check to see if the session has enough users to start.  Accommodates both single and mixed sessions.
      * @param session
@@ -261,8 +245,8 @@ class ExperimentService {
     def scheduleWaitingCheck(Session session) {
 
         waitingTimer[session.id] = new Timer()
-        ((Timer)waitingTimer[session.id]).scheduleAtFixedRate({
-           // log.debug("Checking waiters...")
+        ((Timer) waitingTimer[session.id]).scheduleAtFixedRate({
+            // log.debug("Checking waiters...")
             Session s
             //TDOD uncertain if a new session is really necessary here
             Session.withNewSession {
@@ -270,8 +254,8 @@ class ExperimentService {
                 int count = countWaitingUsers(s)
                 if (count >= s.sessionParameters.safeGetMinNode()) {
                     cancelWaitingTimer(s)
-                    makeSessionActive(s)
-                    log.debug("Waiting timer advancing round")
+                    s = makeSessionActive(s)
+                    log.debug("Waiting timer advancing round.  Session status ${s.state}")
                     advanceSessionLifecycle(s)
 
                 } else if (s.state != Session.State.WAITING) {
@@ -290,22 +274,27 @@ class ExperimentService {
      * @return
      */
     def advanceSessionLifecycle(Session session) {
-        log.debug("Advance lifecycle for ${session.id}")
-        ExperimentRoundStatus currentStatus = experimentsRunning.get(session.id)
-        if (!currentStatus) {
-            int selectedUserCount = UserSession.countBySessionAndSelected(session,true)
-            currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
-            log.debug("Initialized status for $session.id with $currentStatus")
-            experimentsRunning[session.id] = currentStatus
-        }
-        if (currentStatus.isFinished()) {
-            Session.withTransaction {
-                def s = Session.get(session.id)
-                s.state = Session.State.FINISHED
-            }
+        if (session.state != Session.State.ACTIVE) {
+            log.warn("advanceSessionLifecycle: Session is no longer active!")
+            experimentsRunning.remove(session.id)
         } else {
-            log.debug("Schedule round pause for $session.id")
-            scheduleRoundPause(session)
+            log.debug("Advance lifecycle for ${session.id}")
+            ExperimentRoundStatus currentStatus = experimentsRunning.get(session.id)
+            if (!currentStatus) {
+                int selectedUserCount = UserSession.countBySessionAndSelected(session, true)
+                currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
+                log.debug("Initialized status for $session.id with $currentStatus")
+                experimentsRunning[session.id] = currentStatus
+            }
+            if (currentStatus.isFinished()) {
+                Session.withTransaction {
+                    def s = Session.get(session.id)
+                    s.state = Session.State.FINISHED
+                }
+            } else {
+                log.debug("Schedule round pause for $session.id")
+                scheduleRoundPause(session)
+            }
         }
     }
 
@@ -317,10 +306,16 @@ class ExperimentService {
      * @return
      */
     private def scheduleRoundPause(Session session) {
-        new Timer().schedule({
-            experimentsRunning[session.id].pause()
-            scheduleRoundAdvance(session)
-        } as TimerTask, 1000 * session.sessionParameters.safeGetRoundTime() as long)
+        session.refresh()
+        if (session.state != Session.State.ACTIVE) {
+            log.warn("scheduleRoundPause: Session is no longer active!")
+            experimentsRunning.remove(session.id)
+        } else {
+            new Timer().schedule({
+                experimentsRunning[session.id].pause()
+                scheduleRoundAdvance(session)
+            } as TimerTask, 1000 * session.sessionParameters.safeGetRoundTime() as long)
+        }
     }
 
     /**
@@ -334,39 +329,75 @@ class ExperimentService {
     private def scheduleRoundAdvance(Session session) {
         Timer t = new Timer()
         t.scheduleAtFixedRate({
-            ExperimentRoundStatus status = experimentsRunning[session.id]
-            if (status.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
-                boolean advanceFlag = false
-                if (status.isAllSubmitted()) {
-                    advanceFlag = true
-                    log.debug("Is all submitted")
-                } else if (status.isOverTime()) {
-                    advanceFlag = true
-                    log.debug("Is over time")
-                }
-                if (advanceFlag) {
-                    t.cancel()
-                    status.advanceRound()
-                    advanceSessionLifecycle(session)
-                }
+            Session.withNewSession {
+                session.refresh()
             }
 
-
+            if (session.state != Session.State.ACTIVE) {
+                log.warn("scheduleRoundAdvance: Session is no longer active!")
+                experimentsRunning.remove(session.id)
+                t.cancel()
+            } else {
+                ExperimentRoundStatus status = experimentsRunning[session.id]
+                if (status.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
+                    boolean advanceFlag = false
+                    if (status.isAllSubmitted()) {
+                        advanceFlag = true
+                        log.debug("Is all submitted")
+                    } else if (status.isOverTime()) {
+                        updateUnsubmittedUsers(session)
+                        advanceFlag = true
+                        log.debug("Is over time")
+                    }
+                    if (advanceFlag) {
+                        t.cancel()
+                        status.advanceRound()
+                        advanceSessionLifecycle(session)
+                    }
+                }
+            }
         } as TimerTask, 1000l, 1000l)
-
     }
 
-    def userSubmitted(User user,Session session,int round, List<Tile> tiles) {
+    def updateUnsubmittedUsers(Session session) {
+
+        ExperimentRoundStatus status = experimentsRunning[session.id]
+        List<UserSession> userSessions = UserSession.findAllBySessionAndSelected(session, true)
+        userSessions.findAll {
+            !(it.user.id in status.submitted)
+        }.each {
+            UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias,session)
+            userRoundStory.copyForRound(status.round)
+        }
+    }
+
+
+    def userSubmitted(User user, Session session, int round, List<Tile> tiles) {
         ExperimentRoundStatus status = getExperimentStatus(session)
         //only register the submission if it is for the current round
-        if (!status || status.isFinished()) {
-           log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
-        } else if (status.round == round) {
+        if (session.state == Session.State.CANCEL) {
+            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is cancelled")
+            return (["continue": false, "reason": "cancellation"])
+        }
+        if (session.state == Session.State.FINISHED) {
+            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
+            new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
+            status.submitUser(user.id)
+            return (["continue": false, "reason": "finished"])
+        }
+        if (session.state == Session.State.WAITING) {
+            return (["continue": false, "reason": "waiting"])
+        }
+        if (status.round != round) {
+            log.debug("Submitted wrong round!")
+            new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
+            return (["continue": true])
+        } else {
             new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
             status.submitUser(user.id)
             log.debug("(${user.username}) story registered for ${round}")
-        } else {
-            log.debug("Submitted wrong round!")
+            return (["continue": true])
+
         }
     }
 
@@ -376,7 +407,7 @@ class ExperimentService {
     }
 
     def lookupUserAlias(Session session, User user) {
-        UserSession.findBySessionAndUser(session,user).userAlias
+        UserSession.findBySessionAndUser(session, user).userAlias
     }
 
 
@@ -388,7 +419,7 @@ class ExperimentService {
      * @return
      */
     static Float score(List truth, List sample) {
-        if (sample && sample.size()>1) {
+        if (sample && sample.size() > 1) {
             def c2 = { (it.size() * (it.size() - 1)) / 2f }
             def tmap = [:]
             truth.eachWithIndex { Object entry, int i -> tmap[entry] = i }
@@ -399,8 +430,8 @@ class ExperimentService {
                     if (tmap[sample[i]] > tmap[sample[j]]) bad++
                 }
             }
-            def result =  (1 - (bad / c2(sample))) * (sample.size() / truth.size())
-            DecimalFormat df = new DecimalFormat("####0.00");
+            def result = (1 - (bad / c2(sample))) * (sample.size() / truth.size())
+            DecimalFormat df = new DecimalFormat("####0.00")
             return Float.parseFloat(df.format(result))
         } else {
             0.0f

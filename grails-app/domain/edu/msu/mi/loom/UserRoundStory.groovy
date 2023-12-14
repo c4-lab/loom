@@ -14,6 +14,8 @@ class UserRoundStory {
     String userAlias
     float score
 
+    boolean submitted = true
+
 
 
     static constraints = {
@@ -29,6 +31,21 @@ class UserRoundStory {
             score = experimentService.score(correct,mine)
         }
 
+    }
+
+    def copyForRound(int round) {
+        def urs = new UserRoundStory(
+                currentTiles: this.currentTiles,
+                session: this.session,
+                userAlias: this.userAlias,
+                score: this.score,
+                time: new Date(),
+                submitted: false,
+                round: round
+        ).save()
+        if (!urs) {
+            log.error("Error saving updated story for unsubmitted user: ${this.userAlias}")
+        }
     }
 
     def beforeInsert = {

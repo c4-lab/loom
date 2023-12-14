@@ -36,7 +36,7 @@ class SessionService {
         } else if (session.state in [Session.State.WAITING, Session.State.ACTIVE]) {
             session.state = Session.State.CANCEL
             session.cancelled = new Date()
-            UserSession.findAllBySession(session).each {
+            UserSession.findAllBySessionAndStateInList(session,[UserSession.State.ACTIVE,UserSession.State.STOP,UserSession.State.WAITING]).each {
                 it.stopWaiting(UserSession.State.CANCELLED)
             }
             session.save(flush: true)

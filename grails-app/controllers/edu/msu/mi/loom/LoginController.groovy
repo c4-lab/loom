@@ -61,58 +61,68 @@ class LoginController {
     def auth() {
 
         println "Authenticating..."
+
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
-        if(request.forwardURI.contains('admin') ){
+        if (request.forwardURI.contains('admin')) {
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
         }
-        if(orig?.parameters?.workerId){
-            String workerId = orig.parameters.workerId[0]
-            String assignmentId = null
-            User u = User.findByUsername(workerId)
-            if(orig.parameters.assignmentId && orig.parameters.assignmentId[0]!="null"){
+        String workerId = null
+        Roles role = null
+        String assignmentId = null
+        User u = null
+        if (orig?.parameters?.workerId) {
+            workerId = orig.parameters.workerId[0]
+            if (orig.parameters.assignmentId && orig.parameters.assignmentId[0] != "null") {
                 assignmentId = orig.parameters?.assignmentId[0]
+                role = Roles.ROLE_MTURKER
                 u = User.findByWorkerId(workerId)
-            }
-
-            if (u) {
-                springSecurityService.reauthenticate(u.username)
             } else {
-                if(assignmentId){
-                    u = userService.createUserByWorkerId(workerId, Roles.ROLE_MTURKER)
-
-                }else{
-                    u = userService.createUserByWorkerId(workerId)
-                }
-
-                if (u?.id) {
-                    springSecurityService.reauthenticate(u.username)
-                }
+                role = Roles.ROLE_USER
+                u = User.findByUsername(workerId)
             }
-            if (springSecurityService.isLoggedIn()) {
-                def original = orig?.requestURL
-                if (original) {
-                    if (workerId) {
-                        log.debug("Redirecting with parameters")
-                        def params = "workerId=$workerId"
-                        if (assignmentId) {
-                            params+="?assignmentId=$assignmentId"
-                        }
-                        return redirect(url: "$original?$params")
-                    } else {
-                        return redirect(url: "$original")
-                    }
-                }
-            }
-
-        }
-        else if (request.forwardURI.contains('/')) {
+        } else if (orig?.parameters?.PROLIFIC_PID) {
+            workerId = orig.parameters.PROLIFIC_PID
+            role = Roles.ROLE_PROLIFIC
+            u = User.findByWorkerId(workerId)
+        }  else if (request.forwardURI.contains('/')) {
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
 
         }
+
+        if (u) {
+            springSecurityService.reauthenticate(u.username)
+        } else {
+
+            u = userService.createUserByWorkerId(workerId, role)
+
+        }
+        if (u?.id) {
+            springSecurityService.reauthenticate(u.username)
+        } else {
+            throw new RuntimeException(u.errors.toString())
+
+        }
+
+        if (springSecurityService.isLoggedIn()) {
+            def original = orig?.requestURL
+            if (original) {
+                if (workerId) {
+                    log.debug("Redirecting with parameters")
+                    def params = "workerId=$workerId"
+                    if (assignmentId) {
+                        params+="?assignmentId=$assignmentId"
+                    }
+                    return redirect(url: "$original?$params")
+                } else {
+                    return redirect(url: "$original")
+                }
+            }
+        }
+
 
 
         return redirect(url: '/')

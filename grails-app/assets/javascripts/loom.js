@@ -304,6 +304,10 @@ function logout() {
             type: 'GET',
             async: false
 
+        }).success(function(data, textStatus, jqXHR) {
+            // This will handle the response data after any redirects are resolved
+        }).error(function(jqXHR, textStatus, errorThrown) {
+            // Error handling
         });
     }
 }
@@ -636,13 +640,16 @@ function startPingingForNextRound() {
             type: 'GET',
             timeout: 3000
         }).success(function (data) {
-            if (data=="finishExperiment") {
+            if (data=="finished") {
                 shouldLogout = false;
                 clearInterval(pingTimer);
                 console.log("/loom/experiment/finishExperiment/" + session);
                 window.location = "/loom/session/finishExperiment/" + session;
 
-            } else if (data!="pausing") {
+            } else if (data=="cancelled") {
+                window.location.href = `/loom/session/cancelNotification?loomsession=${session}`;
+
+            } else if (data!="paused") {
                 console.log("Processing round data");
                 clearInterval(pingTimer);
                 storeActiveTab();
@@ -711,10 +718,12 @@ function initExperimentTimer(display) {
     var minutes, seconds;
 
     worker.onmessage = function(event) {
+        console.log("Receive message from worker")
         adjustedLocalTime = new Date().getTime() + serverDelta
         if (adjustedLocalTime >= roundDuration * 1000 + roundStart) {
             console.log("Submitting the form");
             worker.terminate()
+            worker = undefined
             submitExperimentAjax();
         } else {
 
@@ -854,13 +863,31 @@ function submitExperimentAjax() {
         }
     }).success(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        startPingingForNextRound();
+        if (!data.continue) {
+            //alert(data)
+            shouldLogout = false
+            if (data.reason === "finished") {
+                window.location.href = `/loom/error?message='The experiment as already finished`;
+            } else if (data.reason === "waiting") {
+                window.location.href = `/loom/error?message='The experiment has not yet begun`;
+            } else if (data.reason === "cancellation") {
+                var url = `/loom/session/cancelNotification?loomsession=${session}`;
+                window.location.href = url
+            } else {
+                console.log("Something happened, forward to error page")
+                var reason = `Unknown error: ${data.reason}`
+                console.log(data)
+                window.location.href = `/loom/error?message=${reason}`
+            }
 
-    }).error(function () {
-        $.unblockUI();
-        $(".dvDest").css('border', 'solid 1px red');
-        $("#warning-alert").addClass('show');
-        $("#warning-alert").removeClass('hide');
+        } else {
+            startPingingForNextRound();
+        }
+    }).error(function (jqXHR, errorText, errorThrown ) {
+        shouldLogout = false
+        var encodedMessage = encodeURIComponent(errorText);
+        var encodedError = encodeURIComponent(errorThrown);
+        window.location.href = `/loom/error?message=${encodedMessage}&error=${encodedError}`;
     });
 }
 

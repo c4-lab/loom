@@ -1,6 +1,10 @@
 
 onmessage = function(e) {
-    setInterval(function() {
-        postMessage('Tick');
-    }, 1000);
+    if (e.data == "Start") {
+
+        setInterval(function () {
+            console.log("Worker sends a Tick")
+            postMessage('Tick');
+        }, 1000);
+    }
 }

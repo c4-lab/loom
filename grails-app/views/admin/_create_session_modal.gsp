@@ -123,7 +123,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id='create-session'>Create</button>
+                    <button type="submit" class="btn btn-primary" id='create-session' disabled>Create</button>
                 </div>
             </g:form>
 
@@ -183,6 +183,29 @@
 </div>
 
 <script type="text/javascript">
+
+    function validate() {
+        console.log("Running validation")
+        if ($("#session-name").val()=='' || !($("#session-modal .validation-message").hasClass("valid"))) {
+            $("#create-session").prop('disabled',true)
+            console.log("Invalid!")
+        } else {
+            console.log("Valid!")
+            $("#create-session").prop('disabled',false)
+        }
+    }
+
+    function refreshSessionDetails(data) {
+        $('.session-row').each(function() {
+            const sessionId = $(".sessionId",this.parentNode).text();
+            if (sessionId in data) {
+                $(".current-round",this).text(data[sessionId]['round'])
+                $(".connected",this).text(data[sessionId]['connected'])
+                $(".session-span",this).text(data[sessionId]['status'])
+            }
+        });
+    }
+
     $(document).ready(function () {
 
         $(".show-session-launch-modal").click(function (e){
@@ -204,9 +227,9 @@
 
         })
 
-        $("#session-name").keypress(function () {
+        $("#session-name").on('input',function () {
             validate()
-        })
+        });
 
 
 
@@ -262,16 +285,7 @@
         });
 
 
-        function refreshSessionDetails(data) {
-            $('.session-row').each(function() {
-                const sessionId = $(".sessionId",this.parentNode).text();
-                if (sessionId in data) {
-                    $(".current-round",this).text(data[sessionId]['round'])
-                    $(".connected",this).text(data[sessionId]['connected'])
-                    $(".session-span",this).text(data[sessionId]['status'])
-                }
-            });
-        }
+
 
         // setInterval(
         //     function () {

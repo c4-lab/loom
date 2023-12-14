@@ -60,5 +60,10 @@ class UrlMappings {
             action = "finishExperiment"
         }
 
+        "/error" {
+            controller = "home"
+            action = "error"
+        }
+
     }
 }
