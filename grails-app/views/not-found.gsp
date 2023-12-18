@@ -24,7 +24,7 @@
                             <div class="err-body">
                                 In order to access this site you <b>must</b> use the unique url that was provided to you by the task requester.
                             If you feel you have reached this page in error, please email <a
-                                    href="mailto:sunyqs@gmail.com">jsunyqs@gmail.com</a>.
+                                    href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a>.
                             </div>
 
                         </div>

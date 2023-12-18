@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
 
 @Slf4j
-@Secured(["ROLE_USER", "ROLE_MTURKER"])
+@Secured(["ROLE_USER", "ROLE_MTURKER","ROLE_PROLIFIC"])
 //@Secured('permitAll')
 class SessionController {
     static allowedMethods = [

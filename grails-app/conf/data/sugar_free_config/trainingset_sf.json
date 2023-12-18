@@ -2,47 +2,1704 @@
   "training": {
     "surveys": [
       {
-        "name": "Climate Attitude",
+        "name": "Cognitive Closure",
+        "instructions": "Please indicate your level of agreement with the following statements on response scales from strongly disagree (1) to strongly agree (5):",
+        "likert": true,
         "items": [
           {
-            "question": "Please indicate how strongly you agree or disagree with this statement: Global warming is affecting the weather in the United States.",
+            "question": "I don't like situations that are uncertain.",
             "options": [
               {
-                "answer": "strongly agree",
+                "answer": "Strongly Disagree",
                 "score": 1
               },
               {
-                "answer": "somewhat agree",
+                "answer": "",
                 "score": 2
               },
               {
-                "answer": "somewhat disagree",
+                "answer": "",
                 "score": 3
               },
               {
-                "answer": "strongly disagree",
+                "answer": "",
                 "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
               }
             ]
           },
           {
-            "question": "How worried are you about global warming?",
+            "question": "I dislike questions which could be answered in many different ways.",
             "options": [
               {
-                "answer": "very worried",
+                "answer": "Strongly Disagree",
                 "score": 1
               },
               {
-                "answer": "somewhat worried",
+                "answer": "",
                 "score": 2
               },
               {
-                "answer": "not very worried",
+                "answer": "",
                 "score": 3
               },
               {
-                "answer": "not at all worried",
+                "answer": "",
                 "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I find that a well-ordered life with regular hours suits my temperament.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I feel uncomfortable when I don't understand the reason why an event occurred in my life.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I feel irritated when one person disagrees with what everyone else in a group believes.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I don't like to go into a situation without knowing what I can expect from it.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "When I have made a decision, I feel relieved.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "When I am confronted with a problem, I'm dying to reach a solution very quickly.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I would quickly become impatient and irritated if I would not find a solution to a problem immediately.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I dislike it when a person's statement could mean many different things.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I find that establishing a consistent routine enables me to enjoy life more.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I don't like to be with people who are capable of unexpected actions.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I enjoy having a clear and structured mode of life.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I do not usually consult many different opinions before forming my own view.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I dislike unpredictable situations.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Vaccine Safety",
+        "instructions": "Please indicate your level of agreement with the following statements on response scales from strongly disagree (1) to strongly agree (5):",
+        "likert": true,
+        "items": [
+          {
+            "question": "I worry about the short-term side effects of the vaccine.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I worry that the vaccine might negatively affect my body.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I believe that the vaccine works in preventing transmissive diseases.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Vaccine Efficacy",
+        "instructions": "Please indicate your level of agreement with the following fifteen statements on response scales from strongly disagree (1) to strongly agree (5):",
+        "likert": true,
+        "items": [
+          {
+            "question": "I believe if I receive the flu vaccine, I will be less likely to get the flu.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I believe that the flu vaccine is effective in preventing the flu.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "I believe that the flu vaccine works in preventing the flu.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "General vaccine attitude",
+        "likert": true,
+        "instructions": "Please rate your attitude on the following scale consisting of four semantic differential items. In general, I think vaccines are:",
+        "items": [
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Bad",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Good",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Harmful",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Beneficial",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Foolish",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Wise",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Useless",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Useful",
+                "score": 7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Conspiracy beliefs",
+        "instructions": "Please indicate your level of agreement with the following fifteen statements on response scales from strongly disagree (1) to strongly agree (5):",
+        "likert": true,
+        "items": [
+          {
+            "question": "The government is involved in the murder of innocent citizens and/or well-known public figures and keeps this a secret.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The power held by heads of state is second to that of small unknown groups who really control world politics.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Secret organizations communicate with extraterrestrials but keep this fact from the public.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The spread of certain viruses and/or diseases is the result of the deliberate, concealed efforts of some organization.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Groups of scientists manipulate, fabricate, or suppress evidence in order to deceive the public.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The government permits or perpetrates acts of terrorism on its own soil, disguising its involvement.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "A small, secret group of people is responsible for making all major world decisions, such as going to war.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Evidence of alien contact is being concealed from the public.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Technology with mind-control capacities is used on people without their knowledge.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "New and advanced technology which would harm current industry is being suppressed.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The government uses people as patsies to hide its involvement in criminal activity.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Certain significant events have been the result of the activity of a small group who secretly manipulate world events.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Some UFO sightings and rumors are planned or staged in order to distract the public from real alien contact.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Experiments involving new drugs or technologies are routinely carried out on the public without their knowledge or consent.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "A lot of important information is deliberately concealed from the public out of self-interest.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Anti-science belief",
+        "instructions": "Please indicate your level of agreement with the following twenty-three statements on response scales from strongly disagree (1) to strongly agree (5):",
+        "likert": true,
+        "items": [
+          {
+            "question": "Science and technology are making our lives healthier, easier and more comfortable.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Thanks to scientific and technological advances, the Earth's natural resources will be inexhaustible.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "We depend too much on science and not enough on faith.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Scientific and technological research cannot play an important role in protecting the environment and repairing it.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Scientists should be allowed to do research that causes pain and injury to animals like dogs and chimpanzees if it can produce new information about serious human health problems.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Technological progress will make possible higher levels of consumption and, at the same time, an unpolluted environment.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Because of their knowledge, scientific researchers have a power that makes them dangerous.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The application of science and new technology will make work more interesting.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "For me, in my daily life, it is not important to know about science.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Most scientist want to work on things that will make life better for the average person.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Science makes our way of life change too fast.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Thanks to science and technology, there will be more opportunities for future generations.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "New technology does not depend on basic scientific research.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "On balance, computers and factory automation will create more jobs than they will eliminate.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Even if it brings no immediate benefits, scientific research is necessary and should be supported by the government.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Scientific and technological research do not play an important role in industrial development.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Some numbers are especially lucky for some people.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "New inventions will always be found to counteract any harmful consequences of scientific and technological development.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Scientific research does not make industrial products cheaper.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Only by applying the most modern technology can our economy become more competitive.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Computers have made the use of bank services more complicated.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "Scientific and technological progress will help to cure illnesses such as AIDS, cancer\u2026",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          },
+          {
+            "question": "The benefits of science are greater than any harmful effects it may have.",
+            "options": [
+              {
+                "answer": "Strongly Disagree",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "Strongly Agree",
+                "score": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Politics",
+        "likert": true,
+        "items": [
+          {
+            "question": "In politics, people sometimes talk of the political “left” and “right”. Where would you place yourself on this scale, where 0 means the left and 10 means the right?",
+            "options": [
+              {
+                "answer": "Political Left",
+                "score": 0
+              },
+              {
+                "answer": "",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "",
+                "score": 7
+              },
+              {
+                "answer": "",
+                "score": 8
+              },
+              {
+                "answer": "",
+                "score": 9
+              },
+              {
+                "answer": "Political Right",
+                "score": 10
               }
             ]
           }

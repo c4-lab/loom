@@ -4,7 +4,7 @@ class Demographics {
 
     String gender
     String age
-    String country
+    String race
     String language
     String education
     String income

@@ -3,7 +3,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 
 @Slf4j
-@Secured(['ROLE_USER', 'ROLE_ADMIN', 'ROLE_MTURKER'])
+@Secured(['ROLE_USER', 'ROLE_ADMIN', 'ROLE_MTURKER','ROLE_PROLIFIC'])
 class HomeController {
     def springSecurityService
     def userService

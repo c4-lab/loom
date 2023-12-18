@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-md-12">
 
-                <g:if test="${assignmentId!="null"}">
+                <g:if test="${user.isMturkWorker() || user.isProlificWorker()}">
                     <p>
                         Congratulations, you have completed your training and will shortly be granted a qualification allowing you to participate in Loom games. Your confirmation code is:
                     </p>
@@ -30,12 +30,12 @@
 
 
                     <p>
-                        Please enter your confirmation code into the HIT on the Mturk site to receive credit!!!
+                        Please enter your confirmation code into the site you used to access this training to receive credit!!!
                     </p>
 
                     <p>
                         Please watch for new Loom games!  Note if at any time, your browser crashes or
-                        you experience a problem with the site, you will need to re-connect using the original url (which has your worker id in it).
+                        you experience a problem with the site, you will need to re-connect using the original url (which has your unique id in it).
                     </p>
 
                     <p>

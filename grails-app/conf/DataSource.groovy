@@ -33,7 +33,7 @@ dataSource {
                 dbCreate = "create"
                 username = "loom"
                 password = "loom"
-                validationQuery = "SELECT 1"
+                validationQuery = "/* ping */ SELECT 1"
                 testOnBorrow = true
                 testWhileIdle = true
                 timeBetweenEvictionRunsMillis = 3 * 60 * 60 * 1000 // 3 hours in milliseconds

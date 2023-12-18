@@ -4,12 +4,13 @@ package edu.msu.mi.loom
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 import grails.converters.JSON
+import org.springframework.http.HttpStatus
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
 
 @Slf4j
-@Secured(["ROLE_USER", "ROLE_MTURKER"])
+@Secured(["ROLE_USER", "ROLE_MTURKER", "ROLE_PROLIFIC"])
 class TrainingController {
 
     static allowedMethods = [
@@ -47,6 +48,11 @@ class TrainingController {
         def hitId = params?.hitId
         def user = springSecurityService.currentUser as User
 
+        def trainingSet = TrainingSet.get(trainingSetId)
+        if (!trainingSet) {
+            return render(status: HttpStatus.NOT_FOUND, view: '/not-found')
+        }
+
         if (assignmentId == "null") {
             assignmentId = null
         }
@@ -71,7 +77,7 @@ class TrainingController {
             return render(view: 'demographics', model: [trainingSetId: trainingSetId, assignmentId: assignmentId])
         }
 
-        def trainingSet = TrainingSet.get(trainingSetId)
+
         UserTrainingSet uts = UserTrainingSet.findByTrainingSetAndUser(trainingSet, user)
 
         if (!uts) {
@@ -104,7 +110,8 @@ class TrainingController {
             }
         } else {
             trainingSetService.completeTrainingSet(uts)
-            return redirect(action: 'trainingSetComplete', params: [trainingSetId: trainingSetId, assignmentId: assignmentId])
+
+            return redirect(action: 'trainingSetComplete', params: [trainingSetId: trainingSetId])
         }
 
     }
@@ -162,10 +169,24 @@ class TrainingController {
     }
 
     def survey() {
+        User user = springSecurityService.currentUser as User
         def trainingSetId = params.trainingSetId
+        def trainingSet = TrainingSet.get(trainingSetId)
+        def userTrainingSet = UserTrainingSet.findByUserAndTrainingSet(user, trainingSet)
+
+        Set<Survey> completed = userTrainingSet.surveyReponses.collect {
+            it.castConstraintProvider()
+        } as Set
+
+
         Survey s = Survey.get(params.trainingItem)
         List<SurveyItem> surveyItems = s.getSurveyItems() as List
-        render(view: "survey", model: [trainingSetId: trainingSetId, survey: s, assignmentId: params.assignmentId])
+        render(view: "survey", model: [trainingSetId: trainingSetId,
+                                       survey: s,
+                                       assignmentId: params.assignmentId,
+                                        total: trainingSet.surveys.size(),
+                                        completed: completed.size(),
+                                        ])
     }
 
     def surveyComplete() {
@@ -371,8 +392,7 @@ class TrainingController {
     def trainingSetComplete() {
         User user = springSecurityService.currentUser as User
         TrainingSet ts = TrainingSet.get(params.trainingSetId)
-        def assignmentId = params.assignmentId
-        render view: "trainingSetComplete", model: [confirmationCode: UserTrainingSet.findByUserAndTrainingSet(user, ts).confirmationCode, assignmentId: assignmentId]
+        render view: "trainingSetComplete", model: [confirmationCode: UserTrainingSet.findByUserAndTrainingSet(user, ts).confirmationCode, user: user]
     }
 
 
@@ -382,11 +402,14 @@ class TrainingController {
     def demographicsComplete() {
         def trainingSet = TrainingSet.get(params.trainingSetId)
         def user = springSecurityService.currentUser as User
-        List countryList = params.country
-        String country = countryList[0]
-        if ("Other" in countryList[0]) {
-            country = countryList[1]
+
+
+        List raceList = params.race
+        String race = raceList[0]
+        if ("Other" in raceList[0]) {
+            race = raceList[1]
         }
+
         List languageList = params.language
         String language = languageList[0]
         if ("Other" in languageList[0]) {
@@ -397,8 +420,13 @@ class TrainingController {
         if ("Other" in genderList[0]) {
             gender = genderList[1]
         }
-        Demographics demographics = new Demographics(gender: gender, age: params.age, country: country, language: language, education: params.education, income: params.income,
-                political: params.political, user: user)
+        List politicsList = params.political
+        String politics = politicsList[0]
+        if ("Other" in politicsList[0]) {
+            politics = politicsList[1]
+        }
+        Demographics demographics = new Demographics(gender: gender, age: params.age,  race: race, language: language, education: params.education, income: params.income,
+                political: politics, user: user)
         if (!demographics.save(flush: true)) {
             log.error("Demographics creation attempt failed")
             return null;

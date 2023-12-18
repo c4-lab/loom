@@ -83,7 +83,7 @@ class LoginController {
                 u = User.findByUsername(workerId)
             }
         } else if (orig?.parameters?.PROLIFIC_PID) {
-            workerId = orig.parameters.PROLIFIC_PID
+            workerId = orig.parameters.PROLIFIC_PID[0]
             role = Roles.ROLE_PROLIFIC
             u = User.findByWorkerId(workerId)
         }  else if (request.forwardURI.contains('/')) {
@@ -98,13 +98,12 @@ class LoginController {
         } else {
 
             u = userService.createUserByWorkerId(workerId, role)
+            if (u?.id) {
+                springSecurityService.reauthenticate(u.username)
+            } else {
+                throw new RuntimeException(u.errors.toString())
 
-        }
-        if (u?.id) {
-            springSecurityService.reauthenticate(u.username)
-        } else {
-            throw new RuntimeException(u.errors.toString())
-
+            }
         }
 
         if (springSecurityService.isLoggedIn()) {

@@ -116,6 +116,8 @@ class BootStrap {
         def creatorRole = Role.findWhere(authority: Roles.ROLE_CREATOR.name) ?: new Role(authority: Roles.ROLE_CREATOR.name).save(failOnError: true)
         def userRole = Role.findWhere(authority: Roles.ROLE_USER.name) ?: new Role(authority: Roles.ROLE_USER.name).save(failOnError: true)
         def mturkerRole = Role.findWhere(authority: Roles.ROLE_MTURKER.name) ?: new Role(authority: Roles.ROLE_MTURKER.name).save(failOnError: true)
+        def prolificRole = Role.findWhere(authority: Roles.ROLE_PROLIFIC.name) ?: new Role(authority: Roles.ROLE_PROLIFIC.name).save(failOnError: true)
+
 
         def admin = User.findWhere(username: 'admin') ?: new User(username: 'admin', password: 'lji123').save(failOnError: true)
 

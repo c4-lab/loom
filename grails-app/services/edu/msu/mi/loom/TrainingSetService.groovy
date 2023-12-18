@@ -115,10 +115,15 @@ class TrainingSetService {
     def createSurvey(def surveyJson, TrainingSet trainingSet = null) {
 
         surveyJson.each { surveyInstance ->
-            Survey survey = new Survey(name: surveyInstance.name)
+            log.debug("Process ${surveyInstance.name}")
+            Survey survey = new Survey(name: surveyInstance.name,
+                    likert: surveyInstance?.likert?:false,
+                    instructions: surveyInstance?.instructions
+            )
 
             surveyInstance.items.eachWithIndex { item, idx ->
                 SurveyItem surveyitem = new SurveyItem(survey: survey, question: item.question)
+
                 survey.addToSurveyItems(surveyitem)
                 def options = item.options
                 options.eachWithIndex { opt, idxx ->

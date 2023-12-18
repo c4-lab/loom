@@ -235,7 +235,7 @@ body.hold-transition .main-header .logo {
 
 /* Content */
 .content {
-    min-height: 250px;
+    min-height: 800px;
     padding: 15px;
     margin-right: auto;
     margin-left: auto;
@@ -5801,4 +5801,39 @@ Session rendering
 .full-width-btn {
     display: block;
     width: 100%;
+}
+
+.likert-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.likert-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.survey .progress {
+    width: 100%;
+    background-color: #e0e0e0;
+}
+
+.survey .progress-bar {
+    background-color: #4CAF50;
+    height: 20px;
+    color: white;
+    text-align: center;
+    line-height: 20px; /* same as height to vertically center text */
+}
+
+.survey .progress-text {
+    color: black;
+    position: absolute;
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+    line-height: 20px;
+
 }

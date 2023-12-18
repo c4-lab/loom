@@ -37,7 +37,7 @@
 
 
 
-                    <h1 class="text-center">Try it out!</h1>d
+                    <h1 class="text-center">Try it out!</h1>
 
                     <p>
                         On the following screen, you will play a three round game with other players.  Do your best!  You will receive a summary of your scores at the end.

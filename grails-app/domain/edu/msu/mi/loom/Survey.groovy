@@ -7,9 +7,13 @@ package edu.msu.mi.loom
 class Survey extends ConstraintProvider implements Trainable {
 
     static constraints = {
+        instructions nullable: true
     }
 
     List<SurveyItem> surveyItems
+    boolean likert = false
+    String instructions
+
     static hasMany = [surveyItems:SurveyItem]
 
 
