@@ -56,7 +56,7 @@
 
                             <p><b>1. What gender do you identify as?</b></p>
                             <select id="gender" name="gender" onchange="chooseGenderOther()" required>
-                                <option value="">Please select</option>
+                                <option value="">No selection</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Nonbinary">Non-binary</option>
@@ -66,7 +66,7 @@
                             <p></p>
                             <p><b>2. Which of the following best describes your ancestry?</b></p>
                             <select name="race" id="race" onchange="chooseRaceOther()" required>
-                                <option value="">Please select</option>
+                                <option value="">No selection</option>
                                 <option value="european">European</option>
                                 <option value="hispanic_latino">Hispanic or Latino</option>
                                 <option value="african">African</option>
@@ -84,6 +84,7 @@
                             <p></p>
                             <p><b>3. Which language did you speak the most growing up as a child? (Please select other if language is not listed)</b></p>
                             <select id="language" class="selectpicker" name="language" data-placeholder="Choose a Language..." data-live-search="true" data-size="5" onchange="chooseLanguageOther()" required>
+                                <option value="">No selection</option>
                                 <option value="Afrikaans">Afrikaans</option>
                                 <option value="Albanian">Albanian</option>
                                 <option value="Arabic">Arabic</option>
@@ -190,6 +191,7 @@
                             <p></p>
                             <p><b>6. Please select the option that best describes your political party affiliation:</b></p>
                             <select id="political" name="political" onchange="choosePoliticalOther()" required>
+                                <option value="">No selection</option>
                                 <option value="Strong Democrat">Strong Democrat</option>
                                 <option value="Weak Democrat">Not very strong Democrat</option>
                                 <option value="Lean Democrat">Independent, lean toward Democrat</option>
