@@ -17,6 +17,7 @@ class TrainingSet extends ConstraintProvider {
 
 
     List<Training> trainings
+    List<Survey> surveys
     int uiflag = 0
     State state = State.PENDING
 

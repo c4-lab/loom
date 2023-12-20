@@ -2,6 +2,61 @@
   "training": {
     "surveys": [
       {
+        "name": "Politics",
+        "likert": true,
+        "items": [
+          {
+            "question": "In politics, people sometimes talk of the political “left” and “right”. Where would you place yourself on this scale, where 0 means the left and 10 means the right?",
+            "options": [
+              {
+                "answer": "Political Left",
+                "score": 0
+              },
+              {
+                "answer": "",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "",
+                "score": 7
+              },
+              {
+                "answer": "",
+                "score": 8
+              },
+              {
+                "answer": "",
+                "score": 9
+              },
+              {
+                "answer": "Political Right",
+                "score": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "Cognitive Closure",
         "instructions": "Please indicate your level of agreement with the following statements on response scales from strongly disagree (1) to strongly agree (5):",
         "likert": true,
@@ -384,6 +439,145 @@
         ]
       },
       {
+        "name": "General vaccine attitude",
+        "likert": true,
+        "instructions": "Please rate your attitude on the following scale consisting of four semantic differential items. In general, I think vaccines are:",
+        "items": [
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Bad",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Good",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Harmful",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Beneficial",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Foolish",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Wise",
+                "score": 7
+              }
+            ]
+          },
+          {
+            "question": "In general, I think vaccines are:",
+            "options": [
+              {
+                "answer": "Useless",
+                "score": 1
+              },
+              {
+                "answer": "",
+                "score": 2
+              },
+              {
+                "answer": "",
+                "score": 3
+              },
+              {
+                "answer": "",
+                "score": 4
+              },
+              {
+                "answer": "",
+                "score": 5
+              },
+              {
+                "answer": "",
+                "score": 6
+              },
+              {
+                "answer": "Useful",
+                "score": 7
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "Vaccine Safety",
         "instructions": "Please indicate your level of agreement with the following statements on response scales from strongly disagree (1) to strongly agree (5):",
         "likert": true,
@@ -542,145 +736,6 @@
               {
                 "answer": "Strongly Agree",
                 "score": 5
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "General vaccine attitude",
-        "likert": true,
-        "instructions": "Please rate your attitude on the following scale consisting of four semantic differential items. In general, I think vaccines are:",
-        "items": [
-          {
-            "question": "In general, I think vaccines are:",
-            "options": [
-              {
-                "answer": "Bad",
-                "score": 1
-              },
-              {
-                "answer": "",
-                "score": 2
-              },
-              {
-                "answer": "",
-                "score": 3
-              },
-              {
-                "answer": "",
-                "score": 4
-              },
-              {
-                "answer": "",
-                "score": 5
-              },
-              {
-                "answer": "",
-                "score": 6
-              },
-              {
-                "answer": "Good",
-                "score": 7
-              }
-            ]
-          },
-          {
-            "question": "In general, I think vaccines are:",
-            "options": [
-              {
-                "answer": "Harmful",
-                "score": 1
-              },
-              {
-                "answer": "",
-                "score": 2
-              },
-              {
-                "answer": "",
-                "score": 3
-              },
-              {
-                "answer": "",
-                "score": 4
-              },
-              {
-                "answer": "",
-                "score": 5
-              },
-              {
-                "answer": "",
-                "score": 6
-              },
-              {
-                "answer": "Beneficial",
-                "score": 7
-              }
-            ]
-          },
-          {
-            "question": "In general, I think vaccines are:",
-            "options": [
-              {
-                "answer": "Foolish",
-                "score": 1
-              },
-              {
-                "answer": "",
-                "score": 2
-              },
-              {
-                "answer": "",
-                "score": 3
-              },
-              {
-                "answer": "",
-                "score": 4
-              },
-              {
-                "answer": "",
-                "score": 5
-              },
-              {
-                "answer": "",
-                "score": 6
-              },
-              {
-                "answer": "Wise",
-                "score": 7
-              }
-            ]
-          },
-          {
-            "question": "In general, I think vaccines are:",
-            "options": [
-              {
-                "answer": "Useless",
-                "score": 1
-              },
-              {
-                "answer": "",
-                "score": 2
-              },
-              {
-                "answer": "",
-                "score": 3
-              },
-              {
-                "answer": "",
-                "score": 4
-              },
-              {
-                "answer": "",
-                "score": 5
-              },
-              {
-                "answer": "",
-                "score": 6
-              },
-              {
-                "answer": "Useful",
-                "score": 7
               }
             ]
           }
@@ -1649,61 +1704,6 @@
             ]
           }
         ]
-      },
-      {
-        "name": "Politics",
-        "likert": true,
-        "items": [
-          {
-            "question": "In politics, people sometimes talk of the political “left” and “right”. Where would you place yourself on this scale, where 0 means the left and 10 means the right?",
-            "options": [
-              {
-                "answer": "Political Left",
-                "score": 0
-              },
-              {
-                "answer": "",
-                "score": 1
-              },
-              {
-                "answer": "",
-                "score": 2
-              },
-              {
-                "answer": "",
-                "score": 3
-              },
-              {
-                "answer": "",
-                "score": 4
-              },
-              {
-                "answer": "",
-                "score": 5
-              },
-              {
-                "answer": "",
-                "score": 6
-              },
-              {
-                "answer": "",
-                "score": 7
-              },
-              {
-                "answer": "",
-                "score": 8
-              },
-              {
-                "answer": "",
-                "score": 9
-              },
-              {
-                "answer": "Political Right",
-                "score": 10
-              }
-            ]
-          }
-        ]
       }
     ],
     "readings": [
@@ -1782,7 +1782,7 @@
     "simulations": [
       {
         "name": "Frogs and milk pail",
-        "timeperround": 10,
+        "timeperround": 60,
         "solution": [
           "one night two frogs found themselves in a dairy.",
           "hopping and jumping around as frogs do ",

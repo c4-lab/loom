@@ -15,9 +15,6 @@ dataSource {
         cache.region.factory_class = 'org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory' // Hibernate 4
         singleSession = true // configure OSIV singleSession mode
         flush.mode = 'manual' // OSIV session flush mode outside of transactional context
-        properties {
-            hibernateInterceptor = new HibernateFlushInterceptor()
-        }
 
     }
 
@@ -33,7 +30,7 @@ dataSource {
                 dbCreate = "create"
                 username = "loom"
                 password = "loom"
-                validationQuery = "/* ping */ SELECT 1"
+                validationQuery = "SELECT 1"
                 testOnBorrow = true
                 testWhileIdle = true
                 timeBetweenEvictionRunsMillis = 3 * 60 * 60 * 1000 // 3 hours in milliseconds
@@ -58,6 +55,16 @@ dataSource {
                 dbCreate = "update"
                 username = "loom"
                 password = "loom"
+                validationQuery = "/* ping */ SELECT 1"
+                testOnReturn = true
+                testOnBorrow = true
+                testWhileIdle = true
+                timeBetweenEvictionRunsMillis = 10000 // 30 minutes in milliseconds
+                removeAbandoned = true
+                removeAbandonedTimeout = 1800 // .5 hour
+                logValidationErrors = true
+                logExpiredConnections = true
+                logEvictions = true
             }
         }
     }
