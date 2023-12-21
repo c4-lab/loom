@@ -129,6 +129,8 @@ log4j.main = {
         //stdout(console) is default appender for root.
     }
 
+    trace 'org.apache.tomcat.jdbc.pool'
+
 
     debug  'edu.msu.mi.loom.MturkService',
             'edu.msu.mi.loom.SessionService',

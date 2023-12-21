@@ -60,6 +60,7 @@ grails.project.dependency.resolution = {
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         runtime 'com.tinkerpop.blueprints:blueprints-core:2.6.0'
         runtime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.6.0'
+        //runtime group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.3.0'
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         compile 'net.sf.opencsv:opencsv:2.3'
         compile group: 'org.apache.axis', name: 'axis', version: '1.4'
@@ -71,9 +72,12 @@ grails.project.dependency.resolution = {
         compile group: 'commons-logging', name: 'commons-logging', version: '1.0.4'
         compile group: 'commons-lang', name: 'commons-lang', version: '2.3'
         compile group: 'commons-digester', name: 'commons-digester', version: '1.8'
-        compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.2.2'
         compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
-        compile group: 'commons-pool', name: 'commons-pool', version: '1.3'
+        //compile group: 'commons-pool', name: 'commons-pool', version: '1.3'
+        //compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.2.2'
+        compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.11.0'
+//        compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.11.0'
+
         compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.7.0'
         compile group: 'commons-discovery', name: 'commons-discovery', version: '0.2'
 

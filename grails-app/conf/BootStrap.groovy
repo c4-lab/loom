@@ -15,7 +15,15 @@ class BootStrap {
     def mturkService
     def adminService
     def sessionFactory
+    def dataSource
     def init = { servletContext ->
+
+        if (dataSource instanceof org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy) {
+            def wrappedDataSource = dataSource.getTargetDataSource()
+            println "Wrapped DataSource class: ${wrappedDataSource.getClass().name}"
+        } else {
+            println "DataSource class: ${dataSource.getClass().name}"
+        }
         //GrailsApplication ga = (GrailsApplication)grailsApplication
 
        // def allClasses = ga.domainClasses
