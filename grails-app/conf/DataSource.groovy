@@ -29,6 +29,7 @@ environments {
             url = "jdbc:mysql://localhost:3306/loom"
             username = "loom"
             password = "loom"
+            dbCreate = "update"
             properties {
                 jmxEnabled = true
                 initialSize = 5
@@ -46,6 +47,7 @@ environments {
                 testWhileIdle = true
                 testOnReturn = false
                 defaultTransactionIsolation = java.sql.Connection.TRANSACTION_READ_COMMITTED
+                logValidationErrors = true
             }
 
         }
@@ -60,39 +62,34 @@ environments {
     }
     production {
         dataSource {
+            pooled = true
+            jmxExport = true
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/loom"
             driverClassName = "org.mariadb.jdbc.Driver"//"com.mysql.cj.jdbc.Driver"//"com.mysql.jdbc.Driver"
             dbCreate = "update"
             username = "loom"
             password = "loom"
-            dataSource {
-                pooled = true
-                jmxExport = true
-                driverClassName = "org.mariadb.jdbc.Driver"
-                dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
-                url = "jdbc:mysql://localhost:3306/loom"
-                username = "loom"
-                password = "loom"
-                properties {
-                    jmxEnabled = true
-                    initialSize = 5
-                    maxActive = 50
-                    minIdle = 5
-                    maxIdle = 25
-                    maxWait = 10000
-                    maxAge = 10 * 60000
-                    timeBetweenEvictionRunsMillis = 5000
-                    minEvictableIdleTimeMillis = 60000
-                    validationQuery = "SELECT 1"
-                    validationQueryTimeout = 3
-                    validationInterval = 3000
-                    testOnBorrow = true
-                    testWhileIdle = true
-                    testOnReturn = false
-                    defaultTransactionIsolation = java.sql.Connection.TRANSACTION_READ_COMMITTED
-                }
+            properties {
+                jmxEnabled = true
+                initialSize = 5
+                maxActive = 50
+                minIdle = 5
+                maxIdle = 25
+                maxWait = 10000
+                maxAge = 10 * 60000
+                timeBetweenEvictionRunsMillis = 5000
+                minEvictableIdleTimeMillis = 60000
+                validationQuery = "SELECT 1"
+                validationQueryTimeout = 3
+                validationInterval = 3000
+                testOnBorrow = true
+                testWhileIdle = true
+                testOnReturn = false
+                defaultTransactionIsolation = java.sql.Connection.TRANSACTION_READ_COMMITTED
+                logValidationErrors = true
             }
         }
     }
 }
+

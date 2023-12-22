@@ -6,6 +6,9 @@ import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.mturk.AmazonMTurkClient
 import com.amazonaws.services.mturk.AmazonMTurkClientBuilder
 import com.amazonaws.services.mturk.model.*
+import grails.async.Promise
+import grails.async.Promises
+
 
 //import com.amazonaws.mturk.service.axis.RequesterService
 
@@ -13,6 +16,9 @@ import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.stream.Collectors
 
@@ -37,6 +43,8 @@ class MturkService {
                           "IN"    : Comparator.In,
                           "NOT_IN": Comparator.NotIn]
 
+
+    ExecutorService executor = Executors.newFixedThreadPool(30);
 
     def adminService
 
@@ -191,6 +199,7 @@ class MturkService {
         return req
     }
 
+    @Transactional
     def launchMturkTask(List<QualificationRequirement> requirements, MturkTask task) {
 
         buildMturkQualificationTypes(task)
@@ -232,10 +241,11 @@ class MturkService {
             }
             MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
                     expires: expiry, url: linkurl, lastUpdate: new Date())
-            loomHit.save()
             task.addToHits(loomHit)
         }
-        task.save(flush: true)
+        if (!task.save(flush: true)) {
+            throw new RuntimeException("Error saving MTurkTask: ${task.errors}")
+        }
         return task
 
     }
@@ -356,13 +366,25 @@ class MturkService {
     }
 
     def assignQualification(String workerId, ConstraintProvider provider, Integer value, CrowdServiceCredentials creds) {
+        println("I am going to assign a qualification")
         AssociateQualificationWithWorkerRequest aq = new AssociateQualificationWithWorkerRequest()
         def qual = findOrCreateQualificationType(provider, creds, true)
         log.debug("Attempt to assign ${qual} to ${workerId}")
         aq.setQualificationTypeId(qual.getQualificationTypeId())
         aq.setWorkerId(workerId)
         aq.setIntegerValue(value)
-        getMturkClient(creds).associateQualificationWithWorker(aq)
+        executor.submit(new Runnable() {
+            void run() {
+                try {
+                    def result = getMturkClient(creds).associateQualificationWithWorker(aq)
+                    MturkService.log.debug("Sucessfully assigned qual for ${provider} to ${workerId} : ${result}")
+                } catch (Exception e) {
+                    MturkService.log.debug("Error assigning qual for ${provider} to ${workerId} : ${e.getMessage()}")
+                }
+            }
+        })
+
+
     }
 
     def findOrCreateQualificationType(ConstraintProvider provider, CrowdServiceCredentials credentials, boolean create = true) {
@@ -371,6 +393,17 @@ class MturkService {
             qualificationType = createMturkQualification(credentials, provider)
         }
         return qualificationType
+    }
+
+    void destroy() {
+        executor.shutdown()
+        try {
+            if (!executor.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow()
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow()
+        }
     }
 
 

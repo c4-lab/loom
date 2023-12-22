@@ -113,7 +113,10 @@ class LoginController {
                     log.debug("Redirecting with parameters")
                     def params = "workerId=$workerId"
                     if (assignmentId) {
-                        params+="?assignmentId=$assignmentId"
+                        params+="&assignmentId=$assignmentId"
+                    }
+                    if (orig?.parameters?.hitId) {
+                        params+="&hitId=${orig.parameters.hitId[0]}"
                     }
                     return redirect(url: "$original?$params")
                 } else {

@@ -5,6 +5,7 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.json.JSONElement
 import grails.util.Metadata
 import org.hibernate.metadata.ClassMetadata
+import org.springframework.jdbc.datasource.DelegatingDataSource
 
 class BootStrap {
     def experimentService
@@ -19,8 +20,12 @@ class BootStrap {
     def init = { servletContext ->
 
         if (dataSource instanceof org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy) {
-            def wrappedDataSource = dataSource.getTargetDataSource()
+            def wrappedDataSource = dataSource
+            while  (wrappedDataSource instanceof DelegatingDataSource) {
+                wrappedDataSource = wrappedDataSource.getTargetDataSource()
+            }
             println "Wrapped DataSource class: ${wrappedDataSource.getClass().name}"
+            println "Full spec: ${wrappedDataSource}"
         } else {
             println "DataSource class: ${dataSource.getClass().name}"
         }

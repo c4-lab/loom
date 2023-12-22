@@ -17,5 +17,9 @@ class MturkHIT {
     String url
     Date lastUpdate
 
+    def retrieveCredentials() {
+        task.credentials
+    }
+
 
 }

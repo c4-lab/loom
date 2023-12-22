@@ -91,7 +91,7 @@
 
     queryParams+="&hitId="+hitid
     queryParams+="&workerId="+workerid
-    $("#queryparams").text(queryParams);
+    //$("#queryparams").text(queryParams);
     $("#loomlink").attr("href", "goToThisLink"+queryParams);
 
     // Instructions expand/collapse

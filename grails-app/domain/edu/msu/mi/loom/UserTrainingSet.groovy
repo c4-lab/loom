@@ -46,13 +46,17 @@ class UserTrainingSet {
     }
 
     static UserTrainingSet create(User user, TrainingSet ts, trainingStartTime, MturkAssignment mturkAssignment, boolean complete = false, boolean flush = false) {
-        def instance = new UserTrainingSet(user:user,trainingSet: ts,complete: complete, trainingStartTime: trainingStartTime, mturkAssignment: mturkAssignment)
-        if (mturkAssignment) {
-            mturkAssignment.userTrainingSet = instance
-            mturkAssignment.save(flush: flush, insert: true)
+        def instance = new UserTrainingSet(user: user, trainingSet: ts, complete: complete, mturkAssignment: mturkAssignment, trainingStartTime: trainingStartTime)
+
+        if (instance.save(flush: flush, insert: true)) {
+            if (mturkAssignment) {
+                mturkAssignment.userTrainingSet = instance
+                mturkAssignment.save(flush: flush, insert: true)
+            }
+            return instance
+        } else {
+            throw new RuntimeException("Failed to save UserTrainingSet: ${instance.errors.allErrors}")
         }
-        instance.save(flush: flush, insert: true)
-        instance
     }
 
     def beforeInsert = {

@@ -164,6 +164,11 @@ class TrainingController {
         UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(u, TrainingSet.get(params.trainingSetId))
         uts.addToReadingResponses(usrr)
         uts.save(flush: true)
+        if (uts.mturkAssignment) {
+            MturkAssignment mta = uts.mturkAssignment
+            mta.getHit().getTask().credentials
+            mturkService.assignQualification(u.workerId,usrr.constraintProvider,usrr.value,mta.retrieveCredentials())
+        }
 
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSetId, assignmentId: params.assignmentId])
     }
@@ -205,6 +210,13 @@ class TrainingController {
         UserSurveyResponse usr = UserSurveyResponse.completeSurvey(user, options)
         userTrainingSet.addToSurveyReponses(usr)
         userTrainingSet.save(flush: true)
+
+        if (userTrainingSet.mturkAssignment) {
+            MturkAssignment mta = userTrainingSet.mturkAssignment
+            mta.getHit().getTask().credentials
+            mturkService.assignQualification(user.workerId,usr.constraintProvider,usr.value,mta.retrieveCredentials())
+        }
+
         redirect(action: 'advanceTraining', params: [trainingSetId: trainingSetId, assignmentId: params.assignmentId])
 
     }
@@ -278,8 +290,14 @@ class TrainingController {
         def user = springSecurityService.currentUser as User
         UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user, ts)
         UserTrainingResponse utr = new UserTrainingResponse(user: user, constraintProvider: t)
+        utr.value = 1
         uts.addToTrainingResponses(utr)
         uts.save(flush: true)
+        if (uts.mturkAssignment) {
+            MturkAssignment mta = uts.mturkAssignment
+            mta.getHit().getTask().credentials
+            mturkService.assignQualification(user.workerId,utr.constraintProvider,utr.value,mta.retrieveCredentials())
+        }
         redirect(action: 'advanceTraining', params: [trainingSetId: ts.id, assignmentId: assignmentId])
     }
 
@@ -344,6 +362,11 @@ class TrainingController {
             UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user, trainingSet)
             uts.addToSimulationResponses(usr)
             uts.save(flush: true)
+            if (uts.mturkAssignment) {
+                MturkAssignment mta = uts.mturkAssignment
+                mta.getHit().getTask().credentials
+                mturkService.assignQualification(user.workerId,usr.constraintProvider,usr.value,mta.retrieveCredentials())
+            }
             return render(status: OK, text: [status: 'simulation_complete'] as JSON)
         }
     }
@@ -392,6 +415,13 @@ class TrainingController {
     def trainingSetComplete() {
         User user = springSecurityService.currentUser as User
         TrainingSet ts = TrainingSet.get(params.trainingSetId)
+        UserTrainingSet uts = UserTrainingSet.findByUserAndTrainingSet(user,ts)
+
+        if (uts.mturkAssignment) {
+            MturkAssignment mta = uts.mturkAssignment
+            mta.getHit().getTask().credentials
+            mturkService.assignQualification(user.workerId,ts,1,mta.retrieveCredentials())
+        }
         render view: "trainingSetComplete", model: [confirmationCode: UserTrainingSet.findByUserAndTrainingSet(user, ts).confirmationCode, user: user]
     }
 

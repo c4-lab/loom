@@ -27,4 +27,8 @@ class MturkAssignment {
     UserTrainingSet userTrainingSet
     UserSession userSession
 
+    def retrieveCredentials() {
+        hit.task.credentials
+    }
+
 }
