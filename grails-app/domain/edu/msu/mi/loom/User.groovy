@@ -19,7 +19,7 @@ class User {
     static transients = ['springSecurityService']
 
     static constraints = {
-        username blank: false, unique: true, maxSize: 20
+        username blank: false, unique: true
         password blank: false
         workerId nullable: true
     }

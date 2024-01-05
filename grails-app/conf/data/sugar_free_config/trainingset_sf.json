@@ -1782,7 +1782,7 @@
     "simulations": [
       {
         "name": "Frogs and milk pail",
-        "timeperround": 60,
+        "timeperround": 75,
         "solution": [
           "one night two frogs found themselves in a dairy.",
           "hopping and jumping around as frogs do ",
