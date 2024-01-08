@@ -1124,7 +1124,7 @@
         ]
       },
       {
-        "name": "Anti-science belief",
+        "name": "Science credibility",
         "instructions": "Please indicate your level of agreement with the following twenty-three statements on response scales from strongly disagree (1) to strongly agree (5):",
         "likert": true,
         "items": [
@@ -1183,11 +1183,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1195,11 +1195,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1208,11 +1208,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1220,11 +1220,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1283,11 +1283,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1295,11 +1295,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1333,11 +1333,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1345,11 +1345,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1383,11 +1383,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1395,11 +1395,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1433,11 +1433,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1445,11 +1445,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1508,11 +1508,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1520,11 +1520,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1533,11 +1533,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1545,11 +1545,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1583,11 +1583,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1595,11 +1595,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },
@@ -1633,11 +1633,11 @@
             "options": [
               {
                 "answer": "Strongly Disagree",
-                "score": 1
+                "score": 5
               },
               {
                 "answer": "",
-                "score": 2
+                "score": 4
               },
               {
                 "answer": "",
@@ -1645,11 +1645,11 @@
               },
               {
                 "answer": "",
-                "score": 4
+                "score": 2
               },
               {
                 "answer": "Strongly Agree",
-                "score": 5
+                "score": 1
               }
             ]
           },

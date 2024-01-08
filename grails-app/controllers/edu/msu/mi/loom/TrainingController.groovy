@@ -268,7 +268,17 @@ class TrainingController {
         def training = Training.findById(params.trainingId)
         def assignmentId = params.assignmentId
         def alltiles = training.story.tiles as List<Tile>
-        List storyTiles = ((String) params.storyTiles).split(",").collect { Long.parseLong(it) }
+        List storyTiles = ((String) params.storyTiles).split(",").collect {
+            try {
+                Long.parseLong(it)
+            } catch (NumberFormatException nf) {
+                return -1
+            }
+        }
+
+        storyTiles.removeAll {
+            it < 0
+        }
 
 
         if (training) {
@@ -279,6 +289,8 @@ class TrainingController {
             } else {
                 def userTiles = storyTiles.collect { Tile.get(it) }
                 flash.error = true
+                Collections.shuffle(alltiles)
+                print(alltiles)
                 render(view: 'training', model: [allTiles: alltiles, storyTiles: userTiles, trainingSet: trainingSet, training: training, uiflag: params.uiflag as int, assignmentId: assignmentId])
                 return
             }
