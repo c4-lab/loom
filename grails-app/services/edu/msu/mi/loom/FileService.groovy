@@ -1,7 +1,6 @@
 package edu.msu.mi.loom
 
 import edu.msu.mi.loom.file.IFileService
-import grails.converters.JSON
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.springframework.web.multipart.MultipartFile
@@ -10,10 +9,10 @@ import java.nio.file.Paths
 
 @Slf4j
 @Transactional
-class FileService implements IFileService {
+class FileService  {
     def uniqueHashService
 
-    @Override
+
     public String uploadFile(MultipartFile file, String filename) {
         String location = buildFileLocation(filename);
         log.debug("file: " + file)
@@ -26,28 +25,33 @@ class FileService implements IFileService {
         return location
     }
 
-    @Override
     public void deleteFile(String location) {
 //        TODO: Implement me
     }
 
-    @Override
-    String readFile(MultipartFile file) {
+
+    String readFile(MultipartFile file, boolean skipNewlines = true) {
         StringBuilder text = new StringBuilder()
         file.inputStream.eachLine { line ->
+            //TODO Do something more robust here - we're removing the BOM which excel seems to insert by default
+            line = line.replace("\uFEFF", "");
+
             text.append(line)
+            if (!skipNewlines) {
+                text.append("\n")
+            }
         }
 
-        def json = JSON.parse(text.toString())
+
         return text
     }
 
-    @Override
+
     String buildFileLocation(String filename) {
         return buildFileLocation(uniqueHashService.getUniqueHash(), filename);
     }
 
-    @Override
+
     String buildFileLocation(String uniqueHash, String filename) {
         String path = Paths.get(uniqueHash).toString().replaceAll("\\\\", "/")
         def homeDir = new File(System.getProperty("user.home"))

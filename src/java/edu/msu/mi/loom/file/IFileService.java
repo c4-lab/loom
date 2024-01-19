@@ -11,7 +11,7 @@ public interface IFileService {
 
     void deleteFile(String location);
 
-    String readFile(MultipartFile file);
+    String readFile(MultipartFile file, boolean skipNewLines);
 
     String buildFileLocation(String filename);
 

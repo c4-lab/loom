@@ -137,7 +137,8 @@ log4j.main = {
             'edu.msu.mi.loom.ExperimentService',
             'edu.msu.mi.loom.ConstraintService',
             'edu.msu.mi.loom.SessionController',
-            'edu.msu.mi.loom.ExperimentRoundStatus'
+            'edu.msu.mi.loom.ExperimentRoundStatus',
+            'edu.msu.mi.loom.AdminService'
 
 
 

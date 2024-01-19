@@ -38,12 +38,13 @@
   },
   "sessionParameters": {
     "roundCount": 5,
-    "minNode": 3,
-    "maxNode": 3,
+    "minNode": 4,
+    "maxNode": 4,
     "roundTime": 10,
     "initialNbrOfTiles": 15,
     "sessionType": {
-      "type": "SINGLE"
+      "type": "MIXED",
+      "groups": ["Survey:General vaccine attitude GREATER_THAN 20", "Survey:General vaccine attitude LESS_THAN 21"]
     },
     "story":
       {

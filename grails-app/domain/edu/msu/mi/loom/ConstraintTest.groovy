@@ -9,6 +9,7 @@ import java.util.regex.Matcher
 class ConstraintTest {
 
 
+
     static constraintPattern = ~/([\w_:\s]+?)\s*(EQUALS|LESS_THAN|GREATER_THAN|IN|NOT_IN|HAS|NOT_HAS)\s*([\d,]+)?/
     static enum Operator {
 
@@ -156,6 +157,8 @@ class ConstraintTest {
         params nullable: true
     }
 
+    def constraintService
+
     boolean testUser(User u) {
         UserConstraintValue value = UserConstraintValue.findByUserAndConstraintProvider(u, constraintProvider)
         if (operator == Operator.NOT_HAS) {
@@ -169,6 +172,10 @@ class ConstraintTest {
 
     String buildMturkString() {
         constraintProvider.constraintTitle + " " + operator + (params ? " " + params : "")
+    }
+
+    String toString() {
+        return buildMturkString()
     }
 
     static ConstraintTest create(ConstraintProvider provider, Operator op, String params = null) {
@@ -189,30 +196,6 @@ class ConstraintTest {
 
     }
 
-    static ConstraintTest parse(String test){
-        Matcher m = constraintPattern.matcher(test)
-        Map result = [
-                "qual"    : null,
-                "operator": null,
-                "param"   : null,
-        ]
-        if (m.matches()) {
-            result.qual = m[0][1]
-            result.operator = m[0][2]
-            result.param = m[0][3]
-        }
 
-        Operator op = Operator.valueOf(result.operator)
-
-        ConstraintProvider provider = ConstraintProvider.findByConstraintTitle(result.qual)
-
-
-        if (!result.qual || !result.operator || !op || !provider) {
-            throw new Exception("Qualifier formatting error: ${test}")
-        }
-
-        return create(provider, op, result.param)
-
-    }
 
 }

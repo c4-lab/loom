@@ -88,6 +88,9 @@
                                 <a href="javascript:void(0);" id="create-credentials"
                                    class="btn btn-primary btn-block"><b>Create credentials</b></a>
 
+                                <a href="javascript:void(0);" id="fix-constraint-values"
+                                   class="btn btn-primary btn-block"><b>Fix constraint values</b></a>
+
                                 <g:link controller="admin" action="exportCSV" id="export-csv"
                                         class="btn btn-primary btn-block"><b>Export CSV</b></g:link>
                             </div><!-- /.box-body -->
@@ -393,6 +396,7 @@
 <g:render template="launch_training_modal"/>
 <g:render template="create_users_modal"/>
 <g:render template="create_credentials_modal"/>
+<g:render template="upload_users"/>
 
 <script type="application/javascript">
     var intervalId
@@ -469,6 +473,10 @@
             $("#create-credentials-modal").modal('show');
         });
 
+        $("#fix-constraint-values").click(function () {
+            fixConstraintValues();
+        });
+
 
 
 
@@ -480,6 +488,13 @@
         } else {
             $("#credentials-model-sandbox-options").hide()
         }
+    }
+
+    function fixConstraintValues() {
+        $.ajax({
+            type:"GET",
+            url: "/loom/admin/fixConstraintValues"
+        })
     }
 
 

@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-
+import com.sun.tools.internal.jxc.ap.Const
 import grails.transaction.Transactional
 
 import java.util.regex.Matcher
@@ -10,7 +10,7 @@ class ConstraintService {
 
     def mturkService
 
-    static CONSTRAINT_VALUE_PATTERH = /(\S+)\s*([\d.]*)/
+    static CONSTRAINT_VALUE_PATTERH = /([^=]+)=?([\d.]*)/
 
 
     UserConstraintValue parseConstraintValue(User u, String str) {
@@ -20,7 +20,9 @@ class ConstraintService {
 
         }
 
-        ConstraintProvider provider = ConstraintProvider.findByConstraintTitle(m[0][1])
+        //TODO - Note that if there are multiple constraints with the same name (a problem that should be fixed)
+        //TODO - this will only return the first such constraint.  THis needs fixing.
+        ConstraintProvider provider = findConstraintProvider(m[0][1])
         if (!provider) {
             throw new RuntimeException("Non-existent constraint priovider: ${m[0][1]}")
         }
@@ -39,13 +41,53 @@ class ConstraintService {
 
     }
 
+    ConstraintProvider findConstraintProvider(String title) {
+        List<ConstraintProvider> providers = ConstraintProvider.findAllByConstraintTitle(title)
+        if (!providers) {
+            log.warn("ConstraintProvider for title ${title} not found")
+            return null
+        } else {
+            return providers.min {
+                it.id
+            }
+        }
+    }
+
     Collection<ConstraintTest> failsConstraints(User user, Session session) {
         Collection<ConstraintTest> tests = session.allConstraintTests()
         tests.findAll {
             !it.testUser(user)
         }
 
-        //TODO
+
+    }
+
+    ConstraintTest parseConstraintTest(String test){
+        Matcher m = ConstraintTest.constraintPattern.matcher(test)
+        Map result = [
+                "qual"    : null,
+                "operator": null,
+                "param"   : null,
+        ]
+        if (m.matches()) {
+            result.qual = m[0][1]
+            result.operator = m[0][2]
+            result.param = m[0][3]
+        }
+
+        ConstraintTest.Operator op = ConstraintTest.Operator.valueOf(result.operator)
+
+        ConstraintProvider provider = findConstraintProvider(result.qual)
+
+
+        if (!result.qual || !result.operator || !op || !provider) {
+            throw new Exception("Qualifier formatting error: ${test}")
+        } else if (!provider) {
+            throw new Exception("Provider ${result.qual} could not be found")
+        }
+
+        return ConstraintTest.create(provider, op, result.param)
+
     }
 
     List<ConstraintTest> getConstraintTests(List constraints,List constraintoperators, List constraintparams) {
@@ -57,18 +99,14 @@ class ConstraintService {
     }
 
     ConstraintTest getConstraintTest(String constraintProvider, String operator, String params) {
-        String[] pieces = constraintProvider.split(":")
-        String clazz = "${getClass().package.getName()}.${pieces[0]}"
-        def results = ConstraintProvider.findAll {
-            eq("class",clazz) && name == pieces[1]
-        }
+        ConstraintProvider provider = findConstraintProvider(constraintProvider)
 
-        if (!results) {
+        if (!provider) {
             throw new Exception("Constraint for ${constraintProvider} could not be identified")
         } else {
 
             ConstraintTest.Operator op = ConstraintTest.Operator.valueOf(operator)
-            getConstraintTest(results[0], op, params)
+            getConstraintTest(provider, op, params)
         }
     }
 

@@ -124,6 +124,54 @@ class AdminService {
 
     }
 
+    /**
+     * This is a one-off method, intended to fix duplication with identically names constraints in the database
+     * It should really only be executed if you know what you're doing!
+     */
+    def fixDuplicateConstraints() {
+
+        int updated = 0
+        int providerCount = 0
+
+        Map<String,List<ConstraintProvider>> providers = [:]
+        ConstraintProvider.findAll().each { ConstraintProvider cp ->
+            if (!(cp.constraintTitle in providers)) {
+                providers[cp.constraintTitle] = [cp]
+            } else {
+                providers[cp.constraintTitle] << cp
+            }
+        }
+
+
+
+        providers.each {
+            if (it.value.size() > 1) {
+                providerCount += 1
+                List<ConstraintProvider> allProviders = it.value
+                ConstraintProvider target = allProviders.min {
+                    it.id
+                }
+                log.debug("Duplicate providers for ${target.constraintTitle}")
+                allProviders.remove(target)
+                allProviders.each {
+                    UserConstraintValue.findAllByConstraintProvider(it).each {
+                        if (it.constraintProvider != target) {
+                            updated+=1
+                            log.debug("Updating value of ${it.constraintProvider.constraintTitle} for user ${it.user.username}")
+                            it.constraintProvider = target
+                            it.save(flush: true)
+                        }
+                    }
+
+                }
+            }
+        }
+
+        log.info("Updated ${updated} constraint value associations for ${providerCount} providers")
+
+
+    }
+
     private def deleteTrainingTasks(source) {
         def tts = TrainingTask.findAllByTraining(source)
         tts.each { tt ->

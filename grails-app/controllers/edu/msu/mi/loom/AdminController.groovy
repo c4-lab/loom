@@ -89,7 +89,7 @@ class AdminController {
                         s = adminService.createStory(value.title as String, value.data)
                     }
                     return [key, s]
-                case "constraintTests":
+                case "constraints":
                     List<ConstraintTest> constraints = []
                     value.each {
                         constraints << constraintService.getConstraintTest(it.constraint as String, it.operator as String, it.params as String)
@@ -102,7 +102,7 @@ class AdminController {
                     List<ConstraintTest> constraintTests = []
                     if ("groups" in value) {
                         value.groups.each {
-                            constraintTests << ConstraintTest.parse(it)
+                            constraintTests << constraintService.parseConstraintTest(it)
                         }
                     }
 
@@ -382,12 +382,12 @@ class AdminController {
 
     def addNewUser(String workerId, String type, String constraints) {
         User u = User.findByWorkerId(workerId)
-        Roles role = null
+        Roles role = Roles.ROLE_USER
 
         try {
             role = Roles.valueOf(type)
         } catch (Exception e) {
-            //no problem
+            log.warn("Error identifying role ${type} - defaulting to regular user")
         }
         if (!u) {
             u = userService.createUserByWorkerId(workerId,role)
@@ -398,19 +398,20 @@ class AdminController {
 
 
         List constraintList = constraints.split(";").collect {
-            constraintService.parseConstraintValue(u,constraints)
+            UserConstraintValue value = constraintService.parseConstraintValue(u,it)
+            value.save(flush: true)
+            value
 
         }
 
-
-
+        log.debug("Created constraint values ${constraintList}")
 
     }
 
 
     def uploadUsers() {
         def file = params.inputFile
-        def text = fileService.readFile(file as MultipartFile)
+        def text = fileService.readFile(file as MultipartFile, false)
         def users = csvParserService.parseCsvFile(text)
         users.each {
             String workerId = it.workerId
@@ -810,5 +811,9 @@ class AdminController {
         render result as JSON
 
 
+    }
+
+    def fixConstraintValues() {
+        adminService.fixDuplicateConstraints()
     }
 }

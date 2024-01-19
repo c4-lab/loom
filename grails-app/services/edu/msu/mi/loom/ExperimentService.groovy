@@ -151,20 +151,37 @@ class ExperimentService {
 
 
         } else if (type.state == SessionType.State.MIXED) {
+            //TODO need to either handle uneven splits or prevent from happening
             int maxByConstraint = nodes.size() / type.constraintTests.size()
-            List partitions = [[]] * type.constraintTests.size()
+            List partitions = type.constraintTests.collect {[]}
+            List<UserSession> rejects = []
             sessions.each { UserSession us ->
-                int idx = type.constraintTests.findIndexOf { ConstraintTest ct -> ct.testUser(us.user)
+                int idx = type.constraintTests.findIndexOf {
+                    ConstraintTest ct -> ct.testUser(us.user)
                 }
                 if (idx > -1) {
-                    partitions[idx] << us
+                    log.debug("${us.user.workerId} passes test ${type.constraintTests[idx]}")
+                    if (partitions[idx].size() < maxByConstraint) {
+                        partitions[idx] << us
+                    } else {
+                        rejects << us
+                    }
                 } else {
                     log.error("User ${us.user.id} does not match any constraint test")
                 }
             }
+
+            log.debug("Partitions filled: ${partitions}")
+            log.debug("Attempt to assign nodes: "+nodes)
+            //TODO This block is failing
+            //TODO shuffle assignment for homophilous networks?
+            //TODO In is unclear right now if it is possible for us to have unbalanced assignments.  That *shouldn't* happen, unless
+            //TODO someone leaves in the midst of this assignment process AND we have somehow
             while (!nodes.isEmpty()) {
-                partitions.eachWithIndex { List<UserSession> partition, int idx ->
-                    if (partition.size() < maxByConstraint) {
+
+                partitions.each{ List<UserSession> partition ->
+
+                    if (partition.size() > 0) {
                         UserSession userSession = partition.pop()
                         userSession.selected = true
                         userSession.userAlias = nodes.pop()
@@ -172,8 +189,9 @@ class ExperimentService {
                     }
                 }
             }
-
-            partitions.flatten().each { UserSession us -> us.state = UserSession.State.REJECTED
+            //TODO ok, we should really place other users in a separate holder for rejection
+            rejects.each {
+                UserSession us -> us.state = UserSession.State.REJECTED
             }
         }
         assignInitialTiles(active)
@@ -252,6 +270,7 @@ class ExperimentService {
             Session.withNewSession {
                 s = Session.get(session.id)
                 int count = countWaitingUsers(s)
+                log.debug("Now have ${count} waiting users")
                 if (count >= s.sessionParameters.safeGetMinNode()) {
                     cancelWaitingTimer(s)
                     s = makeSessionActive(s)
