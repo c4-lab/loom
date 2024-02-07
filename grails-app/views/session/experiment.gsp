@@ -68,7 +68,7 @@
                                             <g:if test="${myState?.size() > 0}">
                                                 <g:each in="${myState}" var="tt">
                                                     <li class="ui-state-default purple"
-                                                        drag-id="${tt.id}">${raw(tt.text)}</li>
+                                                        drag-id="${tt.id}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                                                 </g:each>
                                             </g:if>
 
@@ -91,7 +91,7 @@
                                         <ul style="min-height: 200px !important;" id="sort4" class="${uiflag == 1?"dvSource":""} g_list privateinfo">
                                             <g:each in="${myInitialState}" var="tt">
                                                 <li class="ui-state-default tile-available"
-                                                    drag-id="${tt.id}">${raw(tt.text)}</li>
+                                                    drag-id="${tt.id}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                                             </g:each>
 
                                         </ul>

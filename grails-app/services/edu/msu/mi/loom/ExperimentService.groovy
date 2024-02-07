@@ -83,7 +83,7 @@ class ExperimentService {
 
         sessions.removeAll {
             if (System.currentTimeMillis() - it.presence.lastSeen.time > 10 * WAITING_PERIOD) {
-                log.debug("removing user")
+                log.debug("Skipping missing user")
                 it.presence.missing = true
             }
             return it.presence.missing
@@ -306,6 +306,7 @@ class ExperimentService {
                 experimentsRunning[session.id] = currentStatus
             }
             if (currentStatus.isFinished()) {
+                log.debug("Marking state as finished")
                 Session.withTransaction {
                     def s = Session.get(session.id)
                     s.state = Session.State.FINISHED

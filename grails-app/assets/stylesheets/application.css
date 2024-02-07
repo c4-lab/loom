@@ -52,13 +52,13 @@ li {
     margin: 0.5em 0;
 }
 
-li:after {
-    content: ' ';
-    display: block;
-    height: 1px;
-    /*border-bottom:solid 1px red;*/
-    width: 100%;
-}
+/*li:after {*/
+/*    content: ' ';*/
+/*    display: block;*/
+/*    height: 1px;*/
+/*    !*border-bottom:solid 1px red;*!*/
+/*    width: 100%;*/
+/*}*/
 /*ul {*/
 /*    list-style-type: none;*/
 /*    padding: 0;*/
@@ -5835,5 +5835,24 @@ Session rendering
     font-size: 16px;
     text-align: center;
     line-height: 20px;
+}
 
+.ui-state-default {
+    display: flex;
+    justify-content: space-between;
+}
+
+.drag-item-text {
+    font-size:1.4em!important;
+    flex-grow: 1;
+}
+
+.removeTile {
+    flex-grow: 0; /* Prevents the button from growing */
+    /* Optional: set a fixed width to further control the button's size */
+    width: 30px; /* Adjust the width as needed */
+    height: 30px; /* Adjust the height as needed */
+    padding: 0; /* Removes padding inside the button */
+    margin-left: 10px; /* A
+    /* Styles for the button */
 }

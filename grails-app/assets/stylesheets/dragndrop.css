@@ -45,18 +45,13 @@ ul {
 
 }
 
-.g_list li span.removeTile {
-    float:right;
 
-}
+/*.dvSource.g_list li {*/
 
+/*    display: inline-block;*/
+/*    padding: 5px 5px;*/
 
-.dvSource.g_list li {
-
-    display: inline-block;
-    padding: 5px 5px;
-
-}
+/*}*/
 
 #dvSource li {
 

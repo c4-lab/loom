@@ -58,7 +58,7 @@
                                     <g:if test="${storyTiles}">
                                         <g:each in="${storyTiles}" var="tt">
                                             <li class="ui-state-default purple"
-                                                drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                                drag-id="${tt.id}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                                         </g:each>
                                     </g:if>
 
@@ -88,7 +88,7 @@
                                     class="${uiflag == 1 ? "dvSource" : ""} g_list privateinfo">
                                     <g:each in="${allTiles}" var="tt">
                                         <li class="ui-state-default tile-available"
-                                            drag-id="${tt.id}"><span class="tile-text">${raw(tt.text)}</span></li>
+                                            drag-id="${tt.id}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                                     </g:each>
 
                                 </ul>

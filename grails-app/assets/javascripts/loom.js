@@ -867,7 +867,8 @@ function submitExperimentAjax() {
             //alert(data)
             shouldLogout = false
             if (data.reason === "finished") {
-                window.location.href = `/loom/error?message='The experiment as already finished`;
+                var url = `/loom/session/finishExperiment?loomsession=${session}`;
+                window.location.href = url
             } else if (data.reason === "waiting") {
                 window.location.href = `/loom/error?message='The experiment has not yet begun`;
             } else if (data.reason === "cancellation") {

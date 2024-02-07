@@ -36,7 +36,7 @@
                     <g:each in="${user.value}" var="tt">
                         <li class="ui-state-default tile-available"
                             drag-id="${tt.id}"
-                            nei-id="neighbour${user.key}">${raw(tt.text)}</li>
+                            nei-id="neighbour${user.key}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                     </g:each>
                 </ul>
             </div>

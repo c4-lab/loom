@@ -195,7 +195,7 @@ class SessionController {
         model['serverTime']=System.currentTimeMillis()
 
         model['loomSession'] = session
-        println("Returning model ${model}")
+        log.debug("Returning model ${model}")
         model
     }
 
@@ -325,11 +325,16 @@ class SessionController {
     private observeUser(Session session) {
         def user = springSecurityService.currentUser as User
         UserSession us = UserSession.findByUserAndSession(user, session)
-        if (us.presence.missing) {
-            log.debug("Marking user ${us.user.username} as not missing ")
-            us.presence.missing = false
+        if (!us) {
+            log.warn("No user session for ${user} and ${session}")
+
+        } else {
+            if (us.presence.missing) {
+                log.debug("Marking user ${us.user.username} as not missing ")
+                us.presence.missing = false
+            }
+            us.presence.lastSeen = new Date()
         }
-        us.presence.lastSeen = new Date()
 
     }
 
