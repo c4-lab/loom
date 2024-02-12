@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
+import java.util.regex.Pattern
 import java.util.stream.Collectors
 
 @Slf4j
@@ -33,7 +34,8 @@ class MturkService {
 
 
     //For parsing qualifications
-    static qualifierPattern = ~/(!)?([\w_:-]+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
+    //static qualifierPattern = ~/(!)?([\w_:-]+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
+    Pattern qualifierPattern = ~/(!)?([\s\w_:-\\']+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
     static operatorMap = ["="     : Comparator.EqualTo,
                           ">="    : Comparator.GreaterThanOrEqualTo,
                           "<="    : Comparator.LessThanOrEqualTo,
