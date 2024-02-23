@@ -387,7 +387,17 @@ class ExperimentService {
             !(it.user.id in status.submitted)
         }.each {
             UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias,session)
-            userRoundStory.copyForRound(status.round)
+            if (!userRoundStory) {
+                log.debug("User story not found for session; perhaps never submitted?")
+                SessionInitialUserStory initialUserStory = SessionInitialUserStory.findByAliasAndSession(it.userAlias,session)
+                new UserRoundStory(time: new Date(), session: session, round: status.round, currentTiles: initialUserStory.initialTiles,
+                        userAlias: it.userAlias ).save()
+
+            } else {
+                userRoundStory.copyForRound(status.round)
+            }
+
+
         }
     }
 

@@ -1,0 +1,75 @@
+{
+  "_comment": {
+    "network": [
+      {
+        "type": "Lattice",
+        "params": [
+          "degree"
+        ]
+      },
+      {
+        "type": "Newman_Watts",
+        "params": [
+          "min_degree",
+          "max_degree",
+          "prob"
+        ]
+      },
+      {
+        "type": "Barabassi_Albert",
+        "params": [
+          "min_degree",
+          "max_degree",
+          "M"
+        ]
+      }
+    ],
+    "interface": "paragraph|list",
+    "contraints": {
+      "constraint": "Named constraint - Type:Name(this is the title of the constraint in the db)",
+      "operation": "EQUALS|LESS_THAN|GREATER_THAN|RANGE|IN|HAS|NOT_HAS",
+      "params": "Free text - @see edu.msu.mi.loom.ConstraintTest"
+    },
+    "sessionType": {
+      "type": "SINGLE | MIXED",
+      "groups": "If single, this should be an array of constraints"
+    }
+
+  },
+  "sessionParameters": {
+    "roundCount": 12,
+    "minNode": 30,
+    "maxNode": 30,
+    "roundTime": 90,
+    "initialNbrOfTiles": 2,
+    "networkTemplate": {
+      "type": "Lattice",
+      "params": {
+        "degree": 4
+      }
+    },
+    "sessionType": {
+      "type": "SINGLE"
+    },
+    "story":
+      {
+        "data": [
+          "<b>KCPQ (Local TV station):</b> Scarlett Hendricks won first place in Seattle Kids Marathon 2014. Rebecca, Scarlett’s mom says, \“I’m so proud of Scarlett! I’m so happy to see her grow up into such a healthy kid from a baby with a lung infection history.\"",
+          "<b>The Seattle Times (local newspaper):</b> ...The most recent CDC report shows a sharp increase in the number of flu-related hospitalizations this year. The chance of catching the flu is much greater this season, so be prepared if your exposure risk is high!",
+          "<b>Text message from Rebecca Hendricks to school nurse:</b> I know that doctors strongly recommend the flu vaccine for people with respiratory issues, especially during a bad flu season, but I worry vaccines could impair the body’s natural defenses. I will not take Scarlett to get a shot, but please keep an eye on her and let me know if anything happens.",
+          "<b>Text message to Rebecca Hendricks from school nurse:</b> Scarlett has a fever, and please come to pick her up.",
+          "<b>CVS receipt for Hendricks:</b> Children’s Motrin, $6.79",
+          "<b>Signed Note Explaining Scarlett’s School Absence:</b> Scarlett was absent from school yesterday due to a low-grade fever. Some ibuprofen helped and she is fine now. Signed - Rebecca Hendricks",
+          "<b>Text message to Rebecca Hendricks from school nurse:</b> Scarlett seems to be experiencing severe difficulty breathing and I think she needs to go to the hospital immediately! Will you approve her transfer?",
+          "<b>Children's Hospital, ER patient log:</b> Scarlett Hendricks, arrived at 2:13 pm. Labored breathing, diagnosed with acute lung dysfunction.",
+          "<b>Children's Hospital, Scarlett Hendricks’s medical records:</b> Time of death: 4:43 pm.",
+          "<b>Rebecca Hendricks’s voice mail, from Dr. Brown, a pediatrician, at Children’s Hospital:</b> I’m so sorry for your loss Ms. Hendricks. Scarlett’s lung dysfunction combined with a flu infection led to complete lung failure.",
+          "<b>CDC U.S. Influenza Surveillance Report:</b> Researchers have estimated that flu has resulted in 12,000-52,000 deaths each year in the U.S. during flu season. An annual flu vaccine is the best way to protect against flu. Vaccination can prevent serious complications in people who get vaccinated but still get sick.",
+          "<b>Rebecca Hendricks’ blog:</b> Researchers have estimated that flu has resulted in 12,000-52,000 deaths each year during flu season. Flu vaccination has been shown in several studies to prevent children from getting sick from the flu and to reduce the severity of illness in children who get vaccinated but still get sick. Get your children flu shots now!",
+          "<b>CDC careers blog:</b> Interview with Rebecca Hendricks, an Educational Program Specialist, who joined us after the tragic loss of her daughter. \"My new mission with the CDC is to help raise awareness among parents about the flu and the vaccine that can protect our children. If I had had Scarlett vaccinated, I might still have her today!\""
+        ],
+        "title": "Vaccine-PRO-final"
+      }
+
+  }
+}
