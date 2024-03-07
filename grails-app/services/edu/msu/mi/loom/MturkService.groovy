@@ -35,7 +35,8 @@ class MturkService {
 
     //For parsing qualifications
     //static qualifierPattern = ~/(!)?([\w_:-]+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
-    Pattern qualifierPattern = ~/(!)?([\s\w_:-\\']+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
+    //Pattern qualifierPattern = ~/(!)?([\s\w_:-\\']+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
+    Pattern qualifierPattern = ~/(!)?([\s\w_\-\\':]+)\s*(=|>=|<=|!=|>|<|IN|NOT_IN)?\s*([\w,]+)?/
     static operatorMap = ["="     : Comparator.EqualTo,
                           ">="    : Comparator.GreaterThanOrEqualTo,
                           "<="    : Comparator.LessThanOrEqualTo,
