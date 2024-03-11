@@ -286,9 +286,9 @@ class MturkService {
 
     }
 
-    def getConstraintQualifications(Collection<ConstraintTest> tests) {
+    def getConstraintQualifications(Collection<ConstraintTest> tests, MturkTask task) {
         List<QualificationRequirement> qualifications = []
-        qualifications.addAll(session.sp("constraintTests").collect { ConstraintTest test ->
+        qualifications.addAll(tests.collect { ConstraintTest test ->
             return constructQualifier(test, task.credentials)
         })
     }
