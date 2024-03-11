@@ -292,6 +292,7 @@ class MturkService {
         qualifications.addAll(tests.collect { ConstraintTest test ->
             return constructQualifier(test, task.credentials)
         })
+        return qualifications
     }
 
     def searchQualificationTypeByString(String qualificationType, CrowdServiceCredentials credentials, boolean owned = true) {
