@@ -15,7 +15,7 @@ class SessionService {
         session.startWaiting = new Date()
 
         if (task) {
-            Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"))
+            Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"),task)
             mturkService.launchMturkTask(qualRequirements,task)
         }
 
