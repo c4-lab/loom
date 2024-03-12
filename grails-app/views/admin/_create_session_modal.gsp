@@ -165,6 +165,8 @@
                             <input type="number" class="sessionLaunchParam" name='assignment_time' id='assignment_session_time' min="0"
                                    max="1440" value="120"
                                    style="color:black;" required><br>
+                            <input type="number" class="sessionLaunchParam" name='payment' id='session_payment' min="0.0" value="0.0" step=".01"
+                                   style="color:black;" required><br>
                             <label>Additional qualifiers (comma separated):</label>
                             <input type="text" class="sessionLaunchParam" name='other_quals' id='other_session_quals' style="color:black;"><br>
                         </div>

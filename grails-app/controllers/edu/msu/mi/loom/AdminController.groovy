@@ -87,6 +87,7 @@ class AdminController {
                     Story s = Story.findByName(value.title as String)
                     if (!s) {
                         s = adminService.createStory(value.title as String, value.data)
+
                     }
                     return [key, s]
                 case "constraints":
@@ -186,7 +187,7 @@ class AdminController {
                     title: "Story Loom Session: ${session.exp.name}:${session.name}[${session.id}]",
                     description: "Play an online, multiplayer puzzle game for a research study",
                     keywords: "game, research",
-                    basePayment: session.sessionParameters.safeGetPaymentBase() as String,
+                    basePayment:  params.payment as String,
                     credentials: CrowdServiceCredentials.get(params.mturkSelectCredentials),
                     mturkAdditionalQualifications: params.other_quals,
                     mturkAssignmentLifetimeInSeconds: Integer.parseInt(params.assignment_time),

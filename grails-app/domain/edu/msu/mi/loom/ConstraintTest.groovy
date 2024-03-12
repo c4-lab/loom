@@ -171,7 +171,14 @@ class ConstraintTest {
     }
 
     String buildMturkString() {
-        constraintProvider.constraintTitle + " " + operator + (params ? " " + params : "")
+        if (operator == Operator.NOT_HAS) {
+            return "!"+constraintProvider.constraintTitle
+        } else if (operator == Operator.HAS) {
+            return constraintProvider.constraintTitle
+        } else {
+            return constraintProvider.constraintTitle + " " + operator + (params ? " " + params : "")
+        }
+
     }
 
     String toString() {
