@@ -185,16 +185,16 @@ class MturkService {
             it.credentials.equals(credentials)
         })
         QualificationType qtype = null
-        if (id) {
-            qtype = getQualification(id)
-        } else {
+//        if (id) {
+//            qtype = getQualification(id)
+//        } else {
             String qualId = searchQualificationTypeByString(parse.qual as String, credentials)
             if (!qualId) {
                 log.debug("Creating qualification for ${parse.qual} on credentials ${credentials}")
                 qtype = createMturkQualification(credentials, test.constraintProvider)
                 test.constraintProvider.addToServiceIds(new CrowdServiceScopedId(serviceId: qtype.qualificationTypeId, credentials: credentials))
             }
-        }
+        //}
         QualificationRequirement req = new QualificationRequirement()
         req.setQualificationTypeId(qtype.qualificationTypeId)
         req.setComparator(parse.operator as Comparator)
