@@ -47,7 +47,7 @@ class MturkService {
                           "NOT_IN": Comparator.NotIn]
 
 
-    ExecutorService executor = Executors.newFixedThreadPool(30);
+    ExecutorService executor = Executors.newFixedThreadPool(30)
 
     def adminService
 
@@ -131,8 +131,7 @@ class MturkService {
 
     def getHitTemplate(String url) {
         InputStream is = this.class.classLoader.getResourceAsStream("my_question.xml")
-        String questionSample = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8))
+        String questionSample = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
                 .lines()
                 .collect(Collectors.joining("\n"))
         questionSample.replace("goToThisLink", url)
@@ -141,11 +140,9 @@ class MturkService {
 
     def parseQualifier(String qual) {
         Matcher m = qualifierPattern.matcher(qual)
-        Map result = [
-                "qual"    : null,
-                "operator": null,
-                "param"   : null,
-        ]
+        Map result = ["qual"    : null,
+                      "operator": null,
+                      "param"   : null,]
         if (m.matches()) {
             result.qual = m[0][2]
             if (m[0][1] == "!") {
@@ -168,7 +165,7 @@ class MturkService {
 
     def constructQualifier(String definition, CrowdServiceCredentials credentials) {
         Map parse = parseQualifier(definition)
-        QualificationType qualType= searchQualificationTypeByString(parse.qual as String, credentials)
+        QualificationType qualType = searchQualificationTypeByString(parse.qual as String, credentials)
         if (!qualType) {
             throw new Exception("Could not identify qualifier ${parse.qual}")
         }
@@ -185,18 +182,21 @@ class MturkService {
             it.credentials.equals(credentials)
         })
         QualificationType qtype = null
+        QualificationRequirement req = new QualificationRequirement()
 //        if (id) {
 //            qtype = getQualification(id)
 //        } else {
-            String qualId = searchQualificationTypeByString(parse.qual as String, credentials)
-            if (!qualId) {
-                log.debug("Creating qualification for ${parse.qual} on credentials ${credentials}")
-                qtype = createMturkQualification(credentials, test.constraintProvider)
-                test.constraintProvider.addToServiceIds(new CrowdServiceScopedId(serviceId: qtype.qualificationTypeId, credentials: credentials))
-            }
+        String qualId = searchQualificationTypeByString(parse.qual as String, credentials)
+        req.setQualificationTypeId(qualId)
+        if (!qualId) {
+            log.debug("Creating qualification for ${parse.qual} on credentials ${credentials}")
+            qtype = createMturkQualification(credentials, test.constraintProvider)
+            test.constraintProvider.addToServiceIds(new CrowdServiceScopedId(serviceId: qtype.qualificationTypeId, credentials: credentials))
+            req.setQualificationTypeId(qtype.qualificationTypeId)
+        }
         //}
-        QualificationRequirement req = new QualificationRequirement()
-        req.setQualificationTypeId(qtype.qualificationTypeId)
+
+
         req.setComparator(parse.operator as Comparator)
         req.setIntegerValues(parse.param as Collection<Integer>)
         return req
@@ -240,7 +240,7 @@ class MturkService {
             def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
             def expiry = result.getHIT().getExpiration()
             if (!expiry) {
-                expiry = new Date(System.currentTimeMillis()+task.mturkHitLifetimeInSeconds * 60 * 1000L)
+                expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
             }
             MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
                     expires: expiry, url: linkurl, lastUpdate: new Date())
@@ -289,8 +289,7 @@ class MturkService {
 
     def getConstraintQualifications(Collection<ConstraintTest> tests, MturkTask task) {
         List<QualificationRequirement> qualifications = []
-        qualifications.addAll(tests.collect { ConstraintTest test ->
-            return constructQualifier(test, task.credentials)
+        qualifications.addAll(tests.collect { ConstraintTest test -> return constructQualifier(test, task.credentials)
         })
         return qualifications
     }
@@ -356,7 +355,7 @@ class MturkService {
         assignment.lastKnownStatus = "Accepted"
         assignment.lastUpdate = new Date()
         assignment.accepted = new Date()
-        assignment.save(flush:true)
+        assignment.save(flush: true)
         return assignment
     }
 
@@ -411,7 +410,6 @@ class MturkService {
     }
 
 
-
     //TODO Everything below this line has yet to be verified with the new CrowdServiceCredentials API
 
 
@@ -425,8 +423,6 @@ class MturkService {
         return result
 
     }
-
-
 
 
     def getQualificationRequirement(ConstraintProvider obj) throws ServiceException, RequestErrorException {
@@ -452,7 +448,6 @@ class MturkService {
         return flag
 
     }
-
 
 
     def checkQualificationid(String qualid) {
@@ -520,7 +515,6 @@ class MturkService {
         }
         return null
     }
-
 
 
     def deleteHit(MturkHIT hit) {
@@ -685,8 +679,7 @@ class MturkService {
             providers.addAll(trainingSet.allSubConstraints())
         } else {
             Session s = mturkTask.owner()
-            providers.addAll(s.sp("constraintTests").collect { ConstraintTest it ->
-                it.constraintProvider
+            providers.addAll(s.sp("constraintTests").collect { ConstraintTest it -> it.constraintProvider
             })
         }
         providers.each { ConstraintProvider provider ->
