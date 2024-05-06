@@ -33,8 +33,4 @@ class ConstraintProvider {
     def beforeInsert() {
         constraintTitle = getConstraintTitle()
     }
-
-
-
-
 }

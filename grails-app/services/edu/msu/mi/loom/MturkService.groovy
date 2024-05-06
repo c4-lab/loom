@@ -340,7 +340,7 @@ class MturkService {
 
         MturkHIT hit = MturkHIT.findByHitId(hitId)
         if (!hit) {
-            log.warn("Could not identify hit")
+            log.warn("Could not identify hit for ${hitId}")
             return null
         }
         MturkAssignment assignment = hit.assignments.find {

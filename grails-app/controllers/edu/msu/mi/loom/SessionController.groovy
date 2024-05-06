@@ -59,7 +59,7 @@ class SessionController {
 
         //attach assignment to hit
         if (hitId && assignmentId) {
-            mturkAssignment = mturkService.attachAssignment(hitId, assignmentId)
+            mturkAssignment = mturkService.attachAssignment(assignmentId, hitId)
         }
 
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
