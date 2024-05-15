@@ -7,11 +7,25 @@
 
                     <div class="col-xs-10">
                         <g:render template="/shared/alert-templates"/>
-                        <h1 id="experiment-name">${loomSession.name}</h1>
+                        <h3 ><a id="help-link" href="#" onclick="toggleHelp()">Show Help</a></h3>
+
                         <g:hiddenField id="session" name="session" value="${loomSession.id}"/>
 
                     </div>
 
+                    <div class="col-xs-1"></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-1"></div>
+                    <div id="help-text" class="col-xs-10" style="display:none;">
+                        <ol>
+                            <li>Drag items from your private area (bottom) or neighbors' stories (top) to "your story" area (middle) to create your story.</li>
+                            <li>New items will appear in your neighbors' areas on each round as they construct their stories.</li>
+                            <li>Try to build the best story you can with what you have. </li>
+                            <li>Your score (and bonus) depends on the both the number of items you have and their order. Having <em>many items out of order</em>, might yield a lower score than <em>few items in order</em>.</li>
+                            <li>If you encounter an error, first try reloading the page. If that doesn't work, please contact the experimenter!</li>
+                        </ol>
+                    </div>
                     <div class="col-xs-1"></div>
                 </div>
             </section>
@@ -155,6 +169,15 @@
             var result = href ? href.substring(1) : null; // Return the id without the '#'
             console.log("Returning active tab: "+result)
             activeTabGlobal= result;
+        }
+
+        function toggleHelp() {
+            $("#help-text").toggle()
+            if ($("#help-text").is(":visible")) {
+                $("#help-link").text("Hide help")
+            } else {
+                $("#help-link").text("Show help")
+            }
         }
 
 

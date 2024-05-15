@@ -334,6 +334,11 @@ class SessionController {
                 us.presence.missing = false
             }
             us.presence.lastSeen = new Date()
+            try {
+                us.presence.save(flush: true)
+            } catch(Exception e) {
+                log.warn("Could not update user presence: ${e.getMessage()} - ignoring")
+            }
         }
 
     }

@@ -32,6 +32,12 @@
         <g:each in="${neighborState}" var="user">
             <div class="tab-pane"
                  id="neighbour${user.key}">
+                <g:if test="${user.value.size() == 0}">
+                 <div class="center-block">
+                     <h1>Neighbor ${user.key} has not created a public story!</h1>
+                 </div>
+                </g:if>
+                <g:else>
                 <ul style="min-height: 200px !important;" class="${uiflag == 1 ? "dvSource" : ""} originalstory g_list">
                     <g:each in="${user.value}" var="tt">
                         <li class="ui-state-default tile-available"
@@ -39,6 +45,7 @@
                             nei-id="neighbour${user.key}"><div class="drag-item-text">${raw(tt.text)}</div></li>
                     </g:each>
                 </ul>
+                </g:else>
             </div>
 
         </g:each>
