@@ -84,7 +84,12 @@ class ExperimentService {
         sessions.removeAll {
             if (System.currentTimeMillis() - it.presence.lastSeen.time > 10 * WAITING_PERIOD) {
                 log.debug("Skipping missing user")
-                it.presence.missing = true
+                try {
+                    it.presence.missing = true
+                    it.presence.save(flush: true)
+                } catch (Exception e) {
+                    log.warn("Could not update missing user presence ${it.user} in ExperimentService.countWaitingUsers")
+                }
             }
             return it.presence.missing
         }

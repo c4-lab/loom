@@ -54,7 +54,12 @@ class SessionService {
         log.debug("Leaving sessions....")
         UserSession.withSession {
             UserSession.findAllByUserAndStateInList(springSecurityService.currentUser as User, [UserSession.State.ACTIVE, UserSession.State.WAITING]).each {
-                it.presence.missing = true
+                try {
+                    it.presence.missing = true
+                    it.presence.save(flush: true)
+                } catch (Exception e) {
+                    log.warn("Counld not update missing user presence ${it.user} in SessionService.leaveAllSessions")
+                }
             }
         }
 
