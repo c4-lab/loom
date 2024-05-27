@@ -28,6 +28,10 @@ class Story extends ConstraintProvider {
 
 
     public String toString() {
+        return "${getConstraintTitle()}:${id}"
+    }
+
+    String storyText() {
         def text = this.tiles ? this.tiles.sort{it.text_order}.text.join(" "):"--none--"
         return text
     }

@@ -38,8 +38,8 @@
   },
   "sessionParameters": {
     "roundCount": 10,
-    "minNode": 30,
-    "maxNode": 30,
+    "minNode": 20,
+    "maxNode": 20,
     "roundTime": 60,
     "initialNbrOfTiles": 2,
     "networkTemplate": {
@@ -68,7 +68,7 @@
           "<b>Rebecca Hendricks’ blog:</b> Researchers have estimated that flu has resulted in 12,000-52,000 deaths each year during flu season. Flu vaccination has been shown in several studies to prevent children from getting sick from the flu and to reduce the severity of illness in children who get vaccinated but still get sick. Get your children flu shots now!",
           "<b>CDC careers blog:</b> Interview with Rebecca Hendricks, an Educational Program Specialist, who joined us after the tragic loss of her daughter. \"My new mission with the CDC is to help raise awareness among parents about the flu and the vaccine that can protect our children. If I had had Scarlett vaccinated, I might still have her today!\""
         ],
-        "title": "Vaccine-PRO-final2"
+        "title": "Vaccine-PRO-final3"
       }
 
   }

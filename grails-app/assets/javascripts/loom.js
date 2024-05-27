@@ -5,22 +5,16 @@ $(document).ready(function () {
      */
 
     $("#network_type").click(function () {
-        var network_type=$("#select option:selected").val();
+        var network_type = $("#select option:selected").val();
         alert(network_type);
     });
 
 
-
-
-
-
     $("#clone-session").click(function () {
-        alert(parseInt($("#sessionId").val(),16))
+        alert(parseInt($("#sessionId").val(), 16))
         $.ajax({
-            url: "/loom/admin/cloneSession",
-            type: 'POST',
-            data: {
-                session: parseInt($("#sessionId").val(),16)
+            url: "/loom/admin/cloneSession", type: 'POST', data: {
+                session: parseInt($("#sessionId").val(), 16)
             }
         }).success(function (data) {
             $("#success-alert").toggleClass('hide show');
@@ -35,7 +29,6 @@ $(document).ready(function () {
     $("#publish-by-email").click(function () {
         $("#email-modal").modal('show');
     });
-
 
 
     // $(".launch_experiment").click(function () {
@@ -63,9 +56,7 @@ $(document).ready(function () {
 
     $("#publish-anon-session").click(function () {
         $.ajax({
-            url: "/loom/admin/publishAnonym",
-            type: 'POST',
-            data: {
+            url: "/loom/admin/publishAnonym", type: 'POST', data: {
                 session: $("#sessionId").val()
             }
         }).success(function (data) {
@@ -80,29 +71,23 @@ $(document).ready(function () {
     initExperiment();
 
 
-    $("#launch_experiment_hits").on('click', function (){
+    $("#launch_experiment_hits").on('click', function () {
         var experimentID = $("#experimentID").text();
         var num_hits = $("#num_exp_hits").val();
         var hit_lifetime = $("#exp_available_time").val();
         var assignment_lifetime = $("#exp_assignment_lifetime").val();
 
 
-
-
         $.ajax({
-            url: "/loom/admin/launchExperiment",
-            type: 'POST',
-            data:
-                {
-                    experimentID: experimentID,
-                    num_hits:num_hits,
-                    hit_lifetime: hit_lifetime,
-                    assignment_lifetime: assignment_lifetime,
+            url: "/loom/admin/launchExperiment", type: 'POST', data: {
+                experimentID: experimentID,
+                num_hits: num_hits,
+                hit_lifetime: hit_lifetime,
+                assignment_lifetime: assignment_lifetime,
 
 
-                },
-            // dataType:"json",
-            success: function (data){
+            }, // dataType:"json",
+            success: function (data) {
                 $("#launch-training-modal").modal('hide');
                 // $("#launch-training").hide();
                 // if(data.message==="duplicate"){
@@ -122,30 +107,25 @@ $(document).ready(function () {
         });
     });
 
-    $("#trainings").on('click', '.pay-training', function (){
-        var trainingsetId = $(".launch_training",this.parentNode).find('span').text();
-        var payment_status = $(".training-payment-status",this.parentNode.parentNode);
+    $("#trainings").on('click', '.pay-training', function () {
+        var trainingsetId = $(".launch_training", this.parentNode).find('span').text();
+        var payment_status = $(".training-payment-status", this.parentNode.parentNode);
         var pay_btn = $(".pay-training", this.parentNode);
         var pay_i = $(".pay-training-i", this.parentNode);
         pay_btn.addClass("buttonload");
-        pay_btn.attr("disabled",true)
+        pay_btn.attr("disabled", true)
         pay_i.addClass("fa fa-spinner fa-spin");
 
         $.ajax({
-            url: "/loom/admin/payTrainingHIT",
-            type: 'POST',
-            data:
-                {
-                    trainingsetId: trainingsetId,
+            url: "/loom/admin/payTrainingHIT", type: 'POST', data: {
+                trainingsetId: trainingsetId,
 
-                },
-            dataType:"json",
-            success: function (data){
-                payment_status.text("Payment status: "+data.payment_status);
+            }, dataType: "json", success: function (data) {
+                payment_status.text("Payment status: " + data.payment_status);
                 pay_btn.removeClass("buttonload");
-                pay_btn.attr("disabled",false)
+                pay_btn.attr("disabled", false)
                 pay_i.removeClass("fa fa-spinner fa-spin");
-                if(data.status==="no_payable"){
+                if (data.status === "no_payable") {
                     alert("No payable assignment!");
                 }
                 // if(data.status==="success"){
@@ -159,35 +139,29 @@ $(document).ready(function () {
         });
     });
 
-    $("#trainings").on('click', '.check-training_payble', function (){
-        var trainingsetId = $(".launch_training",this.parentNode).find('span').text();
-        var payment_status = $(".training-payment-status",this.parentNode.parentNode);
+    $("#trainings").on('click', '.check-training_payble', function () {
+        var trainingsetId = $(".launch_training", this.parentNode).find('span').text();
+        var payment_status = $(".training-payment-status", this.parentNode.parentNode);
 
         var check_btn = $(".check-training_payble", this.parentNode);
         var check_i = $(".check-training-payable-i", this.parentNode);
         check_btn.addClass("buttonload");
-        check_btn.attr("disabled",true)
+        check_btn.attr("disabled", true)
         check_i.addClass("fa fa-spinner fa-spin");
 
         $.ajax({
-            url: "/loom/admin/checkTrainingsetPayble",
-            type: 'POST',
-            data:
-                {
-                    trainingsetId: trainingsetId,
+            url: "/loom/admin/checkTrainingsetPayble", type: 'POST', data: {
+                trainingsetId: trainingsetId,
 
-                },
-            dataType:"json",
-            success: function (data){
-                payment_status.text("Payment status: "+data.payment_status);
+            }, dataType: "json", success: function (data) {
+                payment_status.text("Payment status: " + data.payment_status);
                 check_btn.removeClass("buttonload");
-                check_btn.attr("disabled",false)
+                check_btn.attr("disabled", false)
                 check_i.removeClass("fa fa-spinner fa-spin");
-                if(data.check_greyed){
+                if (data.check_greyed) {
                     alert("No payable assignment!");
                     // check_btn.attr("disabled",true);
                 }
-
 
 
             }
@@ -195,26 +169,18 @@ $(document).ready(function () {
     });
 
 
-
-
-
-    $("#create-username").on('click', function (){
-        var tr = "<tr style=\"background-color: #23272b\"><td><input type=\"text\" name=\"username\" id=\"username\" value='default-user'></td>" +
-            "<td><button  type=\"button\" class=\"btn btn-primary remove-username\">Remove</button></tr>"
+    $("#create-username").on('click', function () {
+        var tr = "<tr style=\"background-color: #23272b\"><td><input type=\"text\" name=\"username\" id=\"username\" value='default-user'></td>" + "<td><button  type=\"button\" class=\"btn btn-primary remove-username\">Remove</button></tr>"
         $("#create-user-table").append(tr);
     });
 
 
-
-
-
-    $("#create-user-table").on('click', '.remove-username', function (){
+    $("#create-user-table").on('click', '.remove-username', function () {
         $(this).parents("tr").remove();
     });
 
 
-
-    $("#submit-users").on('click', function (){
+    $("#submit-users").on('click', function () {
         var usernames = [];
 
         $("table#create-user-table tr").each(function (i, v) {
@@ -230,65 +196,56 @@ $(document).ready(function () {
         })
 
         // var username = $("#username").val();
-            if(usernames.length === 0){
-                alert("please provide a username")
-            }else{
-                $.ajax({
-                    url: "/loom/admin/createUser",
-                    type: 'POST',
-                    // contentType: "application/json;",
-                    // data: JSON.stringify({ 'list': usernames }),
-                    data:
-                        {
-                            usernames: usernames,
+        if (usernames.length === 0) {
+            alert("please provide a username")
+        } else {
+            $.ajax({
+                url: "/loom/admin/createUser", type: 'POST', // contentType: "application/json;",
+                // data: JSON.stringify({ 'list': usernames }),
+                data: {
+                    usernames: usernames,
 
-                        },
-                    dataType:"json",
-                    success: function (data){
-                        // alert(data.username);
-                        // var list = eval('([' + data.username + '])');
-                        // alert(list[0]);
-                        // for(var i=0;i<list.length;i++){
-                        //     var name=list[i];
-                        //     alert(name);
-                        // }
-                        var usernames = data.username
-                        // alert(usernames[1]);
-                        if(data.status==="duplicate"){
-                            // alert(usernames);
-                            $("table#create-user-table tr").each(function (i, v) {
-                                // userSettings[i] = [];
-                                if(i>=1){
+                }, dataType: "json", success: function (data) {
+                    // alert(data.username);
+                    // var list = eval('([' + data.username + '])');
+                    // alert(list[0]);
+                    // for(var i=0;i<list.length;i++){
+                    //     var name=list[i];
+                    //     alert(name);
+                    // }
+                    var usernames = data.username
+                    // alert(usernames[1]);
+                    if (data.status === "duplicate") {
+                        // alert(usernames);
+                        $("table#create-user-table tr").each(function (i, v) {
+                            // userSettings[i] = [];
+                            if (i >= 1) {
 
-                                    if(usernames[i-1] === 1){
-                                        alert("found duplicated or existent ones highlighted in red!");
-                                        $(this).children('td').eq(0).find('input').css("color","red");
-                                    }
+                                if (usernames[i - 1] === 1) {
+                                    alert("found duplicated or existent ones highlighted in red!");
+                                    $(this).children('td').eq(0).find('input').css("color", "red");
                                 }
+                            }
 
-                                // usernames[i-1] = $(this).children('td').eq(0).find('input').val();
-                                // {
-                                //     userSettings[i][ii] = $(this).text();
+                            // usernames[i-1] = $(this).children('td').eq(0).find('input').val();
+                            // {
+                            //     userSettings[i][ii] = $(this).text();
 
-                                // });
-                            })
-                        }else{
+                            // });
+                        })
+                    } else {
 
-                            $("#create-users-modal").modal('hide');
-                            alert("successfully create "+usernames);
-                        }
-
+                        $("#create-users-modal").modal('hide');
+                        alert("successfully create " + usernames);
                     }
-                });
-            }
 
-        });
+                }
+            });
+        }
+
+    });
 
 });
-
-
-
-
 
 
 //TODO - need to check this logic; see the "logout" call in thw waiting room
@@ -300,13 +257,11 @@ var roundDuration = undefined
 function logout() {
     if (shouldLogout) {
         $.ajax({
-            url: "/loom/logout/index",
-            type: 'GET',
-            async: false
+            url: "/loom/logout/index", type: 'GET', async: false
 
-        }).success(function(data, textStatus, jqXHR) {
+        }).success(function (data, textStatus, jqXHR) {
             // This will handle the response data after any redirects are resolved
-        }).error(function(jqXHR, textStatus, errorThrown) {
+        }).error(function (jqXHR, textStatus, errorThrown) {
             // Error handling
         });
     }
@@ -349,8 +304,7 @@ function initSimulation() {
 }
 
 function initSimulationTimer() {
-    var duration = $("#simulationDuration").val(),
-        display = $('#timerPanel');
+    var duration = $("#simulationDuration").val(), display = $('#timerPanel');
 
     console.log("init time " + duration);
 
@@ -359,13 +313,13 @@ function initSimulationTimer() {
 
 
 function initRound() {
-    var round = Number($("#roundNumber").val())+1;
-    $("#roundNumberTarget").text(""+round)
+    var round = Number($("#roundNumber").val()) + 1;
+    $("#roundNumberTarget").text("" + round)
 }
 
 function blockIfPaused() {
-    if ($("#paused").val()=="true") {
-       $("#neighborsStories").block("<h1>Waiting for neighbors...</h1>")
+    if ($("#paused").val() == "true") {
+        $("#neighborsStories").block("<h1>Waiting for neighbors...</h1>")
     }
 }
 
@@ -447,8 +401,6 @@ function removeTile(elt) {
 }
 
 
-
-
 function removeTileEvent(elt) {
     $(elt).find("a").click(function (e) {
         var toremove = $(this).closest("li");
@@ -466,21 +418,21 @@ function initDragNDrop() {
         revert: "invalid",
         cancel: ".blue",
         placeholder: "ui-state-highlight",
-        start: function (event,ui) {
+        start: function (event, ui) {
             var width = $(event.target).width()
-            var height =  $(event.target).height()
+            var height = $(event.target).height()
             $('.ui-draggable-dragging').width(width)
             $('.ui-draggable-dragging').height(height)
 
         },
-        stop: function (event,ui) {
+        stop: function (event, ui) {
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
                 var source = $(event.target).attr("drag-id");
                 markAsDropped(source);
                 addRemoveBtn($("#sort2").find("[drag-id='" + source + "']"));
             }
 
-           // console.log($("#trainingForm .ui-draggable").map(function() {return $(this).attr("drag-id")}).get().join(";"))
+            // console.log($("#trainingForm .ui-draggable").map(function() {return $(this).attr("drag-id")}).get().join(";"))
 
 
         }
@@ -495,15 +447,15 @@ function initDragNDrop() {
         revert: "invalid",
         cancel: ".blue",
         placeholder: "ui-state-highlight",
-        start: function (event,ui) {
+        start: function (event, ui) {
             console.log("Start dragging")
 
             var width = $(event.target).width()
-            var height =  $(event.target).height()
+            var height = $(event.target).height()
             $('.ui-draggable-dragging').width(width)
             $('.ui-draggable-dragging').height(height)
         },
-        stop: function (event,ui) {
+        stop: function (event, ui) {
             console.log($(event.target).attr("drag-id"));
             if ($("#sort2").find("[drag-id='" + $(event.target).attr("drag-id") + "']").length > 0) {
                 var source = $(event.target).attr("drag-id");
@@ -520,18 +472,14 @@ function initDragNDrop() {
 
 function initMyDragNDrop() {
     $("#sort2").sortable({
-        opacity: 0.5,
-        cursor: "crosshair",
-        placeholder: "ui-state-highlight",
-        forcePlaceholderSize: true,
+        opacity: 0.5, cursor: "crosshair", placeholder: "ui-state-highlight", forcePlaceholderSize: true,
 
-        start: function (event,ui) {
+        start: function (event, ui) {
             console.log("Detecting a drag event")
             ui.placeholder.height(ui.item.height());
             ui.placeholder.width(ui.item.width());
             // $(event.target).find('li').css("white-space", "nowrap");
-        },
-        stop: function (event,ui) {
+        }, stop: function (event, ui) {
             updateTrainingScore();
         }
     })
@@ -544,20 +492,14 @@ function updateTrainingScore() {
         var tile_ids = $("#sort2 li").map(function () {
             return $(this).attr("drag-id")
         }).get().join(",")
-        console.log("Got "+tile_ids)
+        console.log("Got " + tile_ids)
         $("input[name='storyTiles']").val(tile_ids);
 
 
-
-
         $.ajax({
-            url: "/loom/training/getTrainingScore",
-            type: 'POST',
-            data: {
-                userTiles: tile_ids,
-                trainingId: $("#training").val()
-            },
-            timeout: 999
+            url: "/loom/training/getTrainingScore", type: 'POST', data: {
+                userTiles: tile_ids, trainingId: $("#training").val()
+            }, timeout: 999
         }).success(function (data) {
             $("#training-score").text(data);
             var orig = "black";
@@ -573,14 +515,14 @@ function updateTrainingScore() {
 function resetTraining() {
     $(".reset-training").click(function () {
         // if(uiflag===1){
-            $("#sort2").find("li").each(function () {
-                removeTile($(this));
-                //$(this).parent().remove();
-                //console.log($(this).parent().attr('id'));
-                //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
-                //
-                //elem.removeClass('blue').addClass('tile-available');
-            });
+        $("#sort2").find("li").each(function () {
+            removeTile($(this));
+            //$(this).parent().remove();
+            //console.log($(this).parent().attr('id'));
+            //var elem = $(".dvSource").find("[drag-id='" + $(this).parent().attr('drag-id') + "']");
+            //
+            //elem.removeClass('blue').addClass('tile-available');
+        });
         $("#sort3").find("li").each(function () {
             removeTile($(this));
             //$(this).parent().remove();
@@ -612,6 +554,7 @@ function resetTraining() {
 
 var after;
 var before;
+
 function calculateTime() {
     var seconds = Math.round((after - before) / 1000);
 
@@ -634,24 +577,23 @@ var pingTimer;
  */
 function startPingingForNextRound() {
     var session = $("#session").val();
-    pingTimer = setInterval(function() {
+    var worker = new Worker('/loom/assets/second-timer.js');
+    worker.onmessage = function () {
         $.ajax({
-            url: "/loom/session/checkExperimentRoundState/"+session,
-            type: 'GET',
-            timeout: 3000
+            url: "/loom/session/checkExperimentRoundState/" + session, type: 'GET', timeout: 1000
         }).success(function (data) {
-            if (data=="finished") {
+            if (data == "finished") {
                 shouldLogout = false;
-                clearInterval(pingTimer);
+                worker.terminate()
                 console.log("/loom/experiment/finishExperiment/" + session);
                 window.location = "/loom/session/finishExperiment/" + session;
 
-            } else if (data=="cancelled") {
+            } else if (data == "cancelled") {
                 window.location.href = `/loom/session/cancelNotification?loomsession=${session}`;
 
-            } else if (data!="paused") {
+            } else if (data != "paused") {
                 console.log("Processing round data");
-                clearInterval(pingTimer);
+                worker.terminate()
                 storeActiveTab();
                 processRoundData(data)
                 // setTimeout(function() {
@@ -664,9 +606,11 @@ function startPingingForNextRound() {
         }).error(function (data) {
             //check if something is going on here
         })
-    },1000)
-}
+    }
+    //pingTimer = setInterval(,1000)
+    worker.postMessage('Start');
 
+}
 
 
 function startSimulationTimer(duration, display) {
@@ -707,9 +651,9 @@ function initExperimentTimer(display) {
     var serverDelta, roundDuration, roundStart;
 
     function readTimingData() {
-        serverDelta = new Date().getTime()-parseInt($("#serverTime").val(),10);
-        roundDuration = parseInt($("#currentRoundDuration").val(),10);
-        roundStart = parseInt($("#roundStart").val(),10);
+        serverDelta = new Date().getTime() - parseInt($("#serverTime").val(), 10);
+        roundDuration = parseInt($("#currentRoundDuration").val(), 10);
+        roundStart = parseInt($("#roundStart").val(), 10);
     }
 
     readTimingData()
@@ -717,7 +661,7 @@ function initExperimentTimer(display) {
     var worker = new Worker('/loom/assets/second-timer.js');
     var minutes, seconds;
 
-    worker.onmessage = function(event) {
+    worker.onmessage = function (event) {
         console.log("Receive message from worker")
         adjustedLocalTime = new Date().getTime() + serverDelta
         if (adjustedLocalTime >= roundDuration * 1000 + roundStart) {
@@ -742,6 +686,15 @@ function initExperimentTimer(display) {
 
 }
 
+function startWaitingTimer(fx) {
+    var worker = new Worker('/loom/assets/second-timer.js');
+    worker.onmessage = function () {
+        fx()
+    }
+    worker.postMessage('Start');
+
+}
+
 function submitSimulation() {
     $("#submit-simulation").click(function () {
         submitSimulationAjax();
@@ -752,9 +705,9 @@ function updateProgressBar(count, max) {
     if (count == max) {
         $.blockUI("Please wait...")
     }
-    var percent = count*100/max;
-    $(".progress-bar").attr("aria-valuenow",percent).css("width",percent+"%");
-    $(".sr-only").text(percent+"% Complete");
+    var percent = count * 100 / max;
+    $(".progress-bar").attr("aria-valuenow", percent).css("width", percent + "%");
+    $(".sr-only").text(percent + "% Complete");
     $(".prog-bar-count").text(count);
 
 }
@@ -776,14 +729,11 @@ function submitSimulationAjax() {
 
     console.log(text_all);
     $.blockUI({
-        message: '<h1>Waiting for other participants...</h1>',
-        timeout: 1000
+        message: '<h1>Waiting for other participants...</h1>', timeout: 1000
     });
 
     $.ajax({
-        url: "/loom/training/submitSimulation",
-        type: 'POST',
-        data: {
+        url: "/loom/training/submitSimulation", type: 'POST', data: {
             tiles: text_all,
             trainingSetId: $("input[name='trainingSetId']").val(),
             simulation: $("#simulationid").val(),
@@ -809,8 +759,8 @@ function submitSimulationAjax() {
             }, 1000);
         }
     }).error(function (jqXHR, textStatus, errorThrown) {
-        console.log("Error thrown: "+errorThrown)
-        console.log("Status: "+textStatus)
+        console.log("Error thrown: " + errorThrown)
+        console.log("Status: " + textStatus)
         $(".dvDest").css('border', 'solid 1px red');
         $("#warning-alert").addClass('show');
         $("#warning-alert").removeClass('hide');
@@ -844,24 +794,26 @@ function processRoundData(data) {
 
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
-    console.log("ROUND: "+$("#roundNumber").val());
+    console.log("ROUND: " + $("#roundNumber").val());
 
     var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
-    var session =  $("#session").val();
+    var session = $("#session").val();
+    var currentRound = $("#roundNumber").val()
+    $("#neighborsStories").block({message: "<em>Refreshing neighbors...</em>"});
+    if (sessionStorage.getItem("submittedRound")==currentRound) {
+        console.log("Already submitting.")
 
-    $("#neighborsStories").block({message:"<em>Refreshing neighbors...</em>"});
+
+    }
     $.ajax({
-        url: "/loom/session/submitExperiment",
-        type: 'POST',
-        data: {
-            tails: text_all,
-            session: session,
-            roundNumber: $("#roundNumber").val()
+        url: "/loom/session/submitExperiment", type: 'POST', data: {
+            tails: text_all, session: session, roundNumber: currentRound
         }
     }).success(function (data) {
+        sessionStorage.setItem('submittedRound', currentRound)
         localStorage.setItem('remainingTime', 'null');
         if (!data.continue) {
             //alert(data)
@@ -884,11 +836,12 @@ function submitExperimentAjax() {
         } else {
             startPingingForNextRound();
         }
-    }).error(function (jqXHR, errorText, errorThrown ) {
+    }).error(function (jqXHR, errorText, errorThrown) {
         shouldLogout = false
         var encodedMessage = encodeURIComponent(errorText);
         var encodedError = encodeURIComponent(errorThrown);
         window.location.href = `/loom/error?message=${encodedMessage}&error=${encodedError}`;
     });
+
 }
 

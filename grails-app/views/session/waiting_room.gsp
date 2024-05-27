@@ -55,7 +55,7 @@
                 window.location="/loom/session/stopWaiting?session="+$("#sessionId").val();
             });
 
-            setInterval(function () {
+            startWaitingTimer(function() {
                 jQuery.ajax({
                     url: "/loom/session/checkExperimentReadyState",
                     type: 'GET',
@@ -67,13 +67,15 @@
                         shouldLogout = false;
                         window.location = "/loom/session/s/" + session+"?workerId=${username}";
                     } else {
+                        document.title = "Waiting...";
                         updateProgressBar(data.count, ${session.sessionParameters.safeGetMaxNode()})
                     }
                 }).error(function () {
                     window.location = "/loom/"
 
                 });
-            }, 3000);
+            })
+
 
 
         });

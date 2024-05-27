@@ -118,6 +118,7 @@ environments {
 //]
 
 // log4j configuration
+// Force recompilation
 log4j.main = {
     // Example of changing the log pattern for the default console appender:
     //

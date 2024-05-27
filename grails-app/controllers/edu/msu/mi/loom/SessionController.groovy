@@ -86,7 +86,7 @@ class SessionController {
         }
 
         //User was marked as missing, but appears to have returned
-       observeUser(session)
+
 
 
         //Check for users coming in on separate assignments
@@ -98,7 +98,7 @@ class SessionController {
         }
 
         if (session.state == Session.State.WAITING) {
-
+            sessionService.updatePresence(session,true)
             if (us.state==UserSession.State.STOP) {
                 //User previously left, either deliberately or due to some client side error
                 //Set the to waiting again and clear the "stoppedWaiting" field
@@ -111,7 +111,7 @@ class SessionController {
         } else if (session.state == Session.State.ACTIVE) {
             //User has been selected to play, but has not yet been made active and placed in a session
             if (us.selected) {
-
+                sessionService.updatePresence(session,true)
                 //TODO 9-19-23 - this fails right now, probably because we've not finished updating users
                 if (us.state in [UserSession.State.WAITING, UserSession.State.STOP]) {
                     us.state = UserSession.State.ACTIVE
@@ -188,14 +188,13 @@ class SessionController {
                 user.id in status.submitted)
 
         int timeRemaining = Math.max(0f, session.sessionParameters.safeGetRoundTime() - (System.currentTimeMillis() - status.roundStart.time) / 1000) as Integer
-        log.debug("Returning user model with time remaining: $timeRemaining")
         model['timeRemaining'] = timeRemaining
         model['startTime']=status.roundStart.time
         model['roundDuration']=session.sessionParameters.safeGetRoundTime()
         model['serverTime']=System.currentTimeMillis()
 
         model['loomSession'] = session
-        log.debug("Returning model ${model}")
+        log.debug("Returning model round ${status.round} to ${user}  with time remaining: $timeRemaining")
         model
     }
 
@@ -209,7 +208,6 @@ class SessionController {
         if (!user || !session) {
             return render(status: BAD_REQUEST)
         }
-        observeUser(session)
         def model = generateRoundModel(session, user)
 
         return render(template: 'experiment_content', model: model)
@@ -226,7 +224,7 @@ class SessionController {
         if (!s) {
             return render(status: BAD_REQUEST)
         }
-        observeUser(s)
+
         if (s.state == Session.State.CANCEL) {
             render( "cancelled")
         } else {
@@ -234,8 +232,10 @@ class SessionController {
             if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
                 render("finished")
             } else if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
+                sessionService.updatePresence(s,true)
                 render("paused")
             } else {
+                sessionService.updatePresence(s,true)
                 redirect(action: "experimentContent", params: [session: params.sessionId])
             }
         }
@@ -251,15 +251,17 @@ class SessionController {
             if (!session) {
                 return render(status: BAD_REQUEST)
             }
-            observeUser(session)
+
             def user = springSecurityService.currentUser as User
 
             if (session.state == Session.State.WAITING) {
                 log.debug("${user.username} Still waiting")
+                sessionService.updatePresence(session,true)
                 return render(["experiment_ready": false, count: experimentService.countWaitingUsers(session)] as JSON)
 
             } else {
                 log.debug("Done waiting")
+                sessionService.updatePresence(session,true)
                 return render(["experiment_ready": true, count: 0] as JSON)
             }
         }
@@ -286,7 +288,7 @@ class SessionController {
         if (!loomSession) {
            return render(status: BAD_REQUEST)
         }
-        observeUser(loomSession)
+        sessionService.updatePresence(loomSession,true)
 
         def user = springSecurityService.currentUser as User
         log.debug("User ${user.username} submitting for $roundNumber: $userTiles")
@@ -322,25 +324,6 @@ class SessionController {
 
     }
 
-    private observeUser(Session session) {
-        def user = springSecurityService.currentUser as User
-        UserSession us = UserSession.findByUserAndSession(user, session)
-        if (!us) {
-            log.warn("No user session for ${user} and ${session}")
 
-        } else {
-            if (us.presence.missing) {
-                log.debug("Marking user ${us.user.username} as not missing ")
-                us.presence.missing = false
-            }
-            us.presence.lastSeen = new Date()
-            try {
-                us.presence.save(flush: true)
-            } catch(Exception e) {
-                log.warn("Could not update user presence: ${e.getMessage()} - ignoring")
-            }
-        }
-
-    }
 
 }

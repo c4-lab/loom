@@ -57,4 +57,8 @@ class User {
             it.authority == Roles.ROLE_PROLIFIC.name
         }
     }
+
+    String toString() {
+        return "${workerId}(${id}):${getAuthorities()}"
+    }
 }

@@ -82,27 +82,29 @@ class ExperimentService {
         SessionType type = session.sessionParameters.safeGetSessionType()
 
         sessions.removeAll {
+            boolean remove = false
             if (System.currentTimeMillis() - it.presence.lastSeen.time > 10 * WAITING_PERIOD) {
-                log.debug("Skipping missing user")
-                try {
-                    it.presence.missing = true
-                    it.presence.save(flush: true)
-                } catch (Exception e) {
-                    log.warn("Could not update missing user presence ${it.user} in ExperimentService.countWaitingUsers")
-                }
+                sessionService.updatePresence(session,false)
             }
-            return it.presence.missing
+            return remove
         }
+        log.debug("Have ${sessions.size()} to examine")
 
         if (type.state == SessionType.State.SINGLE) {
             return sessions.size()
         } else if (type.state == SessionType.State.MIXED) {
             int maxByConstraint = session.sp("minNode") / type.constraintTests.size()
-            return type.constraintTests.sum { ConstraintTest constraintTest ->
-                int count = sessions.count { UserSession userSession -> constraintTest.testUser(userSession.user)
+            Map countByConstraint = new HashMap()
+            int total = type.constraintTests.sum { ConstraintTest constraintTest ->
+                int count = sessions.count {
+                    UserSession userSession -> constraintTest.testUser(userSession.user)
                 }
+                countByConstraint.put(constraintTest,count)
                 Math.min(count, maxByConstraint)
             }
+            log.debug("Waiting by constraint: ${countByConstraint}")
+            log.debug("Return ${total}")
+            return total
         }
         return 0
     }
@@ -117,7 +119,9 @@ class ExperimentService {
     @Transactional
     private makeSessionActive(Session session) {
         log.debug("Entering transactional block for session activation")
+
         assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
+
         session.state = Session.State.ACTIVE
         session.startActive = new Date()
         log.debug("Leaving transactional block for session activation")
@@ -137,6 +141,11 @@ class ExperimentService {
 
         List<UserSession> sessions = UserSession.executeQuery('select u from UserSession as u where u.session=:sess and' + ' u.state=:stat and' + ' u.presence.missing=:missing',
                 [sess: session, stat: UserSession.State.WAITING, missing: false])
+
+        if (sessions.size() < numUsers) {
+            log.warn("Not enough users to fill session!")
+            throw new Exception("Insufficient users for session; make sure all users are active")
+        }
         List<UserSession> active = []
         SessionType type = session.sessionParameters.safeGetSessionType()
         if (type.state == SessionType.State.SINGLE) {
@@ -160,6 +169,7 @@ class ExperimentService {
             int maxByConstraint = nodes.size() / type.constraintTests.size()
             List partitions = type.constraintTests.collect {[]}
             List<UserSession> rejects = []
+            log.debug("Attempt to assign: ${sessions}")
             sessions.each { UserSession us ->
                 int idx = type.constraintTests.findIndexOf {
                     ConstraintTest ct -> ct.testUser(us.user)
@@ -178,6 +188,13 @@ class ExperimentService {
 
             log.debug("Partitions filled: ${partitions}")
             log.debug("Attempt to assign nodes: "+nodes)
+
+            if (partitions.sum {
+                it.size()
+            } < numUsers) {
+                log.error("Unable to fill partitions")
+                throw new Exception("Unable to fill partitions")
+            }
             //TODO This block is failing
             //TODO shuffle assignment for homophilous networks?
             //TODO In is unclear right now if it is possible for us to have unbalanced assignments.  That *shouldn't* happen, unless
@@ -278,9 +295,15 @@ class ExperimentService {
                 log.debug("Now have ${count} waiting users")
                 if (count >= s.sessionParameters.safeGetMinNode()) {
                     cancelWaitingTimer(s)
-                    s = makeSessionActive(s)
-                    log.debug("Waiting timer advancing round.  Session status ${s.state}")
-                    advanceSessionLifecycle(s)
+                    try {
+                        s = makeSessionActive(s)
+                        log.debug("Waiting timer advancing round.  Session status ${s.state}")
+                        advanceSessionLifecycle(s)
+                    } catch(Exception e) {
+                        log.error("Error launching session; restart waiting",e)
+                        scheduleWaitingCheck(session)
+                    }
+
 
                 } else if (s.state != Session.State.WAITING) {
                     log.debug("Session state is no longer WAITING")
@@ -391,6 +414,7 @@ class ExperimentService {
         userSessions.findAll {
             !(it.user.id in status.submitted)
         }.each {
+            log.debug("User ${it.user} never submitted in ${status.round}; forcing submission")
             UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias,session)
             if (!userRoundStory) {
                 log.debug("User story not found for session; perhaps never submitted?")
@@ -430,7 +454,7 @@ class ExperimentService {
         } else {
             new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
             status.submitUser(user.id)
-            log.debug("(${user.username}) story registered for ${round}")
+            log.debug("${user.username} story registered for ${round}")
             return (["continue": true])
 
         }

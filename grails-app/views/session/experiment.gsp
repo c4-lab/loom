@@ -132,6 +132,7 @@
         var activeTabGlobal = "";
 
         jQuery(document).ready(function () {
+            document.title = "Session Active!"
             shouldLogout = true;
             window.onbeforeunload = logout;
             initMyDragNDrop();

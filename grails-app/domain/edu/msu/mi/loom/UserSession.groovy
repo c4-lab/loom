@@ -81,6 +81,10 @@ class UserSession implements Serializable{
         state = State.CANCELLED
     }
 
+    String toString() {
+        return "UserSession: ${user}:${session.id}:${state}"
+    }
+
 
 
     def beforeInsert = {

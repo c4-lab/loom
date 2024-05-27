@@ -283,7 +283,7 @@
 
                                                 </span>
                                                 <span class='description'>
-                                                    ${story.toString()}
+                                                    ${story.storyText()}
                                                 </span>
 
                                             </div>

@@ -129,9 +129,12 @@ class AdminService {
      * It should really only be executed if you know what you're doing!
      */
     def fixDuplicateConstraints() {
-
-        int updated = 0
+        println("Fixing duplicates - this might take a while")
+        log.debug("In fix duplicates...")
+        int value_updated = 0
+        int test_updated = 0
         int providerCount = 0
+        List<ConstraintProvider> toDelete = []
 
         Map<String,List<ConstraintProvider>> providers = [:]
         ConstraintProvider.findAll().each { ConstraintProvider cp ->
@@ -151,15 +154,26 @@ class AdminService {
                 ConstraintProvider target = allProviders.min {
                     it.id
                 }
-                log.debug("Duplicate providers for ${target.constraintTitle}")
+
                 allProviders.remove(target)
+                log.debug("${allProviders.size()} duplicate providers for ${target.constraintTitle}")
                 allProviders.each {
+                    toDelete << it
                     UserConstraintValue.findAllByConstraintProvider(it).each {
                         if (it.constraintProvider != target) {
-                            updated+=1
+                            value_updated+=1
                             log.debug("Updating value of ${it.constraintProvider.constraintTitle} for user ${it.user.username}")
                             it.constraintProvider = target
-                            it.save(flush: true)
+                            it.save()
+                        }
+                    }
+
+                    ConstraintTest.findAllByConstraintProvider(it).each {
+                        if (it.constraintProvider != target) {
+                            test_updated+=1
+                            log.debug("Updating value of ${it.constraintProvider.constraintTitle} for test ${it}")
+                            it.constraintProvider = target
+                            it.save()
                         }
                     }
 
@@ -167,8 +181,19 @@ class AdminService {
             }
         }
 
-        log.info("Updated ${updated} constraint value associations for ${providerCount} providers")
+        toDelete.each {
+            it.constraintTitle = "x_${it.constraintTitle}"
+            it.name = "x_${it.name}"
+            it.save()
+        }
 
+
+
+        println("Updated ${value_updated} constraint value associations and ${test_updated} tests for ${providerCount} providers")
+        println("Can delete: ")
+        toDelete.each {
+            println("${it.constraintTitle}:${it.id}")
+        }
 
     }
 

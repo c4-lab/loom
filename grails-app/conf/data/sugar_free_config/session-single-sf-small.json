@@ -32,8 +32,18 @@
     }
   },
   "sessionParameters": {
-    "roundCount": 10,
-    "roundTime": 120,
+    "minNode": 4,
+    "maxNode": 4,
+    "initialNbrOfTiles": 7,
+    "networkTemplate": {
+      "type": "Lattice",
+      "params": {
+        "degree": 2
+      }
+    },
+    "roundCount": 2,
+    "roundTime": 1200,
+
     "sessionType": {
       "type": "SINGLE"
     },
