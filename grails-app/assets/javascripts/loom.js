@@ -314,6 +314,7 @@ function initSimulationTimer() {
 
 function initRound() {
     var round = Number($("#roundNumber").val()) + 1;
+    console.log("Initializing round: "+round)
     $("#roundNumberTarget").text("" + round)
 }
 
@@ -601,7 +602,7 @@ function startPingingForNextRound() {
                 //     setActiveTab(activeTab);
                 // },0);
             } else {
-                console.log(data)
+                console.log("Still paused")
             }
         }).error(function (data) {
             //check if something is going on here
@@ -681,7 +682,7 @@ function initExperimentTimer(display) {
             display.text(minutes + ":" + seconds);
         }
     };
-
+    console.log("Initiating Timer")
     worker.postMessage('Start');
 
 }
@@ -794,7 +795,7 @@ function processRoundData(data) {
 
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
-    console.log("ROUND: " + $("#roundNumber").val());
+    console.log("Submitting experiment rOUND: " + $("#roundNumber").val());
 
     var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
@@ -804,7 +805,7 @@ function submitExperimentAjax() {
     var currentRound = $("#roundNumber").val()
     $("#neighborsStories").block({message: "<em>Refreshing neighbors...</em>"});
     if (sessionStorage.getItem("submittedRound")==currentRound) {
-        console.log("Already submitting.")
+        console.log("Already submitted round "+currentRound)
 
 
     }
@@ -819,7 +820,7 @@ function submitExperimentAjax() {
             //alert(data)
             shouldLogout = false
             if (data.reason === "finished") {
-                var url = `/loom/session/finishExperiment?loomsession=${session}`;
+                var url = `/loom/session/finishExperiment?session=${session}`;
                 window.location.href = url
             } else if (data.reason === "waiting") {
                 window.location.href = `/loom/error?message='The experiment has not yet begun`;
