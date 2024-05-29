@@ -2,6 +2,7 @@ package edu.msu.mi.loom
 
 import com.amazonaws.mturk.requester.QualificationRequirement
 import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Propagation;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -54,37 +55,50 @@ class SessionService {
 
     def leaveAllSessions() {
         log.debug("Leaving sessions....")
-        UserSession.withSession {
-            UserSession.findAllByUserAndStateInList(springSecurityService.currentUser as User, [UserSession.State.ACTIVE, UserSession.State.WAITING]).each {
-                updatePresence(it.session,false)
-            }
+        User user = springSecurityService.currentUser as User
+        if (user) {
+            updatePresence(user, false)
         }
 
     }
 
-    def updatePresence(Session session, boolean state) {
-        def user = springSecurityService.currentUser as User
-        UserSession us = UserSession.findByUserAndSession(user, session)
-        if (!us) {
-            log.warn("No user session for ${user} and ${session}")
-        } else {
-            ReentrantLock lock = LockManager.getLock(us.presence.id);
-            lock.lock();
-            try {
-                us.presence.refresh()
-                us.presence.missing = !state
-                if (!state) {
-                    us.presence.lastSeen = new Date()
-                }
-                us.presence.save()
-            } catch(Exception e) {
-                log.warn("Could not update user presence: ${e.getMessage()} - ignoring")
-            } finally {
-                lock.unlock();
-                LockManager.releaseLock(us.presence.id); // Optional based on usage patterns
-            }
-            synchronized (us) {
+    def countMissing(List<UserSession> userSessions) {
+        return userSessions.count {
+            UserSessionPresence presence = UserSessionPresence.findByUser(it.user)
+            return presence != null && presence.missing
+        }
+    }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    def updatePresence(User user, boolean state) {
 
+        //def user = springSecurityService.currentUser as User
+        //new Exception().printStackTrace()
+        if (user == null) {
+            return
+        } else {
+            UserSessionPresence us = UserSessionPresence.findByUser(user)
+            if (!us) {
+                println("No user presence")
+                log.warn("No user session for ${user} and ${User}")
+                us = new UserSessionPresence(user: user)
+                us.save(flush: true)
+
+            } else {
+                ReentrantLock lock = LockManager.getLock(us.id);
+                lock.lock();
+                try {
+                    us.refresh()
+                    us.missing = !state
+                    if (!us.missing) {
+                        us.lastSeen = new Date()
+                    }
+                    us.save(flush: true)
+                } catch (Exception e) {
+                    log.error("Could not update user presence: ${e.getMessage()} - ignoring")
+                } finally {
+                    lock.unlock();
+                    LockManager.releaseLock(us.id); // Optional based on usage patterns
+                }
             }
         }
     }

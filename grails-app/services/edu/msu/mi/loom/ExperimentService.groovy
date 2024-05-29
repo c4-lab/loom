@@ -83,12 +83,15 @@ class ExperimentService {
 
         sessions.removeAll {
             boolean remove = false
-            if (System.currentTimeMillis() - it.presence.lastSeen.time > 10 * WAITING_PERIOD) {
-                sessionService.updatePresence(session,false)
+
+            UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
+            if (usp==null || ((System.currentTimeMillis() - usp.lastSeen.time) > (10 * WAITING_PERIOD))) {
+                print("Updating user ${it.user} to missing")
+                sessionService.updatePresence(it.user,false)
+                remove = true
             }
             return remove
         }
-        log.debug("Have ${sessions.size()} to examine")
 
         if (type.state == SessionType.State.SINGLE) {
             return sessions.size()
@@ -120,8 +123,10 @@ class ExperimentService {
     private makeSessionActive(Session session) {
         log.debug("Entering transactional block for session activation")
 
-        assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
-
+        int selectedUserCount = assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
+        ExperimentRoundStatus currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
+        log.debug("Initialized status for $session.id with $currentStatus")
+        experimentsRunning[session.id] = currentStatus
         session.state = Session.State.ACTIVE
         session.startActive = new Date()
         log.debug("Leaving transactional block for session activation")
@@ -132,15 +137,33 @@ class ExperimentService {
      * Assigns aliases to users in a session and marks users as selected for the round
      * @param session
      * @param numUsers
-     * @return
+     * @return number of users assigned
      */
     def assignAliasesAndInitialTiles(Session session, int numUsers) {
         log.debug("Assigning aliases")
         List<String> nodes = networkGenerateService.generateGraph(session, numUsers, session.sp("networkTemplate"))
         //List<UserSession> sessions = UserSession.findAllBySessionAndMissingAndState(session,false,UserSession.State.WAITING)
 
-        List<UserSession> sessions = UserSession.executeQuery('select u from UserSession as u where u.session=:sess and' + ' u.state=:stat and' + ' u.presence.missing=:missing',
-                [sess: session, stat: UserSession.State.WAITING, missing: false])
+        //List<UserSession> sessions = UserSession.executeQuery('select u from UserSession as u where u.session=:sess and' + ' u.state=:stat and' + ' u.presence.missing=:missing',
+        //        [sess: session, stat: UserSession.State.WAITING, missing: false])
+
+
+
+        List<UserSession> sessions = UserSession.findAllBySessionAndState(session,UserSession.State.WAITING)
+
+        Map<UserSession,UserSessionPresence> sessionMap = sessions.collectEntries {
+            UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
+            log.debug("${it.user.username} -> ${usp?.lastSeen} : ${usp?.missing?"missing":"present"}")
+            [it,usp]
+        }
+
+        sessions = sessions.findAll {
+            sessionMap[it]!=null
+        }
+
+        sessions.sort {
+            -sessionMap[it].lastSeen.time
+        }
 
         if (sessions.size() < numUsers) {
             log.warn("Not enough users to fill session!")
@@ -225,6 +248,7 @@ class ExperimentService {
             constraintService.setConstraintValueForUser(user, story, 1, user.isMturkWorker() ? it.mturkAssignment.hit.task.credentials : null)
 
         }
+        return active.size()
     }
 
     /**
@@ -328,10 +352,7 @@ class ExperimentService {
             log.debug("Advance lifecycle for ${session.id}")
             ExperimentRoundStatus currentStatus = experimentsRunning.get(session.id)
             if (!currentStatus) {
-                int selectedUserCount = UserSession.countBySessionAndSelected(session, true)
-                currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
-                log.debug("Initialized status for $session.id with $currentStatus")
-                experimentsRunning[session.id] = currentStatus
+               throw new RuntimeException("Session is active but no experiment status?")
             }
             if (currentStatus.isFinished()) {
                 log.debug("Marking state as finished")
@@ -416,6 +437,7 @@ class ExperimentService {
         }.each {
             log.debug("User ${it.user} never submitted in ${status.round}; forcing submission")
             UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias,session)
+            sessionService.updatePresence(it.user,false)
             if (!userRoundStory) {
                 log.debug("User story not found for session; perhaps never submitted?")
                 SessionInitialUserStory initialUserStory = SessionInitialUserStory.findByAliasAndSession(it.userAlias,session)
@@ -433,28 +455,30 @@ class ExperimentService {
 
     def userSubmitted(User user, Session session, int round, List<Tile> tiles) {
         ExperimentRoundStatus status = getExperimentStatus(session)
-        //only register the submission if it is for the current round
+        log.debug("User ${user.id} submitting for session ${session.id}:${session.state} ")
+
         if (session.state == Session.State.CANCEL) {
-            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is cancelled")
+            log.debug("Session ${session.id} cancelled")
             return (["continue": false, "reason": "cancellation"])
         }
         if (session.state == Session.State.FINISHED) {
-            log.debug("User ${user.id} submitting for session ${session.id}:${session.state} but is finished or not running; ignoring")
+            log.debug("Session ${session.id} finished")
             new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
             status.submitUser(user.id)
             return (["continue": false, "reason": "finished"])
         }
         if (session.state == Session.State.WAITING) {
+            log.debug("Session ${session.id} waiting")
             return (["continue": false, "reason": "waiting"])
         }
         if (status.round != round) {
-            log.debug("Submitted wrong round!")
+            log.debug("Session ${session.id} active; wrong round")
             new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
             return (["continue": true])
         } else {
+            log.debug("Session ${session.id} active; correct round")
             new UserRoundStory(time: new Date(), session: session, round: round, currentTiles: tiles, userAlias: lookupUserAlias(session, user)).save()
             status.submitUser(user.id)
-            log.debug("${user.username} story registered for ${round}")
             return (["continue": true])
 
         }

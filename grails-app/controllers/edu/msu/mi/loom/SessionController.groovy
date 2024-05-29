@@ -98,7 +98,7 @@ class SessionController {
         }
 
         if (session.state == Session.State.WAITING) {
-            sessionService.updatePresence(session,true)
+            sessionService.updatePresence(user,true)
             if (us.state==UserSession.State.STOP) {
                 //User previously left, either deliberately or due to some client side error
                 //Set the to waiting again and clear the "stoppedWaiting" field
@@ -111,7 +111,7 @@ class SessionController {
         } else if (session.state == Session.State.ACTIVE) {
             //User has been selected to play, but has not yet been made active and placed in a session
             if (us.selected) {
-                sessionService.updatePresence(session,true)
+                sessionService.updatePresence(user,true)
                 //TODO 9-19-23 - this fails right now, probably because we've not finished updating users
                 if (us.state in [UserSession.State.WAITING, UserSession.State.STOP]) {
                     us.state = UserSession.State.ACTIVE
@@ -220,6 +220,7 @@ class SessionController {
      * @return
      */
     def checkExperimentRoundState() {
+        def user = springSecurityService.currentUser as User
         Session s = Session.get(params.sessionId)
         if (!s) {
             return render(status: BAD_REQUEST)
@@ -232,10 +233,10 @@ class SessionController {
             if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
                 render("finished")
             } else if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
-                sessionService.updatePresence(s,true)
+                sessionService.updatePresence(user,true)
                 render("paused")
             } else {
-                sessionService.updatePresence(s,true)
+                sessionService.updatePresence(user,true)
                 redirect(action: "experimentContent", params: [session: params.sessionId])
             }
         }
@@ -256,12 +257,12 @@ class SessionController {
 
             if (session.state == Session.State.WAITING) {
                 log.debug("${user.username} Still waiting")
-                sessionService.updatePresence(session,true)
+                sessionService.updatePresence(user,true)
                 return render(["experiment_ready": false, count: experimentService.countWaitingUsers(session)] as JSON)
 
             } else {
                 log.debug("Done waiting")
-                sessionService.updatePresence(session,true)
+                sessionService.updatePresence(user,true)
                 return render(["experiment_ready": true, count: 0] as JSON)
             }
         }
@@ -288,9 +289,10 @@ class SessionController {
         if (!loomSession) {
            return render(status: BAD_REQUEST)
         }
-        sessionService.updatePresence(loomSession,true)
+
 
         def user = springSecurityService.currentUser as User
+        sessionService.updatePresence(user,true)
         log.debug("User ${user.username} submitting for $roundNumber: $userTiles")
         List submittedTiles = userTiles ? userTiles.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
         Map result = experimentService.userSubmitted(user, loomSession, roundNumber, submittedTiles)

@@ -21,7 +21,6 @@ class UserSession implements Serializable{
     Date started
     Date stoppedWaiting
 
-    UserSessionPresence presence = new UserSessionPresence()
 
     State state = State.WAITING
     int wait_time = 0

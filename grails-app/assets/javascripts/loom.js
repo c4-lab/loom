@@ -314,7 +314,7 @@ function initSimulationTimer() {
 
 function initRound() {
     var round = Number($("#roundNumber").val()) + 1;
-    console.log("Initializing round: "+round)
+    console.log("Initializing round: " + round)
     $("#roundNumberTarget").text("" + round)
 }
 
@@ -795,7 +795,7 @@ function processRoundData(data) {
 
 function submitExperimentAjax() {
     $(".ui-draggable-dragging").remove();
-    console.log("Submitting experiment rOUND: " + $("#roundNumber").val());
+    console.log("Submitting experiment round: " + $("#roundNumber").val());
 
     var elems = $(".dvDest").find('ul li');
     var text_all = elems.map(function () {
@@ -804,8 +804,8 @@ function submitExperimentAjax() {
     var session = $("#session").val();
     var currentRound = $("#roundNumber").val()
     $("#neighborsStories").block({message: "<em>Refreshing neighbors...</em>"});
-    if (sessionStorage.getItem("submittedRound")==currentRound) {
-        console.log("Already submitted round "+currentRound)
+    if (sessionStorage.getItem("submittedRound") == currentRound) {
+        console.log("Already submitted round " + currentRound)
 
 
     }
@@ -814,7 +814,7 @@ function submitExperimentAjax() {
             tails: text_all, session: session, roundNumber: currentRound
         }
     }).success(function (data) {
-        sessionStorage.setItem('submittedRound', currentRound)
+
         localStorage.setItem('remainingTime', 'null');
         if (!data.continue) {
             //alert(data)
@@ -835,6 +835,7 @@ function submitExperimentAjax() {
             }
 
         } else {
+            sessionStorage.setItem('submittedRound', currentRound)
             startPingingForNextRound();
         }
     }).error(function (jqXHR, errorText, errorThrown) {
@@ -843,6 +844,7 @@ function submitExperimentAjax() {
         var encodedError = encodeURIComponent(errorThrown);
         window.location.href = `/loom/error?message=${encodedMessage}&error=${encodedError}`;
     });
+
 
 }
 

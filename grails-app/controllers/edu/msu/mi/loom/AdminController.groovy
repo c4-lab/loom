@@ -785,8 +785,8 @@ class AdminController {
     def getDynamicSessionInfo() {
         def result = ["waiting": null, "active": null]
         result['waiting'] = Session.findAllByState(Session.State.WAITING).collectEntries { Session loomSession ->
-            def missingcount = UserSession.executeQuery('select count(*) from UserSession as u where u.session=:sess and u.presence.missing=:missing',
-                    [sess: loomSession, missing: true])[0]
+            List<UserSession> us = UserSession.findAllBySession(loomSession);
+            def missingcount = sessionService.countMissing(us)
             [loomSession.id, ['started'  : loomSession.startWaiting,
                               'elapsed'  : (int) (System.currentTimeMillis() - loomSession.startWaiting.time) / 1000,
                               'connected': UserSession.countBySessionAndState(loomSession, UserSession.State.WAITING),
@@ -796,8 +796,9 @@ class AdminController {
         }
 
         result['active'] = Session.findAllByState(Session.State.ACTIVE).collectEntries { Session loomSession ->
-            def missingcount = UserSession.executeQuery('select count(*) from UserSession as u where u.session=:sess and u.presence.missing=:missing',
-                    [sess: loomSession, missing: true])[0]
+            List<UserSession> us = UserSession.findAllBySession(loomSession);
+            def missingcount = sessionService.countMissing(us)
+
             [loomSession.id, ['state'       : "ACTIVE",
                               'started'     : loomSession.startActive,
                               'round'       : experimentService.experimentsRunning[loomSession.id]?.round,
