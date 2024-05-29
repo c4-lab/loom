@@ -115,28 +115,33 @@ class TrainingSetService {
     def createSurvey(def surveyJson, TrainingSet trainingSet = null) {
 
         surveyJson.each { surveyInstance ->
-            log.debug("Process ${surveyInstance.name}")
-            Survey survey = new Survey(name: surveyInstance.name,
-                    likert: surveyInstance?.likert?:false,
-                    instructions: surveyInstance?.instructions
-            )
+            Survey survey = Survey.findByName(surveyInstance.name)
+            if (!survey) {
+                log.debug("Creating new survey ${surveyInstance.name}")
+                survey = new Survey(name: surveyInstance.name,
+                        likert: surveyInstance?.likert ?: false,
+                        instructions: surveyInstance?.instructions
+                )
 
-            surveyInstance.items.eachWithIndex { item, idx ->
-                SurveyItem surveyitem = new SurveyItem(survey: survey, question: item.question)
+                surveyInstance.items.eachWithIndex { item, idx ->
+                    SurveyItem surveyitem = new SurveyItem(survey: survey, question: item.question)
 
-                survey.addToSurveyItems(surveyitem)
-                def options = item.options
-                options.eachWithIndex { opt, idxx ->
-                    SurveyOption so = new SurveyOption(answer: opt.answer, score: opt.score)
-                    surveyitem.addToOptions(so)
+                    survey.addToSurveyItems(surveyitem)
+                    def options = item.options
+                    options.eachWithIndex { opt, idxx ->
+                        SurveyOption so = new SurveyOption(answer: opt.answer, score: opt.score)
+                        surveyitem.addToOptions(so)
+                    }
                 }
-            }
 
 
-            if (!survey.save(flush: true)) {
-                log.error("Survey creation attempt failed")
-                log.error(survey?.errors?.dump())
-                return null;
+                if (!survey.save(flush: true)) {
+                    log.error("Survey creation attempt failed")
+                    log.error(survey?.errors?.dump())
+                    return null;
+                }
+            } else{
+                log.debug("Identified survey ${survey.constraintTitle}")
             }
 
             if (trainingSet) {
