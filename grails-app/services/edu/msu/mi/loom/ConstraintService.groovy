@@ -123,7 +123,8 @@ class ConstraintService {
 
 
     ConstraintTest getStoryConstraint(Story s) {
-       ConstraintTest.create(s,ConstraintTest.Operator.NOT_HAS)
+        ConstraintProvider constraint = s.seed?:s
+        ConstraintTest.create(constraint,ConstraintTest.Operator.NOT_HAS)
     }
 
     //TODO Handle the revocation of a constraint - possibly via a null parameter on the value?

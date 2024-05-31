@@ -123,6 +123,7 @@
 
                         <button class="btn btn-primary full-width-btn show-session-launch-modal"  <%= loomSession.state != Session.State.PENDING ? 'disabled' : '' %>>Enable</button>
                         <button class="btn btn-primary full-width-btn  show-session-cancel" <%= loomSession.state in [Session.State.WAITING, Session.State.ACTIVE] ? '' : 'disabled' %>>Cancel</button>
+                        <button class="btn btn-primary full-width-btn  show-session-delete" <%= loomSession.state in [Session.State.WAITING, Session.State.ACTIVE] ? 'disabled' : '' %>>Delete</button>
                         <button class="btn btn-primary full-width-btn  show-session-clone">Clone</button>
                     </div>
                 </div>

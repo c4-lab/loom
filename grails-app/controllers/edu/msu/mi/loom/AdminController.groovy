@@ -69,7 +69,11 @@ class AdminController {
 
         def users = User.findAllByWorkerIdIsNullAndUsernameNotEqual("admin", [sort: 'dateCreated', order: 'desc'])
         //print("Render view")
-        render(view: 'board', model: [sessions   : Session.list(), sessionState: sessionStates,
+        List<Session> availableSession = Session.findAllByDeleted(false)
+        Map<String, List<Session>> groupedByState = availableSession.groupBy { it.state }
+
+
+        render(view: 'board', model: [sessions   : groupedByState, sessionState: sessionStates,
                                       experiments: Experiment.list(), trainings: trainingSets,
                                       stories    : Story.list(), users: users, credentials: CrowdServiceCredentials.list()])
     }
@@ -86,7 +90,7 @@ class AdminController {
                 case "story":
                     Story s = Story.findByName(value.title as String)
                     if (!s) {
-                        s = adminService.createStory(value.title as String, value.data)
+                        s = adminService.createStory(value.title as String, value.data, value?.seed)
 
                     }
                     return [key, s]
@@ -214,6 +218,19 @@ class AdminController {
             return fail("Cannot cancel an inactive session; launch first", "sessions")
         }
         sessionService.cancelSession(session)
+
+        redirect(action: 'board', fragment: "sessions")
+
+    }
+
+    def deleteSession() {
+
+        def session = Session.get(params.sessionId)
+        if ([Session.State.WAITING, Session.State.ACTIVE].contains(session.state)) {
+            return fail("Cannot delete an enabled session; cancel first", "sessions")
+        }
+        session.deleted = true
+        session.save(flush:true)
 
         redirect(action: 'board', fragment: "sessions")
 
@@ -532,15 +549,16 @@ class AdminController {
         def title = params.title
         def result = ['message': "success"]
 
-        def story = Story.findByTitle(title)
+        def story = Story.findByName(title)
         if (story) {
             result = ['message': "duplicate"]
 
 
         } else {
             String story_text = params.tiles
+            String storySeed = params.seed
 
-            story = adminService.createStory(title, story_text)
+            story = adminService.createStory(title, story_text, storySeed)
             if (!story) {
 
                 result = ['message': "error"]
@@ -818,4 +836,101 @@ class AdminController {
     def fixConstraintValues() {
         adminService.fixDuplicateConstraints()
     }
+
+    def getStorySeedUpdate() {
+        render(view: 'story_seed_form', model: [stories   : Story.list()])
+    }
+
+    def updateStorySeeds() {
+        List<StorySeed> storySeedUpdates = []
+        List<Story> storyUpdates = []
+        List<UserConstraintValue> ucvUpdates = []
+        Map<String,StorySeed> seedMap = new HashMap<>()
+
+        request.JSON.each {
+            Long id = it.value.id as Long
+            String seed = it.value.seed
+            Story story = Story.get(id)
+            StorySeed storySeed = null
+            if (seed) {
+                storySeed = StorySeed.findByName(seed)?:seedMap.get(seed)
+                if (!storySeed) {
+                    log.debug("Adding new story seed: ${seed}")
+                    storySeed = new StorySeed(name: seed)
+                    seedMap.put(seed,storySeed)
+                    storySeedUpdates << storySeed
+                }
+            }
+            if (story?.seed?.name != seed) {
+                story.seed = storySeed
+                storyUpdates<<story
+                if (seed) {
+                    List<UserConstraintValue> ucvs = UserConstraintValue.findAllByConstraintProvider(story)
+                    ucvs.each {
+                        it.constraintProvider = storySeed
+                        ucvUpdates<<it
+                    }
+                }
+
+            }
+
+        }
+
+        List<ConstraintTest> ctUpdates = []
+        Story.list().each { Story it ->
+            if (it.seed) {
+                ConstraintTest.findAllByConstraintProvider(it).each { ConstraintTest ct ->
+                    ct.constraintProvider = it.seed
+                    ctUpdates<<ct
+                }
+            }
+        }
+
+
+        // Save all instances using withTransaction for atomicity
+        Story.withTransaction { status ->
+            storySeedUpdates.each { storySeed ->
+                if (!storySeed.save(flush: true)) {
+                    flash.message = "Failed to update story seeds"
+                    status.setRollbackOnly()
+                    return
+                }
+            }
+
+            storyUpdates.each { story ->
+                if (!story.save(flush: true)) {
+                    flash.message = "Failed to update stories"
+                    status.setRollbackOnly()
+                    return
+                }
+            }
+            ucvUpdates.each { ucv ->
+                if (!ucv.save(flush: true)) {
+                    flash.message = "Failed to update user constraint values"
+                    status.setRollbackOnly()
+                    return
+                }
+            }
+
+            ctUpdates.each { test ->
+                if (!test.save(flush: true)) {
+                    flash.message = "Failed to update constraint tests"
+                    status.setRollbackOnly()
+                    return
+                }
+            }
+        }
+
+
+        flash.message = "Stories updated successfully"
+        render(status: 200, contentType: 'application/json') {
+            message = 'Stories updated successfully'
+            seed_updates = storySeedUpdates.size()
+            story_updates = storyUpdates.size()
+            constraint_test_updates = ctUpdates.size()
+            ucv_updates = ucvUpdates.size()
+        }
+
+    }
+
 }

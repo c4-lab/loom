@@ -47,7 +47,7 @@ class SimulationService {
         Tile tile
         json.each { sim ->
 
-            story = adminService.createStory(sim.name,sim.solution)
+            story = adminService.createStory(sim.name,sim.solution,null)
             Simulation simulation = new Simulation(name: sim.name, roundTime: sim.timeperround,
                     roundCount: sim.sequence.size(), userCount: sim.sequence.get(0).size()-1, story: story)
 

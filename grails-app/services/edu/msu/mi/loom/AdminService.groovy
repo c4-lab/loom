@@ -42,7 +42,8 @@ class AdminService {
 
     }
 
-    def createStory(def title, def storyText) {
+    def createStory(def title, def storyText, def storySeed) {
+        println("Creating story with ${storySeed}")
         def tile
         Story story = new Story(name: title)
 
@@ -53,6 +54,17 @@ class AdminService {
                 story.addToTiles(tile)
             }
         }
+
+        if (storySeed!=null) {
+            StorySeed seed = StorySeed.findByName(storySeed)
+            if (!seed) {
+                seed = new StorySeed(name: title)
+                seed.save(flush:true)
+
+            }
+            story.seed = seed
+        }
+
 
         story.save(flush: true)
 

@@ -246,13 +246,17 @@ class ExperimentService {
             Story story = it.session.sessionParameters.safeGetStory()
             log.debug("Setting constraint value for $story for $user.username")
             constraintService.setConstraintValueForUser(user, story, 1, user.isMturkWorker() ? it.mturkAssignment.hit.task.credentials : null)
+            if (story.seed) {
+                log.debug("Setting story seed constraint value for $story.seed for $user.username")
+                constraintService.setConstraintValueForUser(user, story.seed, 1, user.isMturkWorker() ? it.mturkAssignment.hit.task.credentials : null)
+            }
 
         }
         return active.size()
     }
 
     /**
-     * Assigns initial tiles to the recently
+     * Assigns initial tiles to the recently activated session
      * @param active
      * @return
      */

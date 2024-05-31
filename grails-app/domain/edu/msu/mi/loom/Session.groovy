@@ -31,6 +31,7 @@ class Session {
     Date created = new Date()
     Experiment exp
     Session clonedFrom
+    boolean deleted = false
 
     SessionParameters sessionParameters
 

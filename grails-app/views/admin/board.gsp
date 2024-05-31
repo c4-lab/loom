@@ -91,6 +91,9 @@
                                 <a href="javascript:void(0);" id="fix-constraint-values"
                                    class="btn btn-primary btn-block"><b>Fix constraint values</b></a>
 
+                                <a href="javascript:void(0);" id="update-stories"
+                                   class="btn btn-primary btn-block"><b>Update stories</b></a>
+
                                 <g:link controller="admin" action="exportCSV" id="export-csv"
                                         class="btn btn-primary btn-block"><b>Export CSV</b></g:link>
                             </div><!-- /.box-body -->
@@ -114,13 +117,35 @@
 
                             <div class="tab-content">
                                 <div class="active tab-pane" id="sessions">
-                                    <g:if test="${sessions.size() > 0}">
-                                        <span id="loom-sessions-exist"></span>
-                                    </g:if>
-                                    <g:each in="${sessions}" var="loomSession">
-                                        ${loomSession.name}
-                                        <g:render template="session_detail" model="[loomSession: loomSession]"/>
+                                    <g:each in="${sessions}" var="entry">
+                                        <g:if test="${entry.value}">
+                                            <span class="loom-sessions-exist"></span>
+
+                                            <div class="panel-heading" role="tab"
+                                                 id="session-group-heading-${entry.key}">
+
+                                                <h1 class="panel-title">
+                                                    <a role="button" data-toggle="collapse"
+                                                       href="#collapse-session-group-${entry.key}" aria-expanded="true"
+                                                       aria-controls="collapse-session-group-${entry.key}">
+                                                        Sessions ${entry.key} : ${entry.value.size()}
+                                                    </a>
+                                                </h1>
+                                            </div>
+
+                                            <div id="collapse-session-group-${entry.key}"
+                                                 class="panel-collapse collapse in" role="tabpanel"
+                                                 aria-labelledby="session-group-heading-${entry.key}">
+                                                <g:each var="loomSession" in="${entry.value}">
+                                                    <g:render template="session_detail"
+                                                              model="[loomSession: loomSession]"/>
+                                                </g:each>
+                                            </div>
+
+                                        </g:if>
+
                                     </g:each>
+
                                 </div>
 
 
@@ -278,8 +303,10 @@
                                         <div class="post">
                                             <div class="user-block">
                                                 <span class='username'>
-                                                    <g:link controller="admin" action="view"
-                                                            params="[training: story.id]">${story.name}</g:link>
+                                                    ${story.name}
+                                                    <g:if test="${story.seed!=null}">
+                                                        : ${story.seed.name}
+                                                    </g:if>
 
                                                 </span>
                                                 <span class='description'>
@@ -397,6 +424,7 @@
 <g:render template="create_users_modal"/>
 <g:render template="create_credentials_modal"/>
 <g:render template="upload_users"/>
+<g:render template="blank_modal"/>
 
 <script type="application/javascript">
     var intervalId
@@ -412,9 +440,8 @@
             window.location.hash = e.target.hash;
         });
 
-        let sessionCount = $('#loom-sessions-exist').length;
+        let sessionCount = $('.loom-sessions-exist').length;
         if (sessionCount > 0) {
-            console.log("Found existing sessions")
             intervalId = setInterval(function () {
                 updateSessionInfo()
             }, 1000)
@@ -431,11 +458,15 @@
             const id = $(".session-id", this.parentNode).text()
             window.location.href = "/loom/admin/cloneSession?sessionId=" + id
         });
+        $('button.show-session-delete').on('click', function (e) {
+            clearInterval(intervalId)
+            const id = $(".session-id", this.parentNode).text()
+            window.location.href = "/loom/admin/deleteSession?sessionId=" + id
+        });
 
         $("#create-users").click(function () {
             $("#create-users-modal").modal('show');
         });
-
 
 
         $(".launch_training").click(function () {
@@ -446,14 +477,29 @@
         });
 
 
-
-
         $("#create-trainingset").click(function () {
             $("#training-set-file-upload-modal").modal('show');
         });
 
         $("#upload-users").click(function () {
             $("#users-file-upload-modal").modal('show');
+
+
+        });
+
+        $("#update-stories").click(function () {
+            $.ajax({
+                url: '${createLink(controller: "admin", action: "getStorySeedUpdate")}',
+                type: 'GET',
+                success: function (response) {
+                    $('#blank_modal .modal-body').html(response);
+                    $('#blank_modal').modal('show');
+                },
+                error: function (xhr, status, error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+
         });
 
         $("#create-reading").click(function () {
@@ -478,8 +524,6 @@
         });
 
 
-
-
     });
 
     function credentialsShowMTurkOptions(event) {
@@ -492,7 +536,7 @@
 
     function fixConstraintValues() {
         $.ajax({
-            type:"GET",
+            type: "GET",
             url: "/loom/admin/fixConstraintValues"
         })
     }
@@ -504,15 +548,16 @@
             url: "/loom/admin/getDynamicSessionInfo",
             dataType: "json",
             success: function (result) {
-                console.log(result)
+                //console.log(result)
                 for (let [sessionid, info] of Object.entries(result['waiting'])) {
                     let domElt = $("#session-info-" + sessionid)
-                    $(".session-status",domElt).text("WAITING")
+                    $(".session-status", domElt).text("WAITING")
                     for (let [key, value] of Object.entries(info)) {
                         $(".session-wait-" + key, domElt).text(value)
                     }
                     $(".session-waiting-block", domElt).removeClass("hidden")
                     $("button.show-session-cancel", domElt).prop("disabled", false)
+                    $("button.show-session-delete", domElt).prop("disabled", true)
                     domElt.removeClass("panel-info")
                     domElt.addClass("panel-primary")
                     //domElt.addClass("panel-success")
@@ -521,7 +566,7 @@
                 }
                 for (let [sessionid, info] of Object.entries(result['active'])) {
                     let domElt = $("#session-info-" + sessionid)
-                    $(".session-status",domElt).text("ACTIVE")
+                    $(".session-status", domElt).text("ACTIVE")
                     for (let [key, value] of Object.entries(info)) {
                         $(".session-active-" + key, domElt).text(value)
                     }
@@ -530,6 +575,7 @@
                     $(".session-active-block", domElt).show()
 
                     $("button.show-session-cancel", domElt).prop("disabled", false)
+                    $("button.show-session-delete", domElt).prop("disabled", true)
                     domElt.removeClass("panel-info")
                     domElt.removeClass("panel-primary")
                     domElt.addClass("panel-warning")
@@ -537,22 +583,24 @@
 
                 for (let sessionid of result['cancelled']) {
                     let domElt = $("#session-info-" + sessionid)
-                    $(".session-status",domElt).text("CANCELLED")
+                    $(".session-status", domElt).text("CANCELLED")
                     $(".session-waiting-block", domElt).hide()
                     $(".session-active-block", domElt).hide()
                     $("button.show-session-cancel", domElt).prop("disabled", true)
+                    $("button.show-session-delete", domElt).prop("disabled", false)
                     domElt.removeClass("panel-info")
                     domElt.removeClass("panel-primary")
                     domElt.addClass("panel-danger")
                 }
 
                 for (let sessionid of result['finished']) {
-                    console.log("")
+                    //console.log("")
                     let domElt = $("#session-info-" + sessionid)
-                    $(".session-status",domElt).text("FINISHED")
+                    $(".session-status", domElt).text("FINISHED")
                     $(".session-waiting-block", domElt).hide()
                     $(".session-active-block", domElt).hide()
                     $("button.show-session-cancel", domElt).prop("disabled", true)
+                    $("button.show-session-delete", domElt).prop("disabled", false)
                     domElt.removeClass("panel-info")
                     domElt.removeClass("panel-primary")
                     domElt.removeClass("panel-warning")

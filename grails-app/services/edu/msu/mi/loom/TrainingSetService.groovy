@@ -66,7 +66,7 @@ class TrainingSetService {
         Training training
         json.eachWithIndex { tr, idx ->
 
-            def story = adminService.createStory(tr.name, tr.solution)
+            def story = adminService.createStory(tr.name, tr.solution,null)
             training = new Training(name: tr.name, story: story)
             training.save(flush: true)
 
