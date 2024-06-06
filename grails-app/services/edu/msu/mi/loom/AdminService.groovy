@@ -54,19 +54,24 @@ class AdminService {
                 story.addToTiles(tile)
             }
         }
-
+        StorySeed seed = null
         if (storySeed!=null) {
-            StorySeed seed = StorySeed.findByName(storySeed)
+            seed = StorySeed.findByName(storySeed)
             if (!seed) {
                 seed = new StorySeed(name: title)
-                seed.save(flush:true)
+                //seed.save(flush:true)
 
             }
-            story.seed = seed
+
         }
 
 
         story.save(flush: true)
+        if (seed) {
+            seed.save(flush: true)
+            story.seed = seed
+            story.save(flush:true)
+        }
 
         if (!story.id) {
             log.error("Story creation attempt failed")
