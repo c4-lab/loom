@@ -548,7 +548,7 @@
             url: "/loom/admin/getDynamicSessionInfo",
             dataType: "json",
             success: function (result) {
-                //console.log(result)
+
                 for (let [sessionid, info] of Object.entries(result['waiting'])) {
                     let domElt = $("#session-info-" + sessionid)
                     $(".session-status", domElt).text("WAITING")

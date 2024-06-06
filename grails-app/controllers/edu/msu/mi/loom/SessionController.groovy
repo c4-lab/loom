@@ -258,7 +258,7 @@ class SessionController {
             if (session.state == Session.State.WAITING) {
                 log.debug("${user.username} Still waiting")
                 sessionService.updatePresence(user,true)
-                return render(["experiment_ready": false, count: experimentService.countWaitingUsers(session)] as JSON)
+                return render(["experiment_ready": false, count: experimentService.totalCountWaitingUsers(session)] as JSON)
 
             } else {
                 log.debug("Done waiting")

@@ -805,9 +805,16 @@ class AdminController {
         result['waiting'] = Session.findAllByState(Session.State.WAITING).collectEntries { Session loomSession ->
             List<UserSession> us = UserSession.findAllBySession(loomSession);
             def missingcount = sessionService.countMissing(us)
+
+            Map counts = experimentService.countWaitingUsers(loomSession).sort {
+                a, b  -> a.key.id <=> b.key.id
+            }
+
+            String countString = counts.collect { k, v -> "$k=$v" }.join(', ')
+
             [loomSession.id, ['started'  : loomSession.startWaiting,
                               'elapsed'  : (int) (System.currentTimeMillis() - loomSession.startWaiting.time) / 1000,
-                              'connected': UserSession.countBySessionAndState(loomSession, UserSession.State.WAITING),
+                              'connected': countString,
                               'stopped'  : UserSession.countBySessionAndState(loomSession, UserSession.State.STOP),
                               'missing'  : missingcount]]
 
@@ -816,6 +823,7 @@ class AdminController {
         result['active'] = Session.findAllByState(Session.State.ACTIVE).collectEntries { Session loomSession ->
             List<UserSession> us = UserSession.findAllBySession(loomSession);
             def missingcount = sessionService.countMissing(us)
+
 
             [loomSession.id, ['state'       : "ACTIVE",
                               'started'     : loomSession.startActive,

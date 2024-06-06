@@ -69,6 +69,10 @@ class ExperimentService {
         }
     }
 
+    int totalCountWaitingUsers(Session session) {
+        (int)countWaitingUsers(session).values().sum()
+    }
+
 
     /**
      * Counts the number of users waiting for a session to start, based on the session type.
@@ -76,7 +80,7 @@ class ExperimentService {
      * @param session
      * @return
      */
-    int countWaitingUsers(Session session) {
+    Map countWaitingUsers(Session session) {
 
         List<UserSession> sessions = UserSession.findAllBySessionAndState(session, UserSession.State.WAITING)
         SessionType type = session.sessionParameters.safeGetSessionType()
@@ -94,7 +98,7 @@ class ExperimentService {
         }
 
         if (type.state == SessionType.State.SINGLE) {
-            return sessions.size()
+            return {total: sessions.size()}
         } else if (type.state == SessionType.State.MIXED) {
             int maxByConstraint = session.sp("minNode") / type.constraintTests.size()
             Map countByConstraint = new HashMap()
@@ -107,7 +111,7 @@ class ExperimentService {
             }
             log.debug("Waiting by constraint: ${countByConstraint}")
             log.debug("Return ${total}")
-            return total
+            return countByConstraint
         }
         return 0
     }
@@ -319,7 +323,7 @@ class ExperimentService {
             //TDOD uncertain if a new session is really necessary here
             Session.withNewSession {
                 s = Session.get(session.id)
-                int count = countWaitingUsers(s)
+                int count = totalCountWaitingUsers(s)
                 log.debug("Now have ${count} waiting users")
                 if (count >= s.sessionParameters.safeGetMinNode()) {
                     cancelWaitingTimer(s)
