@@ -98,7 +98,8 @@ class ExperimentService {
         }
 
         if (type.state == SessionType.State.SINGLE) {
-            return {total: sessions.size()}
+            Map m = [total: sessions.size()]
+            return m
         } else if (type.state == SessionType.State.MIXED) {
             int maxByConstraint = session.sp("minNode") / type.constraintTests.size()
             Map countByConstraint = new HashMap()
