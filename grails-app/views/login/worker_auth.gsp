@@ -6,7 +6,7 @@
                     <g:if test="${flash.message}">
                         <p class="alert-error"><g:message code="${flash.message}"/></p>
                     </g:if>
-                    <p class="login-box-msg">Sign in to start your session</p>
+                    <p class="login-box-msg">Sign in with your woker id (Prolific or Mturk) start your session</p>
 
                     <form action='${postUrl}' method='POST' id='loginForm' autocomplete='off'>
                         <div class="form-group has-feedback">

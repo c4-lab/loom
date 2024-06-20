@@ -2918,6 +2918,7 @@ a:focus {
 
 .alert-danger,
 .alert-error {
+    padding: 5px;
     border-color: #d73925;
 }
 
