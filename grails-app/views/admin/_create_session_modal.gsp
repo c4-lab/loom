@@ -153,7 +153,10 @@
                                       name="mturkSelectCredentials"
                                        optionKey="id"
                                       noSelection="${['': 'Select One...']}"/><br>
-                            <label>Number of HITs:</label>
+                            <label>Single hit?</label>
+                            <input type="checkbox" class="sessionLaunchParam" name='mturk_method' id='mturk_method' value="0" required><br>
+
+                            <label>Number of Tasks:</label>
                             <input type="number" class="sessionLaunchParam" name='num_hits' id='num_session_hits' min="0" max="10000"
                                    value="0"
                                    style="color:black;" required><br>

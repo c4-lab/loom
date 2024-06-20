@@ -34,8 +34,8 @@
 
                             </div>
                         </div>
-                        <div class="boxy">
-                            <asset:image src="waiting_room_help.png" alt="waiting room help" class="center-block"/>
+                        <div class="box">
+                            <asset:image src="waiting_room_help.png" alt="waiting room help" class="center-block" width="100%"/>
 
                         </div>
                     </div>

@@ -22,6 +22,12 @@ class SessionController {
     def constraintService
     def sessionFactory
 
+    static String SESSION_NOT_EXIST = "The session you have tried to access does not exist."
+    static String SESSION_NOT_BEGUN = "The session you have tried to access has not yet begun."
+    static String SESSION_CANCELLED =  "The session you have tried to access has been cancelled."
+    static String SESSION_FINISHED =  "The session you have tried to access has already finished."
+    static String SESSION_NOT_QUALIFIED =  "You are not qualified for the requestsed session."
+
 
 
     /**
@@ -34,6 +40,16 @@ class SessionController {
         UserSession us = UserSession.findBySessionAndUser(s, u)
         us.stopWaiting(UserSession.State.STOP)
         render(view: "stop_waiting", model: [time:  us.wait_time, user: u, session: s])
+    }
+
+    def available() {
+        User u = springSecurityService.currentUser as User
+        List<Session> sessions = Session.findAllByStateInList([Session.State.WAITING,Session.State.ACTIVE])
+        def sessionList = sessions.collect {
+            def failures = constraintService.failsConstraints(u, it)
+            [session: it, qualified: !failures, link:"/session/s/${it.id}?workerId=${u.username}"]
+        }
+        render(view: "session_list",model: [sessionList: sessionList] )
     }
 
 
@@ -65,12 +81,36 @@ class SessionController {
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
         User user = springSecurityService.currentUser as User
 
-        if (!user || !session) {
+        if (!user) {
             return render(status: BAD_REQUEST)
+        }
+
+        if (!session) {
+            flash.message = SESSION_NOT_EXIST
+            return render(view:"../not-found")
         }
 
         //Check if active user session exists
         UserSession us = UserSession.findBySessionAndUser(session, user)
+
+        if (session.state == Session.State.PENDING) {
+            flash.message = SESSION_NOT_BEGUN
+            return render(view:"../not-found")
+        }
+
+        if (session.state == Session.State.CANCEL) {
+            flash.message = SESSION_CANCELLED
+            return render(view:"../not-found")
+        }
+
+        if (session.state == Session.State.FINISHED && !us) {
+            flash.message = SESSION_FINISHED
+            return render(view:"../not-found")
+        }
+
+
+
+
 
         //Create a user session if the user is qualified
         if (!us) {
@@ -78,7 +118,8 @@ class SessionController {
             def failures = constraintService.failsConstraints(user, session)
             if (failures) {
                 log.debug("User ${user.username} is not qualified for session ${session.id}")
-                return redirect(controller: "logout", action: "index", params: [reason: "You are not qualified for this session", sessionId: session.id])
+                flash.message = SESSION_NOT_QUALIFIED
+                return render(view:"../not-found")
 
             }
             //NOTE: User session is explicitly set to WAITING on creation

@@ -1,0 +1,228 @@
+<HTMLQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd">
+    <HTMLContent><![CDATA[
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+    <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"
+            integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<div id="preview-text" class="row">
+    <div class="col-xs-12 col-md-12">
+        <p>
+            This HIT is part of a research study sponsored by Syracuse University and the National Science foundation.
+            It will provide training for the main part of the study, which will be made available in the coming weeks.
+            Please note that both this training HIT and other HITs associated with this study will not work on a smaller
+            format (e.g., mobile phone) display; please use a tablet or browser on a larger display.
+        </p>
+        <p>
+            In the current (training) HIT, you will be invited to take a survey about your attitudes with respect to
+            vaccines, and get training for an online puzzle game (which will be made available in the future). The game
+            is like a word jumble, but instead of assembling words into sentences, you will work with virtual neighbors
+            to assemble bits of information into stories.
+        </p>
+        <p>
+            The current HIT will take about 30 min and you will be compensated $6 in order to achieve an hourly rate of
+            approximately $12/hr. The puzzle games themselves will take about 20 minutes be compensated at the same
+            hourly
+            rate plus a bonus for achieving a good score in the game.
+        </p>
+        <p>
+            The research study is designed to understand how people’s attitudes (in this case, about vaccines) influence
+            how
+            they process stories in groups. Your responses on the survey and performance on the training exercise (this
+            HIT)
+            will determine your eligibility for the games (in subsequent HITs).
+        </p>
+        <p>
+            This study presents little to no risk beyond that associated with other HITs on AMT. Whenever one works with
+            e-mail or the internet there is always the risk of compromising privacy, confidentiality and/or anonymity.
+            Your
+            confidentiality will be maintained to the degree permitted by the technology being used. It is important for
+            you
+            to understand that no guarantees can be made regarding the interception of data sent via the internet by
+            third
+            parties.
+        </p>
+        <p>
+            Note that during this study, you may be exposed to disturbing information regarding the health and / or
+            death of
+            a fictional child or other individuals. All characters are fictional and information about health
+            behavior should not be interpreted as medical guidance.
+        </p>
+        <p>
+            The information collected in this study (i.e. survey results and game history) will be linked to your MTurk
+            Worker ID, but no other identifying information. Your MTurk ID will never be re-shared. The linkage between
+            your
+            worker ID and collected data will be stored for the duration of this study (until Sept. 2025) in a secure,
+            password protected database. Only the lead investigators (Dr. Qiusi Sun and Dr. Joshua Introne) will have
+            access
+            to this information. The linkage between your WorkerID and study results will be deleted in Sept. 2025.
+        </p>
+        <p>
+            The collected data will be used in scholarly publication. and may be re-shared with other researchers and
+            used
+            in future studies without additional consent from you or a legally authorized representative, however, this
+            data
+            will <em>not</em> contain your MTurk identifier.
+        </p>
+        <p>
+            Your participation in this study is voluntary. If you accept this HIT, you are welcome to quit at any point.
+            You
+            may skip and / or refuse to answer any questions for any reason. If you do not complete this HIT, you will
+            not
+            be compensated. If you have any questions, you may contact the requester (Qiusi Sun) using the link provided
+            by
+            Amazon above, via email (qsun12@syr.edu), or via phone at (315) 443-9386. If you have questions or concerns
+            about your rights as a research participant, you may contact the Syracuse University Institutional Review
+            Board
+            at (315) 443-3013.
+        </p>
+        <p>
+            Accepting this HIT indicates that you agree with the following statements:
+        </p>
+        <p>
+            <em>“I am 18 years of age or older and I understand what my participation in this research involves. I have
+                printed a copy of this form for my personal records. By clicking accept I agree to participate in this
+                research study.”</em>
+        </p>
+    </div>
+</div>
+<form name='mturk_form' method='post' id='mturk_form' action='https://www.mturksandbox.com/mturk/externalSubmit'>
+    <section class="container" id="TrainingLink"><!-- Instructions -->
+        <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
+<!--        <div class="row">-->
+<!--            <div class="col-xs-12 col-md-12">-->
+<!--                <div class="panel panel-primary">-->
+<!--                    &lt;!&ndash; WARNING: the ids "collapseTrigger" and "instructionBody" are being used to enable expand/collapse feature &ndash;&gt;<a-->
+<!--                        class="panel-heading" href="javascript:void(0);"-->
+<!--                        id="collapseTrigger"><strong>Instructions</strong> <span-->
+<!--                        class="collapse-text">(Click to expand)</span> </a>-->
+<!--                    <div class="panel-body" id="instructionBody">-->
+<!--                        <p>Please only accept one HIT and return them if you accept more than once.</p>-->
+
+<!--                        &lt;!&ndash;                    <p><strong>Make sure to leave this window open as you complete the survey. </strong> When you are finished, you will return to this page to paste the code into the box.</p>&ndash;&gt;-->
+
+<!--                        &lt;!&ndash;                    <p class="well well-sm"><strong><mark>Template note for Requesters</mark></strong> - To verify that Workers actually complete your survey, require each Worker to enter a <strong>unique</strong> survey completion code to your HIT. Consult with your survey service provider on how to generate this code at the end of your survey.</p>&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <!-- End Instructions --><!-- Survey Link Layout -->
+
+        <div class="row" id="workContent">
+            <div class="col-xs-12 col-md-6 col-md-offset-3"><!-- Content for Worker -->
+
+                <p><span id="queryparams"></span></p>
+                <table class="table table-condensed table-bordered">
+                    <colgroup>
+                        <col class="col-xs-4 col-md-4"/>
+                        <col class="col-xs-8 col-md-8"/>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td><label>Your Link:</label></td>
+                        <td><a class="dont-break-out" id="loomlink" target="_blank">goToThisLink</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- End Content for Worker --><!-- Input from Worker -->
+
+                <div class="form-group"><label for="completioncode">Provide the confirmation code here:</label>
+                    <input
+                            class="form-control" id="completioncode" name="completioncode" placeholder="e.g. 123456"
+                            required="" type="text"/></div>
+                <!-- End input from Worker --></div>
+
+        </div>
+
+        <p><input type='submit' id='submitButton' value='Submit' style="margin-left: 45%;"/></p>
+    </section>
+</form>
+
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+      integrity="sha384-IS73LIqjtYesmURkDE9MXKbXqYA8rvKEp/ghicjem7Vc3mGRdQRptJSz60tvrB6+" rel="stylesheet"/>
+<!-- Open internal style sheet -->
+
+<style type="text/css">#collapseTrigger {
+    color: #fff;
+    display: block;
+    text-decoration: none;
+}
+
+#submitButton {
+    white-space: normal;
+}
+
+.image {
+    margin-bottom: 15px;
+}
+
+/* CSS for breaking long words/urls */
+.dont-break-out {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
+#preview-text {
+    padding: 15px;
+    font-size: 16pt;
+}
+</style>
+<script>
+    $(document).ready(function () {
+        turkSetAssignmentID();
+        const hitid = turkGetParam('hitId', "")
+        const workerid = turkGetParam('workerId', "")
+        const assignmentid = turkGetParam('assignmentId', "")
+        console.log("Logging assignment id, " + assignmentid)
+
+        if (assignmentid === "ASSIGNMENT_ID_NOT_AVAILABLE") {
+            $('#preview-text').show()
+            $('#mturk_form').hide()
+        } else {
+            $('#preview-text').hide()
+            $('#mturk_form').show()
+        }
+
+        var queryParams = "?assignmentId=" + assignmentid
+
+        queryParams += "&hitId=" + hitid
+        queryParams += "&workerId=" + workerid
+        //$("#queryparams").text(queryParams);
+        $("#loomlink").attr("href", "goToThisLink" + queryParams);
+
+        // Instructions expand/collapse
+        var content = $('#instructionBody');
+        var trigger = $('#collapseTrigger');
+        content.hide();
+        $('.collapse-text').text('(Click to expand)');
+        trigger.click(function () {
+            content.toggle();
+            var isVisible = content.is(':visible');
+            if (isVisible) {
+                $('.collapse-text').text('(Click to collapse)');
+            } else {
+                $('.collapse-text').text('(Click to expand)');
+            }
+        });
+        // end expand/collapse
+    });
+</script><!-- Close internal javascript -->
+<!--<script language='Javascript'></script>-->
+</body>
+</html>
+]]>
+    </HTMLContent>
+    <FrameHeight>450</FrameHeight>
+</HTMLQuestion>

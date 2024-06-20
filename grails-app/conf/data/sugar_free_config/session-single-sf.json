@@ -36,14 +36,21 @@
     }
 
   },
+
   "sessionParameters": {
     "roundCount": 5,
-    "minNode": 3,
-    "maxNode": 3,
-    "roundTime": 10,
-    "initialNbrOfTiles": 15,
+    "minNode": 6,
+    "maxNode": 6,
+    "roundTime": 30,
+    "initialNbrOfTiles": 4,
     "sessionType": {
       "type": "SINGLE"
+    },
+    "networkTemplate": {
+      "type": "Lattice",
+      "params": {
+        "degree": 4
+      }
     },
     "story":
       {

@@ -61,7 +61,7 @@ class LoginController {
     def auth() {
 
         println "Authenticating..."
-
+        println params
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
         if (request.forwardURI.contains('admin')) {
             def config = SpringSecurityUtils.securityConfig
@@ -88,26 +88,23 @@ class LoginController {
             u = User.findByWorkerId(workerId)
         }  else if (request.forwardURI.contains('/')) {
             def config = SpringSecurityUtils.securityConfig
-            String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-            return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
+            String postUrl = "${request.contextPath}/login/workerAuth"
+            return render(view: "worker_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter, origURI:orig?.requestURL])
 
         }
 
+        String original = orig?.requestURL
+
         if (u) {
             springSecurityService.reauthenticate(u.username)
-        } else {
-
+        } else if (original && "training" in original) {
             u = userService.createUserByWorkerId(workerId, role)
             if (u?.id) {
                 springSecurityService.reauthenticate(u.username)
-            } else {
-                throw new RuntimeException(u.errors.toString())
-
             }
         }
 
         if (springSecurityService.isLoggedIn()) {
-            def original = orig?.requestURL
             if (original) {
                 if (workerId) {
                     log.debug("Redirecting with parameters")
@@ -126,8 +123,30 @@ class LoginController {
         }
 
 
-
+        flash.message = "Authentication failed. Please check your id."
         return redirect(url: '/')
+
+    }
+
+    def workerAuth() {
+        String workerId = params.workerId
+        String originalUri = params.origURI ?: "/session/available"
+        def u = User.findByWorkerId(workerId)?:User.findByUsername(workerId)
+        String postUrl = "${request.contextPath}/login/workerAuth"
+        if (u) {
+            if (u.isAdmin()) {
+                return redirect(url: "/admin")
+            }
+
+            springSecurityService.reauthenticate(u.username)
+            if (springSecurityService.isLoggedIn()) {
+                def params = "workerId=$u.workerId"
+                return redirect(url: "$originalUri?$params")
+            }
+        }
+        flash.message = "Authentication failed. Please check your id."
+        render(view: "worker_auth", model: [postUrl: postUrl, origURI: originalUri])
+
 
     }
 

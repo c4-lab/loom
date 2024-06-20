@@ -10,24 +10,28 @@ class AdminService {
     def fileService
     def jsonParserService
 
-    static String APPLICATION_BASE_URL = null //This should get populated on the very first request from @AdminController
+    static String APPLICATION_BASE_URL = null
+    //This should get populated on the very first request from @AdminController
 
 
     def createSessionParameters(Map initParams) {
 
         SessionParameters params = new SessionParameters(initParams)
-//        tests.each {
-//            params.addToConstraintTests(it)
-//        }
+        def tests = initParams.get("constraints")
+        if (tests) {
+            tests.each {
+                params.addToConstraintTests(it)
+            }
+
+        }
         if (!params.save(flush: true)) {
             log.error("Session params creation attempt failed")
             log.error(params.errors)
-            return null;
+            return null
         } else {
-            return params;
+            return params
         }
     }
-
 
 
     /**
@@ -38,7 +42,7 @@ class AdminService {
      */
     def createExperiment(String name, SessionParameters defaultParams) {
 
-        Experiment experiment = new Experiment(name:name,created:new Date(),defaultSessionParams: defaultParams).save()
+        Experiment experiment = new Experiment(name: name, created: new Date(), defaultSessionParams: defaultParams).save()
 
     }
 
@@ -48,14 +52,14 @@ class AdminService {
         Story story = new Story(name: title)
 
 
-        ((List)storyText).eachWithIndex { line, count ->
-            if (line && ((String)line).trim().length()) {
+        ((List) storyText).eachWithIndex { line, count ->
+            if (line && ((String) line).trim().length()) {
                 tile = new Tile(text: line, text_order: count).save()
                 story.addToTiles(tile)
             }
         }
         StorySeed seed = null
-        if (storySeed!=null) {
+        if (storySeed != null) {
             seed = StorySeed.findByName(storySeed)
             if (!seed) {
                 seed = new StorySeed(name: title)
@@ -70,7 +74,7 @@ class AdminService {
         if (seed) {
             seed.save(flush: true)
             story.seed = seed
-            story.save(flush:true)
+            story.save(flush: true)
         }
 
         if (!story.id) {
@@ -81,9 +85,6 @@ class AdminService {
             return story
         }
     }
-
-
-
 
 
     def cloneExperiment(Session session) {
@@ -105,7 +106,7 @@ class AdminService {
             case ExpType.TRAINING.toString():
                 source = Training.get(id)
                 deleteTrainingTasks(source)
-                break;
+                break
             case ExpType.SIMULATION.toString():
                 source = Simulation.get(id)
                 deleteSimulationTasks(source)
@@ -143,8 +144,7 @@ class AdminService {
 
     /**
      * This is a one-off method, intended to fix duplication with identically names constraints in the database
-     * It should really only be executed if you know what you're doing!
-     */
+     * It should really only be executed if you know what you're doing!*/
     def fixDuplicateConstraints() {
         println("Fixing duplicates - this might take a while")
         log.debug("In fix duplicates...")
@@ -153,15 +153,16 @@ class AdminService {
         int providerCount = 0
         List<ConstraintProvider> toDelete = []
 
-        Map<String,List<ConstraintProvider>> providers = [:]
+        Map<String, List<ConstraintProvider>> providers = [:]
         ConstraintProvider.findAll().each { ConstraintProvider cp ->
-            if (!(cp.constraintTitle in providers)) {
-                providers[cp.constraintTitle] = [cp]
-            } else {
-                providers[cp.constraintTitle] << cp
+            if (!cp.name.startsWith("x_")) {
+                if (!(cp.constraintTitle in providers)) {
+                    providers[cp.constraintTitle] = [cp]
+                } else {
+                    providers[cp.constraintTitle] << cp
+                }
             }
         }
-
 
 
         providers.each {
@@ -178,7 +179,7 @@ class AdminService {
                     toDelete << it
                     UserConstraintValue.findAllByConstraintProvider(it).each {
                         if (it.constraintProvider != target) {
-                            value_updated+=1
+                            value_updated += 1
                             log.debug("Updating value of ${it.constraintProvider.constraintTitle} for user ${it.user.username}")
                             it.constraintProvider = target
                             it.save()
@@ -187,7 +188,7 @@ class AdminService {
 
                     ConstraintTest.findAllByConstraintProvider(it).each {
                         if (it.constraintProvider != target) {
-                            test_updated+=1
+                            test_updated += 1
                             log.debug("Updating value of ${it.constraintProvider.constraintTitle} for test ${it}")
                             it.constraintProvider = target
                             it.save()
@@ -205,7 +206,6 @@ class AdminService {
         }
 
 
-
         println("Updated ${value_updated} constraint value associations and ${test_updated} tests for ${providerCount} providers")
         println("Can delete: ")
         toDelete.each {
@@ -216,22 +216,19 @@ class AdminService {
 
     private def deleteTrainingTasks(source) {
         def tts = TrainingTask.findAllByTraining(source)
-        tts.each { tt ->
-            tt.delete()
+        tts.each { tt -> tt.delete()
         }
     }
 
     private def deleteSimulationTasks(source) {
         def sts = SimulationTask.findAllBySimulation(source)
-        sts.each { st ->
-            st.delete()
+        sts.each { st -> st.delete()
         }
     }
 
     private def deleteExperimentTasks(source) {
         def ets = ExperimentTask.findAllByExperiment(source)
-        ets.each { et ->
-            et.delete()
+        ets.each { et -> et.delete()
         }
     }
 

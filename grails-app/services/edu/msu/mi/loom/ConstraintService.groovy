@@ -29,7 +29,7 @@ class ConstraintService {
 
 
         Float value = null
-        if (m[0][2]!=null) {
+        if (m[0][2]) {
             try {
                 value = Float.parseFloat(m[0][2])
             } catch (Exception e) {

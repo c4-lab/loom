@@ -1,0 +1,87 @@
+<!-- You must include this JavaScript file -->
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<!-- For the full list of available Crowd HTML Elements and their input/output documentation,
+      please refer to https://docs.aws.amazon.com/sagemaker/latest/dg/sms-ui-template-reference.html -->
+
+<!-- You must include crowd-form so that your task submits answers to MTurk -->
+<strong>PLEASE ONlY ACCEPT THIS HIT ONCE; if you have accepted this HIT previously, please return it.  If you complete this HIT multiple times we will reject the additional HITs.</strong>
+
+<crowd-form answer-format="flatten-objects">
+    <input type="hidden" name="id" value="${id}">
+    <div>
+        <h3>Consent Form</h3>
+        <p>This HIT is part of a study to better understand how people view vaccines, their effects, and medical advice more generally. Based on your responses, you may be invited to participate in an extended study.</p>
+    </div>
+
+
+    <div class="range">
+        <p>Please rate your attitude on the following statements:</p>
+        <p>In general, I think vaccines are:</p>
+        <table>
+            <tr>
+                <td>Bad</td>
+                <td><label><input id="BadGoodStart" type="radio" name="BadGood" value="1" /></label></td>
+                <td><label><input type="radio" name="BadGood" value="2" /></label></td>
+                <td><label><input type="radio" name="BadGood" value="3" /></label></td>
+                <td><label><input type="radio" name="BadGood" value="4" /></label></td>
+                <td><label><input type="radio" name="BadGood" value="5" /></label></td>
+                <td><label><input type="radio" name="BadGood" value="6" /></label></td>
+                <td><label><input id="BadGoodEnd" type="radio" name="BadGood" value="7" /></label></td>
+                <td>Good</td>
+            </tr>
+            <tr>
+                <td>Harmful</td>
+                <td><label><input id="HarmfulBeneficialStart" type="radio" name="HarmfulBeneficial" value="1" /></label></td>
+                <td><label><input type="radio" name="HarmfulBeneficial" value="2" /></label></td>
+                <td><label><input type="radio" name="HarmfulBeneficial" value="3" /></label></td>
+                <td><label><input type="radio" name="HarmfulBeneficial" value="4" /></label></td>
+                <td><label><input type="radio" name="HarmfulBeneficial" value="5" /></label></td>
+                <td><label><input type="radio" name="HarmfulBeneficial" value="6" /></label></td>
+                <td><label><input id="HarmfulBeneficialEnd" type="radio" name="HarmfulBeneficial" value="7" /></label></td>
+                <td>Beneficial</td>
+            </tr>
+            <tr>
+                <td>Foolish</td>
+                <td><label><input id="FoolishWiseStart" type="radio" name="FoolishWise" value="1" /></label></td>
+                <td><label><input type="radio" name="FoolishWise" value="2" /></label></td>
+                <td><label><input type="radio" name="FoolishWise" value="3" /></label></td>
+                <td><label><input type="radio" name="FoolishWise" value="4" /></label></td>
+                <td><label><input type="radio" name="FoolishWise" value="5" /></label></td>
+                <td><label><input type="radio" name="FoolishWise" value="6" /></label></td>
+                <td><label><input id="FoolishWiseEnd" type="radio" name="FoolishWise" value="7" /></label></td>
+                <td>Wise</td>
+            </tr>
+            <tr>
+                <td>Useless</td>
+                <td><label><input id="UselessUsefulStart" type="radio" name="UselessUseful" value="1" /></label></td>
+                <td><label><input type="radio" name="UselessUseful" value="2" /></label></td>
+                <td><label><input type="radio" name="UselessUseful" value="3" /></label></td>
+                <td><label><input type="radio" name="UselessUseful" value="4" /></label></td>
+                <td><label><input type="radio" name="UselessUseful" value="5" /></label></td>
+                <td><label><input type="radio" name="UselessUseful" value="6" /></label></td>
+                <td><label><input id="UselessUsefulEnd" type="radio" name="UselessUseful" value="7" /></label></td>
+                <td>Useful</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div>
+        <p>Have you or someone you know ever been harmed by a vaccine?</p>
+        <select name="Harm" id="vaccine-harms" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="uncertain">Uncertain</option>
+        </select>
+    </div>
+
+    <div>
+        <p>If you answered 'yes' to the above, which vaccine and what happened?</p>
+        <textarea id="vaccine-details" name="vaccineDetails" rows="10" cols="50">
+        </textarea>
+    </div>
+
+
+
+</crowd-form>

@@ -7,28 +7,24 @@
                 <div class="col-sm-10">
 
                     <section class="content">
-                        <g:if test="${flash.message}">
-                            <p>
-                                ${flash.message}
-                            </p>
 
-
-                        </g:if>
-                        <g:else>
                         <div class="err-container">
 
                             <div class="text-center err-message">
-                                <h2>Page unavailable?</h2>
+                                <h2>Session unavailable</h2>
                             </div>
 
+
                             <div class="err-body">
-                                In order to access this site you <b>must</b> use the unique url that was provided to you by the task requester.
-                            If you feel you have reached this page in error, please email <a
+                                <g:if test="${flash.message}">
+                                        ${flash.message}
+                                </g:if>
+                                If you feel you have reached this page in error, please email <a
                                     href="mailto:sunyqs@gmail.com">sunyqs@gmail.com</a>.
                             </div>
 
                         </div>
-                        </g:else>
+
 
                     </section>
 

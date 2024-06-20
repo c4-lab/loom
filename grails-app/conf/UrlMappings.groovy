@@ -14,7 +14,7 @@ class UrlMappings {
         "/not-found"(view: '/not-found')
         "/is-done" (view: '/is-done')
         "/is-full" (view: '/is-full')
-
+        "/login/workerAuth"(controller: "login", action: "workerAuth")
         "/"(controller: 'login', action: 'auth')
         "/admin"(controller: 'login', action: 'auth')
 

@@ -58,6 +58,12 @@ class User {
         }
     }
 
+    def isAdmin() {
+        getAuthorities().find {
+            it.authority == Roles.ROLE_ADMIN.name
+        }
+    }
+
     String toString() {
         return "${workerId}(${id}):${getAuthorities()}"
     }

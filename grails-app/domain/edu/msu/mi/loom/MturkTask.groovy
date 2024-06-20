@@ -13,6 +13,7 @@ class MturkTask {
 
     //MTURK PARAMETERS
     Integer mturkNumberHits
+    boolean singleHit
     Integer mturkHitLifetimeInSeconds
     Integer mturkAssignmentLifetimeInSeconds
     String mturkAdditionalQualifications
@@ -26,6 +27,7 @@ class MturkTask {
     static constraints = {
         session nullable: true
         training nullable: true
+
         mturkAdditionalQualifications nullable: true
     }
 

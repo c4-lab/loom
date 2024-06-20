@@ -21,12 +21,15 @@
                     </p>
                     <g:if test="${message}">
                         <p>
-                            <h3>${message}</h3>
+                            <h2>Message:</h2>
+                           ${message}
                         </p>
                     </g:if>
 
                     <p>
+
                         <g:if test="${exception}">
+                            <h2>Full Stack Trace:</h2>
                             <g:renderException exception="${exception}"/>
                         </g:if>
 

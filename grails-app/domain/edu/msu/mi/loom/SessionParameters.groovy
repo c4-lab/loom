@@ -56,7 +56,7 @@ class SessionParameters {
     def beforeInsert() {
         if (story) {
             ConstraintTest storyConstraint = constraintService.getStoryConstraint(story)
-            List<ConstraintTest> existingTests = constraintTests?:[]
+            Set<ConstraintTest> existingTests = constraintTests?:[]
             if (!existingTests.contains(storyConstraint)) {
                 this.addToConstraintTests(storyConstraint)
             }

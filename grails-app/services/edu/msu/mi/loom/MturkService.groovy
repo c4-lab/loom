@@ -129,8 +129,13 @@ class MturkService {
         }
     }
 
-    def getHitTemplate(String url) {
-        InputStream is = this.class.classLoader.getResourceAsStream("my_question.xml")
+    def getHitTemplate(String url,boolean single =false) {
+        InputStream is
+        if (single) {
+            is = this.class.classLoader.getResourceAsStream("my_question_single.xml")
+        } else {
+            is = this.class.classLoader.getResourceAsStream("my_question.xml")
+        }
         String questionSample = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
                 .lines()
                 .collect(Collectors.joining("\n"))
@@ -224,9 +229,9 @@ class MturkService {
             url = "${adminService.APPLICATION_BASE_URL}/session/s/" + owner.id.toString()
         }
         String hitTemplate = getHitTemplate(url)
-        (1..task.mturkNumberHits).each {
+        if (task.singleHit) {
             CreateHITRequest request = new CreateHITRequest()
-            request.setMaxAssignments(1)
+            request.setMaxAssignments(task.mturkNumberHits)
             request.setLifetimeInSeconds(task.mturkHitLifetimeInSeconds * 60L)
             request.setAssignmentDurationInSeconds(task.mturkAssignmentLifetimeInSeconds * 60L)
             // Reward is a USD dollar amount - USD$0.20 in the example below
@@ -245,6 +250,31 @@ class MturkService {
             MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
                     expires: expiry, url: linkurl, lastUpdate: new Date())
             task.addToHits(loomHit)
+        } else {
+
+
+            (1..task.mturkNumberHits).each {
+                CreateHITRequest request = new CreateHITRequest()
+                request.setMaxAssignments(1)
+                request.setLifetimeInSeconds(task.mturkHitLifetimeInSeconds * 60L)
+                request.setAssignmentDurationInSeconds(task.mturkAssignmentLifetimeInSeconds * 60L)
+                // Reward is a USD dollar amount - USD$0.20 in the example below
+                request.setReward(task.basePayment)
+                request.setTitle(task.title)
+                request.setKeywords(task.keywords)
+                request.setDescription(task.description)
+                request.setQuestion(hitTemplate)
+                request.setQualificationRequirements(requirements)
+                def result = getMturkClient(task.credentials).createHIT(request)
+                def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
+                def expiry = result.getHIT().getExpiration()
+                if (!expiry) {
+                    expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
+                }
+                MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
+                        expires: expiry, url: linkurl, lastUpdate: new Date())
+                task.addToHits(loomHit)
+            }
         }
         if (!task.save(flush: true)) {
             throw new RuntimeException("Error saving MTurkTask: ${task.errors}")

@@ -85,6 +85,7 @@ class AdminController {
 
 
     private SessionParameters createSessionParameters(data) {
+
         def initParams = data.collectEntries { key, value ->
             switch (key) {
                 case "story":
@@ -95,12 +96,12 @@ class AdminController {
                     }
                     return [key, s]
                 case "constraints":
-                    List<ConstraintTest> constraints = []
+                   Set<ConstraintTest> constraints = [] as Set<ConstraintTest>
                     value.each {
                         constraints << constraintService.getConstraintTest(it.constraint as String, it.operator as String, it.params as String)
                     }
                     return [key, constraints]
-                case "networkTemplate":
+                  case "networkTemplate":
                     def networkTemplate = NetworkFactory.createNetwork(value.type as String, value.params as Map)
                     return [key, networkTemplate]
                 case "sessionType":
@@ -196,6 +197,7 @@ class AdminController {
                     mturkAdditionalQualifications: params.other_quals,
                     mturkAssignmentLifetimeInSeconds: Integer.parseInt(params.assignment_time),
                     mturkHitLifetimeInSeconds: Integer.parseInt(params.hit_time),
+                    singleHit: params.mturk_method as boolean,
                     mturkNumberHits: Integer.parseInt(params.num_hits))
 
             session.addToMturkTasks(task)
