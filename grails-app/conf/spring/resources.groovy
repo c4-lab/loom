@@ -32,7 +32,4 @@ beans = {
         grailsApplication = ref('grailsApplication')
     }
 
-    authenticationFailureHandler(CustomAuthenticationFailureHandler) {
-        defaultFailureUrl = '/login?error' // You can set a default or handle it dynamically as above
-    }
 }
