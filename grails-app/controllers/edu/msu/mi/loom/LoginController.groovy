@@ -63,57 +63,72 @@ class LoginController {
         println "Authenticating..."
         println params
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
+        String original = orig?.requestURL
+
+
+        //forward to admin url
         if (request.forwardURI.contains('admin')) {
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
         }
+
+        //attempt to pull id params from request and determine role
         String workerId = null
         Roles role = null
         String assignmentId = null
-        User u = null
+
         if (orig?.parameters?.workerId) {
             workerId = orig.parameters.workerId[0]
             if (orig.parameters.assignmentId && orig.parameters.assignmentId[0] != "null") {
                 assignmentId = orig.parameters?.assignmentId[0]
                 role = Roles.ROLE_MTURKER
-                u = User.findByWorkerId(workerId)
             } else {
                 role = Roles.ROLE_USER
-                u = User.findByUsername(workerId)
             }
         } else if (orig?.parameters?.PROLIFIC_PID) {
             workerId = orig.parameters.PROLIFIC_PID[0]
             role = Roles.ROLE_PROLIFIC
-            u = User.findByWorkerId(workerId)
-        }  else if (request.forwardURI.contains('/')) {
-            def config = SpringSecurityUtils.securityConfig
-            String postUrl = "${request.contextPath}/login/workerAuth"
-            return render(view: "worker_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter, origURI:orig?.requestURL])
-
         }
 
-        String original = orig?.requestURL
-
-        if (u) {
-            springSecurityService.reauthenticate(u.username)
-        } else if (original && "training" in original) {
-            u = userService.createUserByWorkerId(workerId, role)
+        //couldn't access a parameter that works for a login
+        if (!workerId) {
+            String postUrl = "${request.contextPath}/login/workerAuth"
+            return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
+        } else {
+            User u = User.findByWorkerId(workerId) ?: User.findByUsername(workerId)
+            //if we don't have a user, but we're trying to train, create the user
+            if (!u) {
+                if (original && original.contains("training")) {
+                    u = userService.createUserByWorkerId(workerId, role)
+                } else {
+                    //we can't find a user, but there was an id in the parameters.  We should probably just flash a message and direct
+                    //back to worker login page?
+                    flash.message = "Authentication failed. Please check your id."
+                    return redirect(url: '/')
+                }
+            }
+            //now attempt to login
             if (u?.id) {
                 springSecurityService.reauthenticate(u.username)
+            } else {
+                //some unknown problem creating the user.  Bail.
+                flash.message = "Authentication failed. Please check your id."
+                return redirect(url: '/')
             }
-        }
 
-        if (springSecurityService.isLoggedIn()) {
-            if (original) {
+
+            if (springSecurityService.isLoggedIn()) {
+                original = original ?: "/session/available"
+
                 if (workerId) {
                     log.debug("Redirecting with parameters")
                     def params = "workerId=$workerId"
                     if (assignmentId) {
-                        params+="&assignmentId=$assignmentId"
+                        params += "&assignmentId=$assignmentId"
                     }
                     if (orig?.parameters?.hitId) {
-                        params+="&hitId=${orig.parameters.hitId[0]}"
+                        params += "&hitId=${orig.parameters.hitId[0]}"
                     }
                     return redirect(url: "$original?$params")
                 } else {
@@ -121,8 +136,8 @@ class LoginController {
                 }
             }
         }
-
-
+        //Should never get here
+        log.warn("Authentication path found unmet condition; please check the auth method in the login controller")
         flash.message = "Authentication failed. Please check your id."
         return redirect(url: '/')
 

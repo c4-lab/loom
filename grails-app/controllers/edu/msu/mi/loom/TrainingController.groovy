@@ -69,7 +69,7 @@ class TrainingController {
                 mturkAssignment = mturkService.attachAssignment(assignmentId, hitId)
             }
             if (!mturkAssignment) {
-                return fail("Internal error resolving assignment")
+                return fail("You appear to have come from MTurk with a HIT that we don't know about (HitID = ${hitId}, AssignmentID = ${assignmentId})")
             }
         }
 
