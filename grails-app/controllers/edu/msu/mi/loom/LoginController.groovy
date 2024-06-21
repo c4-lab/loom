@@ -60,7 +60,7 @@ class LoginController {
      */
     def auth() {
 
-        println "Authenticating..."
+
         println params
         def orig = session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")
         String original = orig?.requestURL
@@ -68,6 +68,7 @@ class LoginController {
 
         //forward to admin url
         if (request.forwardURI.contains('admin')) {
+            println("Authenticating for admin...")
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
@@ -93,6 +94,7 @@ class LoginController {
 
         //couldn't access a parameter that works for a login
         if (!workerId) {
+            println("Authenticating for worker with no parameters...")
             String postUrl = "${request.contextPath}/login/workerAuth"
             return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
         } else {
@@ -100,6 +102,7 @@ class LoginController {
             //if we don't have a user, but we're trying to train, create the user
             if (!u) {
                 if (original && original.contains("training")) {
+                    println("Authenticating for new worker ${workerId} for training")
                     u = userService.createUserByWorkerId(workerId, role)
                 } else {
                     //we can't find a user, but there was an id in the parameters.  We should probably just flash a message and direct
@@ -130,8 +133,10 @@ class LoginController {
                     if (orig?.parameters?.hitId) {
                         params += "&hitId=${orig.parameters.hitId[0]}"
                     }
+                    println("Sending worker ${workerId} to ${original}?${params}")
                     return redirect(url: "$original?$params")
                 } else {
+                    println("Sending worker ${workerId} to ${original} (no params)")
                     return redirect(url: "$original")
                 }
             }
