@@ -13,6 +13,8 @@ class MturkTask {
 
     //MTURK PARAMETERS
     Integer mturkNumberHits
+    int errorCount = 0
+
     boolean singleHit
     Integer mturkHitLifetimeInSeconds
     Integer mturkAssignmentLifetimeInSeconds

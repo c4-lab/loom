@@ -241,15 +241,8 @@ class MturkService {
             request.setDescription(task.description)
             request.setQuestion(hitTemplate)
             request.setQualificationRequirements(requirements)
-            def result = getMturkClient(task.credentials).createHIT(request)
-            def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
-            def expiry = result.getHIT().getExpiration()
-            if (!expiry) {
-                expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
-            }
-            MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
-                    expires: expiry, url: linkurl, lastUpdate: new Date())
-            task.addToHits(loomHit)
+            launchHit(task,request)
+
         } else {
 
 
@@ -265,21 +258,42 @@ class MturkService {
                 request.setDescription(task.description)
                 request.setQuestion(hitTemplate)
                 request.setQualificationRequirements(requirements)
-                def result = getMturkClient(task.credentials).createHIT(request)
-                def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
-                def expiry = result.getHIT().getExpiration()
-                if (!expiry) {
-                    expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
-                }
-                MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
-                        expires: expiry, url: linkurl, lastUpdate: new Date())
-                task.addToHits(loomHit)
+                launchHit(task,request)
+//
+//                def result = getMturkClient(task.credentials).createHIT(request)
+//                def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
+//                def expiry = result.getHIT().getExpiration()
+//                if (!expiry) {
+//                    expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
+//                }
+//                MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
+//                        expires: expiry, url: linkurl, lastUpdate: new Date())
+//                task.addToHits(loomHit)
             }
         }
         if (!task.save(flush: true)) {
             throw new RuntimeException("Error saving MTurkTask: ${task.errors}")
         }
         return task
+
+    }
+
+    def launchHit(MturkTask task, CreateHITRequest request) {
+        try {
+            def result = getMturkClient(task.credentials).createHIT(request)
+            def linkurl = "${getBaseMturkUrl(task.credentials)}/mturk/preview?groupId=${result.getHIT().getHITTypeId()}"
+            def expiry = result.getHIT().getExpiration()
+            if (!expiry) {
+                expiry = new Date(System.currentTimeMillis() + task.mturkHitLifetimeInSeconds * 60 * 1000L)
+            }
+            MturkHIT loomHit = new MturkHIT(hitId: result.getHIT().getHITId(), hitTypeId: result.getHIT().getHITTypeId(), lastKnownStatus: result.getHIT().getHITStatus(),
+                    expires: expiry, url: linkurl, lastUpdate: new Date())
+            task.addToHits(loomHit)
+        } catch (Throwable t)  {
+            log.error("Could not create HIT: ",t)
+            task.errors = task.errors+1
+        }
+
 
     }
 
