@@ -228,8 +228,9 @@ class MturkService {
         } else {
             url = "${adminService.APPLICATION_BASE_URL}/session/s/" + owner.id.toString()
         }
-        String hitTemplate = getHitTemplate(url)
         if (task.singleHit) {
+            String hitTemplate = getHitTemplate(url,true)
+
             CreateHITRequest request = new CreateHITRequest()
             request.setMaxAssignments(task.mturkNumberHits)
             request.setLifetimeInSeconds(task.mturkHitLifetimeInSeconds * 60L)
@@ -247,6 +248,7 @@ class MturkService {
 
 
             (1..task.mturkNumberHits).each {
+                String hitTemplate = getHitTemplate(url)
                 CreateHITRequest request = new CreateHITRequest()
                 request.setMaxAssignments(1)
                 request.setLifetimeInSeconds(task.mturkHitLifetimeInSeconds * 60L)
