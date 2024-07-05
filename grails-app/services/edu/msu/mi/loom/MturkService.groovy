@@ -229,6 +229,7 @@ class MturkService {
             url = "${adminService.APPLICATION_BASE_URL}/session/s/" + owner.id.toString()
         }
         if (task.singleHit) {
+            log.debug("Launching 1 HIT with ${task.mturkNumberHits} assigments")
             String hitTemplate = getHitTemplate(url,true)
 
             CreateHITRequest request = new CreateHITRequest()
