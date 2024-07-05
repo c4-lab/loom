@@ -291,7 +291,7 @@ class MturkService {
             task.addToHits(loomHit)
         } catch (Throwable t)  {
             log.error("Could not create HIT: ",t)
-            task.errors = task.errors+1
+            task.errorCount = task.errorCount+1
         }
 
 
