@@ -88,9 +88,9 @@ class Session {
     }
 
     def beforeInsert() {
-        print("I am trying to generate codes")
         generateCodes()
     }
+
 
 
     def generateCodes() {

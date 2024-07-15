@@ -14,17 +14,26 @@ class SessionService {
     def mturkService
 
     def launchSession(Session session,MturkTask task) {
-        session.state = Session.State.WAITING
-        session.startWaiting = new Date()
+        Session.withTransaction { status ->
+            try {
+                session.state = Session.State.WAITING
+                session.startWaiting = new Date()
 
-        if (task) {
-            Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"),task)
-            mturkService.launchMturkTask(qualRequirements,task)
+                if (task) {
+                    Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"), task)
+                    mturkService.launchMturkTask(qualRequirements, task)
+                }
+
+                if (!session.save(flush: true)) {
+                    return session.errors
+                }
+            } catch (Exception e) {
+                status.setRollbackOnly()
+                log.error("Error launching session", e)
+                return e
+            }
         }
 
-        if (!session.save(flush: true)) {
-            return session.errors
-        }
         experimentService.scheduleWaitingCheck(session)
 
     }

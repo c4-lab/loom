@@ -71,6 +71,7 @@ class LoginController {
             println("Authenticating for admin...")
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
+            println("Sending posturl ${postUrl}")
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
         }
 
@@ -91,11 +92,10 @@ class LoginController {
             workerId = orig.parameters.PROLIFIC_PID[0]
             role = Roles.ROLE_PROLIFIC
         }
-
+        String postUrl = "${request.contextPath}/login/workerAuth"
         //couldn't access a parameter that works for a login
         if (!workerId) {
             println("Authenticating for worker with no parameters...")
-            String postUrl = "${request.contextPath}/login/workerAuth"
             return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
         } else {
             User u = User.findByWorkerId(workerId) ?: User.findByUsername(workerId)
@@ -108,7 +108,7 @@ class LoginController {
                     //we can't find a user, but there was an id in the parameters.  We should probably just flash a message and direct
                     //back to worker login page?
                     flash.message = "Authentication failed. Please check your id."
-                    return redirect(url: '/')
+                    return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
                 }
             }
             //now attempt to login
@@ -117,7 +117,7 @@ class LoginController {
             } else {
                 //some unknown problem creating the user.  Bail.
                 flash.message = "Authentication failed. Please check your id."
-                return redirect(url: '/')
+                return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
             }
 
 

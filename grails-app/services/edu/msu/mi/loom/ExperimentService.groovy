@@ -316,7 +316,7 @@ class ExperimentService {
      * @return
      */
     def scheduleWaitingCheck(Session session) {
-
+        log.debug("Passed session state is ${session.state}")
         waitingTimer[session.id] = new Timer()
         ((Timer) waitingTimer[session.id]).scheduleAtFixedRate({
             // log.debug("Checking waiters...")
@@ -324,6 +324,9 @@ class ExperimentService {
             //TDOD uncertain if a new session is really necessary here
             Session.withNewSession {
                 s = Session.get(session.id)
+                log.debug("Retrieved session state before refresh is ${s.state}")
+                s.refresh()
+                log.debug("Retrieved session state after refresh is ${s.state}")
                 int count = totalCountWaitingUsers(s)
                 log.debug("Now have ${count} waiting users")
                 if (count >= s.sessionParameters.safeGetMinNode()) {
@@ -339,7 +342,7 @@ class ExperimentService {
 
 
                 } else if (s.state != Session.State.WAITING) {
-                    log.debug("Session state is no longer WAITING")
+                    log.debug("Session state is ${s.state} which is no longer WAITING")
                     cancelWaitingTimer(s)
                 }
             }

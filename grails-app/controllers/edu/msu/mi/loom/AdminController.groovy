@@ -206,6 +206,7 @@ class AdminController {
         }
         def errors = sessionService.launchSession(session, task)
         if (errors) {
+            log.warn("Failed to launch with errors ${errors}")
             return fail(errors.toString(), "sessions")
         } else {
             return redirect(action: "board", fragment: "sessions")
@@ -417,14 +418,18 @@ class AdminController {
         }
 
 
-        List constraintList = constraints.split(";").collect {
-            UserConstraintValue value = constraintService.parseConstraintValue(u,it)
-            value.save(flush: true)
-            value
+        if (constraints.trim()) {
+            List constraintList = constraints.split(";").collect {
 
+                UserConstraintValue value = constraintService.parseConstraintValue(u, it)
+                value.save(flush: true)
+                return value
+
+            }
+            log.debug("Created constraint values ${constraintList}")
         }
 
-        log.debug("Created constraint values ${constraintList}")
+
 
     }
 
