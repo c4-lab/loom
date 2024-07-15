@@ -26,10 +26,13 @@
                                     <tr>
                                         <td>${item.session.id}</td>
                                         <td>${item.session.state}</td>
-                                        <td>${item.qualified ? 'Yes' : 'No'}</td>
-                                        <g:if test = "${item.qualified}">
+                                        <td>${(item.qualified || item.canjoin) ? 'Yes' : 'No'}</td>
+                                        <g:if test = "${item.canjoin || (item.qualified && item.session.state == edu.msu.mi.loom.Session.State.WAITING)}">
                                             <td><a href="${createLink(uri: item.link)}">Join Session</a></td>
                                         </g:if>
+                                        <g:elseif test = "${!item.canjoin}">
+                                            <td>Session full</td>
+                                        </g:elseif>
                                         <g:else>
                                             <td>Unavailable</td>
                                         </g:else>

@@ -47,7 +47,11 @@ class SessionController {
         List<Session> sessions = Session.findAllByStateInList([Session.State.WAITING,Session.State.ACTIVE])
         def sessionList = sessions.collect {
             def failures = constraintService.failsConstraints(u, it)
-            [session: it, qualified: !failures, link:"/session/s/${it.id}?workerId=${u.username}"]
+            boolean canJoin = false
+            if (it.state == Session.State.ACTIVE) {
+                canJoin = UserSession.countByUserAndSession(u,it) > 0
+            }
+            [session: it, qualified: !failures, canjoin: canJoin, link:"/session/s/${it.id}?workerId=${u.username}"]
         }
         render(view: "session_list",model: [sessionList: sessionList] )
     }
