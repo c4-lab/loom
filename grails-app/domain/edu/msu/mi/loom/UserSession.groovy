@@ -1,6 +1,6 @@
 package edu.msu.mi.loom
 
-class UserSession implements Serializable{
+class UserSession implements Serializable {
 
     static final enum State {
         WAITING,  //in the waiting room
@@ -49,11 +49,26 @@ class UserSession implements Serializable{
     }
 
     static UserSession create(User user, Session session, Date started, MturkAssignment mturkAssignment, boolean flush = false) {
+
+
         def instance = new UserSession(user: user, session: session, started: started, mturkAssignment: mturkAssignment)
+
+        //TODO 07-22-24
+        //TODO I've encountered a very strange problem here where the map constructor
+        //TODO is failing for the session object when it attempts to establish he association
+        //TODO I don't know what the problem is, but the following seems to fix it
+        //TODO We might try looking into Hibernate SQL logging to see if there is a
+        //TODO warning or error being squashed somewhere
+        instance.session = session
         if (mturkAssignment) {
             mturkAssignment.userSession = instance
         }
-        instance.save(flush: flush, insert: true)
+
+        if (!instance.save(flush: flush, insert: true)) {
+            print("Failed to save UserSession: ${instance.errors}")
+            return null
+        }
+
         instance
     }
     /**
@@ -61,7 +76,7 @@ class UserSession implements Serializable{
      * @param newState
      * @return
      */
-    def stopWaiting(State newState=null) {
+    def stopWaiting(State newState = null) {
         if (state == State.WAITING && started) {
             stoppedWaiting = new Date()
             wait_time += (stoppedWaiting.time - started.time) / (60 * 1000)
@@ -85,13 +100,12 @@ class UserSession implements Serializable{
     }
 
 
-
-    def beforeInsert = {
-        if (!completionCode) {
-            completionCode = randomStringGenerator.generateLowercase(12)
-        }
-//        if (!started) {
-//            started = new Date()
+//    def beforeInsert = {
+//        if (!completionCode) {
+//            completionCode = randomStringGenerator.generateLowercase(12)
 //        }
-    }
+////        if (!started) {
+////            started = new Date()
+////        }
+//    }
 }

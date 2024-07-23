@@ -146,6 +146,16 @@
                     <div class="panel panel-default">
                         <div class="panel-body session-launch-parameters">
                             <input hidden name="sessionId" id="launchSessionId" value=""/>
+                            <div class="form-group">
+                                <label>Launch Time:</label>
+                                <div>
+                                    <label><input type="radio" name="launchTime" value="now" checked> Now</label>
+                                    <label><input type="radio" name="launchTime" value="schedule"> Schedule</label>
+                                </div>
+                                <div id="scheduleDateTimeContainer" style="display: none;">
+                                    <input type="datetime-local" id="scheduleDateTime" name="scheduleDateTime" class="form-control">
+                                </div>
+                            </div>
                             <label>Enable MTurk?</label>
                             <input type="checkbox" name="enableMturk" id="sessionEnableMturk" value="false"><br>
                             <label>Credentials</label>
@@ -212,6 +222,16 @@
     }
 
     $(document).ready(function () {
+
+        $('input[name="launchTime"]').change(function() {
+            if ($(this).val() === 'schedule') {
+                $('#scheduleDateTimeContainer').show();
+                $('#scheduleDateTime').prop('required', true);
+            } else {
+                $('#scheduleDateTimeContainer').hide();
+                $('#scheduleDateTime').prop('required', false);
+            }
+        });
 
         $(".show-session-launch-modal").click(function (e){
             $("#session-launch-form")[0].reset()

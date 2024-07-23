@@ -7,6 +7,7 @@ import grails.util.Metadata
 import org.hibernate.metadata.ClassMetadata
 import org.springframework.jdbc.datasource.DelegatingDataSource
 
+
 class BootStrap {
     def experimentService
     def grailsApplication
@@ -17,6 +18,8 @@ class BootStrap {
     def adminService
     def sessionFactory
     def dataSource
+
+
     def init = { servletContext ->
 
         if (dataSource instanceof org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy) {
@@ -29,6 +32,10 @@ class BootStrap {
         } else {
             println "DataSource class: ${dataSource.getClass().name}"
         }
+
+
+        //sessionService.afterPropertiesSet()
+
         //GrailsApplication ga = (GrailsApplication)grailsApplication
 
        // def allClasses = ga.domainClasses

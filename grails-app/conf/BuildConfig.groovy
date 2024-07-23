@@ -48,6 +48,7 @@ grails.project.dependency.resolution = {
         mavenLocal()
         grailsCentral()
         mavenCentral()
+
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -73,6 +74,7 @@ grails.project.dependency.resolution = {
         compile group: 'commons-lang', name: 'commons-lang', version: '2.3'
         compile group: 'commons-digester', name: 'commons-digester', version: '1.8'
         compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+        //compile group: 'org.grails.plugins', name: 'quartz', version: '2.0.0'
         //compile group: 'commons-pool', name: 'commons-pool', version: '1.3'
         //compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.2.2'
         compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.11.0'
@@ -112,6 +114,7 @@ grails.project.dependency.resolution = {
         compile ":asset-pipeline:2.14.1"
         // compile group: 'com.bertramlabs.plugins', name:'asset-pipeline-grails', version: '3.3.1'
 
+        compile ":quartz:1.0.2"
 
         // plugins needed at runtime but not for compilation
 

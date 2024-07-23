@@ -16,6 +16,7 @@ class Session {
     static final enum State {
 
         PENDING,  //default start state, not yet listening
+        SCHEDULED,
         WAITING,  //listening, waiting for users
         ACTIVE,   //active, users playing game
         FINISHED, //finished, game has been completed
@@ -25,10 +26,12 @@ class Session {
 
     //def mturkService
     def randomStringGenerator
+    def sessionService
 
     //Bean fields
     String name
     Date created = new Date()
+    Date scheduled
     Experiment exp
     Session clonedFrom
     boolean deleted = false
@@ -50,7 +53,6 @@ class Session {
     Date finished
     Date cancelled
 
-
     int paid = 0
     int total = 0
 
@@ -64,8 +66,8 @@ class Session {
         finished nullable: true
         cancelled nullable: true
         mturkTasks nullable: true
-        clonedFrom nullabel: true
-
+        clonedFrom nullable: true
+        scheduled nullable: true
    }
 
     Session clone() {
@@ -91,7 +93,15 @@ class Session {
         generateCodes()
     }
 
-
+//    def beforeUpdate() {
+//        if (isDirty('state') && state != State.SCHEDULED) {
+//            sessionService.onSessionUpdate(this)
+//        }
+//    }
+//
+//    def beforeDelete() {
+//        sessionService.onSessionDelete(this)
+//    }
 
     def generateCodes() {
         if (!randomStringGenerator) {

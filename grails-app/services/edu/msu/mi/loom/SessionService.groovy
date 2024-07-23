@@ -2,25 +2,57 @@ package edu.msu.mi.loom
 
 import com.amazonaws.mturk.requester.QualificationRequirement
 import grails.transaction.Transactional
-import org.springframework.transaction.annotation.Propagation;
+import groovy.util.logging.Slf4j
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.validation.Errors;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+import org.quartz.JobExecutionContext
+import org.springframework.scheduling.annotation.Scheduled
+
+@Slf4j
 @Transactional
 class SessionService {
 
     def springSecurityService
     def experimentService
     def mturkService
+    def grailsApplication
 
-    def launchSession(Session session,MturkTask task) {
+
+
+    def scheduleSession(Session session, MturkTask task, Date scheduledDateTime) {
+        Session.withTransaction { status ->
+            try {
+                session.state = Session.State.SCHEDULED
+                session.scheduled = scheduledDateTime
+                if (!session.save(flush: true)) {
+                    return session.errors
+                }
+            } catch (Exception e) {
+                status.setRollbackOnly()
+                log.error("Error scheduling session", e)
+                return e
+            }
+        }
+        return null
+    }
+
+    def launchSession(Session session, MturkTask task) {
+        println("Set session ${session.name} to waiting")
         Session.withTransaction { status ->
             try {
                 session.state = Session.State.WAITING
                 session.startWaiting = new Date()
 
                 if (task) {
-                    Collection<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"), task)
+                    List<QualificationRequirement> qualRequirements = mturkService.getConstraintQualifications(session.sp("constraintTests"), task) as List<QualificationRequirement>
                     mturkService.launchMturkTask(qualRequirements, task)
                 }
 
@@ -33,10 +65,37 @@ class SessionService {
                 return e
             }
         }
-
+        log.debug("Scheduling waiting check on ${session.name}")
         experimentService.scheduleWaitingCheck(session)
-
+        return null
     }
+
+    /**
+     * This is called by the quartz scheduling service
+     * @see edu.msu.mi.loom.CheckScheduledSessionsJob
+     * @param context
+     * @return
+     */
+    @Transactional
+    def checkAndUpdateScheduledSessions(JobExecutionContext context) {
+        println("Running scheduled tasks")
+        log.debug("Running Scheduled Tasks")
+        Session.findAllByState(Session.State.SCHEDULED).each { session ->
+            if (session.scheduled < new Date()) {
+                log.debug("Would launch session ${session.name}")
+                launchSession(session, session.mturkTasks.find())
+            }
+        }
+    }
+
+    def cancelScheduledSession(Long sessionId) {
+        ScheduledFuture<?> scheduledTask = scheduledTasks.remove(sessionId)
+        if (scheduledTask) {
+            scheduledTask.cancel(false)
+        }
+    }
+
+
 
     def cancelSession(Session session) {
 
@@ -111,6 +170,7 @@ class SessionService {
             }
         }
     }
+
 
 
 

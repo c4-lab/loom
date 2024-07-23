@@ -181,6 +181,7 @@ class AdminController {
     def launchSession() {
 
         def session = Session.get(params.sessionId)
+        def launchErrors
 
         if (session.state == Session.State.CANCEL) {
             return fail("Cannot restart a cancelled session", "sessions")
@@ -204,8 +205,15 @@ class AdminController {
             session.save(flush: true)
 
         }
-        def errors = sessionService.launchSession(session, task)
-        if (errors) {
+        if (params.launchTime == 'schedule') {
+            // Parse the scheduled date and time
+            def scheduledDateTime = Date.parse("yyyy-MM-dd'T'HH:mm", params.scheduleDateTime)
+
+            launchErrors = sessionService.scheduleSession(session, task, scheduledDateTime)
+        } else {
+            launchErrors = sessionService.launchSession(session, task)
+        }
+        if (launchErrors) {
             log.warn("Failed to launch with errors ${errors}")
             return fail(errors.toString(), "sessions")
         } else {
@@ -444,6 +452,7 @@ class AdminController {
             String constraints = it.constraints
             addNewUser(workerId,type,constraints)
         }
+        redirect(action: 'board')
     }
 
 
@@ -854,6 +863,46 @@ class AdminController {
 
     def getStorySeedUpdate() {
         render(view: 'story_seed_form', model: [stories   : Story.list()])
+    }
+
+    def fixStorySeeds() {
+        log.debug("Fixing story seeds")
+        Map<String,List<StorySeed>> seedmap = new HashMap()
+        StorySeed.list().each { StorySeed seed ->
+            if (seed.name.endsWith("-PRO") || seed.name.endsWith("-ANTI")) {
+                String result = (seed.name =~ /(.+)(-ANTI|-PRO)/)[0][1]
+                if (!seedmap.containsKey(result)) {
+                    seedmap[result] = []
+                }
+                seedmap[result]<<seed
+            }
+        }
+        println("Collected ${seedmap}")
+
+        seedmap.each {String name, List<StorySeed> seeds ->
+            StorySeed targetseed = seeds[0]
+            targetseed.name = name
+            targetseed.constraintTitle = targetseed.getConstraintTitle()
+            targetseed.save(flush:true)
+            seeds.tail().each { StorySeed seedToPrune ->
+                UserConstraintValue.findAllByConstraintProvider(seedToPrune).each { UserConstraintValue ucv ->
+                    ucv.constraintProvider = targetseed
+                    ucv.save(flush:true)
+                }
+                Story.findAllBySeed(seedToPrune).each { Story s ->
+                    s.seed = targetseed
+                    s.save(flush:true)
+                }
+                ConstraintTest.findAllByConstraintProvider(seedToPrune).each { ConstraintTest ct ->
+                    ct.constraintProvider = targetseed
+                    ct.save(flush:true)
+                }
+                seedToPrune.name = "x_"+seedToPrune.name
+                seedToPrune.constraintTitle = seedToPrune.getConstraintTitle()
+                seedToPrune.save(flush:true)
+                print("Marked ${seedToPrune.constraintTitle} for deletion")
+            }
+        }
     }
 
     def updateStorySeeds() {

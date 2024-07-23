@@ -62,7 +62,7 @@ class AdminService {
         if (storySeed != null) {
             seed = StorySeed.findByName(storySeed)
             if (!seed) {
-                seed = new StorySeed(name: title)
+                seed = new StorySeed(name: storySeed)
                 //seed.save(flush:true)
 
             }

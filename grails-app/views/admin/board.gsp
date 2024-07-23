@@ -94,6 +94,9 @@
                                 <a href="javascript:void(0);" id="update-stories"
                                    class="btn btn-primary btn-block"><b>Update stories</b></a>
 
+                                <a href="javascript:void(0);" id="fix-story-seeds"
+                                   class="btn btn-primary btn-block"><b>Fix story seeds</b></a>
+
                                 <g:link controller="admin" action="exportCSV" id="export-csv"
                                         class="btn btn-primary btn-block"><b>Export CSV</b></g:link>
                             </div><!-- /.box-body -->
@@ -521,6 +524,13 @@
 
         $("#fix-constraint-values").click(function () {
             fixConstraintValues();
+        });
+
+        $("#fix-story-seeds").click(function() {
+            $.ajax({
+                type: "GET",
+                url: "/loom/admin/fixStorySeeds"
+            })
         });
 
 

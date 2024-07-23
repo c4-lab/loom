@@ -1,0 +1,139 @@
+<!-- For help on using this template, see the blog post: https://blog.mturk.com/editing-the-survey-link-project-template-in-the-ui-7c75285105fb#.py7towsdx --><!-- HIT template: SurveyLink-v3.0 --><!-- The following snippet enables the 'responsive' behavior on smaller screens -->
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<section class="container" id="SurveyLink"><!-- Instructions -->
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <strong>Instructions - Please Read</strong>
+                </div>
+
+                <div class="panel-body">
+                    <p class="important">Please only accept thit HIT once. We will reject HITs that are accepted
+                        multiple times.</p>
+                    <p>We are trying to schedule a large series of online games as a part of an experiment.
+                        We need about 1000 <strong>reliable</strong> people. You will be eligible for up to
+                        3 games, each paying a base rate of $3 for 10 minutes of work plus a bonus up to $1.
+                        All compensation will be provided as a bonus.
+                    </p>
+                    <p>
+                        These HITs are unusual because we need 30 people to accept the HIT and
+                        start working immediately. Please do not use auto-catchers for our HITs. Accept the
+                        HIT and join the session right away.
+                    </p>
+
+                    <p>
+                        The following link takes you to the schedule for this week. Please enter your WorkerID for
+                        sessions
+                        where you are available, and you will receive a qualification for those sessions. Two important
+                        things to note:
+                    <ul>
+                        <li><strong>Please sign up for at least
+                            one session.</strong> We will reward sign-ups with a $.10 bonus on this HIT.
+                        </li>
+                        <li><strong>Show up for your session on time.</strong> We will send reminders in advance; if you
+                            fail to show up
+                            several times and do not contact us with an explanation, we will remove you from our pool of
+                            qualified workers.
+                        </li>
+                    </ul>
+                    </p>
+
+                    <p>
+                        Once you have signed up, please submit the code listed on the survey site. If you have
+                        questions, contact the requester
+                        or join us on the <a
+                            href="https://join.slack.com/t/turkernation/shared_invite/zt-2lkrqo9ck-9h~qfXUuDFqT_m_wzmFL~w">TurkerNation
+                        Slack</a> and DM @QLSun.
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- End Instructions --><!-- Survey Link Layout -->
+
+    <div class="row" id="workContent">
+        <div class="col-xs-12 col-md-6 col-md-offset-3"><!-- Content for Worker -->
+            <table class="table table-condensed table-bordered">
+                <colgroup>
+                    <col class="col-xs-4 col-md-4"/>
+                    <col class="col-xs-8 col-md-8"/>
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td><label>Schedule link:</label></td>
+                    <td><a class="dont-break-out" href="https://signup.com/go/TGwCfSL" target="_blank">https://signup.com/go/TGwCfSL</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- End Content for Worker --><!-- Input from Worker -->
+
+            <div class="form-group"><label for="surveycode">Provide the code here:</label> <input
+                    class="form-control" id="surveycode" name="surveycode" placeholder="e.g. 123456" required=""
+                    type="text"/>
+            </div>
+            <!-- End input from Worker -->
+        </div>
+    </div>
+    <!-- End Survey Link Layout -->
+</section>
+<!-- Please note that Bootstrap CSS/JS and JQuery are 3rd party libraries that may update their url/code at any time. Amazon Mechanical Turk (MTurk) is including these libraries as a default option for you, but is not responsible for any changes to the external libraries --><!-- External CSS references -->
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+      integrity="sha384-IS73LIqjtYesmURkDE9MXKbXqYA8rvKEp/ghicjem7Vc3mGRdQRptJSz60tvrB6+"
+      rel="stylesheet"/><!-- Open internal style sheet -->
+<style type="text/css">.important {
+    color: #F00;
+    display: block;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#submitButton {
+    white-space: normal;
+}
+
+.image {
+    margin-bottom: 15px;
+}
+
+/* CSS for breaking long words/urls */
+.dont-break-out {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+</style>
+<!-- Close internal style sheet --><!-- External JS references -->
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"
+        integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"
+        integrity="sha384-s1ITto93iSMDxlp/79qhWHi+LsIi9Gx6yL+cOKDuymvihkfol83TYbLbOw+W/wv4"
+        crossorigin="anonymous"></script><!-- Open internal javascript -->
+<script>
+    $(document).ready(function () {
+        // Instructions expand/collapse
+        var content = $('#instructionBody');
+        var trigger = $('#collapseTrigger');
+        content.hide();
+        $('.collapse-text').text('(Click to expand)');
+        trigger.click(function () {
+            content.toggle();
+            var isVisible = content.is(':visible');
+            if (isVisible) {
+                $('.collapse-text').text('(Click to collapse)');
+            } else {
+                $('.collapse-text').text('(Click to expand)');
+            }
+        });
+        // end expand/collapse
+    });
+</script><!-- Close internal javascript -->

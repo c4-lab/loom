@@ -4,8 +4,13 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.util.logging.Slf4j
 
+import java.text.SimpleDateFormat
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.OK
+
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Slf4j
 @Secured(["ROLE_USER", "ROLE_MTURKER","ROLE_PROLIFIC"])
@@ -44,16 +49,93 @@ class SessionController {
 
     def available() {
         User u = springSecurityService.currentUser as User
-        List<Session> sessions = Session.findAllByStateInList([Session.State.WAITING,Session.State.ACTIVE])
-        def sessionList = sessions.collect {
-            def failures = constraintService.failsConstraints(u, it)
-            boolean canJoin = false
-            if (it.state == Session.State.ACTIVE) {
-                canJoin = UserSession.countByUserAndSession(u,it) > 0
+        def today = new Date().clearTime()
+        def tomorrow = today + 1
+
+        def sessions = (List<Session>)Session.createCriteria().list {
+            or {
+                and {
+                    ne('state', Session.State.PENDING)
+                    or {
+                        between('scheduled', today, tomorrow)
+                        between('startWaiting',today, tomorrow)
+                    }
+                }
+                and {
+                    eq('state',Session.State.SCHEDULED)
+                    ge('scheduled', today)
+                }
             }
-            [session: it, qualified: !failures, canjoin: canJoin, link:"/session/s/${it.id}?workerId=${u.username}"]
+            order('scheduled', 'asc')
         }
-        render(view: "session_list",model: [sessionList: sessionList] )
+
+        log.debug("Returning ${sessions.size()} sessions")
+
+        sessions.sort {
+            it.state == Session.State.SCHEDULED?it.scheduled:it.startWaiting
+        }
+
+        def dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        def timeFormat = new SimpleDateFormat("HH:mm:ss")
+
+        def sessionList = sessions.collect { session ->
+            def failures = constraintService.failsConstraints(u, session)
+            boolean canJoin = session.state == Session.State.ACTIVE && UserSession.countByUserAndSession(u, session) > 0
+            boolean isQualified = !failures
+
+            Date sessionTime = session.state == Session.State.SCHEDULED?session.scheduled:session.startWaiting
+
+            [
+                    id: session.id,
+                    state: session.state.toString(),
+                    scheduledDate: dateFormat.format(sessionTime),
+                    scheduledTime: timeFormat.format(sessionTime),
+                    qualified: isQualified,
+                    canJoin: canJoin,
+                    link: canJoin || (isQualified && session.state == Session.State.WAITING) ? "/loom/session/s/${session.id}?workerId=${u.username}" : null,
+                    message: getSessionMessage(session, isQualified, canJoin)
+            ]
+        }
+
+        def participatedSessions = (List<Session>)UserSession.createCriteria().list {
+            eq('user', u)
+            session {
+                'in'('state', [Session.State.FINISHED, Session.State.CANCEL])
+            }
+            projections {
+                property('session')
+            }
+        }
+
+        def participationCount = participatedSessions.count {
+            it.state == Session.State.FINISHED
+        }
+
+
+        if (request.xhr) {
+            render sessionList as JSON
+        } else {
+            render(view: "session_list", model: [sessionList: sessionList, participatedSessions: participatedSessions, participationCount: participationCount])
+        }
+    }
+
+
+
+    private String getSessionMessage(Session session, boolean isQualified, boolean canJoin) {
+        switch (session.state) {
+            case Session.State.SCHEDULED:
+                return "Not yet available"
+            case Session.State.WAITING:
+                return isQualified ? "Available to join" : "Not qualified"
+            case Session.State.ACTIVE:
+                return canJoin ? "Rejoin session" : "Session is full"
+            case Session.State.CANCEL:
+                return "Session cancelled"
+            case Session.State.FINISHED:
+                return "Session finished"
+            default:
+                return "Unavailable"
+        }
     }
 
 
@@ -80,6 +162,7 @@ class SessionController {
         //attach assignment to hit
         if (hitId && assignmentId) {
             mturkAssignment = mturkService.attachAssignment(assignmentId, hitId)
+            log.debug("Have an mturk assignment: ${mturkAssignment}")
         }
 
         Session session = sessionId ? Session.get(Long.parseLong(sessionId)) : null
