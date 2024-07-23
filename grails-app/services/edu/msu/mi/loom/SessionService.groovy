@@ -101,8 +101,9 @@ class SessionService {
 
         mturkService.forceHITExpiry(session.mturkTasks as MturkTask[])
 
-        if (session.state == Session.State.WAITING  && UserSession.countBySession(session) ==0) {
+        if (session.state == Session.State.SCHEDULED || (session.state == Session.State.WAITING  && UserSession.countBySession(session) ==0)) {
             session.state = Session.State.PENDING
+            session.scheduled = null
             session.save(flush: true)
         } else if (session.state in [Session.State.WAITING, Session.State.ACTIVE]) {
             session.state = Session.State.CANCEL

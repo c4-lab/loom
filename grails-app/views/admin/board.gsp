@@ -603,6 +603,20 @@
                     domElt.addClass("panel-danger")
                 }
 
+                for (let sessionid in result['scheduled']) {
+                    let info = result['scheduled'][sessionid];
+                    let domElt = $("#session-info-" + sessionid);
+                    $(".session-status", domElt).text(info.state);
+                    $(".session-scheduled-scheduled", domElt).text(info.scheduled);
+                    $(".session-waiting-block", domElt).hide();
+                    $(".session-active-block", domElt).hide();
+                    $(".session-scheduled-block", domElt).removeClass("hidden")
+                    $(".session-scheduled-block", domElt).show();
+                    $("button.show-session-cancel", domElt).prop("disabled", false);
+                    $("button.show-session-delete", domElt).prop("disabled", false);
+                    domElt.removeClass("panel-primary panel-warning").addClass("panel-warning");
+                }
+
                 for (let sessionid of result['finished']) {
                     //console.log("")
                     let domElt = $("#session-info-" + sessionid)

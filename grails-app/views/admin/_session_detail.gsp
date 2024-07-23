@@ -107,6 +107,13 @@
                             <span class='description'>Round Status:<span
                                     class="description-text session-active-round-status"></span></span>
                         </div>
+
+                        <div class="session-scheduled-block hidden">
+                            <span class='description'>Scheduled:<span
+                                    class="description-text session-scheduled-scheduled"></span>
+                            </span>
+
+                        </div>
                     </div>
                 </div>
             </div>

@@ -69,8 +69,6 @@ class SessionController {
             order('scheduled', 'asc')
         }
 
-        log.debug("Returning ${sessions.size()} sessions")
-
         sessions.sort {
             it.state == Session.State.SCHEDULED?it.scheduled:it.startWaiting
         }

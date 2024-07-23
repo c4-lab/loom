@@ -225,7 +225,7 @@ class AdminController {
     def cancelSession() {
 
         def session = Session.get(params.sessionId)
-        if (![Session.State.WAITING, Session.State.ACTIVE].contains(session.state)) {
+        if (![Session.State.WAITING, Session.State.ACTIVE, Session.State.SCHEDULED].contains(session.state)) {
             return fail("Cannot cancel an inactive session; launch first", "sessions")
         }
         sessionService.cancelSession(session)
@@ -849,11 +849,15 @@ class AdminController {
                               'round-status': experimentService.experimentsRunning[loomSession.id]?.currentStatus?.toString()]]
 
         }
+        result['scheduled'] = Session.findAllByState(Session.State.SCHEDULED).collectEntries { Session loomSession ->
+            [loomSession.id, [
+                    'state' : "SCHEDULED",
+                    'scheduled'  : loomSession.scheduled]]
+        }
         result['cancelled'] = Session.findAllByState(Session.State.CANCEL).collect {Session loomSession -> loomSession.id}
         result['finished'] = Session.findAllByState(Session.State.FINISHED).collect {Session loomSession -> loomSession.id}
 
         render result as JSON
-
 
     }
 
