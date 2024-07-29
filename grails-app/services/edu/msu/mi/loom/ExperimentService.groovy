@@ -125,8 +125,13 @@ class ExperimentService {
     }
 
     @Transactional
-    private makeSessionActive(Session session) {
+    private makeSessionActive(Long sessionId) {
         log.debug("Entering transactional block for session activation")
+        Session session = Session.get(sessionId)
+        if (!session) {
+            throw new RuntimeException("Session not found: $sessionId")
+        }
+
 
         int selectedUserCount = assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
         ExperimentRoundStatus currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
@@ -134,6 +139,8 @@ class ExperimentService {
         experimentsRunning[session.id] = currentStatus
         session.state = Session.State.ACTIVE
         session.startActive = new Date()
+
+        session.save(flush: true)
         log.debug("Leaving transactional block for session activation")
         return session
     }
@@ -331,7 +338,7 @@ class ExperimentService {
                 if (count >= s.sessionParameters.safeGetMinNode()) {
                     cancelWaitingTimer(s)
                     try {
-                        s = makeSessionActive(s)
+                        s = makeSessionActive(s.id)
                         log.debug("Waiting timer advancing round.  Session status ${s.state}")
                         advanceSessionLifecycle(s)
                     } catch(Exception e) {

@@ -19,6 +19,9 @@ class NetworkGenerateService {
      * @param latticeNetwork
      */
     def generateGraph(Session session, int numVertices, LatticeNetwork latticeNetwork) {
+
+        //TODO: Fix API later
+        session = Session.get(session.id)
         int degree = latticeNetwork.degree
 
         if (degree % 2 != 0 || degree <= 0) {
@@ -51,8 +54,10 @@ class NetworkGenerateService {
         }
         // Persist edges
         edges.each { Set ends ->
-            new Edge(ends: ends, session: session).save(flush: true)
+            new Edge(ends: ends, session: session).save()
         }
+
+        session.save(flush: true)
 
         return nodes
     }
