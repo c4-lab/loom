@@ -74,9 +74,7 @@ grails.project.dependency.resolution = {
         compile group: 'commons-lang', name: 'commons-lang', version: '2.3'
         compile group: 'commons-digester', name: 'commons-digester', version: '1.8'
         compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
-        //compile group: 'org.grails.plugins', name: 'quartz', version: '2.0.0'
-        //compile group: 'commons-pool', name: 'commons-pool', version: '1.3'
-        //compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.2.2'
+
         compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.11.0'
 //        compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.11.0'
 

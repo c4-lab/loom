@@ -26,7 +26,7 @@ class Session {
 
     //def mturkService
     def randomStringGenerator
-    def sessionService
+
 
     //Bean fields
     String name
@@ -60,7 +60,7 @@ class Session {
 
     static constraints = {
         name blank: false
-        state nullable: true
+        state nullable: true, lazy: false
         startWaiting nullable: true
         startActive nullable: true
         finished nullable: true
@@ -93,15 +93,7 @@ class Session {
         generateCodes()
     }
 
-//    def beforeUpdate() {
-//        if (isDirty('state') && state != State.SCHEDULED) {
-//            sessionService.onSessionUpdate(this)
-//        }
-//    }
-//
-//    def beforeDelete() {
-//        sessionService.onSessionDelete(this)
-//    }
+
 
     def generateCodes() {
         if (!randomStringGenerator) {

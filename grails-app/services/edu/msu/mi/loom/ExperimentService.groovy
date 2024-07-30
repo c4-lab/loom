@@ -2,8 +2,10 @@ package edu.msu.mi.loom
 
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.hibernate.FetchMode
 
 import java.text.DecimalFormat
+import java.util.concurrent.ConcurrentHashMap
 
 @Slf4j
 @Transactional
@@ -15,9 +17,11 @@ class ExperimentService {
     def networkGenerateService
     def constraintService
     Map<Object, ExperimentRoundStatus> experimentsRunning = [:]
-    def waitingTimer = [:]
+    //def waitingTimer = [:]
 
-    long WAITING_PERIOD = 1000l
+    static final long WAITING_PERIOD = 1000l
+
+    private ConcurrentHashMap<Long, Timer> waitingTimer = new ConcurrentHashMap<>()
 
 
     def getUserTilesForCurrentRound(String alias, Session s) {
@@ -70,7 +74,7 @@ class ExperimentService {
     }
 
     int totalCountWaitingUsers(Session session) {
-        (int)countWaitingUsers(session).values().sum()
+        (int) countWaitingUsers(session).values().sum()
     }
 
 
@@ -89,9 +93,9 @@ class ExperimentService {
             boolean remove = false
 
             UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
-            if (usp==null || ((System.currentTimeMillis() - usp.lastSeen.time) > (10 * WAITING_PERIOD))) {
+            if (usp == null || ((System.currentTimeMillis() - usp.lastSeen.time) > (10 * WAITING_PERIOD))) {
                 print("Updating user ${it.user} to missing")
-                sessionService.updatePresence(it.user,false)
+                sessionService.updatePresence(it.user, false)
                 remove = true
             }
             return remove
@@ -104,10 +108,9 @@ class ExperimentService {
             int maxByConstraint = session.sp("minNode") / type.constraintTests.size()
             Map countByConstraint = new HashMap()
             int total = type.constraintTests.sum { ConstraintTest constraintTest ->
-                int count = sessions.count {
-                    UserSession userSession -> constraintTest.testUser(userSession.user)
+                int count = sessions.count { UserSession userSession -> constraintTest.testUser(userSession.user)
                 }
-                countByConstraint.put(constraintTest,count)
+                countByConstraint.put(constraintTest, count)
                 Math.min(count, maxByConstraint)
             }
             log.debug("Waiting by constraint: ${countByConstraint}")
@@ -118,20 +121,15 @@ class ExperimentService {
     }
 
 
-    private cancelWaitingTimer(Session session) {
-        ((Timer) waitingTimer[session.id]).cancel()
-        waitingTimer.remove(session.id)
-        log.debug("Waiting timers are now: ${waitingTimer}")
+    private void cancelWaitingTimer(Session s) {
+        Timer timer = waitingTimer.remove(s.id)
+        if (timer) {
+            timer.cancel()
+        }
     }
 
-    @Transactional
-    private makeSessionActive(Long sessionId) {
-        log.debug("Entering transactional block for session activation")
-        Session session = Session.get(sessionId)
-        if (!session) {
-            throw new RuntimeException("Session not found: $sessionId")
-        }
 
+    private makeSessionActive(Session session) {
 
         int selectedUserCount = assignAliasesAndInitialTiles(session, (int) session.sessionParameters.safeGetMinNode())
         ExperimentRoundStatus currentStatus = new ExperimentRoundStatus(selectedUserCount, session.sp("roundCount") as int)
@@ -141,7 +139,6 @@ class ExperimentService {
         session.startActive = new Date()
 
         session.save(flush: true)
-        log.debug("Leaving transactional block for session activation")
         return session
     }
 
@@ -153,6 +150,7 @@ class ExperimentService {
      */
     def assignAliasesAndInitialTiles(Session session, int numUsers) {
         log.debug("Assigning aliases")
+        session.refresh()
         List<String> nodes = networkGenerateService.generateGraph(session, numUsers, session.sp("networkTemplate"))
         //List<UserSession> sessions = UserSession.findAllBySessionAndMissingAndState(session,false,UserSession.State.WAITING)
 
@@ -160,17 +158,17 @@ class ExperimentService {
         //        [sess: session, stat: UserSession.State.WAITING, missing: false])
 
 
+        List<UserSession> sessions = UserSession.findAllBySessionAndState(session, UserSession.State.WAITING)
 
-        List<UserSession> sessions = UserSession.findAllBySessionAndState(session,UserSession.State.WAITING)
 
-        Map<UserSession,UserSessionPresence> sessionMap = sessions.collectEntries {
+        Map<UserSession, UserSessionPresence> sessionMap = sessions.collectEntries {
             UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
-            log.debug("${it.user.username} -> ${usp?.lastSeen} : ${usp?.missing?"missing":"present"}")
-            [it,usp]
+            log.debug("${it.user.username} -> ${usp?.lastSeen} : ${usp?.missing ? "missing" : "present"}")
+            [it, usp]
         }
 
         sessions = sessions.findAll {
-            sessionMap[it]!=null
+            sessionMap[it] != null
         }
 
         sessions.sort {
@@ -178,7 +176,7 @@ class ExperimentService {
         }
 
         if (sessions.size() < numUsers) {
-            log.warn("Not enough users to fill session!")
+            log.warn("Not enough users (${sessions.size()} < ${numUsers}) to fill session!")
             throw new Exception("Insufficient users for session; make sure all users are active")
         }
         List<UserSession> active = []
@@ -202,12 +200,11 @@ class ExperimentService {
         } else if (type.state == SessionType.State.MIXED) {
             //TODO need to either handle uneven splits or prevent from happening
             int maxByConstraint = nodes.size() / type.constraintTests.size()
-            List partitions = type.constraintTests.collect {[]}
+            List partitions = type.constraintTests.collect { [] }
             List<UserSession> rejects = []
             log.debug("Attempt to assign: ${sessions}")
             sessions.each { UserSession us ->
-                int idx = type.constraintTests.findIndexOf {
-                    ConstraintTest ct -> ct.testUser(us.user)
+                int idx = type.constraintTests.findIndexOf { ConstraintTest ct -> ct.testUser(us.user)
                 }
                 if (idx > -1) {
                     log.debug("${us.user.workerId} passes test ${type.constraintTests[idx]}")
@@ -222,7 +219,7 @@ class ExperimentService {
             }
 
             log.debug("Partitions filled: ${partitions}")
-            log.debug("Attempt to assign nodes: "+nodes)
+            log.debug("Attempt to assign nodes: " + nodes)
 
             if (partitions.sum {
                 it.size()
@@ -236,7 +233,7 @@ class ExperimentService {
             //TODO someone leaves in the midst of this assignment process AND we have somehow
             while (!nodes.isEmpty()) {
 
-                partitions.each{ List<UserSession> partition ->
+                partitions.each { List<UserSession> partition ->
 
                     if (partition.size() > 0) {
                         UserSession userSession = partition.pop()
@@ -247,8 +244,7 @@ class ExperimentService {
                 }
             }
             //TODO ok, we should really place other users in a separate holder for rejection
-            rejects.each {
-                UserSession us -> us.state = UserSession.State.REJECTED
+            rejects.each { UserSession us -> us.state = UserSession.State.REJECTED
             }
         }
         assignInitialTiles(active)
@@ -278,14 +274,18 @@ class ExperimentService {
         }
 
         Session session = active[0].session
+
+
         List<Tile> tileSource = new ArrayList<>(session.sessionParameters.safeGetStory().tiles)
         Collections.shuffle(tileSource)  // Initial shuffle
-
         int numTilesPerUser = session.sessionParameters.safeGetInitialNbrOfTiles()
+
         int maxIterations = tileSource.size() * 10  // Some arbitrary large number
         int tileIndex = 0
 
         active.each { UserSession userSession ->
+
+            Session sessionForUser = Session.get(userSession.session.id)
             List<Tile> tilesForUser = []
             List<Tile> usedTiles = [] // For exclusion
 
@@ -309,10 +309,56 @@ class ExperimentService {
                 throw new RuntimeException("Could not find enough tiles to assign to users")
             }
 
-            SessionInitialUserStory userStory = new SessionInitialUserStory(session: session, alias: userSession.userAlias)
+            SessionInitialUserStory userStory = new SessionInitialUserStory(alias: userSession.userAlias)
+            userStory.session = sessionForUser
             userStory.setInitialTiles(tilesForUser)
             userStory.save()
 
+        }
+
+    }
+
+    def scheduleWaitingCheck(Long sessionId) {
+        waitingTimer[sessionId] = new Timer()
+        ((Timer) waitingTimer[sessionId]).scheduleAtFixedRate({
+            try {
+                checkAndUpdateSession(sessionId)
+            } catch (Exception e) {
+                log.error("Error in waiting check for session ${sessionId}", e)
+                // Consider if you really want to reschedule on every exception
+                scheduleWaitingCheck(sessionId)
+            }
+        } as TimerTask, 0l, WAITING_PERIOD)
+    }
+
+    @Transactional(readOnly = false)
+    def checkAndUpdateSession(Long sessionId) {
+        Session s = null
+        Session.withSession { hibSession ->
+            // Use criteria with fetch mode for eager loading
+            s = Session.findById(sessionId, [fetch: [sessionParameters: "eager", state: "eager"]])
+
+            if (!s) {
+                log.error("Session not found: ${sessionId}")
+                return
+            }
+
+            hibSession.refresh(s)
+            int count = totalCountWaitingUsers(s)
+            log.debug("Now have ${count} waiting users")
+
+            if (count >= s.sessionParameters.safeGetMinNode()) {
+                log.debug("Sufficient users, making session active")
+                cancelWaitingTimer(s)
+                s = makeSessionActive(s)
+                log.debug("Waiting timer advancing round. Session status ${s.state}")
+                advanceSessionLifecycle(s)
+            } else if (s.state != Session.State.WAITING) {
+                log.debug("Session state is ${s.state} which is no longer WAITING")
+                cancelWaitingTimer(s)
+            }
+
+            s.save(flush: true)
         }
     }
 
@@ -322,38 +368,44 @@ class ExperimentService {
      * @param session
      * @return
      */
-    def scheduleWaitingCheck(Session session) {
-        waitingTimer[session.id] = new Timer()
-        ((Timer) waitingTimer[session.id]).scheduleAtFixedRate({
-            // log.debug("Checking waiters...")
-            Session s
-            //TDOD uncertain if a new session is really necessary here
-            Session.withNewSession {
-                s = Session.get(session.id)
-
-                s.refresh()
-
-                int count = totalCountWaitingUsers(s)
-                log.debug("Now have ${count} waiting users")
-                if (count >= s.sessionParameters.safeGetMinNode()) {
-                    cancelWaitingTimer(s)
-                    try {
-                        s = makeSessionActive(s.id)
-                        log.debug("Waiting timer advancing round.  Session status ${s.state}")
-                        advanceSessionLifecycle(s)
-                    } catch(Exception e) {
-                        log.error("Error launching session; restart waiting",e)
-                        scheduleWaitingCheck(session)
-                    }
-
-
-                } else if (s.state != Session.State.WAITING) {
-                    log.debug("Session state is ${s.state} which is no longer WAITING")
-                    cancelWaitingTimer(s)
-                }
-            }
-        } as TimerTask, 0l, WAITING_PERIOD)
-    }
+//    def scheduleWaitingCheck(Session session) {
+//        waitingTimer[session.id] = new Timer()
+//        ((Timer) waitingTimer[session.id]).scheduleAtFixedRate({
+//            FetchMode f;
+//            Session.withTransaction { status ->
+//                try {
+//                    // Fetch the session eagerly with its associations
+//                    def s = Session.get(session.id, [fetch: [sessionParameters: 'eager']])
+//
+//                    if (!s) {
+//                        log.error("Session not found: ${session.id}")
+//                        return
+//                    }
+//
+//                    log.debug("Session id: ${s.id}, name: ${s.name}, version: ${s.version}")
+//                    int count = totalCountWaitingUsers(s)
+//                    log.debug("Now have ${count} waiting users")
+//
+//                    if (count >= s.sessionParameters.safeGetMinNode()) {
+//                        cancelWaitingTimer(s)
+//                        s = makeSessionActive(s)
+//                        log.debug("Waiting timer advancing round. Session status ${s.state}")
+//                        advanceSessionLifecycle(s)
+//                    } else if (s.state != Session.State.WAITING) {
+//                        log.debug("Session state is ${s.state} which is no longer WAITING")
+//                        cancelWaitingTimer(s)
+//                    }
+//
+//                    // Explicitly save any changes
+//                    s.save(flush: true)
+//                } catch (Exception e) {
+//                    status.setRollbackOnly()
+//                    log.error("Error in waiting check for session ${session.id}", e)
+//                    scheduleWaitingCheck(session)
+//                }
+//            }
+//        } as TimerTask, 0l, WAITING_PERIOD)
+//    }
 
     /**
      * Advance the round - kicks off the experiment if it has not yet been started
@@ -370,14 +422,14 @@ class ExperimentService {
             log.debug("Advance lifecycle for ${session.id}")
             ExperimentRoundStatus currentStatus = experimentsRunning.get(session.id)
             if (!currentStatus) {
-               throw new RuntimeException("Session is active but no experiment status?")
+                throw new RuntimeException("Session is active but no experiment status?")
             }
             if (currentStatus.isFinished()) {
                 log.debug("Marking state as finished")
-                Session.withTransaction {
-                    def s = Session.get(session.id)
-                    s.state = Session.State.FINISHED
-                }
+                //Session.withTransaction {
+                def s = Session.get(session.id)
+                s.state = Session.State.FINISHED
+                //}
             } else {
                 log.debug("Schedule round pause for $session.id")
                 scheduleRoundPause(session)
@@ -454,13 +506,13 @@ class ExperimentService {
             !(it.user.id in status.submitted)
         }.each {
             log.debug("User ${it.user} never submitted in ${status.round}; forcing submission")
-            UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias,session)
-            sessionService.updatePresence(it.user,false)
+            UserRoundStory userRoundStory = UserRoundStory.findByUserAliasAndSession(it.userAlias, session)
+            sessionService.updatePresence(it.user, false)
             if (!userRoundStory) {
                 log.debug("User story not found for session; perhaps never submitted?")
-                SessionInitialUserStory initialUserStory = SessionInitialUserStory.findByAliasAndSession(it.userAlias,session)
+                SessionInitialUserStory initialUserStory = SessionInitialUserStory.findByAliasAndSession(it.userAlias, session)
                 new UserRoundStory(time: new Date(), session: session, round: status.round, currentTiles: initialUserStory.initialTiles,
-                        userAlias: it.userAlias ).save()
+                        userAlias: it.userAlias).save()
 
             } else {
                 userRoundStory.copyForRound(status.round)

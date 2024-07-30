@@ -1,6 +1,7 @@
 package edu.msu.mi.loom
 
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 import org.jgrapht.Graphs
 import org.jgrapht.generate.WattsStrogatzGraphGenerator
 import org.jgrapht.graph.SimpleGraph
@@ -9,7 +10,7 @@ import org.jgrapht.util.SupplierUtil
 
 import java.util.function.Supplier
 
-@Transactional
+@Slf4j
 class NetworkGenerateService {
 
     /**
@@ -20,8 +21,9 @@ class NetworkGenerateService {
      */
     def generateGraph(Session session, int numVertices, LatticeNetwork latticeNetwork) {
 
-        //TODO: Fix API later
-        session = Session.get(session.id)
+
+        session.refresh()
+
         int degree = latticeNetwork.degree
 
         if (degree % 2 != 0 || degree <= 0) {
@@ -48,13 +50,16 @@ class NetworkGenerateService {
             }
 
             neighbors.each {
-                edges.add([nodeName, it] as Set)
+                edges.add([(String)nodeName, (String)it] as Set)
             }
 
         }
         // Persist edges
         edges.each { Set ends ->
-            new Edge(ends: ends, session: session).save()
+            Edge theEdge = new Edge()
+            theEdge.ends = ends
+            theEdge.session = session
+            theEdge.save(flush: true)
         }
 
         session.save(flush: true)

@@ -36,7 +36,7 @@ class UserSession implements Serializable {
         userAlias nullable: true
         completionCode nullable: true
         stoppedWaiting nullable: true
-        state nullable: true
+        state nullable: true, lazy: false
         started nullable: true
         wait_time nullable: true
         mturkAssignment nullable: true

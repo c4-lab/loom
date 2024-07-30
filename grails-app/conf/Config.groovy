@@ -99,7 +99,7 @@ grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
 
-grails.plugin.scheduler.enabled = true
+grails.plugin.scheduler.enabled = false
 
 grails.plugin.quartz.autoStartup = true
 
@@ -144,7 +144,8 @@ log4j.main = {
             'edu.msu.mi.loom.SessionController',
             'edu.msu.mi.loom.ExperimentRoundStatus',
             'edu.msu.mi.loom.AdminController',
-            'edu.msu.mi.loom.AdminService'
+            'edu.msu.mi.loom.AdminService',
+            'edu.msu.mi.loom.NetworkGenerateService'
 
 
 

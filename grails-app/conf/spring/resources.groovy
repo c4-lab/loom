@@ -1,4 +1,3 @@
-import edu.msu.mi.loom.ApplicationStarter
 import edu.msu.mi.loom.CustomAuthSuccessHandler
 import edu.msu.mi.loom.CustomLogoutSuccessHandler
 import edu.msu.mi.loom.SessionService
@@ -36,10 +35,6 @@ beans = {
         grailsApplication = ref('grailsApplication')
     }
 
-    session(Session) { bean ->
-        bean.scope = "prototype"
-        sessionService = ref('sessionService')
-    }
 
     scheduledAnnotationBeanPostProcessor(ScheduledAnnotationBeanPostProcessor)
 

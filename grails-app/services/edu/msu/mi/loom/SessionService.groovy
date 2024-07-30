@@ -3,6 +3,7 @@ package edu.msu.mi.loom
 import com.amazonaws.mturk.requester.QualificationRequirement
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
+import org.quartz.JobExecutionContext
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.validation.Errors;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import org.quartz.JobExecutionContext
+//import org.quartz.JobExecutionContext
 import org.springframework.scheduling.annotation.Scheduled
 
 @Slf4j
@@ -23,7 +24,7 @@ class SessionService {
     def springSecurityService
     def experimentService
     def mturkService
-    def grailsApplication
+
 
 
 
@@ -66,7 +67,7 @@ class SessionService {
             }
         }
         log.debug("Scheduling waiting check on ${session.name}")
-        experimentService.scheduleWaitingCheck(session)
+        experimentService.scheduleWaitingCheck(session.id)
         return null
     }
 
@@ -78,7 +79,7 @@ class SessionService {
      */
     @Transactional
     def checkAndUpdateScheduledSessions(JobExecutionContext context) {
-        println("Running scheduled tasks")
+
         log.debug("Running Scheduled Tasks")
         Session.findAllByState(Session.State.SCHEDULED).each { session ->
             if (session.scheduled < new Date()) {
