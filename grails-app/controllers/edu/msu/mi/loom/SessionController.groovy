@@ -95,26 +95,30 @@ class SessionController {
             ]
         }
 
-        def participatedSessions = (List<Session>)UserSession.createCriteria().list {
+        def participatedSessions = UserSession.createCriteria().list {
             eq('user', u)
+            isNotNull('userAlias')
             session {
-                'in'('state', [Session.State.FINISHED, Session.State.CANCEL])
+                eq('state', Session.State.FINISHED)
             }
             projections {
                 property('session')
             }
         }
 
-        def participationCount = participatedSessions.count {
-            it.state == Session.State.FINISHED
-        }
+        def participationCount = participatedSessions.size()
 
 
         if (request.xhr) {
             render sessionList as JSON
         } else {
-            render(view: "session_list", model: [sessionList: sessionList, participatedSessions: participatedSessions, participationCount: participationCount])
+            render(view: "session_list", model: [
+                    sessionList: sessionList,
+                    participatedSessions: participatedSessions,
+                    participationCount: participationCount
+            ])
         }
+
     }
 
 
