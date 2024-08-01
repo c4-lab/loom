@@ -15,6 +15,7 @@ class UserRoundStory {
     float score
 
     boolean submitted = true
+    boolean auto_submitted = false
 
 
 
@@ -40,6 +41,7 @@ class UserRoundStory {
                 userAlias: this.userAlias,
                 score: this.score,
                 time: new Date(),
+                auto_submitted: true,
                 submitted: false,
                 round: round
         ).save()

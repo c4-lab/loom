@@ -347,6 +347,8 @@ class SessionController {
      */
     def checkExperimentRoundState() {
         def user = springSecurityService.currentUser as User
+        def userRound = params.currentRound as Integer
+
         Session s = Session.get(params.sessionId)
         if (!s) {
             return render(status: BAD_REQUEST)
@@ -355,14 +357,17 @@ class SessionController {
         if (s.state == Session.State.CANCEL) {
             render( "cancelled")
         } else {
+            sessionService.updatePresence(user,true)
             ExperimentRoundStatus status = experimentService.getExperimentStatus(s)
+            log.debug("${user} with round ${userRound} pinging for status ${status.toString()}")
             if (s.state == Session.State.FINISHED || status?.currentStatus == ExperimentRoundStatus.Status.FINISHED) {
                 render("finished")
             } else if (status?.currentStatus == ExperimentRoundStatus.Status.PAUSING) {
-                sessionService.updatePresence(user,true)
+                render("paused")
+            } else if (status?.currentStatus == ExperimentRoundStatus.Status.ACTIVE && status?.round == userRound) {
+                log.debug("User is pinging early; respond as pause")
                 render("paused")
             } else {
-                sessionService.updatePresence(user,true)
                 redirect(action: "experimentContent", params: [session: params.sessionId])
             }
         }
@@ -380,15 +385,13 @@ class SessionController {
             }
 
             def user = springSecurityService.currentUser as User
-
+            sessionService.updatePresence(user,true)
             if (session.state == Session.State.WAITING) {
                 log.debug("${user.username} Still waiting")
-                sessionService.updatePresence(user,true)
                 return render(["experiment_ready": false, count: experimentService.totalCountWaitingUsers(session)] as JSON)
 
             } else {
                 log.debug("Done waiting")
-                sessionService.updatePresence(user,true)
                 return render(["experiment_ready": true, count: 0] as JSON)
             }
         }
@@ -419,7 +422,7 @@ class SessionController {
 
         def user = springSecurityService.currentUser as User
         sessionService.updatePresence(user,true)
-        log.debug("User ${user.username} submitting for $roundNumber: $userTiles")
+        log.debug("User ${user.username} submitting for $roundNumber")
         List submittedTiles = userTiles ? userTiles.split(";").collect { Tile.get(Integer.parseInt(it)) } : []
         Map result = experimentService.userSubmitted(user, loomSession, roundNumber, submittedTiles)
         result.put("status",OK)

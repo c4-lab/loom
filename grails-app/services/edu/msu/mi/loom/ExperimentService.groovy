@@ -512,7 +512,7 @@ class ExperimentService {
                 log.debug("User story not found for session; perhaps never submitted?")
                 SessionInitialUserStory initialUserStory = SessionInitialUserStory.findByAliasAndSession(it.userAlias, session)
                 new UserRoundStory(time: new Date(), session: session, round: status.round, currentTiles: initialUserStory.initialTiles,
-                        userAlias: it.userAlias).save()
+                        userAlias: it.userAlias, auto_submitted: true).save()
 
             } else {
                 userRoundStory.copyForRound(status.round)
@@ -525,7 +525,7 @@ class ExperimentService {
 
     def userSubmitted(User user, Session session, int round, List<Tile> tiles) {
         ExperimentRoundStatus status = getExperimentStatus(session)
-        log.debug("User ${user.id} submitting for session ${session.id}:${session.state} ")
+        log.debug("${user} submitting for session ${session.id}:${session.state} -- ${status.toString()} ")
 
         if (session.state == Session.State.CANCEL) {
             log.debug("Session ${session.id} cancelled")

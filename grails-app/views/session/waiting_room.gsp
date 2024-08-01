@@ -48,40 +48,55 @@
 
     <script type="text/javascript">
 
-
-
         jQuery(document).ready(function () {
             var session = ${session.id};
-            window.onbeforeunload = logout;
+            var worker;
+            window.onbeforeunload = function() {
+                if (worker) {
+                    worker.terminate();
+                }
+                logout();
+            };
 
             $("#stop-waiting").click(function() {
                 shouldLogout = false;
+                if (worker) {
+                    worker.terminate();
+                }
                 window.location="/loom/session/stopWaiting?session="+$("#sessionId").val();
             });
 
-            startWaitingTimer(function() {
+            function checkExperimentState(worker) {
                 jQuery.ajax({
                     url: "/loom/session/checkExperimentReadyState",
                     type: 'GET',
                     data: {
                         session: session
                     }
-                }).success(function (data) {
+                }).done(function (data) {
                     if (data.experiment_ready) {
                         shouldLogout = false;
+                        if (worker) {
+                            worker.terminate();
+                        }
                         window.location = "/loom/session/s/" + session+"?workerId=${username}";
                     } else {
                         document.title = "Waiting...";
                         updateProgressBar(data.count, ${session.sessionParameters.safeGetMaxNode()})
+                        // Continue the timer
+                        // worker.postMessage('Start');
                     }
-                }).error(function () {
+                }).fail(function () {
+                    if (worker) {
+                        worker.terminate();
+                    }
                     window.location = "/loom/"
-
                 });
-            })
-
-
-
+            }
+            console.log("Start waiting timer")
+            worker = startWaitingTimer(checkExperimentState);
         });
+
+
     </script>
 </g:applyLayout>

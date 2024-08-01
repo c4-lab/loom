@@ -146,28 +146,33 @@ class SessionService {
         if (user == null) {
             return
         } else {
-            UserSessionPresence us = UserSessionPresence.findByUser(user)
-            if (!us) {
-                println("No user presence")
-                log.warn("No user session for ${user} and ${User}")
-                us = new UserSessionPresence(user: user)
-                us.save(flush: true)
-
-            } else {
-                ReentrantLock lock = LockManager.getLock(us.id);
-                lock.lock();
-                try {
-                    us.refresh()
-                    us.missing = !state
-                    if (!us.missing) {
-                        us.lastSeen = new Date()
-                    }
+            UserSessionPresence.withNewSession { session ->
+                UserSessionPresence us = UserSessionPresence.findByUser(user)
+                if (!us) {
+                    println("No user presence")
+                    log.warn("No user session for ${user} and ${User}")
+                    us = new UserSessionPresence(user: user)
                     us.save(flush: true)
-                } catch (Exception e) {
-                    log.error("Could not update user presence: ${e.getMessage()} - ignoring")
-                } finally {
-                    lock.unlock();
-                    LockManager.releaseLock(us.id); // Optional based on usage patterns
+
+                } else {
+                    ReentrantLock lock = LockManager.getLock(us.id);
+                    lock.lock();
+                    try {
+                        us.refresh()
+                        us.missing = !state
+                        if (!us.missing) {
+                            us.lastSeen = new Date()
+                        }
+
+                        us.save(flush: true)
+                        session.flush()
+                    } catch (Exception e) {
+                        log.error("Could not update user presence: ${e.getMessage()} - ignoring")
+                        session.clear()
+                    } finally {
+                        lock.unlock();
+                        LockManager.releaseLock(us.id); // Optional based on usage patterns
+                    }
                 }
             }
         }

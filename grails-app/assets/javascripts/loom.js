@@ -572,46 +572,7 @@ function calculateTime() {
 var roundInterval;
 var pingTimer;
 
-/**
- * After user form is submitted, they begin pinging the server
- * waiting for the next round to start
- */
-function startPingingForNextRound() {
-    var session = $("#session").val();
-    var worker = new Worker('/loom/assets/second-timer.js');
-    worker.onmessage = function () {
-        $.ajax({
-            url: "/loom/session/checkExperimentRoundState/" + session, type: 'GET', timeout: 1000
-        }).success(function (data) {
-            if (data == "finished") {
-                shouldLogout = false;
-                worker.terminate()
-                console.log("/loom/experiment/finishExperiment/" + session);
-                window.location = "/loom/session/finishExperiment/" + session;
 
-            } else if (data == "cancelled") {
-                window.location.href = `/loom/session/cancelNotification?loomsession=${session}`;
-
-            } else if (data != "paused") {
-                console.log("Processing round data");
-                worker.terminate()
-                storeActiveTab();
-                processRoundData(data)
-                // setTimeout(function() {
-                //     console.log("In set timeout")
-                //     setActiveTab(activeTab);
-                // },0);
-            } else {
-                console.log("Still paused")
-            }
-        }).error(function (data) {
-            //check if something is going on here
-        })
-    }
-    //pingTimer = setInterval(,1000)
-    worker.postMessage('Start');
-
-}
 
 
 function startSimulationTimer(duration, display) {
@@ -648,52 +609,17 @@ function startSimulationTimer(duration, display) {
 }
 
 
-function initExperimentTimer(display) {
-    var serverDelta, roundDuration, roundStart;
+let isSubmitting = false; // Global flag to prevent multiple submissions
 
-    function readTimingData() {
-        serverDelta = new Date().getTime() - parseInt($("#serverTime").val(), 10);
-        roundDuration = parseInt($("#currentRoundDuration").val(), 10);
-        roundStart = parseInt($("#roundStart").val(), 10);
-    }
 
-    readTimingData()
-
-    var worker = new Worker('/loom/assets/second-timer.js');
-    var minutes, seconds;
-
-    worker.onmessage = function (event) {
-        console.log("Receive message from worker")
-        adjustedLocalTime = new Date().getTime() + serverDelta
-        if (adjustedLocalTime >= roundDuration * 1000 + roundStart) {
-            console.log("Submitting the form");
-            worker.terminate()
-            worker = undefined
-            submitExperimentAjax();
-        } else {
-
-            const remainingSeconds = roundDuration - Math.floor((adjustedLocalTime - roundStart) / 1000)
-
-            minutes = Math.floor(remainingSeconds / 60)
-            seconds = remainingSeconds % 60
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.text(minutes + ":" + seconds);
-        }
-    };
-    console.log("Initiating Timer")
-    worker.postMessage('Start');
-
-}
 
 function startWaitingTimer(fx) {
     var worker = new Worker('/loom/assets/second-timer.js');
     worker.onmessage = function () {
-        fx()
+        fx(worker);
     }
     worker.postMessage('Start');
-
+    return worker;
 }
 
 function submitSimulation() {
@@ -713,60 +639,7 @@ function updateProgressBar(count, max) {
 
 }
 
-function submitSimulationAjax() {
-    $(".ui-draggable-dragging").remove();
-    //if ($(".ui-draggable-dragging").length > 0) {
-    //    $(".ui-draggable-dragging").remove();
-    //    //$('html').on('mouseup', function () {
-    //    //
-    //    //    $(".ui-draggable-dragging").draggable("destroy");
-    //    //});
-    //}
-    clearInterval(roundInterval);
-    var elems = $(".dvDest").find('ul li');
-    var text_all = elems.map(function () {
-        return $(this).attr('drag-id');
-    }).get().join(";");
 
-    console.log(text_all);
-    $.blockUI({
-        message: '<h1>Waiting for other participants...</h1>', timeout: 1000
-    });
-
-    $.ajax({
-        url: "/loom/training/submitSimulation", type: 'POST', data: {
-            tiles: text_all,
-            trainingSetId: $("input[name='trainingSetId']").val(),
-            simulation: $("#simulationid").val(),
-            roundNumber: $("#roundNumber .round").text(),
-            assignmentId: $("#assignmentId").val()
-
-
-        }
-    }).success(function (data) {
-        localStorage.setItem('remainingTime', 'null');
-        if (data.indexOf("status") >= 0) {
-            confirmSimNav = false;
-            const simulationId = $("#simulationid").val();
-            const assignmentId = $("#assignmentId").val();
-            const trainingSetId = $("input[name='trainingSetId']").val();
-
-            window.location.href = `/loom/training/viewSimulationScores?simulationId=${simulationId}&assignmentId=${assignmentId}&trainingSetId=${trainingSetId}`;
-
-        } else {
-            setTimeout(function () {
-                $("#simulation-content-wrapper").html(data);
-                initSimulation();
-            }, 1000);
-        }
-    }).error(function (jqXHR, textStatus, errorThrown) {
-        console.log("Error thrown: " + errorThrown)
-        console.log("Status: " + textStatus)
-        $(".dvDest").css('border', 'solid 1px red');
-        $("#warning-alert").addClass('show');
-        $("#warning-alert").removeClass('hide');
-    });
-}
 
 function resetSimulation() {
     $("#reset-simulation").click(function () {
@@ -774,11 +647,6 @@ function resetSimulation() {
     });
 }
 
-function submitExperiment() {
-    $("#submit-experiment").click(function () {
-        submitExperimentAjax();
-    });
-}
 
 /**
  * After we've received the data, we process it here
@@ -793,58 +661,150 @@ function processRoundData(data) {
     }, 1000);
 }
 
+function initExperimentTimer(display) {
+    let serverDelta, roundDuration, roundStart;
+
+    function readTimingData() {
+        serverDelta = new Date().getTime() - parseInt($("#serverTime").val(), 10);
+        roundDuration = parseInt($("#currentRoundDuration").val(), 10);
+        roundStart = parseInt($("#roundStart").val(), 10);
+    }
+
+    readTimingData();
+
+    const worker = new Worker('/loom/assets/second-timer.js');
+
+    worker.onmessage = function (event) {
+        console.log("Receive message from worker");
+        const adjustedLocalTime = new Date().getTime() + serverDelta;
+        if (adjustedLocalTime >= roundDuration * 1000 + roundStart) {
+            console.log("Time's up, preparing to submit");
+            worker.terminate();
+            if (!isSubmitting) {
+                submitExperimentAjax();
+            } else {
+                console.log("ExperimentTimer: Already submitting...")
+            }
+        } else {
+            const remainingSeconds = roundDuration - Math.floor((adjustedLocalTime - roundStart) / 1000);
+            const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+            const seconds = String(remainingSeconds % 60).padStart(2, '0');
+            display.text(`${minutes}:${seconds}`);
+        }
+    };
+
+    console.log("Initiating Timer");
+    worker.postMessage('Start');
+}
+
+
+function startPingingForNextRound() {
+    console.log("Start pinging for next round...")
+    const session = $("#session").val();
+    const worker = new Worker('/loom/assets/second-timer.js');
+    let isPinging = false;
+
+    worker.onmessage = function () {
+        if (isPinging) return; // Prevent multiple simultaneous pings
+        isPinging = true;
+        const currentRound = $("#roundNumber").val();
+        $.ajax({
+            url: "/loom/session/checkExperimentRoundState/" + session+"?currentRound="+currentRound,
+            type: 'GET',
+            timeout: 1000
+        }).done(function (data) {
+            switch(data) {
+                case "finished":
+                    shouldLogout = false;
+                    worker.terminate();
+                    window.location = "/loom/session/finishExperiment/" + session;
+                    break;
+                case "cancelled":
+                    window.location.href = `/loom/session/cancelNotification?loomsession=${session}`;
+                    break;
+                case "paused":
+                    console.log("Still paused");
+                    break;
+                default:
+                    console.log("Processing round data");
+                    worker.terminate();
+                    storeActiveTab();
+                    processRoundData(data);
+            }
+        }).fail(function (jqXHR, errorText, errorThrown) {
+            console.error("Error pinging for next round:", errorText, errorThrown);
+        }).always(function() {
+            isPinging = false;
+        });
+    };
+
+    worker.postMessage('Start');
+}
+
 function submitExperimentAjax() {
+    if (isSubmitting) {
+        console.log("In submit ajax, but already sumitting, so just ignoring")
+        return;
+    } // Prevent multiple submissions
+    isSubmitting = true;
+
     $(".ui-draggable-dragging").remove();
     console.log("Submitting experiment round: " + $("#roundNumber").val());
 
-    var elems = $(".dvDest").find('ul li');
-    var text_all = elems.map(function () {
+    const elems = $(".dvDest").find('ul li');
+    const text_all = elems.map(function () {
         return $(this).attr('drag-id');
     }).get().join(";");
-    var session = $("#session").val();
-    var currentRound = $("#roundNumber").val()
+    const session = $("#session").val();
+    const currentRound = $("#roundNumber").val();
     $("#neighborsStories").block({message: "<em>Refreshing neighbors...</em>"});
+
     if (sessionStorage.getItem("submittedRound") == currentRound) {
-        console.log("Already submitted round " + currentRound)
-
-
+        console.log("Already submitted round " + currentRound);
+        isSubmitting = false;
+        return;
     }
+
     $.ajax({
-        url: "/loom/session/submitExperiment", type: 'POST', data: {
-            tails: text_all, session: session, roundNumber: currentRound
+        url: "/loom/session/submitExperiment",
+        type: 'POST',
+        data: {
+            tails: text_all,
+            session: session,
+            roundNumber: currentRound
         }
-    }).success(function (data) {
-
+    }).done(function (data) {
         localStorage.setItem('remainingTime', 'null');
-        if (!data.continue) {
-            //alert(data)
-            shouldLogout = false
-            if (data.reason === "finished") {
-                var url = `/loom/session/finishExperiment?session=${session}`;
-                window.location.href = url
-            } else if (data.reason === "waiting") {
-                window.location.href = `/loom/error?message='The experiment has not yet begun`;
-            } else if (data.reason === "cancellation") {
-                var url = `/loom/session/cancelNotification?loomsession=${session}`;
-                window.location.href = url
-            } else {
-                console.log("Something happened, forward to error page")
-                var reason = `Unknown error: ${data.reason}`
-                console.log(data)
-                window.location.href = `/loom/error?message=${reason}`
-            }
+        sessionStorage.setItem('submittedRound', currentRound);
 
+        if (!data.continue) {
+            shouldLogout = false;
+            let url;
+            switch(data.reason) {
+                case "finished":
+                    url = `/loom/session/finishExperiment?session=${session}`;
+                    break;
+                case "waiting":
+                    url = `/loom/error?message=The experiment has not yet begun`;
+                    break;
+                case "cancellation":
+                    url = `/loom/session/cancelNotification?loomsession=${session}`;
+                    break;
+                default:
+                    console.log("Unknown error:", data);
+                    url = `/loom/error?message=Unknown error: ${encodeURIComponent(data.reason)}`;
+            }
+            window.location.href = url;
         } else {
-            sessionStorage.setItem('submittedRound', currentRound)
             startPingingForNextRound();
         }
-    }).error(function (jqXHR, errorText, errorThrown) {
-        shouldLogout = false
-        var encodedMessage = encodeURIComponent(errorText);
-        var encodedError = encodeURIComponent(errorThrown);
+    }).fail(function (jqXHR, errorText, errorThrown) {
+        shouldLogout = false;
+        const encodedMessage = encodeURIComponent(errorText);
+        const encodedError = encodeURIComponent(errorThrown);
         window.location.href = `/loom/error?message=${encodedMessage}&error=${encodedError}`;
+    }).always(function() {
+        isSubmitting = false;
     });
-
-
 }
 
