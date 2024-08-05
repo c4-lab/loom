@@ -26,14 +26,14 @@
                         </ul>
                         </g:else>
                         <p>
-                            <g:if test="${participationCount < 3}">
-                                You can participate in ${3-participationCount} more sessions.
+                            <g:if test="${remainingCount > 0}">
+                                You can participate in ${remainingCount} more sessions.
                             </g:if>
                             <g:else>
-                                You have participated in three sessions, which is the maximum allowable at this point.  Thanks for playing!
+                                You have participated in all sessions that are available to you.  Thanks for playing!
                             </g:else>
                         </p>
-                        <g:if test="${participationCount < 3}">
+                        <g:if test="${remainingCount > 0}">
                         <h1>Available Sessions</h1>
                         <div id="session-list">
                             <!-- Session list will be dynamically updated here -->
@@ -44,7 +44,7 @@
             </section>
         </div>
     </div>
-    <g:if test="${participationCount < 3}">
+    <g:if test="${remainingCount > 0}">
         <style>
         /* Increase specificity and use !important for higher priority */
         .table-striped > tbody > tr.available-session {

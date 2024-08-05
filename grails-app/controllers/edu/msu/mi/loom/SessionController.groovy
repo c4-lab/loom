@@ -104,9 +104,20 @@ class SessionController {
             projections {
                 property('session')
             }
+        }.sort {
+            it.startWaiting
         }
 
-        def participationCount = participatedSessions.size()
+        def remainingCount = 3 - UserConstraintValue.createCriteria().count {
+            eq('user', u)
+            constraintProvider {
+                eq('class', 'edu.msu.mi.loom.StorySeed')
+                'in'('name', ['Vaccine', 'Swimmer', 'Earthquake'])
+            }
+            projections {
+                countDistinct('id')
+            }
+        }
 
 
         if (request.xhr) {
@@ -115,7 +126,9 @@ class SessionController {
             render(view: "session_list", model: [
                     sessionList: sessionList,
                     participatedSessions: participatedSessions,
-                    participationCount: participationCount
+                    participationCount: participatedSessions.size(),
+                    remainingCount: remainingCount
+
             ])
         }
 

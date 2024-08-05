@@ -171,7 +171,7 @@ class ExperimentService {
             sessionMap[it] != null
         }
 
-        sessions.sort {
+        sessions = sessions.sort {
             -sessionMap[it].lastSeen.time
         }
 
