@@ -48,7 +48,7 @@ class LoginController {
     def index() {
         //log.debug("${request.contextPath}${config.apf.filterProcessesUrl}")
         if (springSecurityService.isLoggedIn()) {
-            log.debug("We are here in login controller")
+            //log.debug("We are here in login controller")
             redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
         } else {
             redirect action: 'auth', params: params
@@ -68,10 +68,10 @@ class LoginController {
 
         //forward to admin url
         if (request.forwardURI.contains('admin')) {
-            println("Authenticating for admin...")
+            log.debug("Authenticating for admin...")
             def config = SpringSecurityUtils.securityConfig
             String postUrl = "${request.contextPath}${config.apf.filterProcessesUrl}"
-            println("Sending posturl ${postUrl}")
+            //println("Sending posturl ${postUrl}")
             return render(view: "admin_auth", model: [postUrl: postUrl, rememberMeParameter: config.rememberMe.parameter])
         }
 
@@ -95,9 +95,10 @@ class LoginController {
         String postUrl = "${request.contextPath}/login/workerAuth"
         //couldn't access a parameter that works for a login
         if (!workerId) {
-            println("Authenticating for worker with no parameters...")
+            log.debug("Authenticating for worker with no parameters...")
             return render(view: "worker_auth", model: [postUrl: postUrl,  origURI: original])
         } else {
+            log.debug("Got workerid ${workerId} with no parameters...")
             User u = User.findByWorkerId(workerId) ?: User.findByUsername(workerId)
             //if we don't have a user, but we're trying to train, create the user
             if (!u) {
@@ -105,6 +106,7 @@ class LoginController {
                     println("Authenticating for new worker ${workerId} for training")
                     u = userService.createUserByWorkerId(workerId, role)
                 } else {
+                    log.debug("Unknown worker ${workerId}")
                     //we can't find a user, but there was an id in the parameters.  We should probably just flash a message and direct
                     //back to worker login page?
                     flash.message = "Authentication failed. Please check your id."
@@ -133,10 +135,10 @@ class LoginController {
                     if (orig?.parameters?.hitId) {
                         params += "&hitId=${orig.parameters.hitId[0]}"
                     }
-                    println("Sending worker ${workerId} to ${original}?${params}")
+                    log.debug("Sending worker ${workerId} to ${original}?${params}")
                     return redirect(url: "$original?$params")
                 } else {
-                    println("Sending worker ${workerId} to ${original} (no params)")
+                    log.debug("Sending worker ${workerId} to ${original} (no params)")
                     return redirect(url: "$original")
                 }
             }
@@ -150,6 +152,7 @@ class LoginController {
 
     def workerAuth() {
         String workerId = params.workerId
+        log.debug("Authenticating worker ${workerId} through form")
         String originalUri = params.origURI ?: "/session/available"
         def u = User.findByWorkerId(workerId)?:User.findByUsername(workerId)
         String postUrl = "${request.contextPath}/login/workerAuth"

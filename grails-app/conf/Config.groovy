@@ -142,6 +142,7 @@ log4j.main = {
             'edu.msu.mi.loom.ExperimentService',
             'edu.msu.mi.loom.ConstraintService',
             'edu.msu.mi.loom.SessionController',
+            'edu.msu.mi.loom.LoginController',
             'edu.msu.mi.loom.ExperimentRoundStatus',
             'edu.msu.mi.loom.AdminController',
             'edu.msu.mi.loom.AdminService',
@@ -190,18 +191,18 @@ grails.plugin.springsecurity.logout.handlerNames = [
         'rememberMeServices', 'securityContextLogoutHandler'
 ]
 
-grails {
-    mail {
-        enabled = true
-        displayName = "loom.com"
-        host = "smtp.gmail.com"
-        port = 465
-        username = "scholarmap@gmail.com"
-        password = "scholarmap123456"
-        props = ["mail.smtp.auth"                  : "true",
-                 "mail.smtp.socketFactory.port"    : "465",
-                 "mail.smtp.socketFactory.class"   : "javax.net.ssl.SSLSocketFactory",
-                 "mail.smtp.socketFactory.fallback": "false"]
-    }
-}
+//grails {
+//    mail {
+//        enabled = true
+//        displayName = "loom.com"
+//        host = "smtp.gmail.com"
+//        port = 465
+//        username = "scholarmap@gmail.com"
+//        password = "scholarmap123456"
+//        props = ["mail.smtp.auth"                  : "true",
+//                 "mail.smtp.socketFactory.port"    : "465",
+//                 "mail.smtp.socketFactory.class"   : "javax.net.ssl.SSLSocketFactory",
+//                 "mail.smtp.socketFactory.fallback": "false"]
+//    }
+//}
 

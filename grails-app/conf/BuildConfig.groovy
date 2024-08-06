@@ -98,6 +98,9 @@ grails.project.dependency.resolution = {
         compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.940'
         compile 'org.apache.httpcomponents:httpcore:4.4.13'
         compile 'org.apache.httpcomponents:httpclient:4.5.13'
+        compile 'javax.xml.bind:jaxb-api:2.3.1'
+        // JAXB Implementation
+        runtime 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 
     }
 
@@ -119,7 +122,7 @@ grails.project.dependency.resolution = {
 
         compile ':spring-security-core:2.0.0'
         compile ":build-test-data:2.4.0"
-        compile ":mail:1.0.7"
+        //compile ":mail:1.0.7"
         compile ":executor:0.3"
 
         runtime ":hibernate4:4.3.10" // or ":hibernate:3.6.10.18"
