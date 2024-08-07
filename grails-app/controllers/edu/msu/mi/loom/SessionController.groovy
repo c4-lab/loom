@@ -108,16 +108,18 @@ class SessionController {
             it.startWaiting
         }
 
-        def remainingCount = 3 - UserConstraintValue.createCriteria().count {
+        def remainingCount = 3-UserConstraintValue.createCriteria().get {
             eq('user', u)
             constraintProvider {
                 eq('class', 'edu.msu.mi.loom.StorySeed')
                 'in'('name', ['Vaccine', 'Swimmer', 'Earthquake'])
             }
             projections {
-                countDistinct('id')
+                countDistinct('constraintProvider.id')
             }
         }
+
+
 
 
         if (request.xhr) {
