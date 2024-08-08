@@ -31,7 +31,8 @@ class SessionController {
     static String SESSION_NOT_BEGUN = "The session you have tried to access has not yet begun."
     static String SESSION_CANCELLED =  "The session you have tried to access has been cancelled."
     static String SESSION_FINISHED =  "The session you have tried to access has already finished."
-    static String SESSION_NOT_QUALIFIED =  "You are not qualified for the requestsed session."
+    static String SESSION_FILLED =  "The session you have tried to access has already been filled."
+    static String SESSION_NOT_QUALIFIED =  "You are not qualified for the requested session."
 
 
 
@@ -212,27 +213,10 @@ class SessionController {
             return render(view:"../not-found")
         }
 
-
-
-
-
-        //Create a user session if the user is qualified
-        if (!us) {
-            // We haven't seen this user before, so let's make sure they are qualified
-            def failures = constraintService.failsConstraints(user, session)
-            if (failures) {
-                log.debug("User ${user.username} is not qualified for session ${session.id}")
-                flash.message = SESSION_NOT_QUALIFIED
-                return render(view:"../not-found")
-
-            }
-            //NOTE: User session is explicitly set to WAITING on creation
-            us = UserSession.create(user, session, new Date(), mturkAssignment, true)
+        if (session.state == Session.State.ACTIVE && !us) {
+            flash.message = SESSION_FILLED
+            return render(view:"../not-found")
         }
-
-        //User was marked as missing, but appears to have returned
-
-
 
         //Check for users coming in on separate assignments
         if (us && us.mturkAssignment) {
@@ -243,6 +227,20 @@ class SessionController {
         }
 
         if (session.state == Session.State.WAITING) {
+
+            if (!us) {
+                // We haven't seen this user before, so let's make sure they are qualified
+                def failures = constraintService.failsConstraints(user, session)
+                if (failures) {
+                    log.debug("User ${user.username} is not qualified for session ${session.id}")
+                    flash.message = SESSION_NOT_QUALIFIED
+                    return render(view:"../not-found")
+
+                }
+                //NOTE: User session is explicitly set to WAITING on creation
+                us = UserSession.create(user, session, new Date(), mturkAssignment, true)
+            }
+
             sessionService.updatePresence(user,true)
             if (us.state==UserSession.State.STOP) {
                 //User previously left, either deliberately or due to some client side error

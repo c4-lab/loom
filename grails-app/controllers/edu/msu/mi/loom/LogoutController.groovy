@@ -49,7 +49,7 @@ class LogoutController {
         //TODO why is this critical???  Without this, the user session does not seem to be fully invalided
         request.logout()
 //        response.flushBuffer()
-        return redirect(url: "/")
+        return redirect(url: "/", flash: [message: params?.reason])
 
     }
 }

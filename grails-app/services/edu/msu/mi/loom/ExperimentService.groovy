@@ -163,7 +163,7 @@ class ExperimentService {
 
         Map<UserSession, UserSessionPresence> sessionMap = sessions.collectEntries {
             UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
-            log.debug("${it.user.username} -> ${usp?.lastSeen} : ${usp?.missing ? "missing" : "present"}")
+            log.debug("${it.user.username} -> started = ${it.started}, last seen ${usp?.lastSeen} : ${usp?.missing ? "missing" : "present"}")
             [it, usp]
         }
 
@@ -172,7 +172,8 @@ class ExperimentService {
         }
 
         sessions = sessions.sort {
-            -sessionMap[it].lastSeen.time
+            Date time = it.started?:sessionMap[it].lastSeen.time
+            return time
         }
 
         if (sessions.size() < numUsers) {
