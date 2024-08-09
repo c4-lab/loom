@@ -94,8 +94,10 @@ class ExperimentService {
 
             UserSessionPresence usp = UserSessionPresence.findByUser(it.user)
             if (usp == null || ((System.currentTimeMillis() - usp.lastSeen.time) > (10 * WAITING_PERIOD))) {
-                print("Updating user ${it.user} to missing")
-                sessionService.updatePresence(it.user, false)
+                if (!usp.missing) {
+                    print("Updating user ${it.user} to missing")
+                    sessionService.updatePresence(it.user, false)
+                }
                 remove = true
             }
             return remove
@@ -171,15 +173,17 @@ class ExperimentService {
             sessionMap[it] != null
         }
 
-        sessions = sessions.sort {
-            Date time = it.started?:sessionMap[it].lastSeen.time
-            return time
+        sessions = sessions.sort { a, b ->
+            Date timeA = a.started ?: sessionMap[a].lastSeen
+            Date timeB = b.started ?: sessionMap[b].lastSeen
+            return timeA <=> timeB
         }
 
         if (sessions.size() < numUsers) {
             log.warn("Not enough users (${sessions.size()} < ${numUsers}) to fill session!")
             throw new Exception("Insufficient users for session; make sure all users are active")
         }
+
         List<UserSession> active = []
         SessionType type = session.sessionParameters.safeGetSessionType()
         if (type.state == SessionType.State.SINGLE) {
@@ -187,15 +191,53 @@ class ExperimentService {
                 log.error("Not enough users for nodes")
                 throw new Exception("Not enough users for nodes")
             }
-            nodes.each {
-                UserSession userSession = sessions.pop()
+
+            // Select the required number of users from the beginning of the sorted list
+            List<UserSession> selectedUsers = sessions.take(nodes.size())
+
+            // Assign selected users to nodes
+            selectedUsers.eachWithIndex { userSession, index ->
                 userSession.selected = true
-                userSession.userAlias = it
+                userSession.userAlias = nodes[index]
                 active << userSession
+                log.info("User ${userSession.user.workerId} (${userSession.started}) assigned to node ${nodes[index]}")
             }
-            sessions.each {
-                it.state = UserSession.State.REJECTED
+
+            // Remove selected users from the original list
+            sessions.removeAll(selectedUsers)
+
+            // Reject remaining users
+            sessions.each { userSession ->
+                userSession.state = UserSession.State.REJECTED
+                log.info("User ${userSession.id} rejected")
             }
+
+
+//        sessions = sessions.sort {
+//            Date time = it.started?:sessionMap[it].lastSeen.time
+//            return time
+//        }
+//
+//        if (sessions.size() < numUsers) {
+//            log.warn("Not enough users (${sessions.size()} < ${numUsers}) to fill session!")
+//            throw new Exception("Insufficient users for session; make sure all users are active")
+//        }
+//        List<UserSession> active = []
+//        SessionType type = session.sessionParameters.safeGetSessionType()
+//        if (type.state == SessionType.State.SINGLE) {
+//            if (nodes.size() > sessions.size()) {
+//                log.error("Not enough users for nodes")
+//                throw new Exception("Not enough users for nodes")
+//            }
+//            nodes.each {
+//                UserSession userSession = sessions.remove(0)
+//                userSession.selected = true
+//                userSession.userAlias = it
+//                active << userSession
+//            }
+//            sessions.each {
+//                it.state = UserSession.State.REJECTED
+//            }
 
 
         } else if (type.state == SessionType.State.MIXED) {
@@ -253,10 +295,8 @@ class ExperimentService {
             it.state = UserSession.State.ACTIVE
             User user = it.user
             Story story = it.session.sessionParameters.safeGetStory()
-            log.debug("Setting constraint value for $story for $user.username")
             constraintService.setConstraintValueForUser(user, story, 1, user.isMturkWorker() ? it?.mturkAssignment?.hit?.task?.credentials : null)
             if (story.seed) {
-                log.debug("Setting story seed constraint value for $story.seed for $user.username")
                 constraintService.setConstraintValueForUser(user, story.seed, 1, user.isMturkWorker() ? it?.mturkAssignment?.hit?.task?.credentials : null)
             }
 

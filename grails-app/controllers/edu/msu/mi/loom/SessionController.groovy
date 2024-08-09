@@ -238,6 +238,7 @@ class SessionController {
 
                 }
                 //NOTE: User session is explicitly set to WAITING on creation
+                log.debug("Adding user ${user.username} for session ${session.id}")
                 us = UserSession.create(user, session, new Date(), mturkAssignment, true)
             }
 
@@ -268,10 +269,11 @@ class SessionController {
                     LinkedHashMap<Object, Object> model = generateRoundModel(session, user)
                     return render(view: 'experiment', model: model)
                 }
+            } else {
+                log.debug("User ${user.workerId} was not selected")
+                flash.message = SESSION_FILLED
+                return render(view:"../not-found")
             }
-
-            //User was never selected, so we don't really care about their state
-            return redirect(controller: "logout", action: "index", params: [reason: "The session is full", sessionId: session.id])
 
         } else if (session.state == Session.State.FINISHED) {
             if (us.state == UserSession.State.ACTIVE) {
@@ -300,12 +302,15 @@ class SessionController {
             //TODO - if a session is canceled, it CANNOT be started again.  Need to verify that this is the case
             //
             // TODO - STOPPED HERE 9/4/23 4:07PM - need to make sure  users can rejoin session
+
+
             return render(view: "cancel_waiting", model: [time: us.wait_time, user: user, session: session])
 //                render(view: 'cancel')
 
         }
 
         //Something went wrong
+        log.warn("Bottomed out in sesssion handler for ${user.workerId} and ${sessionId}")
         return render(view:"../not-found")
 
     }
@@ -394,7 +399,7 @@ class SessionController {
      * @return
      */
     def checkExperimentReadyState() {
-        log.debug("Checking experiment ready")
+        //log.debug("Checking experiment ready")
         Session.withNewSession {
             def session = Session.get(params.session)
             if (!session) {
@@ -408,7 +413,8 @@ class SessionController {
                 return render(["experiment_ready": false, count: experimentService.totalCountWaitingUsers(session)] as JSON)
 
             } else {
-                log.debug("Done waiting")
+
+                log.debug("${user.username} Done waiting")
                 return render(["experiment_ready": true, count: 0] as JSON)
             }
         }

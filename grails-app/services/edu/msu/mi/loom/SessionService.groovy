@@ -149,8 +149,7 @@ class SessionService {
             UserSessionPresence.withNewSession { session ->
                 UserSessionPresence us = UserSessionPresence.findByUser(user)
                 if (!us) {
-                    println("No user presence")
-                    log.warn("No user session for ${user} and ${User}")
+                    log.debug("Creating new user presence for ${user}")
                     us = new UserSessionPresence(user: user)
                     us.save(flush: true)
 
