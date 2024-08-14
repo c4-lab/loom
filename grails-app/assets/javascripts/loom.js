@@ -572,7 +572,60 @@ function calculateTime() {
 var roundInterval;
 var pingTimer;
 
+function submitSimulationAjax() {
+    $(".ui-draggable-dragging").remove();
+    //if ($(".ui-draggable-dragging").length > 0) {
+    //    $(".ui-draggable-dragging").remove();
+    //    //$('html').on('mouseup', function () {
+    //    //
+    //    //    $(".ui-draggable-dragging").draggable("destroy");
+    //    //});
+    //}
+    clearInterval(roundInterval);
+    var elems = $(".dvDest").find('ul li');
+    var text_all = elems.map(function () {
+        return $(this).attr('drag-id');
+    }).get().join(";");
 
+    console.log(text_all);
+    $.blockUI({
+        message: '<h1>Waiting for other participants...</h1>', timeout: 1000
+    });
+
+    $.ajax({
+        url: "/loom/training/submitSimulation", type: 'POST', data: {
+            tiles: text_all,
+            trainingSetId: $("input[name='trainingSetId']").val(),
+            simulation: $("#simulationid").val(),
+            roundNumber: $("#roundNumber .round").text(),
+            assignmentId: $("#assignmentId").val()
+
+
+        }
+    }).success(function (data) {
+        localStorage.setItem('remainingTime', 'null');
+        if (data.indexOf("status") >= 0) {
+            confirmSimNav = false;
+            const simulationId = $("#simulationid").val();
+            const assignmentId = $("#assignmentId").val();
+            const trainingSetId = $("input[name='trainingSetId']").val();
+
+            window.location.href = `/loom/training/viewSimulationScores?simulationId=${simulationId}&assignmentId=${assignmentId}&trainingSetId=${trainingSetId}`;
+
+        } else {
+            setTimeout(function () {
+                $("#simulation-content-wrapper").html(data);
+                initSimulation();
+            }, 1000);
+        }
+    }).error(function (jqXHR, textStatus, errorThrown) {
+        console.log("Error thrown: " + errorThrown)
+        console.log("Status: " + textStatus)
+        $(".dvDest").css('border', 'solid 1px red');
+        $("#warning-alert").addClass('show');
+        $("#warning-alert").removeClass('hide');
+    });
+}
 
 
 function startSimulationTimer(duration, display) {
